@@ -203,60 +203,75 @@
   <!-- ==================== MAIN BROADCAST BODY (WHITE THEME) ==================== -->
   <main class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 flex-1 flex flex-col">
 
-    <!-- HERO STATS & PROGRESS BAR -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <!-- HERO STATS, PROGRESS BAR & ALWAYS-ON AI QR CODE -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4">
       <!-- ตัวเลขใหญ่ 3 ช่อง -->
-      <div class="lg:col-span-7 grid grid-cols-3 gap-3 sm:gap-4">
+      <div class="lg:col-span-5 grid grid-cols-3 gap-2.5 sm:gap-3">
         <!-- เข้าร่วมแล้ว -->
-        <div class="official-panel rounded-2xl p-4 sm:p-5 border-t-4 border-t-emerald-600">
-          <p class="text-xs sm:text-sm font-semibold text-emerald-700 flex items-center gap-1.5">
-            <i data-lucide="check-circle-2" class="w-4 h-4 shrink-0"></i> เข้าร่วมแล้ว
+        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-emerald-600 flex flex-col justify-between">
+          <p class="text-[11px] sm:text-xs font-semibold text-emerald-700 flex items-center gap-1">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 shrink-0"></i> เข้าร่วมแล้ว
           </p>
-          <div class="flex items-baseline gap-2 mt-1.5">
-            <span id="stat-checked" class="font-mono text-3xl sm:text-5xl font-extrabold text-emerald-600">0</span>
-            <span class="text-xs sm:text-sm text-slate-500">นาย/ท่าน</span>
+          <div class="flex items-baseline gap-1.5 mt-1.5">
+            <span id="stat-checked" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-emerald-600">0</span>
+            <span class="text-[11px] text-slate-500">ราย</span>
           </div>
         </div>
 
         <!-- ยังไม่เข้าร่วม -->
-        <div class="official-panel rounded-2xl p-4 sm:p-5 border-t-4 border-t-police-maroon">
-          <p class="text-xs sm:text-sm font-semibold text-police-maroon flex items-center gap-1.5">
-            <i data-lucide="clock" class="w-4 h-4 shrink-0"></i> ยังไม่เข้าร่วม
+        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-maroon flex flex-col justify-between">
+          <p class="text-[11px] sm:text-xs font-semibold text-police-maroon flex items-center gap-1">
+            <i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i> ยังไม่มา
           </p>
-          <div class="flex items-baseline gap-2 mt-1.5">
-            <span id="stat-pending" class="font-mono text-3xl sm:text-5xl font-extrabold text-police-maroon">0</span>
-            <span class="text-xs sm:text-sm text-slate-500">นาย/ท่าน</span>
+          <div class="flex items-baseline gap-1.5 mt-1.5">
+            <span id="stat-pending" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-police-maroon">0</span>
+            <span class="text-[11px] text-slate-500">ราย</span>
           </div>
         </div>
 
         <!-- เป้าหมายทั้งหมด -->
-        <div class="official-panel rounded-2xl p-4 sm:p-5 border-t-4 border-t-police-navy">
-          <p class="text-xs sm:text-sm font-semibold text-police-navy flex items-center gap-1.5">
-            <i data-lucide="users" class="w-4 h-4 shrink-0"></i> เป้าหมายทั้งหมด
+        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-navy flex flex-col justify-between">
+          <p class="text-[11px] sm:text-xs font-semibold text-police-navy flex items-center gap-1">
+            <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i> เป้าหมาย
           </p>
-          <div class="flex items-baseline gap-2 mt-1.5">
-            <span id="stat-total" class="font-mono text-3xl sm:text-5xl font-extrabold text-slate-900">0</span>
-            <span class="text-xs sm:text-sm text-slate-500">นาย/ท่าน</span>
+          <div class="flex items-baseline gap-1.5 mt-1.5">
+            <span id="stat-total" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-slate-900">0</span>
+            <span class="text-[11px] text-slate-500">ราย</span>
           </div>
         </div>
       </div>
 
       <!-- แถบความคืบหน้าภาพรวม -->
-      <div class="lg:col-span-5 official-panel rounded-2xl p-4 sm:p-5 border-t-4 border-t-police-gold flex flex-col justify-between gap-3">
+      <div class="lg:col-span-4 official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-gold flex flex-col justify-between gap-2.5">
         <div class="flex items-center justify-between gap-2">
-          <div>
-            <p class="text-xs sm:text-sm font-bold text-slate-900">อัตราการรายงานตัวเข้าร่วมสัมมนา</p>
-            <p class="text-xs text-slate-500 mt-0.5">ประจำวันที่ <span id="hero-day-label" class="text-police-navy font-semibold">30 พ.ย. 69</span> • อัปเดตอัตโนมัติทุก 8 วินาที</p>
+          <div class="min-w-0">
+            <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">อัตราการรายงานตัวเข้าร่วมสัมมนา</p>
+            <p class="text-[11px] text-slate-500 mt-0.5 truncate">วันที่ <span id="hero-day-label" class="text-police-navy font-semibold">30 พ.ย. 69</span> • อัปเดตทุก 8 วิ</p>
           </div>
-          <span id="stat-percent" class="font-mono text-3xl sm:text-4xl font-extrabold text-police-navy">0%</span>
+          <span id="stat-percent" class="font-mono text-2xl sm:text-3xl xl:text-4xl font-extrabold text-police-navy shrink-0">0%</span>
         </div>
 
-        <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
           <div id="stat-progress-bar" class="h-full rounded-full bg-gradient-to-r from-police-navy via-police-gold to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
         </div>
 
         <!-- สรุปย่อรายหน่วยหลัก (แถบเลื่อนแนวนอน) -->
         <div id="unit-pills" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px]"></div>
+      </div>
+
+      <!-- การ์ด QR Code แชทบอทตำรวจคู่หูจราจร AI (แสดงค้างบนจอตลอดเวลา สแกนได้ทันที) -->
+      <div onclick="openAiQrSpotlight()" title="คลิกเพื่อขยาย QR Code เต็มจอ" class="lg:col-span-3 cursor-pointer group rounded-2xl p-3 sm:p-3.5 bg-gradient-to-br from-police-navyDark via-police-navy to-police-maroonDark border-2 border-police-gold shadow-md flex items-center gap-3 text-white hover:shadow-lg transition">
+        <div class="bg-white p-1.5 rounded-xl shadow-inner shrink-0 group-hover:scale-105 transition">
+          <div id="always-on-ai-qr" class="w-[96px] h-[96px] flex items-center justify-center"></div>
+        </div>
+        <div class="min-w-0 flex-1 space-y-1">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-police-gold/25 border border-police-gold/60 text-police-goldLight text-[10px] font-bold uppercase tracking-wider">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Scan Anytime
+          </span>
+          <h3 class="text-sm sm:text-base font-extrabold text-white leading-tight truncate">👮‍♂️ คู่หูจราจร AI</h3>
+          <p class="text-[11px] text-blue-100/90 leading-snug line-clamp-2">สแกนเข้าใช้งานแชทบอทตำรวจคู่หูจราจรได้ทันที</p>
+          <p class="font-mono text-[10px] text-police-goldLight font-semibold truncate">pinai-fine.police.go.th</p>
+        </div>
       </div>
     </section>
 
@@ -406,6 +421,7 @@
 
     function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
     function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
     let API_URL = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let currentDay = detectDefaultDay();
@@ -436,11 +452,12 @@
       startThaiClock();
       initScrollHoverPause();
       renderLiveTicker();
+      renderAlwaysOnAiQr();
       selectDay(currentDay, false);
       fetchLiveStatus();
-      // อัปเดตข้อมูลหน้าจอห้องสัมมนาอัตโนมัติทุก 8 วินาที
       setInterval(fetchLiveStatus, 8000);
-      // กด Esc เพื่อปิดป๊อปอัป
+
+      // กด Esc เพื่อปิดหน้าต่าง Modal
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           closeAiQrSpotlight();
@@ -450,31 +467,23 @@
       });
     });
 
-    function initScrollHoverPause() {
-      Object.keys(scrollState).forEach(id => {
-        const box = document.getElementById(id);
-        if (!box) return;
-        box.addEventListener('mouseenter', () => { scrollState[id].hovered = true; });
-        box.addEventListener('mouseleave', () => { scrollState[id].hovered = false; });
-      });
-    }
-
-    // นาฬิกาเวลาประเทศไทยแบบ Real-time
+    // ==================== นาฬิกาเวลาไทย REAL-TIME ====================
     function startThaiClock() {
-      const tick = () => {
+      const updateClock = () => {
         const now = new Date();
-        document.getElementById('live-clock').textContent = now.toLocaleTimeString('th-TH', {
-          hour12: false, timeZone: 'Asia/Bangkok'
-        });
-        document.getElementById('live-date').textContent = now.toLocaleDateString('th-TH', {
+        const timeStr = now.toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+        const dateStr = now.toLocaleDateString('th-TH', {
           weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Bangkok'
         });
+        document.getElementById('live-clock').textContent = timeStr;
+        document.getElementById('live-date').textContent = dateStr;
       };
-      tick();
-      setInterval(tick, 1000);
+      updateClock();
+      setInterval(updateClock, 1000);
     }
 
-    function selectDay(dayKey, reload = true) {
+    // ==================== เลือกวันสัมมนา ====================
+    function selectDay(dayKey, shouldRender = true) {
       currentDay = dayKey;
       isFirstLoad = true;
       knownCheckedIds.clear();
@@ -483,39 +492,47 @@
         const btn = document.getElementById(`m-${k}`);
         if (!btn) return;
         btn.className = k === dayKey
-          ? 'px-3 py-1.5 rounded-lg font-bold bg-police-gold text-police-maroonDark shadow transition'
-          : 'px-3 py-1.5 rounded-lg font-medium text-amber-100/80 hover:text-white transition';
+          ? 'px-3 py-1.5 rounded-lg font-bold bg-police-gold text-police-maroonDark shadow-sm transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white hover:bg-white/10 transition';
       });
-      document.getElementById('hero-day-label').textContent = DAY_CONFIG[dayKey].label;
-      if (reload) renderBoard();
+
+      const heroDay = document.getElementById('hero-day-label');
+      if (heroDay) heroDay.textContent = DAY_CONFIG[dayKey].label;
+      if (shouldRender) renderBoard();
     }
 
-    // แปลงค่าเวลา (รวมถึงกรณีข้อมูลเก่าติด 1899 GMT+0642) ให้เป็นเวลาไทย
+    // ==================== ดึงข้อมูลสดจาก GOOGLE SHEETS ====================
     function formatThaiTime(val) {
       const s = String(val || '').trim();
       if (!s || s === 'ยังไม่มา' || s === '-') return '';
       if (s.includes('1899') || s.includes('GMT')) {
         const d = new Date(s);
         if (!isNaN(d.getTime())) {
-          return d.toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          return d.toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.';
         }
         const m = s.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
-        if (m) return m[1];
+        if (m) return m[1] + ' น.';
       }
-      return s.replace(/\s*น\.$/, '');
+      if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(s)) return s + ' น.';
+      return s;
     }
 
-    function isCheckedIn(p) {
-      const v = String(p[currentDay] || '').trim();
+    function isCheckedIn(p, dayKey = currentDay) {
+      const v = String(p[dayKey] || '').trim();
       return v !== '' && v !== 'ยังไม่มา' && v !== '-';
     }
 
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
+
     async function fetchLiveStatus() {
+      const syncEl = document.getElementById('last-sync-text');
       try {
         const res = await fetch(`${API_URL}?action=getParticipants`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        if (json.status !== 'success') throw new Error(json.message || 'Load error');
+        if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
 
         participants = (json.data || []).map(p => ({
           ...p,
@@ -524,56 +541,57 @@
           position: String(p.position || ''),
           mainUnit: String(p.mainUnit || p.group || 'อื่นๆ'),
           unitDetail: String(p.unitDetail || p.unit || ''),
-          rsvp: String(p.rsvp || ''),
-          substituteName: String(p.substituteName || '').trim(),
-          substitutePosition: String(p.substitutePosition || '').trim(),
+          rsvp: String(p.rsvp || 'รอการยืนยัน'),
           day1: formatThaiTime(p.day1),
           day2: formatThaiTime(p.day2),
-          day3: formatThaiTime(p.day3)
+          day3: formatThaiTime(p.day3),
+          substituteName: String(p.substituteName || '').trim(),
+          substitutePosition: String(p.substitutePosition || '').trim()
         }));
 
-        // ตรวจจับผู้ที่เพิ่งสแกนเช็กอินเข้ามาใหม่เพื่อเด้งป๊อปอัปต้อนรับ VIP
-        const currentChecked = participants.filter(p => isCheckedIn(p));
-        if (!isFirstLoad) {
-          const newlyArrived = currentChecked.filter(p => !knownCheckedIds.has(p.id));
-          if (newlyArrived.length > 0) {
-            showVipWelcome(newlyArrived[newlyArrived.length - 1]);
+        // ตรวจหาผู้เข้าร่วมที่เพิ่งเช็กอินใหม่เพื่อเด้งป้าย VIP ต้อนรับ
+        const newlyChecked = [];
+        participants.forEach(p => {
+          if (isCheckedIn(p)) {
+            if (!isFirstLoad && !knownCheckedIds.has(p.id)) {
+              newlyChecked.push(p);
+            }
+            knownCheckedIds.add(p.id);
           }
-        }
-        knownCheckedIds = new Set(currentChecked.map(p => p.id));
+        });
         isFirstLoad = false;
 
-        renderBoard();
+        if (newlyChecked.length > 0) {
+          showVipWelcome(newlyChecked[0]);
+        }
 
-        const syncTime = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
-        const syncEl = document.getElementById('last-sync-text');
-        if (syncEl) syncEl.textContent = `อัปเดตล่าสุด ${syncTime} น. (เชื่อมต่อ Google Sheets)`;
+        renderBoard();
+        const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+        if (syncEl) syncEl.textContent = `อัปเดตล่าสุด: ${nowStr} น.`;
       } catch (err) {
-        console.error('fetchLiveStatus error:', err);
-        const syncEl = document.getElementById('last-sync-text');
-        if (syncEl) syncEl.textContent = `เชื่อมต่อข้อมูลไม่สำเร็จ (${err.message})`;
+        if (syncEl) syncEl.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
       }
     }
 
-    // แสดงผลตัวเลขสถิติ แถบความคืบหน้า และรายชื่อแยกซ้าย-ขวา
+    // ==================== แสดงผลกระดานซ้าย-ขวา และสถิติ ====================
     function renderBoard() {
       const total = participants.length;
       const checkedList = participants
         .filter(p => isCheckedIn(p))
-        .sort((a, b) => String(b[currentDay] || '').localeCompare(String(a[currentDay] || '')));
+        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
       const pendingList = participants
         .filter(p => !isCheckedIn(p))
         .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
 
       const checkedCount = checkedList.length;
       const pendingCount = pendingList.length;
-      const percent = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+      const pct = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
 
       document.getElementById('stat-checked').textContent = checkedCount;
       document.getElementById('stat-pending').textContent = pendingCount;
       document.getElementById('stat-total').textContent = total;
-      document.getElementById('stat-percent').textContent = `${percent}%`;
-      document.getElementById('stat-progress-bar').style.width = `${percent}%`;
+      document.getElementById('stat-percent').textContent = `${pct}%`;
+      document.getElementById('stat-progress-bar').style.width = `${pct}%`;
       document.getElementById('left-count-badge').textContent = `${checkedCount} ราย`;
       document.getElementById('right-count-badge').textContent = `${pendingCount} ราย`;
 
@@ -585,164 +603,169 @@
         unitMap[u].total++;
         if (isCheckedIn(p)) unitMap[u].checked++;
       });
-      const unitKeys = Object.keys(unitMap).sort((a, b) =>
-        (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) -
-        (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b))
-      );
+      const unitKeys = Object.keys(unitMap).sort((a, b) => {
+        const ia = UNIT_ORDER.indexOf(a);
+        const ib = UNIT_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
       document.getElementById('unit-pills').innerHTML = unitKeys.map(u => {
-        const st = unitMap[u];
-        const doneAll = st.total > 0 && st.checked === st.total;
+        const item = unitMap[u];
+        const done = item.checked === item.total && item.total > 0;
         return `
-          <span class="px-2.5 py-1 rounded-full border shrink-0 font-medium ${doneAll ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-700'}">
-            ${escapeHtml(u)} <strong class="font-mono ${doneAll ? 'text-emerald-700' : 'text-police-navy'}">${st.checked}/${st.total}</strong>
+          <span class="shrink-0 px-2 py-0.5 rounded-full font-semibold border ${done ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-600'}">
+            ${escapeHtml(u)} <span class="font-mono ${done ? 'text-emerald-700' : 'text-police-navy'}">${item.checked}/${item.total}</span>
           </span>
         `;
       }).join('');
 
-      // การ์ดฝั่งซ้าย (เข้าร่วมแล้ว)
-      const checkedGrid = document.getElementById('checked-grid');
-      if (checkedList.length === 0) {
-        checkedGrid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้รายงานตัวในวันนี้</div>`;
-      } else {
-        checkedGrid.innerHTML = checkedList.map(p => {
-          const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
-          const showName = isSub ? p.substituteName : p.fullName;
-          const showPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || '');
-          return `
-            <div class="bg-white rounded-xl p-3 border border-emerald-200 shadow-sm flex items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">${escapeHtml(p.id)}</span>
-                  <span class="text-[11px] font-semibold text-police-navy truncate">${escapeHtml(p.mainUnit)}</span>
-                  ${isSub ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">ผู้แทน</span>` : ''}
+      // ฝั่งซ้าย: เข้าร่วมแล้ว
+      document.getElementById('checked-grid').innerHTML = checkedList.length === 0
+        ? `<div class="col-span-full py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้รายงานตัวในวันนี้</div>`
+        : checkedList.map(p => {
+            const isSub = hasSubstitute(p);
+            const name = isSub ? p.substituteName : p.fullName;
+            const subInfo = isSub ? `ผู้แทน: ${p.fullName}` : (p.position || '');
+            return `
+              <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-sm flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">${escapeHtml(p.id)}</span>
+                    <span class="text-[11px] font-semibold text-police-navy truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                  </div>
+                  <p class="font-bold text-sm text-slate-900 truncate mt-1">${escapeHtml(name)}</p>
+                  ${subInfo ? `<p class="text-[11px] text-slate-500 truncate">${escapeHtml(subInfo)}</p>` : ''}
                 </div>
-                <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate mt-1">${escapeHtml(showName)}</h3>
-                <p class="text-xs text-slate-500 truncate">${escapeHtml(showPos || p.unitDetail)}</p>
-                ${isSub ? `<p class="text-[11px] text-purple-700 truncate">มาแทน: ${escapeHtml(p.fullName)}</p>` : ''}
+                <span class="shrink-0 px-2 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-[11px] font-bold text-emerald-700">
+                  ${escapeHtml(p[currentDay])}
+                </span>
               </div>
-              <div class="shrink-0 text-right">
-                <span class="inline-block px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-xs font-bold text-emerald-700">${escapeHtml(p[currentDay])} น.</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+            `;
+          }).join('');
 
-      // การ์ดฝั่งขวา (ยังไม่เข้าร่วม)
-      const pendingGrid = document.getElementById('pending-grid');
-      if (pendingList.length === 0) {
-        pendingGrid.innerHTML = `<div class="col-span-full py-16 text-center text-emerald-700 font-bold text-base">ผู้เข้าร่วมรายงานตัวครบทุกท่านแล้ว!</div>`;
-      } else {
-        pendingGrid.innerHTML = pendingList.map(p => {
-          const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
-          const showName = isSub ? p.substituteName : p.fullName;
-          const showPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || '');
-          return `
-            <div class="bg-white rounded-xl p-3 border border-rose-200/80 shadow-sm flex items-start justify-between gap-2">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-rose-100 text-police-maroonDark">${escapeHtml(p.id)}</span>
-                  <span class="text-[11px] font-semibold text-slate-600 truncate">${escapeHtml(p.mainUnit)}</span>
-                  ${isSub ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">ผู้แทน</span>` : ''}
+      // ฝั่งขวา: ยังไม่เข้าร่วม
+      document.getElementById('pending-grid').innerHTML = pendingList.length === 0
+        ? `<div class="col-span-full py-16 text-center text-emerald-600 font-bold text-base">ผู้เข้าร่วมรายงานตัวครบทุกคนแล้ว!</div>`
+        : pendingList.map(p => {
+            const isSub = hasSubstitute(p);
+            const name = isSub ? p.substituteName : p.fullName;
+            const subInfo = isSub ? `ผู้แทน: ${p.fullName}` : (p.position || '');
+            return `
+              <div class="bg-white p-3 rounded-xl border border-rose-200/80 shadow-sm flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-police-maroonDark">${escapeHtml(p.id)}</span>
+                    <span class="text-[11px] font-semibold text-slate-600 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                  </div>
+                  <p class="font-semibold text-sm text-slate-800 truncate mt-1">${escapeHtml(name)}</p>
+                  ${subInfo ? `<p class="text-[11px] text-slate-400 truncate">${escapeHtml(subInfo)}</p>` : ''}
                 </div>
-                <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate mt-1">${escapeHtml(showName)}</h3>
-                <p class="text-xs text-slate-500 truncate">${escapeHtml(showPos || p.unitDetail)}</p>
-                ${isSub ? `<p class="text-[11px] text-purple-700 truncate">มาแทน: ${escapeHtml(p.fullName)}</p>` : ''}
+                <span class="shrink-0 px-2 py-0.5 rounded-lg bg-slate-100 text-[10px] font-semibold text-slate-500">รอลงทะเบียน</span>
               </div>
-              <div class="shrink-0">
-                <span class="inline-block px-2 py-0.5 rounded-full bg-rose-50 text-police-maroon text-[11px] font-semibold border border-rose-200">รอเช็กอิน</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+            `;
+          }).join('');
     }
 
-    // ป๊อปอัปต้อนรับ VIP เมื่อมีผู้สแกนเช็กอินใหม่เข้ามา
+    // ==================== VIP WELCOME BANNER ====================
     function showVipWelcome(p) {
-      if (!p) return;
-      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+      const banner = document.getElementById('vip-welcome-banner');
+      if (!banner) return;
+      const isSub = hasSubstitute(p);
       document.getElementById('vip-name').textContent = isSub ? p.substituteName : p.fullName;
       document.getElementById('vip-unit').textContent = isSub
         ? `ผู้แทน ${p.fullName} • ${p.unitDetail || p.mainUnit}`
-        : `${p.position ? p.position + ' • ' : ''}${p.unitDetail || p.mainUnit}`;
-      document.getElementById('vip-time').textContent = p[currentDay] ? `เวลา ${p[currentDay]} น.` : '';
+        : `${p.position || ''} • ${p.unitDetail || p.mainUnit}`.replace(/^\s*•\s*/, '');
+      document.getElementById('vip-time').textContent = p[currentDay] || '';
 
-      const banner = document.getElementById('vip-welcome-banner');
       banner.classList.remove('hidden', 'welcome-animate');
-      void banner.offsetWidth; // รีเซ็ตแอนิเมชัน
+      void banner.offsetWidth; // trigger reflow
       banner.classList.add('welcome-animate');
       setTimeout(() => banner.classList.add('hidden'), 5300);
     }
 
-    // โหมดเลื่อนรายชื่ออัตโนมัติแบบวนลูปสมบูรณ์ (หยุดพัก 2.5 วิ เมื่อถึงล่างสุด แล้วค่อยๆ วนขึ้นบนสุดอย่างนุ่มนวล)
+    // ==================== AUTO-SCROLL วนลูปนุ่มนวลไม่ค้าง ====================
+    function initScrollHoverPause() {
+      Object.keys(scrollState).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('mouseenter', () => { scrollState[id].hovered = true; });
+        el.addEventListener('mouseleave', () => { scrollState[id].hovered = false; });
+      });
+    }
+
     function toggleAutoScroll() {
       autoScrollEnabled = !autoScrollEnabled;
-      const label = document.getElementById('autoscroll-label');
       const btn = document.getElementById('btn-autoscroll');
+      const label = document.getElementById('autoscroll-label');
 
       if (autoScrollEnabled) {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: เปิด';
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-police-gold text-police-maroonDark border border-police-goldLight text-xs font-bold transition';
-
-        // รีเซ็ตสถานะเริ่มต้นของทั้ง 2 ฝั่ง
+        btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-xs font-bold text-white transition';
+        const now = Date.now();
         Object.keys(scrollState).forEach(id => {
           scrollState[id].phase = 'scrolling';
-          scrollState[id].pauseUntil = 0;
+          scrollState[id].pauseUntil = now + 1000;
         });
-
-        if (autoScrollTimer) clearInterval(autoScrollTimer);
-        autoScrollTimer = setInterval(() => {
-          const now = Date.now();
-          Object.keys(scrollState).forEach(id => {
-            const box = document.getElementById(id);
-            const st = scrollState[id];
-            if (!box || st.hovered || now < st.pauseUntil) return;
-
-            const maxScroll = box.scrollHeight - box.clientHeight;
-            if (maxScroll <= 4) return;
-
-            if (st.phase === 'scrolling') {
-              if (box.scrollTop >= maxScroll - 2) {
-                // ถึงรายชื่อล่างสุดแล้ว -> หยุดค้างให้อ่าน 2.5 วินาที ก่อนวนกลับขึ้นบนสุด
-                st.phase = 'resetting';
-                st.pauseUntil = now + 2500;
-              } else {
-                box.scrollTop += 1;
-              }
-            } else if (st.phase === 'resetting') {
-              // เลื่อนกลับขึ้นบนสุดด้วยความเร็วแบบชะลอตัว (ไม่ตีกับ smooth scroll ของเบราว์เซอร์)
-              const step = Math.max(12, Math.ceil(box.scrollTop * 0.14));
-              box.scrollTop = Math.max(0, box.scrollTop - step);
-              if (box.scrollTop <= 1) {
-                box.scrollTop = 0;
-                st.phase = 'scrolling';
-                // หยุดค้างด้านบน 2 วินาที แล้วเริ่มเลื่อนลงรอบใหม่
-                st.pauseUntil = now + 2000;
-              }
-            }
-          });
-        }, 38);
+        if (!autoScrollTimer) {
+          autoScrollTimer = setInterval(stepAutoScroll, 45);
+        }
       } else {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: ปิด';
         btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition';
-        if (autoScrollTimer) { clearInterval(autoScrollTimer); autoScrollTimer = null; }
+        if (autoScrollTimer) {
+          clearInterval(autoScrollTimer);
+          autoScrollTimer = null;
+        }
+      }
+    }
+
+    function stepAutoScroll() {
+      const now = Date.now();
+      Object.keys(scrollState).forEach(id => {
+        const el = document.getElementById(id);
+        const st = scrollState[id];
+        if (!el || st.hovered || now < st.pauseUntil) return;
+
+        const maxScroll = el.scrollHeight - el.clientHeight;
+        if (maxScroll <= 4) return;
+
+        if (st.phase === 'scrolling') {
+          if (el.scrollTop + 1.5 >= maxScroll) {
+            el.scrollTop = maxScroll;
+            st.phase = 'returning';
+            st.pauseUntil = now + 2500; // หยุดพักอ่านท้ายสุด 2.5 วินาที
+          } else {
+            el.scrollTop += 1.2;
+          }
+        } else if (st.phase === 'returning') {
+          el.scrollTo({ top: 0, behavior: 'smooth' });
+          st.phase = 'scrolling';
+          st.pauseUntil = now + 2000; // พักด้านบน 2 วินาทีก่อนเริ่มรอบใหม่
+        }
+      });
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
       }
     }
 
     // ==================== COUNTDOWN TIMER ====================
     function openCountdownModal() {
       document.getElementById('countdown-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
     }
-    function closeCountdownModal() { document.getElementById('countdown-modal').classList.add('hidden'); }
+    function closeCountdownModal() {
+      document.getElementById('countdown-modal').classList.add('hidden');
+    }
 
     function startCountdown(minutes) {
-      closeCountdownModal();
       const title = document.getElementById('cd-title-input').value.trim() || 'เริ่มการสัมมนาในอีก';
-      document.getElementById('countdown-title-display').textContent = title;
       countdownRemainingSec = Math.max(1, minutes) * 60;
+      document.getElementById('countdown-title-display').textContent = title;
       document.getElementById('countdown-banner').classList.remove('hidden');
+      closeCountdownModal();
 
       if (countdownTimer) clearInterval(countdownTimer);
       updateCountdownDisplay();
@@ -752,84 +775,102 @@
         if (countdownRemainingSec <= 0) {
           clearInterval(countdownTimer);
           countdownTimer = null;
-          document.getElementById('countdown-title-display').textContent = `⏰ ครบกำหนดเวลาแล้ว (${title})`;
-          playChimeSound();
+          playChime();
+          document.getElementById('countdown-clock-display').textContent = '00:00';
+          document.getElementById('countdown-title-display').textContent = `${title} — ได้เวลาแล้ว!`;
         }
       }, 1000);
     }
 
     function updateCountdownDisplay() {
-      const m = Math.floor(Math.max(0, countdownRemainingSec) / 60);
-      const s = Math.max(0, countdownRemainingSec) % 60;
-      const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      document.getElementById('countdown-clock-display').textContent = text;
+      const m = String(Math.floor(Math.max(0, countdownRemainingSec) / 60)).padStart(2, '0');
+      const s = String(Math.max(0, countdownRemainingSec) % 60).padStart(2, '0');
+      const formatted = `${m}:${s}`;
+      document.getElementById('countdown-clock-display').textContent = formatted;
       const headerTxt = document.getElementById('countdown-header-text');
-      if (headerTxt) headerTxt.textContent = countdownRemainingSec > 0 ? text : 'นับถอยหลัง';
+      if (headerTxt) headerTxt.textContent = formatted;
     }
 
     function stopCountdown() {
-      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
-      countdownRemainingSec = 0;
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
       document.getElementById('countdown-banner').classList.add('hidden');
       const headerTxt = document.getElementById('countdown-header-text');
       if (headerTxt) headerTxt.textContent = 'นับถอยหลัง';
     }
 
-    function playChimeSound() {
+    function playChime() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [523.25, 659.25, 783.99].forEach((freq, i) => {
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
           osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.14, ctx.currentTime + i * 0.22);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.5);
+          gain.gain.setValueAtTime(0.18, ctx.currentTime + idx * 0.2);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.2 + 0.6);
           osc.connect(gain);
           gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + i * 0.22);
-          osc.stop(ctx.currentTime + i * 0.22 + 0.55);
+          osc.start(ctx.currentTime + idx * 0.2);
+          osc.stop(ctx.currentTime + idx * 0.2 + 0.65);
         });
       } catch (e) {}
     }
 
     // ==================== LIVE NEWS TICKER ====================
     function renderLiveTicker() {
-      const msg = safeStorageGet('ai_seminar_ticker') || DEFAULT_TICKER_MSG;
-      const chunk = `<span class="px-8">${escapeHtml(msg)}</span><span class="text-police-gold">✦</span>`;
-      document.getElementById('live-ticker-track').innerHTML = chunk + chunk + chunk + chunk;
+      const msg = safeStorageGet('ai_seminar_ticker_msg') || DEFAULT_TICKER_MSG;
+      const track = document.getElementById('live-ticker-track');
+      if (!track) return;
+      const chunk = `<span class="px-8">${escapeHtml(msg)}</span>`;
+      track.innerHTML = chunk + chunk;
     }
 
     function openTickerModal() {
-      document.getElementById('ticker-input').value = safeStorageGet('ai_seminar_ticker') || DEFAULT_TICKER_MSG;
+      document.getElementById('ticker-input').value = safeStorageGet('ai_seminar_ticker_msg') || DEFAULT_TICKER_MSG;
       document.getElementById('ticker-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
     }
-    function closeTickerModal() { document.getElementById('ticker-modal').classList.add('hidden'); }
+    function closeTickerModal() {
+      document.getElementById('ticker-modal').classList.add('hidden');
+    }
     function saveTickerMessage() {
-      const val = document.getElementById('ticker-input').value.trim();
-      safeStorageSet('ai_seminar_ticker', val || DEFAULT_TICKER_MSG);
+      const val = document.getElementById('ticker-input').value.trim() || DEFAULT_TICKER_MSG;
+      safeStorageSet('ai_seminar_ticker_msg', val);
       renderLiveTicker();
       closeTickerModal();
     }
 
-    // ==================== AI CHATBOT QR SPOTLIGHT ====================
+    // ==================== AI CHATBOT QR SPOTLIGHT & ALWAYS-ON QR ====================
+    function renderAlwaysOnAiQr() {
+      const box = document.getElementById('always-on-ai-qr');
+      if (!box || typeof QRCode === 'undefined') return;
+      box.innerHTML = '';
+      new QRCode(box, {
+        text: AI_CHATBOT_URL,
+        width: 96,
+        height: 96,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
     function openAiQrSpotlight() {
       const box = document.getElementById('spotlight-ai-qr');
-      box.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(box, { text: AI_CHATBOT_URL, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+      if (box && typeof QRCode !== 'undefined') {
+        box.innerHTML = '';
+        new QRCode(box, {
+          text: AI_CHATBOT_URL,
+          width: 240,
+          height: 240,
+          correctLevel: QRCode.CorrectLevel.M
+        });
       }
       document.getElementById('ai-qr-modal').classList.remove('hidden');
     }
-    function closeAiQrSpotlight() { document.getElementById('ai-qr-modal').classList.add('hidden'); }
 
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
+    function closeAiQrSpotlight() {
+      document.getElementById('ai-qr-modal').classList.add('hidden');
     }
 
     function escapeHtml(str) {
