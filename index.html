@@ -167,6 +167,9 @@
           <a href="badges.html" target="_blank" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium shadow-sm transition">
             <i data-lucide="id-card" class="w-4 h-4"></i> พิมพ์ป้ายคล้องคอ
           </a>
+          <a href="monitor.html" target="_blank" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 text-sm font-medium shadow-sm transition">
+            <i data-lucide="tv" class="w-4 h-4"></i> จอห้องสัมมนา (Live TV)
+          </a>
           <a href="portal.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-medium transition">
             <i data-lucide="external-link" class="w-4 h-4"></i> Portal
           </a>
@@ -804,6 +807,9 @@
             unitDetail: String(p.unitDetail || p.unit || ''),
             role: String(p.role || ''),
             rsvp: String(p.rsvp || 'รอการยืนยัน'),
+            day1: formatThaiTime(p.day1),
+            day2: formatThaiTime(p.day2),
+            day3: formatThaiTime(p.day3),
             food: String(p.food || 'อาหารทั่วไป'),
             substituteName: String(p.substituteName || '').trim(),
             substitutePosition: String(p.substitutePosition || '').trim(),
@@ -885,6 +891,22 @@
     function isCheckedIn(p, dayKey = currentDay) {
       const v = String(p[dayKey] || '').trim();
       return v !== '' && v !== 'ยังไม่มา' && v !== '-';
+    }
+
+    // แปลงค่าเวลาเช็กอิน (รวมถึงข้อมูลเก่าที่ติด Sat Dec 30 1899 GMT+0642) ให้เป็นเวลาไทย HH:mm:ss น.
+    function formatThaiTime(val) {
+      const s = String(val || '').trim();
+      if (!s || s === 'ยังไม่มา' || s === '-') return '';
+      if (s.includes('1899') || s.includes('GMT')) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.';
+        }
+        const m = s.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
+        if (m) return m[1] + ' น.';
+      }
+      if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(s)) return s + ' น.';
+      return s;
     }
 
     function hasSubstitute(p) {
