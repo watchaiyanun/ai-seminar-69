@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบเช็คชื่อ & Dashboard สัมมนา AI Chatbot (30 พ.ย. - 2 ธ.ค. 69)</title>
+  <title>ระบบลงทะเบียน & Dashboard สัมมนาคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</title>
 
   <!-- Google Fonts: Prompt (UI) & Sarabun (Print Sheet) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +47,6 @@
     body { font-family: 'Prompt', sans-serif; }
     #reader video { border-radius: 0.75rem; object-fit: cover; }
 
-    /* Custom Scrollbar สำหรับกล่องรายชื่อซ้าย-ขวา */
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
@@ -57,7 +56,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 12mm 15mm 12mm;
+        margin: 10mm 10mm 14mm 10mm;
       }
       body {
         background: #ffffff !important;
@@ -71,25 +70,21 @@
       table.print-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 13px;
+        font-size: 12px;
       }
       table.print-table th, table.print-table td {
         border: 1px solid #000000;
-        padding: 5px 6px;
+        padding: 4px 5px;
         vertical-align: middle;
       }
-      table.print-table thead {
-        display: table-header-group;
-      }
-      table.print-table tr {
-        page-break-inside: avoid;
-      }
+      table.print-table thead { display: table-header-group; }
+      table.print-table tr { page-break-inside: avoid; }
     }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
 
-  <!-- ==================== MAIN WEB APP UI (ซ่อนตอนพิมพ์) ==================== -->
+  <!-- ==================== MAIN WEB APP UI ==================== -->
   <div id="app-ui" class="no-print flex flex-col min-h-screen">
 
     <!-- Top Navbar -->
@@ -100,21 +95,21 @@
             <i data-lucide="qr-code" class="w-5 h-5"></i>
           </div>
           <div class="truncate">
-            <h1 class="text-base sm:text-lg font-bold text-navy-800 dark:text-white truncate">
-              ระบบลงทะเบียนสัมมนา AI Chatbot
+            <h1 class="text-sm sm:text-base font-bold text-navy-800 dark:text-white truncate">
+              โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)
             </h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400">30 พ.ย. – 2 ธ.ค. 2569</p>
+            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+              30 พ.ย. – 2 ธ.ค. 2569 ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี
+            </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Auto Refresh Toggle -->
-          <button onclick="toggleAutoRefresh()" id="btn-auto-refresh" title="เปิด/ปิด อัปเดตอัตโนมัติทุก 15 วินาที" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button onclick="toggleAutoRefresh()" id="btn-auto-refresh" title="เปิด/ปิด อัปเดตอัตโนมัติทุก 15 วินาที" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition">
             <span id="auto-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
             <span id="auto-label">Auto-Refresh: ปิด</span>
           </button>
 
-          <!-- Connection Status Badge -->
           <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว
           </span>
@@ -138,7 +133,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5 flex-1">
 
-      <!-- Day Selector & Quick Actions -->
+      <!-- Day Selector & Action Buttons -->
       <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">วันสัมมนา:</span>
@@ -155,7 +150,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="openScannerModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium shadow-sm transition">
-            <i data-lucide="scan-line" class="w-4 h-4"></i> สแกน QR เช็คชื่อ
+            <i data-lucide="scan-line" class="w-4 h-4"></i> สแกน QR เช็กอิน
           </button>
           <button onclick="openWalkInModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium shadow-sm transition">
             <i data-lucide="user-plus" class="w-4 h-4"></i> เพิ่ม Walk-in
@@ -166,89 +161,99 @@
         </div>
       </section>
 
-      <!-- KPI Summary Bar -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">ลงทะเบียนทั้งหมด</p>
-            <p id="kpi-total" class="text-2xl sm:text-3xl font-bold mt-1 text-slate-800 dark:text-white">0</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">รวม Walk-in</p>
+      <!-- Top KPI Cards -->
+      <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400">เป้าหมายทั้งหมด</p>
+          <div class="flex items-baseline justify-between mt-1">
+            <p id="kpi-total" class="text-2xl font-bold text-slate-800 dark:text-white">0</p>
+            <span id="kpi-rsvp-confirm" class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-navy-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">ยืนยัน 0</span>
           </div>
-          <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-400 flex items-center justify-center">
-            <i data-lucide="users" class="w-5 h-5"></i>
+          <p id="kpi-tbd" class="text-[11px] text-slate-400 mt-1">รอระบุชื่อ 0 ราย</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60">
+          <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">เช็กอินแล้ว (ซ้าย)</p>
+          <div class="flex items-baseline justify-between mt-1">
+            <p id="kpi-checked" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</p>
+            <span id="kpi-percent" class="text-xs font-bold text-emerald-600 dark:text-emerald-400">0%</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between">
-          <div class="flex-1 pr-2">
-            <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">เข้าร่วมแล้ว (ซ้าย)</p>
-            <p id="kpi-checked" class="text-2xl sm:text-3xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">0</p>
-            <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
-              <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <i data-lucide="user-check" class="w-5 h-5"></i>
-          </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-800/60">
+          <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">ยังไม่เช็กอิน (ขวา)</p>
+          <p id="kpi-pending" class="text-2xl font-bold mt-1 text-maroon-700 dark:text-rose-400">0</p>
+          <p class="text-[11px] text-slate-400 mt-1">รอลงทะเบียน (<span class="current-day-text">30 พ.ย. 69</span>)</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-800/60 flex items-center justify-between">
-          <div>
-            <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">ยังไม่เข้าร่วม (ขวา)</p>
-            <p id="kpi-pending" class="text-2xl sm:text-3xl font-bold mt-1 text-maroon-700 dark:text-rose-400">0</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">รอลงทะเบียน</p>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400">ยอดเข้าพักโรงแรม</p>
+          <div class="flex items-center gap-3 mt-1.5 text-sm font-bold text-indigo-700 dark:text-indigo-400">
+            <span>30 พ.ย.: <span id="kpi-stay30">0</span></span>
+            <span class="text-slate-300">|</span>
+            <span>1 ธ.ค.: <span id="kpi-stay1">0</span></span>
           </div>
-          <div class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-maroon-600 dark:text-rose-400 flex items-center justify-center">
-            <i data-lucide="user-x" class="w-5 h-5"></i>
-          </div>
+          <p id="kpi-rooms" class="text-[11px] text-slate-400 mt-1">จัดเลขห้องแล้ว 0 ราย</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-          <div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">อัตราการเข้าร่วม</p>
-            <p id="kpi-percent" class="text-2xl sm:text-3xl font-bold mt-1 text-navy-700 dark:text-indigo-400">0%</p>
-            <p id="kpi-eval" class="text-[11px] text-slate-400 mt-0.5">ประเมินแล้ว 0 คน</p>
+        <div class="col-span-2 lg:col-span-1 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400">อาหารพิเศษ & ประเมิน</p>
+          <div class="flex items-center gap-2 mt-1.5 text-xs font-semibold">
+            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">ฮาลาล: <span id="kpi-halal">0</span></span>
+            <span class="px-2 py-0.5 rounded bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300">มังฯ/อื่น: <span id="kpi-veg">0</span></span>
           </div>
-          <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-            <i data-lucide="pie-chart" class="w-5 h-5"></i>
-          </div>
+          <p id="kpi-eval" class="text-[11px] text-slate-400 mt-1.5">ประเมินผลแล้ว 0 ราย</p>
         </div>
       </section>
 
-      <!-- Search, Group Filter & View Switcher -->
-      <section class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center">
-        <div class="relative flex-1 max-w-md">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input
-            type="text"
-            id="search-input"
-            oninput="renderViews()"
-            placeholder="ค้นหารหัส (AI69-01), ชื่อ-สกุล, สังกัด..."
-            class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
-          />
-        </div>
+      <!-- Search, Filters & View Mode Switcher -->
+      <section class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col xl:flex-row gap-3 justify-between items-stretch xl:items-center">
+        <div class="flex flex-col sm:flex-row gap-2 flex-1">
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input
+              type="text"
+              id="search-input"
+              oninput="renderViews()"
+              placeholder="ค้นหารหัส (KM69-01), ชื่อ, สังกัด, เลขห้อง, ทะเบียนรถ..."
+              class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
+            />
+          </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <select id="filter-group" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
-            <option value="all">กลุ่มงาน: ทั้งหมด</option>
+          <select id="filter-unit" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+            <option value="all">หน่วยหลัก: ทั้งหมด</option>
           </select>
 
-          <!-- View Mode Toggle -->
-          <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700">
-            <button onclick="setViewMode('split')" id="view-btn-split" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition">
-              <i data-lucide="columns-2" class="w-3.5 h-3.5"></i> แยกซ้าย-ขวา
-            </button>
-            <button onclick="setViewMode('table')" id="view-btn-table" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
-              <i data-lucide="table-2" class="w-3.5 h-3.5"></i> ตารางรวม
-            </button>
-          </div>
+          <select id="filter-rsvp" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+            <option value="all">การตอบรับ: ทั้งหมด</option>
+            <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม</option>
+            <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
+            <option value="รอการยืนยัน">รอการยืนยัน</option>
+            <option value="ไม่สามารถเข้าร่วม">ไม่สามารถเข้าร่วม</option>
+          </select>
+        </div>
+
+        <!-- 3-Mode View Switcher -->
+        <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 self-start xl:self-auto">
+          <button onclick="setViewMode('split')" id="view-btn-split" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition">
+            <i data-lucide="columns-2" class="w-3.5 h-3.5"></i> แยกซ้าย-ขวา
+          </button>
+          <button onclick="setViewMode('table')" id="view-btn-table" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
+            <i data-lucide="table-2" class="w-3.5 h-3.5"></i> ตารางข้อมูลครบ
+          </button>
+          <button onclick="setViewMode('summary')" id="view-btn-summary" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> สรุปภาพรวม & สำรวจ
+          </button>
         </div>
       </section>
 
-      <!-- ==================== SPLIT VIEW (ซ้าย: เข้าแล้ว | ขวา: ยังไม่เข้า) ==================== -->
+      <!-- ==================== VIEW 1: SPLIT VIEW (ซ้ายเข้าแล้ว | ขวายังไม่เข้า) ==================== -->
       <section id="split-view-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
-        <!-- LEFT COLUMN: เข้าร่วมแล้ว -->
+        <!-- LEFT: เช็กอินแล้ว -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-emerald-200 dark:border-emerald-800/70 overflow-hidden flex flex-col">
           <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -260,17 +265,12 @@
                 <p class="text-[11px] text-emerald-100">เรียงตามเวลาเข้าล่าสุดอยู่ด้านบน (<span class="current-day-text">30 พ.ย. 69</span>)</p>
               </div>
             </div>
-            <span id="split-checked-badge" class="px-3 py-1 rounded-full bg-white text-emerald-700 font-bold text-sm shadow-sm">
-              0 คน
-            </span>
+            <span id="split-checked-badge" class="px-3 py-1 rounded-full bg-white text-emerald-700 font-bold text-sm shadow-sm">0 คน</span>
           </div>
-
-          <div id="checked-list" class="p-3.5 space-y-2.5 max-h-[620px] overflow-y-auto custom-scroll bg-emerald-50/30 dark:bg-slate-900/30 min-h-[240px]">
-            <!-- Checked-in cards injected by JS -->
-          </div>
+          <div id="checked-list" class="p-3.5 space-y-2.5 max-h-[640px] overflow-y-auto custom-scroll bg-emerald-50/30 dark:bg-slate-900/30 min-h-[260px]"></div>
         </div>
 
-        <!-- RIGHT COLUMN: ยังไม่เข้าร่วม -->
+        <!-- RIGHT: ยังไม่เช็กอิน -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-rose-200 dark:border-rose-900/70 overflow-hidden flex flex-col">
           <div class="px-5 py-3.5 bg-gradient-to-r from-maroon-700 to-rose-700 text-white flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -279,45 +279,204 @@
               </div>
               <div>
                 <h2 class="font-bold text-base leading-tight">ยังไม่เข้าร่วม / รอลงทะเบียน</h2>
-                <p class="text-[11px] text-rose-100">เรียงตามรหัสประจำตัว (<span class="current-day-text">30 พ.ย. 69</span>)</p>
+                <p class="text-[11px] text-rose-100">เรียงตามรหัสลำดับ (<span class="current-day-text">30 พ.ย. 69</span>)</p>
               </div>
             </div>
-            <span id="split-pending-badge" class="px-3 py-1 rounded-full bg-white text-maroon-700 font-bold text-sm shadow-sm">
-              0 คน
-            </span>
+            <span id="split-pending-badge" class="px-3 py-1 rounded-full bg-white text-maroon-700 font-bold text-sm shadow-sm">0 คน</span>
           </div>
-
-          <div id="pending-list" class="p-3.5 space-y-2.5 max-h-[620px] overflow-y-auto custom-scroll bg-rose-50/20 dark:bg-slate-900/30 min-h-[240px]">
-            <!-- Pending cards injected by JS -->
-          </div>
+          <div id="pending-list" class="p-3.5 space-y-2.5 max-h-[640px] overflow-y-auto custom-scroll bg-rose-50/20 dark:bg-slate-900/30 min-h-[260px]"></div>
         </div>
-
       </section>
 
-      <!-- ==================== TABLE VIEW (มุมมองตารางรวม) ==================== -->
+      <!-- ==================== VIEW 2: FULL DATA TABLE (ข้อมูลสำรวจครบทุกช่อง) ==================== -->
       <section id="table-view-container" class="hidden bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
-              <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
-                <th class="py-3.5 px-4 font-semibold">รหัส</th>
-                <th class="py-3.5 px-4 font-semibold">ยศ - ชื่อ - สกุล</th>
-                <th class="py-3.5 px-4 font-semibold hidden md:table-cell">ตำแหน่ง / สังกัด</th>
-                <th class="py-3.5 px-4 font-semibold hidden lg:table-cell">กลุ่มงาน</th>
-                <th class="py-3.5 px-4 font-semibold text-center">สถานะ (<span class="current-day-text">30 พ.ย. 69</span>)</th>
-                <th class="py-3.5 px-4 font-semibold text-right">จัดการ (Manual)</th>
+              <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-700">
+                <th class="py-3 px-3 font-semibold">รหัส</th>
+                <th class="py-3 px-3 font-semibold">ยศ ชื่อ - สกุล / ตำแหน่ง</th>
+                <th class="py-3 px-3 font-semibold">หน่วยหลัก / สังกัด</th>
+                <th class="py-3 px-3 font-semibold text-center">ตอบรับ</th>
+                <th class="py-3 px-3 font-semibold text-center">ที่พัก & ห้อง</th>
+                <th class="py-3 px-3 font-semibold text-center">อาหาร / เอกสาร</th>
+                <th class="py-3 px-3 font-semibold text-center">เช็กอิน (<span class="current-day-text">30 พ.ย.</span>)</th>
+                <th class="py-3 px-3 font-semibold text-right">จัดการ</th>
               </tr>
             </thead>
-            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70 text-sm"></tbody>
+            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70"></tbody>
           </table>
         </div>
+      </section>
+
+      <!-- ==================== VIEW 3: EXECUTIVE SUMMARY DASHBOARD (เหมือนหน้าสรุปใน Excel) ==================== -->
+      <section id="summary-view-container" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- 1. สรุปจำนวนแยกตามหน่วยหลัก -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="px-5 py-4 bg-navy-800 text-white flex items-center justify-between">
+            <h2 class="font-bold text-sm sm:text-base">1. สรุปจำนวนผู้เข้าร่วมแยกตามหน่วยหลัก (โควตา vs เช็กอินจริง)</h2>
+            <span class="text-xs text-blue-200 current-day-text">30 พ.ย. 69</span>
+          </div>
+          <div class="p-4 overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr class="text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                  <th class="py-2 text-left">หน่วยหลัก / กลุ่ม</th>
+                  <th class="py-2 text-center">โควตา (คน)</th>
+                  <th class="py-2 text-center">สัดส่วน</th>
+                  <th class="py-2 text-center">เช็กอินแล้ว</th>
+                  <th class="py-2 text-left w-32">ความคืบหน้า</th>
+                </tr>
+              </thead>
+              <tbody id="summary-units-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. สถานะการตอบรับ / เช็กอิน / ที่พัก / อาหาร -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="px-5 py-4 bg-maroon-700 text-white">
+            <h2 class="font-bold text-sm sm:text-base">2. สถานะการตอบรับ / เช็กอิน / ที่พัก / อาหาร (อัปเดตอัตโนมัติ)</h2>
+          </div>
+          <div class="p-4">
+            <table class="w-full text-sm border-collapse">
+              <tbody id="summary-metrics-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
 
     </main>
 
     <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800">
-      ระบบบริหารจัดการผู้เข้าร่วมสัมมนา AI Chatbot • เชื่อมต่อฐานข้อมูล Google Sheets แบบ Real-time
+      ระบบบริหารจัดการผู้เข้าร่วมโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร) • เชื่อมต่อ Google Sheets แบบ Real-time
     </footer>
+  </div>
+
+  <!-- ==================== MODAL: EDIT PARTICIPANT (แก้ไขข้อมูลสำรวจรายบุคคล) ==================== -->
+  <div id="edit-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto">
+      <div class="px-5 py-4 bg-navy-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-5 h-5"></i>
+          <div>
+            <h2 class="font-semibold text-base">แก้ไขข้อมูลผู้เข้าร่วมและรายละเอียดสำรวจ</h2>
+            <p class="text-xs text-blue-200">รหัสประจำตัว: <span id="ed-id-display" class="font-mono font-bold text-white"></span></p>
+          </div>
+        </div>
+        <button onclick="closeEditModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="edit-form" onsubmit="submitEditParticipant(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scroll">
+        <input type="hidden" id="ed-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล *</label>
+            <input type="text" id="ed-name" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง</label>
+            <input type="text" id="ed-position" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หน่วยหลัก</label>
+            <select id="ed-main-unit" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="บช.น.">บช.น.</option>
+              <option value="บช.ก.">บช.ก.</option>
+              <option value="ภ.1">ภ.1</option>
+              <option value="ภ.2">ภ.2</option>
+              <option value="ภ.6">ภ.6</option>
+              <option value="ภ.7">ภ.7</option>
+              <option value="กมค.">กมค.</option>
+              <option value="สงป.">สงป.</option>
+              <option value="สทส.">สทส.</option>
+              <option value="สยศ.ตร.">สยศ.ตร.</option>
+              <option value="หน่วยงานภายนอก">หน่วยงานภายนอก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">สังกัด (รายละเอียด)</label>
+            <input type="text" id="ed-unit-detail" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">บทบาท / หมายเหตุ</label>
+            <input type="text" id="ed-role" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">สถานะตอบรับ</label>
+            <select id="ed-rsvp" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="รอการยืนยัน">รอการยืนยัน</option>
+              <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม</option>
+              <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
+              <option value="ไม่สามารถเข้าร่วม">ไม่สามารถเข้าร่วม</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
+            <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="พัก">พัก</option>
+              <option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
+            <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="พัก">พัก</option>
+              <option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
+            <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
+            <select id="ed-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
+              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
+              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หนังสือส่งตัว</label>
+            <select id="ed-letter" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="ส่งแล้ว">ส่งแล้ว</option>
+              <option value="ยังไม่ส่ง">ยังไม่ส่ง</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ทะเบียนรถ (VIP / ทั่วไป)</label>
+            <input type="text" id="ed-plate" placeholder="เช่น กข 1234 กทม." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="ed-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ยกเลิก</button>
+          <button type="submit" id="ed-submit-btn" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">บันทึกการแก้ไข</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ==================== MODAL: QR CODE SCANNER ==================== -->
@@ -328,7 +487,7 @@
           <i data-lucide="camera" class="w-5 h-5"></i>
           <div>
             <h2 class="font-semibold text-base">สแกน QR Code ป้ายชื่อ</h2>
-            <p class="text-xs text-blue-200">กำลังเช็คชื่อของ: <span id="scanner-day-label" class="font-semibold text-white"></span></p>
+            <p class="text-xs text-blue-200">กำลังเช็กอินของ: <span id="scanner-day-label" class="font-semibold text-white"></span></p>
           </div>
         </div>
         <button onclick="closeScannerModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
@@ -340,13 +499,11 @@
         <div class="relative bg-slate-900 rounded-xl overflow-hidden min-h-[260px] flex items-center justify-center">
           <div id="reader" class="w-full"></div>
         </div>
-
         <div id="scan-result-box" class="hidden p-3.5 rounded-xl border text-sm"></div>
-
         <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
-          <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1.5">หรือพิมพ์รหัสป้ายชื่อ (กรณีกล้องอ่านไม่ได้):</label>
+          <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1.5">หรือพิมพ์รหัสป้ายชื่อ (เช่น KM69-01):</label>
           <div class="flex gap-2">
-            <input type="text" id="manual-qr-input" placeholder="เช่น AI69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-navy-700" />
+            <input type="text" id="manual-qr-input" placeholder="KM69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-navy-700" />
             <button onclick="submitManualCode()" class="px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">ยืนยัน</button>
           </div>
         </div>
@@ -367,39 +524,51 @@
         </button>
       </div>
 
-      <form id="walkin-form" onsubmit="submitWalkIn(event)" class="p-5 space-y-3.5">
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ/คำนำหน้า</label>
-            <input type="text" id="wi-prefix" placeholder="เช่น ร.ต.อ." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
-          </div>
-          <div class="col-span-2">
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ชื่อ - สกุล <span class="text-rose-500">*</span></label>
-            <input type="text" id="wi-name" required placeholder="ระบุชื่อและนามสกุล" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
-          </div>
-        </div>
-
+      <form id="walkin-form" onsubmit="submitWalkIn(event)" class="p-5 space-y-3">
         <div>
-          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง / สังกัด</label>
-          <input type="text" id="wi-unit" placeholder="เช่น รอง สว.จร. / สยศ.ตร." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล *</label>
+          <input type="text" id="wi-name" required placeholder="เช่น ร.ต.อ.สมชาย ใจดี" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
         </div>
-
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">กลุ่มงาน</label>
-            <input type="text" id="wi-group" value="Walk-in" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง</label>
+            <input type="text" id="wi-position" placeholder="เช่น รอง สว.จร." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หน่วยหลัก</label>
+            <select id="wi-main-unit" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="บช.น.">บช.น.</option>
+              <option value="บช.ก.">บช.ก.</option>
+              <option value="ภ.1">ภ.1</option>
+              <option value="ภ.2">ภ.2</option>
+              <option value="ภ.6">ภ.6</option>
+              <option value="ภ.7">ภ.7</option>
+              <option value="กมค.">กมค.</option>
+              <option value="สงป.">สงป.</option>
+              <option value="สทส.">สทส.</option>
+              <option value="สยศ.ตร.">สยศ.ตร.</option>
+              <option value="หน่วยงานภายนอก" selected>หน่วยงานภายนอก</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
+            <select id="wi-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
+              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
+              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+            </select>
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
             <input type="tel" id="wi-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
         </div>
-
         <label class="flex items-center gap-2 pt-1 cursor-pointer">
-          <input type="checkbox" id="wi-checkin-now" checked class="w-4 h-4 rounded text-navy-700 focus:ring-navy-700" />
-          <span class="text-sm text-slate-700 dark:text-slate-300">เช็คชื่อเข้าร่วมใน <strong id="wi-day-text"></strong> ทันที</span>
+          <input type="checkbox" id="wi-checkin-now" checked class="w-4 h-4 rounded text-navy-700" />
+          <span class="text-sm text-slate-700 dark:text-slate-300">เช็กอินเข้าร่วมใน <strong id="wi-day-text"></strong> ทันที</span>
         </label>
-
         <div class="pt-3 flex justify-end gap-2">
           <button type="button" onclick="closeWalkInModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ยกเลิก</button>
           <button type="submit" id="wi-submit-btn" class="px-5 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium">บันทึกข้อมูล</button>
@@ -408,22 +577,17 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: SETTINGS (API URL) ==================== -->
+  <!-- ==================== MODAL: SETTINGS ==================== -->
   <div id="settings-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
       <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i data-lucide="settings" class="w-5 h-5"></i>
-          <h2 class="font-semibold text-base">ตั้งค่าการเชื่อมต่อ Google Apps Script</h2>
-        </div>
-        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <h2 class="font-semibold text-base">ตั้งค่าการเชื่อมต่อ Google Apps Script</h2>
+        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="p-5 space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Web App URL (ลงท้ายด้วย /exec)</label>
-          <input type="url" id="settings-api-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm font-mono" />
+          <input type="url" id="settings-api-url" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm font-mono" />
         </div>
         <div class="flex justify-end gap-2">
           <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ปิด</button>
@@ -438,31 +602,31 @@
 
   <!-- ==================== PRINT AREA: ใบลงลายมือชื่อกระดาษ A4 ==================== -->
   <div id="print-area" class="print-only hidden">
-    <div class="text-center mb-4">
-      <h1 class="text-lg font-bold">แบบลงลายมือชื่อผู้เข้าร่วมการประชุมสัมมนาเชิงปฏิบัติการ</h1>
-      <h2 class="text-base font-semibold">โครงการพัฒนาและทดสอบระบบ AI Chatbot ด้านงานจราจร</h2>
+    <div class="text-center mb-3">
+      <h1 class="text-base font-bold">บัญชีลงลายมือชื่อผู้เข้าร่วมโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</h1>
+      <p class="text-xs mt-0.5">ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี</p>
       <p class="text-sm mt-1">ประจำวันที่ <span id="print-day-title" class="font-bold"></span></p>
     </div>
 
     <table class="print-table">
       <thead>
         <tr style="background-color: #f1f5f9;">
-          <th style="width: 6%; text-align: center;">ลำดับ</th>
-          <th style="width: 11%; text-align: center;">รหัส</th>
-          <th style="width: 26%; text-align: left;">ยศ - ชื่อ - สกุล</th>
-          <th style="width: 24%; text-align: left;">ตำแหน่ง / สังกัด</th>
-          <th style="width: 13%; text-align: center;">เบอร์โทรศัพท์</th>
-          <th style="width: 14%; text-align: center;">ลายมือชื่อ</th>
-          <th style="width: 6%; text-align: center;">เวลา</th>
+          <th style="width: 5%; text-align: center;">ลำดับ</th>
+          <th style="width: 10%; text-align: center;">รหัส</th>
+          <th style="width: 24%; text-align: left;">ยศ ชื่อ - สกุล</th>
+          <th style="width: 22%; text-align: left;">ตำแหน่ง</th>
+          <th style="width: 15%; text-align: left;">สังกัด</th>
+          <th style="width: 16%; text-align: center;">ลายมือชื่อ</th>
+          <th style="width: 8%; text-align: center;">หมายเหตุ</th>
         </tr>
       </thead>
       <tbody id="print-tbody"></tbody>
     </table>
 
-    <div class="mt-6 flex justify-between text-sm px-4">
+    <div class="mt-5 flex justify-between text-xs px-4">
       <div>
-        <p>ยอดผู้ลงทะเบียนทั้งหมด: <strong id="print-total-count">0</strong> ราย</p>
-        <p>ยอดผู้เข้าร่วมจริง (ตามระบบ): <strong id="print-checked-count">0</strong> ราย</p>
+        <p>ยอดผู้เข้าร่วมตามบัญชี: <strong id="print-total-count">0</strong> ราย</p>
+        <p>ยอดเช็กอินในระบบ: <strong id="print-checked-count">0</strong> ราย</p>
       </div>
       <div class="text-center">
         <p>ลงชื่อ ....................................................... ผู้รับรอง</p>
@@ -482,16 +646,12 @@
       day3: { label: '2 ธ.ค. 69',  full: 'วันพุธที่ 2 ธันวาคม 2569' }
     };
 
-    const DEMO_DATA = [
-      { id: 'AI69-01', prefix: 'พ.ต.อ.', fullName: 'สมชาย ใจดี', unit: 'ผกก.กลุ่มงานวิจัย', group: 'ผู้บริหาร', phone: '081-111-1111', day1: '08:42:15', day2: '', day3: '', evaluated: true, type: 'ลงทะเบียนล่วงหน้า' },
-      { id: 'AI69-02', prefix: 'พ.ต.ท.', fullName: 'วิชัย รักชาติ', unit: 'รอง ผกก.จร.', group: 'ผู้ปฏิบัติงาน', phone: '082-222-2222', day1: '', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' },
-      { id: 'AI69-03', prefix: 'ร.ต.อ.', fullName: 'สมหญิง จริงใจ', unit: 'รอง สว.กลุ่มงานวิจัย', group: 'วิทยากร/ทีมงาน', phone: '083-333-3333', day1: '08:15:00', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' }
-    ];
+    const UNIT_ORDER = ['บช.น.', 'บช.ก.', 'ภ.1', 'ภ.2', 'ภ.6', 'ภ.7', 'กมค.', 'สงป.', 'สทส.', 'สยศ.ตร.', 'หน่วยงานภายนอก'];
 
     let API_URL = localStorage.getItem('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let currentDay = detectDefaultDay();
-    let currentView = 'split'; // 'split' | 'table'
+    let currentView = 'split'; // 'split' | 'table' | 'summary'
     let html5QrCode = null;
     let lastScanned = { id: null, time: 0 };
     let autoRefreshTimer = null;
@@ -514,9 +674,7 @@
     }
 
     function initTheme() {
-      if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
+      if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
     }
 
     function toggleDarkMode() {
@@ -528,75 +686,59 @@
       const dot = document.getElementById('auto-dot');
       const label = document.getElementById('auto-label');
       const btn = document.getElementById('btn-auto-refresh');
-
       if (autoRefreshTimer) {
         clearInterval(autoRefreshTimer);
         autoRefreshTimer = null;
         dot.className = 'w-2 h-2 rounded-full bg-slate-400';
         label.textContent = 'Auto-Refresh: ปิด';
-        btn.className = 'hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition';
+        btn.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition';
         showToast('ปิดโหมดอัปเดตอัตโนมัติแล้ว', 'info');
       } else {
         autoRefreshTimer = setInterval(() => fetchParticipants(false), 15000);
         dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-ping';
         label.textContent = 'Auto-Refresh: 15 วิ';
-        btn.className = 'hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 transition';
+        btn.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 transition';
         showToast('เปิดอัปเดตข้อมูลอัตโนมัติทุก 15 วินาที', 'success');
       }
     }
 
     function updateApiStatusBadge() {
       const badge = document.getElementById('api-status-badge');
-      if (API_URL) {
-        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
-        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว';
-      } else {
-        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
-        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง (Demo)';
-      }
+      badge.innerHTML = API_URL
+        ? '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว'
+        : '<span class="w-2 h-2 rounded-full bg-amber-500"></span> ยังไม่ตั้งค่า API';
     }
 
     function setViewMode(mode) {
       currentView = mode;
-      const splitContainer = document.getElementById('split-view-container');
-      const tableContainer = document.getElementById('table-view-container');
-      const btnSplit = document.getElementById('view-btn-split');
-      const btnTable = document.getElementById('view-btn-table');
-
-      if (mode === 'split') {
-        splitContainer.classList.remove('hidden');
-        tableContainer.classList.add('hidden');
-        btnSplit.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition';
-        btnTable.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
-      } else {
-        splitContainer.classList.add('hidden');
-        tableContainer.classList.remove('hidden');
-        btnTable.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition';
-        btnSplit.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
-      }
+      ['split', 'table', 'summary'].forEach(m => {
+        document.getElementById(`${m}-view-container`).classList.toggle('hidden', m !== mode);
+        const btn = document.getElementById(`view-btn-${m}`);
+        btn.className = m === mode
+          ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition'
+          : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
+      });
       renderViews();
     }
 
     async function fetchParticipants(showToastMsg = false) {
       const icon = document.getElementById('refresh-icon');
       icon.classList.add('animate-spin');
-
       try {
-        if (!API_URL) {
-          if (participants.length === 0) participants = JSON.parse(JSON.stringify(DEMO_DATA));
-          populateGroupFilter();
-          updateDashboard();
-          if (showToastMsg) showToast('อัปเดตข้อมูล (โหมดจำลอง)', 'info');
-          return;
-        }
-
         const res = await fetch(`${API_URL}?action=getParticipants`);
         const json = await res.json();
         if (json.status === 'success') {
-          participants = json.data || [];
-          populateGroupFilter();
+          participants = (json.data || []).map(p => ({
+            ...p,
+            fullName: p.prefix ? `${p.prefix}${p.fullName}` : p.fullName,
+            mainUnit: p.mainUnit || p.group || 'อื่นๆ',
+            unitDetail: p.unitDetail || p.unit || '',
+            rsvp: p.rsvp || 'รอการยืนยัน',
+            food: p.food || 'อาหารทั่วไป'
+          }));
+          populateUnitFilter();
           updateDashboard();
-          if (showToastMsg) showToast(`โหลดข้อมูลล่าสุดแล้ว (${participants.length} รายการ)`, 'success');
+          if (showToastMsg) showToast(`โหลดข้อมูลล่าสุดแล้ว (${participants.length} ราย)`, 'success');
         } else {
           throw new Error(json.message || 'ไม่สามารถโหลดข้อมูลได้');
         }
@@ -609,7 +751,6 @@
     }
 
     async function postToApi(payload) {
-      if (!API_URL) return handleDemoPost(payload);
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -618,80 +759,78 @@
       return await res.json();
     }
 
-    function handleDemoPost(payload) {
-      const timeStr = new Date().toTimeString().split(' ')[0];
-      if (payload.action === 'checkIn') {
-        const p = participants.find(x => x.id.toUpperCase() === String(payload.id).trim().toUpperCase());
-        if (!p) return { status: 'not_found', message: `ไม่พบรหัส ${payload.id} ในระบบ` };
-        if (!payload.undo && p[payload.day]) {
-          return { status: 'already_checked_in', message: `${p.prefix}${p.fullName} เช็คชื่อไปแล้วเมื่อ ${p[payload.day]}` };
-        }
-        p[payload.day] = payload.undo ? '' : timeStr;
-        return { status: 'success', time: p[payload.day], message: payload.undo ? `ยกเลิกเช็คชื่อ ${p.prefix}${p.fullName} แล้ว` : `เช็คชื่อ ${p.prefix}${p.fullName} สำเร็จ (${timeStr})` };
-      }
-      if (payload.action === 'addWalkIn') {
-        const newId = 'AI69-' + String(participants.length + 1).padStart(2, '0');
-        participants.push({
-          id: newId, prefix: payload.prefix, fullName: payload.fullName,
-          unit: payload.unit, group: payload.group || 'Walk-in', phone: payload.phone,
-          day1: payload.checkInDay === 'day1' ? timeStr : '',
-          day2: payload.checkInDay === 'day2' ? timeStr : '',
-          day3: payload.checkInDay === 'day3' ? timeStr : '',
-          evaluated: false, type: 'Walk-in / หน้างาน'
-        });
-        return { status: 'success', id: newId, message: `เพิ่ม ${payload.prefix}${payload.fullName} (${newId}) สำเร็จ` };
-      }
-      return { status: 'error', message: 'Unknown demo action' };
-    }
-
     function selectDay(dayKey, shouldRender = true) {
       currentDay = dayKey;
       document.querySelectorAll('.day-tab').forEach(btn => {
         btn.className = 'day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
       });
       document.getElementById(`tab-${dayKey}`).className = 'day-tab px-3.5 py-2 rounded-xl text-sm font-semibold transition bg-navy-700 text-white shadow-sm';
-
-      document.querySelectorAll('.current-day-text').forEach(el => {
-        el.textContent = DAY_CONFIG[dayKey].label;
-      });
+      document.querySelectorAll('.current-day-text').forEach(el => el.textContent = DAY_CONFIG[dayKey].label);
       if (shouldRender) updateDashboard();
     }
 
-    function populateGroupFilter() {
-      const select = document.getElementById('filter-group');
+    function populateUnitFilter() {
+      const select = document.getElementById('filter-unit');
       const currentVal = select.value;
-      const groups = [...new Set(participants.map(p => p.group).filter(Boolean))];
-      select.innerHTML = '<option value="all">กลุ่มงาน: ทั้งหมด</option>' +
-        groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
-      if (groups.includes(currentVal)) select.value = currentVal;
+      const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))];
+      units.sort((a, b) => {
+        const ia = UNIT_ORDER.indexOf(a);
+        const ib = UNIT_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
+      select.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' +
+        units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+      if (units.includes(currentVal)) select.value = currentVal;
+    }
+
+    function isCheckedIn(p, dayKey = currentDay) {
+      const v = String(p[dayKey] || '').trim();
+      return v !== '' && v !== 'ยังไม่มา' && v !== '-';
     }
 
     function updateDashboard() {
       const total = participants.length;
-      const checked = participants.filter(p => Boolean(p[currentDay])).length;
+      const checked = participants.filter(p => isCheckedIn(p)).length;
       const pending = total - checked;
       const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+      const confirmed = participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length;
+      const tbd = participants.filter(p => p.fullName.includes('รอระบุ')).length;
+      const stay30 = participants.filter(p => p.stay30 === 'พัก').length;
+      const stay1 = participants.filter(p => p.stay1 === 'พัก').length;
+      const rooms = participants.filter(p => Boolean(p.roomNo)).length;
+      const halal = participants.filter(p => String(p.food).includes('ฮาลาล')).length;
+      const veg = participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length;
       const evaluated = participants.filter(p => p.evaluated).length;
 
       document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-rsvp-confirm').textContent = `ยืนยัน ${confirmed}`;
+      document.getElementById('kpi-tbd').textContent = `รอระบุชื่อ ${tbd} ราย`;
       document.getElementById('kpi-checked').textContent = checked;
       document.getElementById('kpi-pending').textContent = pending;
       document.getElementById('kpi-percent').textContent = `${percent}%`;
       document.getElementById('kpi-progress-bar').style.width = `${percent}%`;
-      document.getElementById('kpi-eval').textContent = `ประเมินแล้ว ${evaluated} คน`;
+      document.getElementById('kpi-stay30').textContent = stay30;
+      document.getElementById('kpi-stay1').textContent = stay1;
+      document.getElementById('kpi-rooms').textContent = `จัดเลขห้องแล้ว ${rooms} ราย`;
+      document.getElementById('kpi-halal').textContent = halal;
+      document.getElementById('kpi-veg').textContent = veg;
+      document.getElementById('kpi-eval').textContent = `ประเมินผลแล้ว ${evaluated} ราย`;
 
       renderViews();
     }
 
     function getFilteredParticipants() {
-      const query = document.getElementById('search-input').value.trim().toLowerCase();
-      const groupFilter = document.getElementById('filter-group').value;
+      const q = document.getElementById('search-input').value.trim().toLowerCase();
+      const unitFilter = document.getElementById('filter-unit').value;
+      const rsvpFilter = document.getElementById('filter-rsvp').value;
 
       return participants.filter(p => {
-        if (groupFilter !== 'all' && p.group !== groupFilter) return false;
-        if (query) {
-          const text = `${p.id} ${p.prefix}${p.fullName} ${p.unit} ${p.group} ${p.phone}`.toLowerCase();
-          if (!text.includes(query)) return false;
+        if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
+        if (rsvpFilter !== 'all' && p.rsvp !== rsvpFilter) return false;
+        if (q) {
+          const text = `${p.id} ${p.fullName} ${p.position} ${p.mainUnit} ${p.unitDetail} ${p.role} ${p.roomNo} ${p.licensePlate} ${p.phone}`.toLowerCase();
+          if (!text.includes(q)) return false;
         }
         return true;
       });
@@ -699,21 +838,35 @@
 
     function renderViews() {
       const filtered = getFilteredParticipants();
-      if (currentView === 'split') {
-        renderSplitView(filtered);
-      } else {
-        renderTableView(filtered);
-      }
+      if (currentView === 'split') renderSplitView(filtered);
+      else if (currentView === 'table') renderTableView(filtered);
+      else renderSummaryView();
     }
 
-    // ==================== RENDER SPLIT VIEW (ซ้าย-ขวา) ====================
+    function getRsvpBadge(rsvp) {
+      if (rsvp === 'ยืนยันเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">ยืนยันแล้ว</span>';
+      if (rsvp === 'ส่งผู้แทนเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">ส่งผู้แทน</span>';
+      if (rsvp === 'ไม่สามารถเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400">ไม่สะดวก</span>';
+      return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">รอยืนยัน</span>';
+    }
+
+    function buildMetaBadges(p) {
+      const tags = [getRsvpBadge(p.rsvp)];
+      if (p.roomNo) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">ห้อง ${escapeHtml(p.roomNo)}</span>`);
+      else if (p.stay30 === 'พัก' || p.stay1 === 'พัก') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">พักโรงแรม</span>`);
+      if (p.food && p.food !== 'อาหารทั่วไป') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">${escapeHtml(p.food)}</span>`);
+      if (p.licensePlate) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">รถ: ${escapeHtml(p.licensePlate)}</span>`);
+      return tags.join(' ');
+    }
+
+    // ==================== RENDER SPLIT VIEW ====================
     function renderSplitView(filtered) {
       const checkedItems = filtered
-        .filter(p => Boolean(p[currentDay]))
-        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay]))); // ล่าสุดอยู่บน
+        .filter(p => isCheckedIn(p))
+        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
 
       const pendingItems = filtered
-        .filter(p => !Boolean(p[currentDay]))
+        .filter(p => !isCheckedIn(p))
         .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
 
       document.getElementById('split-checked-badge').textContent = `${checkedItems.length} คน`;
@@ -722,123 +875,246 @@
       const checkedEl = document.getElementById('checked-list');
       const pendingEl = document.getElementById('pending-list');
 
-      // ฝั่งซ้าย: เข้าร่วมแล้ว
-      if (checkedItems.length === 0) {
-        checkedEl.innerHTML = `
-          <div class="py-16 text-center text-slate-400">
-            <p class="text-sm">ยังไม่มีผู้เช็คชื่อเข้าร่วมในวันนี้</p>
-          </div>`;
-      } else {
-        checkedEl.innerHTML = checkedItems.map(p => `
-          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
-              <div class="mt-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
-                  <h3 class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</h3>
-                </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">${escapeHtml(p.unit || '-')} ${p.group ? '• ' + escapeHtml(p.group) : ''}</p>
+      checkedEl.innerHTML = checkedItems.length === 0
+        ? `<div class="py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้เช็กอินในวันนี้</div>`
+        : checkedItems.map(p => `
+          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm flex items-start justify-between gap-2.5">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
+                <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
               </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
-                ${escapeHtml(p[currentDay])}
-              </span>
-              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" title="ยกเลิกการเช็คชื่อ" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-800/60 transition">
-                ยกเลิก
-              </button>
+            <div class="flex flex-col items-end gap-1.5 shrink-0">
+              <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">${escapeHtml(p[currentDay])}</span>
+              <div class="flex items-center gap-1">
+                <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600">แก้ไข</button>
+                <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2 py-1 rounded-lg text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">ยกเลิก</button>
+              </div>
             </div>
           </div>
         `).join('');
-      }
 
-      // ฝั่งขวา: ยังไม่เข้าร่วม
-      if (pendingItems.length === 0) {
-        pendingEl.innerHTML = `
-          <div class="py-16 text-center text-emerald-600 dark:text-emerald-400">
-            <p class="text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</p>
-          </div>`;
-      } else {
-        pendingEl.innerHTML = pendingItems.map(p => `
-          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 dark:hover:border-rose-700 transition flex items-center justify-between gap-3">
-            <div class="flex items-start gap-3 min-w-0">
-              <div class="mt-0.5 w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
-                  <h3 class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</h3>
-                </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">${escapeHtml(p.unit || '-')} ${p.group ? '• ' + escapeHtml(p.group) : ''}</p>
+      pendingEl.innerHTML = pendingItems.length === 0
+        ? `<div class="py-16 text-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</div>`
+        : pendingItems.map(p => `
+          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 dark:hover:border-rose-700 transition flex items-start justify-between gap-2.5">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
+                <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
               </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
-
-            <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
-              เช็คชื่อเข้า
-            </button>
+            <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600">แก้ไข</button>
+              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">เช็กอิน</button>
+            </div>
           </div>
         `).join('');
-      }
     }
 
-    // ==================== RENDER TABLE VIEW (ตารางรวม) ====================
+    // ==================== RENDER FULL TABLE VIEW ====================
     function renderTableView(filtered) {
       const tbody = document.getElementById('participants-tbody');
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map(p => {
-        const timeVal = p[currentDay];
-        const isChecked = Boolean(timeVal);
-        const statusBadge = isChecked
-          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> เข้าร่วมแล้ว (${escapeHtml(timeVal)})
-             </span>`
-          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">
-               <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> ยังไม่มา
-             </span>`;
-
-        const actionBtn = isChecked
-          ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 border border-rose-200 dark:border-rose-800 transition">ยกเลิก</button>`
-          : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">เช็คชื่อ</button>`;
-
+        const checked = isCheckedIn(p);
+        const stayText = [p.stay30 === 'พัก' ? '30พ.ย.' : '', p.stay1 === 'พัก' ? '1ธ.ค.' : ''].filter(Boolean).join(', ') || '-';
         return `
-          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
-            <td class="py-3.5 px-4 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
-            <td class="py-3.5 px-4">
-              <div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</div>
-              <div class="text-xs text-slate-500 md:hidden">${escapeHtml(p.unit)}</div>
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30">
+            <td class="py-3 px-3 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-3 px-3">
+              <div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.fullName)}</div>
+              <div class="text-[11px] text-slate-500">${escapeHtml(p.position || '-')}</div>
             </td>
-            <td class="py-3.5 px-4 text-slate-600 dark:text-slate-300 hidden md:table-cell">${escapeHtml(p.unit || '-')}</td>
-            <td class="py-3.5 px-4 hidden lg:table-cell">
-              <span class="px-2 py-0.5 rounded-md text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${escapeHtml(p.group || '-')}</span>
+            <td class="py-3 px-3">
+              <div class="font-medium text-slate-700 dark:text-slate-200">${escapeHtml(p.mainUnit)}</div>
+              <div class="text-[11px] text-slate-500">${escapeHtml(p.unitDetail)} (${escapeHtml(p.role)})</div>
             </td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">${statusBadge}</td>
-            <td class="py-3.5 px-4 text-right whitespace-nowrap">${actionBtn}</td>
+            <td class="py-3 px-3 text-center whitespace-nowrap">${getRsvpBadge(p.rsvp)}</td>
+            <td class="py-3 px-3 text-center whitespace-nowrap text-xs">
+              <div>${stayText}</div>
+              ${p.roomNo ? `<span class="font-mono font-bold text-indigo-600 dark:text-indigo-400">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}
+            </td>
+            <td class="py-3 px-3 text-center text-xs">
+              <div>${escapeHtml(p.food)}</div>
+              <div class="text-[11px] text-slate-400">${escapeHtml(p.officialLetter || (p.licensePlate ? 'รถ: ' + p.licensePlate : '-'))}</div>
+            </td>
+            <td class="py-3 px-3 text-center whitespace-nowrap">
+              ${checked
+                ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">${escapeHtml(p[currentDay])}</span>`
+                : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">ยังไม่มา</span>`
+              }
+            </td>
+            <td class="py-3 px-3 text-right whitespace-nowrap space-x-1">
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">แก้ไข</button>
+              ${checked
+                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200 hover:bg-rose-50">ยกเลิก</button>`
+                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600 hover:bg-emerald-700">เช็กอิน</button>`
+              }
+            </td>
           </tr>
         `;
       }).join('');
     }
 
+    // ==================== RENDER EXECUTIVE SUMMARY (เหมือน Dashboard Excel) ====================
+    function renderSummaryView() {
+      const total = participants.length || 1;
+      const unitMap = {};
+      participants.forEach(p => {
+        const u = p.mainUnit || 'อื่นๆ';
+        if (!unitMap[u]) unitMap[u] = { total: 0, checked: 0 };
+        unitMap[u].total++;
+        if (isCheckedIn(p)) unitMap[u].checked++;
+      });
+
+      const unitKeys = Object.keys(unitMap).sort((a, b) => {
+        const ia = UNIT_ORDER.indexOf(a);
+        const ib = UNIT_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
+
+      const totalChecked = participants.filter(p => isCheckedIn(p)).length;
+
+      document.getElementById('summary-units-tbody').innerHTML = unitKeys.map(u => {
+        const item = unitMap[u];
+        const sharePct = ((item.total / total) * 100).toFixed(1);
+        const checkPct = item.total > 0 ? Math.round((item.checked / item.total) * 100) : 0;
+        return `
+          <tr>
+            <td class="py-2.5 font-medium text-slate-800 dark:text-slate-100">${escapeHtml(u)}</td>
+            <td class="py-2.5 text-center font-semibold">${item.total}</td>
+            <td class="py-2.5 text-center text-xs text-slate-500">${sharePct}%</td>
+            <td class="py-2.5 text-center font-bold text-emerald-600 dark:text-emerald-400">${item.checked}</td>
+            <td class="py-2.5">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded-full" style="width: ${checkPct}%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500 w-8 text-right">${checkPct}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('') + `
+        <tr class="bg-slate-50 dark:bg-slate-900/50 font-bold">
+          <td class="py-3">รวมทั้งหมด (ตามบัญชี)</td>
+          <td class="py-3 text-center">${participants.length}</td>
+          <td class="py-3 text-center">100%</td>
+          <td class="py-3 text-center text-emerald-600 dark:text-emerald-400">${totalChecked}</td>
+          <td class="py-3 text-xs text-right pr-1">${Math.round((totalChecked / total) * 100)}%</td>
+        </tr>
+      `;
+
+      const metrics = [
+        { label: 'ยืนยันเข้าร่วมแล้ว (ตร. + ภายนอก)', val: participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length, color: 'text-blue-600' },
+        { label: 'ส่งผู้แทนเข้าร่วม', val: participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length, color: 'text-purple-600' },
+        { label: 'รอการยืนยันทั้งหมด', val: participants.filter(p => p.rsvp === 'รอการยืนยัน').length, color: 'text-amber-600' },
+        { label: `เช็กอินหน้างานแล้ว (${DAY_CONFIG[currentDay].label})`, val: totalChecked, color: 'text-emerald-600 font-bold' },
+        { label: `ยังไม่เช็กอินหน้างาน (${DAY_CONFIG[currentDay].label})`, val: participants.length - totalChecked, color: 'text-rose-600' },
+        { label: 'ยอดเข้าพักคืนวันที่ 30 พ.ย.', val: participants.filter(p => p.stay30 === 'พัก').length, color: 'text-indigo-600' },
+        { label: 'ยอดเข้าพักคืนวันที่ 1 ธ.ค.', val: participants.filter(p => p.stay1 === 'พัก').length, color: 'text-indigo-600' },
+        { label: 'จัดเลขห้องพักเรียบร้อยแล้ว', val: participants.filter(p => Boolean(p.roomNo)).length, color: 'text-slate-700 dark:text-slate-200' },
+        { label: 'ต้องการอาหารฮาลาล (รวม)', val: participants.filter(p => String(p.food).includes('ฮาลาล')).length, color: 'text-orange-600' },
+        { label: 'ต้องการอาหารมังสวิรัติ/อื่นๆ (รวม)', val: participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length, color: 'text-teal-600' },
+        { label: 'ส่งหนังสือส่งตัวแล้ว', val: participants.filter(p => p.officialLetter === 'ส่งแล้ว').length, color: 'text-emerald-600' },
+        { label: 'รายชื่อที่ยังว่าง (รอระบุชื่อ)', val: participants.filter(p => p.fullName.includes('รอระบุ')).length, color: 'text-rose-500' }
+      ];
+
+      document.getElementById('summary-metrics-tbody').innerHTML = metrics.map(m => `
+        <tr>
+          <td class="py-2.5 text-slate-700 dark:text-slate-200">${m.label}</td>
+          <td class="py-2.5 text-right font-bold text-base ${m.color}">${m.val} <span class="text-xs font-normal text-slate-400">คน</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== EDIT MODAL ====================
+    function openEditModal(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('ed-id').value = p.id;
+      document.getElementById('ed-id-display').textContent = p.id;
+      document.getElementById('ed-name').value = p.fullName || '';
+      document.getElementById('ed-position').value = p.position || '';
+      document.getElementById('ed-main-unit').value = p.mainUnit || 'หน่วยงานภายนอก';
+      document.getElementById('ed-unit-detail').value = p.unitDetail || '';
+      document.getElementById('ed-role').value = p.role || '';
+      document.getElementById('ed-rsvp').value = p.rsvp || 'รอการยืนยัน';
+      document.getElementById('ed-stay30').value = p.stay30 || '';
+      document.getElementById('ed-stay1').value = p.stay1 || '';
+      document.getElementById('ed-room').value = p.roomNo || '';
+      document.getElementById('ed-food').value = p.food || 'อาหารทั่วไป';
+      document.getElementById('ed-letter').value = p.officialLetter || '';
+      document.getElementById('ed-plate').value = p.licensePlate || '';
+      document.getElementById('ed-phone').value = p.phone || '';
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    async function submitEditParticipant(e) {
+      e.preventDefault();
+      const btn = document.getElementById('ed-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        action: 'updateParticipant',
+        id: document.getElementById('ed-id').value,
+        fullName: document.getElementById('ed-name').value.trim(),
+        position: document.getElementById('ed-position').value.trim(),
+        mainUnit: document.getElementById('ed-main-unit').value,
+        unitDetail: document.getElementById('ed-unit-detail').value.trim(),
+        role: document.getElementById('ed-role').value.trim(),
+        rsvp: document.getElementById('ed-rsvp').value,
+        stay30: document.getElementById('ed-stay30').value,
+        stay1: document.getElementById('ed-stay1').value,
+        roomNo: document.getElementById('ed-room').value.trim(),
+        food: document.getElementById('ed-food').value,
+        officialLetter: document.getElementById('ed-letter').value,
+        licensePlate: document.getElementById('ed-plate').value.trim(),
+        phone: document.getElementById('ed-phone').value.trim()
+      };
+
+      try {
+        const res = await postToApi(payload);
+        if (res.status === 'success') {
+          showToast(res.message, 'success');
+          closeEditModal();
+          await fetchParticipants();
+        } else {
+          showToast(res.message, 'error');
+        }
+      } catch (err) {
+        showToast('บันทึกไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกการแก้ไข';
+      }
+    }
+
+    // ==================== CHECK-IN & SCANNER ====================
     async function manualToggleCheckIn(id, isUndo) {
       const p = participants.find(x => x.id === id);
       if (!p) return;
       const oldVal = p[currentDay];
-      const nowTime = new Date().toTimeString().split(' ')[0];
-      p[currentDay] = isUndo ? '' : nowTime;
+      p[currentDay] = isUndo ? '' : new Date().toTimeString().split(' ')[0];
       updateDashboard();
 
       try {
-        const res = await postToApi({
-          action: 'checkIn',
-          id: id,
-          day: currentDay,
-          method: 'Manual Dashboard',
-          undo: isUndo
-        });
+        const res = await postToApi({ action: 'checkIn', id, day: currentDay, method: 'Manual Dashboard', undo: isUndo });
         if (res.status === 'success') {
           p[currentDay] = res.time || '';
           updateDashboard();
@@ -851,11 +1127,10 @@
       } catch (err) {
         p[currentDay] = oldVal;
         updateDashboard();
-        showToast('เกิดข้อผิดพลาดในการบันทึก: ' + err.message, 'error');
+        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
       }
     }
 
-    // ==================== QR CODE SCANNER ====================
     function openScannerModal() {
       document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
       document.getElementById('scan-result-box').classList.add('hidden');
@@ -867,7 +1142,7 @@
         { fps: 10, qrbox: { width: 230, height: 230 } },
         onScanSuccess
       ).catch(() => {
-        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ (ต้องเปิดผ่าน HTTPS หรืออนุญาตสิทธิ์กล้อง) สามารถพิมพ์รหัสด้านล่างแทนได้ครับ');
+        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้อง หรือพิมพ์รหัสด้านล่างแทนครับ');
       });
     }
 
@@ -898,36 +1173,25 @@
     async function processQrCheckIn(id) {
       const localP = participants.find(x => x.id.toUpperCase() === id.toUpperCase());
       if (localP) {
-        if (localP[currentDay]) {
+        if (isCheckedIn(localP)) {
           playBeep(440, 150);
-          showScanFeedback('warning', `<strong>${escapeHtml(localP.prefix + localP.fullName)}</strong><br>เช็คชื่อไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
+          showScanFeedback('warning', `<strong>${escapeHtml(localP.fullName)}</strong><br>เช็กอินไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
           return;
         }
-        const tempTime = new Date().toTimeString().split(' ')[0];
-        localP[currentDay] = tempTime;
+        localP[currentDay] = new Date().toTimeString().split(' ')[0];
         updateDashboard();
         playBeep(880, 120);
-        showScanFeedback('success', `<strong>เช็คชื่อสำเร็จ!</strong><br>${escapeHtml(localP.prefix + localP.fullName)} (${escapeHtml(localP.unit)})`);
+        showScanFeedback('success', `<strong>เช็กอินสำเร็จ!</strong><br>${escapeHtml(localP.fullName)} (${escapeHtml(localP.unitDetail || localP.mainUnit)})`);
       } else {
-        showScanFeedback('info', `กำลังตรวจสอบรหัส ${escapeHtml(id)} กับฐานข้อมูล...`);
+        showScanFeedback('info', `กำลังตรวจสอบรหัส ${escapeHtml(id)}...`);
       }
 
       try {
-        const res = await postToApi({
-          action: 'checkIn',
-          id: id,
-          day: currentDay,
-          method: 'QR Scan'
-        });
-
+        const res = await postToApi({ action: 'checkIn', id, day: currentDay, method: 'QR Scan' });
         if (res.status === 'success') {
           if (localP) localP[currentDay] = res.time;
           else await fetchParticipants();
           updateDashboard();
-          if (!localP) {
-            playBeep(880, 120);
-            showScanFeedback('success', res.message);
-          }
         } else if (res.status === 'already_checked_in') {
           playBeep(440, 150);
           showScanFeedback('warning', res.message);
@@ -988,10 +1252,10 @@
 
       const payload = {
         action: 'addWalkIn',
-        prefix: document.getElementById('wi-prefix').value.trim(),
         fullName: document.getElementById('wi-name').value.trim(),
-        unit: document.getElementById('wi-unit').value.trim(),
-        group: document.getElementById('wi-group').value.trim() || 'Walk-in',
+        position: document.getElementById('wi-position').value.trim(),
+        mainUnit: document.getElementById('wi-main-unit').value,
+        food: document.getElementById('wi-food').value,
         phone: document.getElementById('wi-phone').value.trim(),
         checkInDay: document.getElementById('wi-checkin-now').checked ? currentDay : ''
       };
@@ -1016,9 +1280,7 @@
     // ==================== PRINT A4 SHEET ====================
     function prepareAndPrintSheet() {
       document.getElementById('print-day-title').textContent = DAY_CONFIG[currentDay].full;
-      const tbody = document.getElementById('print-tbody');
-
-      const checkedCount = participants.filter(p => Boolean(p[currentDay])).length;
+      const checkedCount = participants.filter(p => isCheckedIn(p)).length;
       document.getElementById('print-total-count').textContent = participants.length;
       document.getElementById('print-checked-count').textContent = checkedCount;
 
@@ -1026,24 +1288,23 @@
         <tr>
           <td style="text-align: center;">${idx + 1}</td>
           <td style="text-align: center; font-family: monospace;">${escapeHtml(p.id)}</td>
-          <td>${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</td>
-          <td>${escapeHtml(p.unit || '')}</td>
-          <td style="text-align: center;">${escapeHtml(p.phone || '')}</td>
-          <td style="height: 28px;"></td>
-          <td style="text-align: center; font-size: 11px;">${escapeHtml(p[currentDay] || '')}</td>
+          <td>${escapeHtml(p.fullName)}</td>
+          <td>${escapeHtml(p.position || p.role)}</td>
+          <td>${escapeHtml(p.unitDetail || p.mainUnit)}</td>
+          <td style="height: 26px;"></td>
+          <td style="text-align: center; font-size: 10px;">${escapeHtml(p[currentDay] || '')}</td>
         </tr>
       `).join('');
 
       for (let i = 1; i <= 5; i++) {
         rowsHtml += `
           <tr>
-            <td style="text-align: center; height: 28px;">${participants.length + i}</td>
+            <td style="text-align: center; height: 26px;">${participants.length + i}</td>
             <td></td><td></td><td></td><td></td><td></td><td></td>
           </tr>
         `;
       }
-
-      tbody.innerHTML = rowsHtml;
+      document.getElementById('print-tbody').innerHTML = rowsHtml;
       window.print();
     }
 
