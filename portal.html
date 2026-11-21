@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seminar Portal - สัมมนา AI Chatbot ด้านงานจราจร</title>
+  <title>Seminar Portal - โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,28 +34,61 @@
     .star-btn:active svg { transform: scale(1.25); }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-10">
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- ==================== HERO HEADER ==================== -->
-  <header class="bg-gradient-to-br from-navy-800 via-navy-700 to-maroon-700 text-white pt-7 pb-12 px-4 shadow-md">
-    <div class="max-w-lg mx-auto text-center space-y-2">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/15 backdrop-blur-sm border border-white/20">
+  <header class="bg-gradient-to-br from-navy-800 via-navy-700 to-maroon-700 text-white pt-6 pb-12 px-4 shadow-md">
+    <div class="max-w-lg mx-auto text-center space-y-1.5">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/15 backdrop-blur-sm border border-white/20">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 30 พ.ย. – 2 ธ.ค. 2569
       </span>
-      <h1 class="text-xl sm:text-2xl font-bold leading-snug">
-        โครงการสัมมนาเชิงปฏิบัติการ<br>AI Chatbot ด้านงานจราจร
+      <h1 class="text-lg sm:text-xl font-bold leading-snug">
+        โครงการสัมมนาจัดทำคลังความรู้งานจราจร<br>(แชทบอท AI คู่หูจราจร)
       </h1>
-      <p class="text-xs sm:text-sm text-blue-100">
-        ศูนย์รวมเอกสารประกอบการสัมมนา กำหนดการ และแบบประเมินผล
+      <p class="text-xs text-blue-100">
+        ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี
       </p>
     </div>
   </header>
 
   <!-- ==================== MAIN CONTENT ==================== -->
-  <main class="max-w-lg mx-auto px-4 -mt-7 space-y-5">
+  <main class="max-w-lg mx-auto px-4 -mt-7 space-y-4">
+
+    <!-- ==================== PERSONAL DIGITAL PASS (แสดงเมื่อสแกนจาก Smart QR รายบุคคล) ==================== -->
+    <section id="personal-card" class="hidden bg-white rounded-2xl p-4 shadow-md border-2 border-blue-200 space-y-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span id="pc-id" class="px-2 py-0.5 rounded-md bg-navy-700 text-white font-mono text-[11px] font-bold">KM69-00</span>
+            <span id="pc-unit" class="px-2 py-0.5 rounded-md bg-blue-50 text-navy-700 text-[11px] font-semibold"></span>
+          </div>
+          <h2 id="pc-name" class="text-base font-bold text-slate-900 mt-1 leading-snug"></h2>
+          <p id="pc-position" class="text-xs text-slate-500"></p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
+          <i data-lucide="user-check" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <!-- สถานะห้องพัก อาหาร และเช็กอิน 3 วัน -->
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+        <div class="bg-slate-50 rounded-xl p-2.5">
+          <p class="text-[10px] text-slate-400">ที่พัก / เลขห้อง</p>
+          <p id="pc-room" class="font-semibold text-indigo-700 mt-0.5">-</p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-2.5">
+          <p class="text-[10px] text-slate-400">อาหาร / การตอบรับ</p>
+          <p id="pc-food" class="font-semibold text-slate-700 mt-0.5">-</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-1.5 pt-1 text-[11px]" id="pc-checkin-days">
+        <!-- Injected by JS -->
+      </div>
+    </section>
 
     <!-- Navigation Tabs -->
-    <div class="bg-white p-1.5 rounded-2xl shadow-md border border-slate-200 grid grid-cols-2 gap-1.5">
+    <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-2 gap-1.5">
       <button onclick="switchTab('info')" id="tab-info" class="py-2.5 px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-navy-700 text-white shadow-sm transition">
         <i data-lucide="folder-open" class="w-4 h-4"></i> เอกสาร & กำหนดการ
       </button>
@@ -63,6 +96,9 @@
         <i data-lucide="star" class="w-4 h-4"></i> แบบประเมินผล
       </button>
     </div>
+
+    <!-- Inline Message Box (ใช้แทน alert) -->
+    <div id="portal-alert" class="hidden p-3.5 rounded-xl text-sm border"></div>
 
     <!-- ==================== TAB 1: เอกสาร & กำหนดการ ==================== -->
     <section id="section-info" class="space-y-4">
@@ -78,35 +114,31 @@
             <p class="text-xs text-slate-500 mt-0.5">ดาวน์โหลดสไลด์วิทยากร คู่มือ โจทย์ Workshop และภาพบรรยากาศงานผ่าน Google Drive</p>
           </div>
         </div>
-        <a id="drive-link-btn" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
+        <a id="drive-link-btn" href="https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
           <i data-lucide="external-link" class="w-4 h-4"></i> เปิดคลังเอกสาร (Google Drive)
         </a>
       </div>
 
       <!-- 3-Day Schedule Card -->
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
-        <div class="flex items-center justify-between">
-          <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
-            <i data-lucide="calendar-days" class="w-5 h-5 text-maroon-700"></i> กำหนดการสัมมนา 3 วัน
-          </h2>
-        </div>
+        <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="calendar-days" class="w-5 h-5 text-maroon-700"></i> กำหนดการสัมมนา 3 วัน
+        </h2>
 
-        <!-- Day Pills -->
         <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium">
           <button onclick="showSchedule('day1')" id="sch-btn-day1" class="py-2 rounded-lg bg-white text-navy-700 shadow-sm font-semibold transition">30 พ.ย. 69</button>
           <button onclick="showSchedule('day2')" id="sch-btn-day2" class="py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">1 ธ.ค. 69</button>
           <button onclick="showSchedule('day3')" id="sch-btn-day3" class="py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">2 ธ.ค. 69</button>
         </div>
 
-        <!-- Schedule Timeline -->
         <div id="schedule-list" class="space-y-3 text-sm"></div>
       </div>
 
       <!-- Quick Prompt to Evaluate -->
       <div class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-2xl p-4 text-white flex items-center justify-between gap-3 shadow-sm">
         <div>
-          <p class="font-semibold text-sm">เข้าร่วมสัมมนาเรียบร้อยแล้ว?</p>
-          <p class="text-xs text-rose-100">ร่วมประเมินความพึงพอใจเพื่อนำไปพัฒนาโครงการ</p>
+          <p class="font-semibold text-sm">ร่วมประเมินความพึงพอใจ</p>
+          <p class="text-xs text-rose-100">ใช้เวลาไม่เกิน 1 นาที เพื่อนำไปพัฒนา AI คู่หูจราจร</p>
         </div>
         <button onclick="switchTab('eval')" class="px-4 py-2 rounded-xl bg-white text-maroon-800 text-xs font-bold shrink-0 hover:bg-rose-50 transition">
           ทำแบบประเมิน
@@ -117,7 +149,6 @@
     <!-- ==================== TAB 2: แบบประเมินความพึงพอใจ ==================== -->
     <section id="section-eval" class="hidden space-y-4">
 
-      <!-- Evaluation Form Card -->
       <form id="eval-form" onsubmit="submitEvaluation(event)" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-5">
         <div class="border-b border-slate-100 pb-3">
           <h2 class="font-bold text-slate-900 text-base">แบบประเมินความพึงพอใจงานสัมมนา</h2>
@@ -126,7 +157,10 @@
 
         <!-- Participant Selector -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-slate-700">เลือกชื่อผู้เข้าร่วมสัมมนา <span class="text-rose-500">*</span></label>
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-semibold text-slate-700">ผู้เข้าร่วมสัมมนา <span class="text-rose-500">*</span></label>
+            <span id="auto-selected-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">เลือกชื่อจาก QR อัตโนมัติแล้ว</span>
+          </div>
           <input
             type="text"
             id="participant-search"
@@ -140,30 +174,27 @@
         </div>
 
         <!-- Star Rating Questions -->
-        <div id="rating-questions" class="space-y-4">
-          <!-- Injected by JS -->
-        </div>
+        <div id="rating-questions" class="space-y-4"></div>
 
         <!-- Comment Box -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-slate-700">ข้อเสนอแนะเพิ่มเติม / สิ่งที่อยากให้ปรับปรุงใน AI Chatbot</label>
+          <label class="block text-xs font-semibold text-slate-700">ข้อเสนอแนะเพิ่มเติม / สิ่งที่อยากให้ปรับปรุงในแชทบอท AI คู่หูจราจร</label>
           <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะของท่านที่นี่ (ถ้ามี)..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" id="eval-submit-btn" class="w-full py-3.5 px-4 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition">
           <i data-lucide="send" class="w-4 h-4"></i> ส่งแบบประเมินความพึงพอใจ
         </button>
       </form>
 
-      <!-- Thank You Screen (Hidden initially) -->
+      <!-- Thank You Screen -->
       <div id="eval-success-card" class="hidden bg-white rounded-2xl p-8 shadow-sm border border-emerald-200 text-center space-y-4">
         <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
           <i data-lucide="check-circle-2" class="w-9 h-9"></i>
         </div>
         <div>
           <h2 class="text-xl font-bold text-slate-900">ขอบคุณสำหรับการประเมิน!</h2>
-          <p class="text-sm text-slate-500 mt-1">ระบบได้บันทึกข้อมูลของท่านเรียบร้อยแล้ว</p>
+          <p class="text-sm text-slate-500 mt-1">ระบบได้บันทึกข้อมูลของท่านลงฐานข้อมูลเรียบร้อยแล้ว</p>
         </div>
         <div id="eval-receipt" class="inline-block px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600"></div>
         <div class="pt-2">
@@ -177,29 +208,20 @@
   </main>
 
   <script>
-    // =========================================================================
-    // 1. ตั้งค่า URL ที่นี่ (วางลิงก์ /exec และลิงก์โฟลเดอร์ Google Drive)
-    // =========================================================================
-    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
-const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I";
 
-    const API_URL = DEFAULT_API_URL || localStorage.getItem('ai_seminar_api_url') || "";
-    const DRIVE_URL = DEFAULT_DRIVE_URL !== "https://drive.google.com/"
-      ? DEFAULT_DRIVE_URL
-      : (localStorage.getItem('ai_seminar_drive_url') || "https://drive.google.com/");
-
-    // แก้ไขกำหนดการ 3 วันได้ที่นี่
     const SCHEDULES = {
       day1: [
         { time: '08:30 - 09:00', title: 'ลงทะเบียนและรับเอกสารประกอบการสัมมนา' },
-        { time: '09:00 - 10:30', title: 'พิธีเปิด และบรรยายภาพรวมโครงการ AI Chatbot ด้านงานจราจร' },
-        { time: '10:45 - 12:00', title: 'สาธิตการทำงานและโครงสร้างฐานข้อมูล 5 กลุ่มหลัก' },
-        { time: '13:00 - 16:30', title: 'แบ่งกลุ่ม Workshop วิเคราะห์โจทย์การใช้งานจริงหน้างาน' }
+        { time: '09:00 - 10:30', title: 'พิธีเปิด และบรรยายภาพรวมโครงการจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)' },
+        { time: '10:45 - 12:00', title: 'สาธิตการทำงานและโครงสร้างคลังความรู้ด้านงานจราจร' },
+        { time: '13:00 - 16:30', title: 'แบ่งกลุ่ม Workshop รวบรวมและจัดหมวดหมู่องค์ความรู้' }
       ],
       day2: [
         { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 2' },
-        { time: '09:00 - 12:00', title: 'ทดสอบระบบ AI Chatbot (ภาคปฏิบัติ) และบันทึกข้อผิดพลาด' },
-        { time: '13:00 - 16:30', title: 'ปรับปรุงคำตอบและตรวจสอบความถูกต้องทางกฎหมายจราจร' }
+        { time: '09:00 - 12:00', title: 'ทดสอบระบบแชทบอท AI คู่หูจราจร (ภาคปฏิบัติ) และบันทึกข้อผิดพลาด' },
+        { time: '13:00 - 16:30', title: 'ปรับปรุงคำตอบและตรวจสอบความถูกต้องทางกฎหมายและระเบียบจราจร' }
       ],
       day3: [
         { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 3' },
@@ -217,23 +239,36 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
 
     const ratings = { content: 5, speaker: 5, venue: 5, overall: 5 };
     let allParticipants = [];
+    let qrParticipantId = '';
 
-    // =========================================================================
-    // 2. INITIALIZATION
-    // =========================================================================
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('drive-link-btn').href = DRIVE_URL;
+      const params = new URLSearchParams(window.location.search);
+      qrParticipantId = (params.get('id') || '').trim().toUpperCase();
+
       showSchedule('day1');
       renderRatingQuestions();
       loadParticipants();
       lucide.createIcons();
 
-      // ถ้าเข้าผ่านลิงก์ ?tab=eval ให้เปิดหน้าแบบประเมินทันที
-      const params = new URLSearchParams(window.location.search);
       if (params.get('tab') === 'eval') switchTab('eval');
     });
 
+    function showMessage(msg, type = 'error') {
+      const box = document.getElementById('portal-alert');
+      if (!msg) { box.classList.add('hidden'); return; }
+      const styles = {
+        error: 'bg-rose-50 border-rose-200 text-rose-700',
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+        info: 'bg-blue-50 border-blue-200 text-blue-700'
+      };
+      box.className = `p-3.5 rounded-xl text-sm border ${styles[type] || styles.info}`;
+      box.textContent = msg;
+      box.classList.remove('hidden');
+    }
+
     function switchTab(tab) {
+      showMessage('');
       const isInfo = tab === 'info';
       document.getElementById('section-info').classList.toggle('hidden', !isInfo);
       document.getElementById('section-eval').classList.toggle('hidden', isInfo);
@@ -250,9 +285,6 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
       }
     }
 
-    // =========================================================================
-    // 3. SCHEDULE RENDERING
-    // =========================================================================
     function showSchedule(dayKey) {
       ['day1', 'day2', 'day3'].forEach(k => {
         const btn = document.getElementById(`sch-btn-${k}`);
@@ -261,8 +293,7 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
           : 'py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
       });
 
-      const list = document.getElementById('schedule-list');
-      list.innerHTML = SCHEDULES[dayKey].map(item => `
+      document.getElementById('schedule-list').innerHTML = SCHEDULES[dayKey].map(item => `
         <div class="flex gap-3 items-start">
           <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-navy-700 font-mono text-xs font-semibold shrink-0">${item.time}</span>
           <p class="text-slate-700 leading-snug pt-0.5">${item.title}</p>
@@ -270,51 +301,82 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
       `).join('');
     }
 
-    // =========================================================================
-    // 4. PARTICIPANT LIST & STAR RATINGS
-    // =========================================================================
     async function loadParticipants() {
       const select = document.getElementById('participant-select');
       try {
-        if (!API_URL) {
-          allParticipants = [
-            { id: 'AI69-01', prefix: 'พ.ต.อ.', fullName: 'สมชาย ใจดี', unit: 'ผกก.กลุ่มงานวิจัย', evaluated: false },
-            { id: 'AI69-02', prefix: 'พ.ต.ท.', fullName: 'วิชัย รักชาติ', unit: 'รอง ผกก.จร.', evaluated: false },
-            { id: 'AI69-03', prefix: 'ร.ต.อ.', fullName: 'สมหญิง จริงใจ', unit: 'รอง สว.กลุ่มงานวิจัย', evaluated: false }
-          ];
-          renderParticipantOptions(allParticipants);
-          return;
-        }
-
         const res = await fetch(`${API_URL}?action=getParticipants`);
         const json = await res.json();
         if (json.status === 'success') {
-          allParticipants = json.data || [];
+          allParticipants = (json.data || []).map(p => ({
+            ...p,
+            fullName: p.prefix ? `${p.prefix}${p.fullName}` : p.fullName
+          }));
           renderParticipantOptions(allParticipants);
+
+          // หากเข้ามาจาก Smart QR Code ให้แสดงบัตรข้อมูลส่วนตัวและเลือกชื่อในแบบประเมินอัตโนมัติ
+          if (qrParticipantId) {
+            const matched = allParticipants.find(p => String(p.id).toUpperCase() === qrParticipantId);
+            if (matched) {
+              renderPersonalCard(matched);
+              select.value = `${matched.id}|${matched.fullName}`;
+              document.getElementById('auto-selected-badge').classList.remove('hidden');
+            }
+          }
         }
       } catch (err) {
         select.innerHTML = '<option value="ไม่ระบุ|ผู้เข้าร่วมทั่วไป">ผู้เข้าร่วมทั่วไป (ไม่ระบุชื่อ)</option>';
       }
     }
 
+    function renderPersonalCard(p) {
+      document.getElementById('pc-id').textContent = p.id;
+      document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || p.group || '';
+      document.getElementById('pc-name').textContent = p.fullName;
+      document.getElementById('pc-position').textContent = p.position || p.role || '';
+
+      const stayDays = [p.stay30 === 'พัก' ? '30 พ.ย.' : '', p.stay1 === 'พัก' ? '1 ธ.ค.' : ''].filter(Boolean).join(', ');
+      const roomText = p.roomNo ? `ห้อง ${p.roomNo}${stayDays ? ` (${stayDays})` : ''}` : (stayDays ? `พักคืน ${stayDays}` : 'ไม่ระบุ / ไม่เข้าพัก');
+      document.getElementById('pc-room').textContent = roomText;
+      document.getElementById('pc-food').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
+
+      const days = [
+        { label: '30 พ.ย.', val: p.day1 },
+        { label: '1 ธ.ค.',  val: p.day2 },
+        { label: '2 ธ.ค.',  val: p.day3 }
+      ];
+      document.getElementById('pc-checkin-days').innerHTML = days.map(d => {
+        const done = d.val && d.val !== 'ยังไม่มา';
+        return `
+          <div class="flex-1 text-center py-1.5 px-2 rounded-lg border ${done ? 'bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-400'}">
+            <div>${d.label}</div>
+            <div class="text-[10px] font-mono">${done ? `เข้า ${d.val}` : 'รอเช็กอิน'}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('personal-card').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
     function renderParticipantOptions(list) {
       const select = document.getElementById('participant-select');
+      const currentVal = select.value;
       const options = [
         '<option value="">-- กรุณาเลือกชื่อของท่าน --</option>',
         ...list.map(p => {
-          const name = `${p.prefix}${p.fullName}`;
           const doneTag = p.evaluated ? ' (ประเมินแล้ว)' : '';
-          return `<option value="${escapeHtml(p.id)}|${escapeHtml(name)}">${escapeHtml(p.id)} - ${escapeHtml(name)}${doneTag}</option>`;
+          return `<option value="${escapeHtml(p.id)}|${escapeHtml(p.fullName)}">${escapeHtml(p.id)} - ${escapeHtml(p.fullName)}${doneTag}</option>`;
         }),
         '<option value="ไม่ระบุ|ผู้เข้าร่วมทั่วไป">ผู้เข้าร่วมทั่วไป / ไม่พบรายชื่อ</option>'
       ];
       select.innerHTML = options.join('');
+      if (currentVal) select.value = currentVal;
     }
 
     function filterParticipantOptions() {
       const q = document.getElementById('participant-search').value.trim().toLowerCase();
       const filtered = allParticipants.filter(p =>
-        `${p.id} ${p.prefix}${p.fullName} ${p.unit}`.toLowerCase().includes(q)
+        `${p.id} ${p.fullName} ${p.unitDetail || p.unit || ''}`.toLowerCase().includes(q)
       );
       renderParticipantOptions(filtered);
     }
@@ -355,14 +417,12 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
       }
     }
 
-    // =========================================================================
-    // 5. SUBMIT EVALUATION
-    // =========================================================================
     async function submitEvaluation(e) {
       e.preventDefault();
+      showMessage('');
       const selectedVal = document.getElementById('participant-select').value;
       if (!selectedVal) {
-        alert('กรุณาเลือกชื่อผู้เข้าร่วมสัมมนาก่อนส่งแบบประเมิน');
+        showMessage('กรุณาเลือกชื่อผู้เข้าร่วมสัมมนาก่อนส่งแบบประเมิน', 'error');
         return;
       }
 
@@ -383,22 +443,20 @@ const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7
       };
 
       try {
-        if (API_URL) {
-          const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-          });
-          const json = await res.json();
-          if (json.status !== 'success') throw new Error(json.message);
-        }
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
 
         document.getElementById('eval-form').classList.add('hidden');
         document.getElementById('eval-success-card').classList.remove('hidden');
         document.getElementById('eval-receipt').textContent = `ผู้ประเมิน: ${fullName} (${id})`;
         lucide.createIcons();
       } catch (err) {
-        alert('ส่งแบบประเมินไม่สำเร็จ: ' + err.message);
+        showMessage('ส่งแบบประเมินไม่สำเร็จ: ' + err.message, 'error');
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> ส่งแบบประเมินความพึงพอใจ';
         lucide.createIcons();
