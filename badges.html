@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบพิมพ์ป้ายคล้องคอ A6 (4 ใบ/A4) - แชทบอท AI คู่หูจราจร</title>
+  <title>พิมพ์ป้ายคล้องคอ A6 (4 ใบ/A4) - แชทบอท AI คู่หูจราจร</title>
 
   <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,14 +23,21 @@
       background-color: #f1f5f9;
     }
 
+    /* พื้นที่พรีวิวรองรับการเลื่อนแนวนอนบนจอมือถือโดยไม่ทำให้เว็บพัง */
+    .preview-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      padding: 16px 8px;
+    }
+
     /* ขนาดหน้ากระดาษ A4 สำหรับแสดงผลและสั่งพิมพ์ */
     .a4-page {
       width: 210mm;
       height: 297mm;
       background: #ffffff;
-      margin: 16px auto;
+      margin: 0 auto 20px auto;
       padding: 6mm;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12);
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       grid-template-rows: repeat(2, 1fr);
@@ -38,7 +45,7 @@
       box-sizing: border-box;
     }
 
-    /* ป้ายชื่อแต่ละใบ (ขนาดประมาณ A6 พอดีซองพลาสติกคล้องคอมาตรฐาน) */
+    /* การ์ดป้ายชื่อแต่ละใบ (ขนาดประมาณ A6 พอดีซองคล้องคอมาตรฐาน) */
     .badge-card {
       border: 1px dashed #cbd5e1;
       border-radius: 8px;
@@ -56,15 +63,16 @@
       height: 3.5mm;
       border: 1px solid rgba(255, 255, 255, 0.45);
       border-radius: 999px;
-      margin: 3.5mm auto 2mm auto;
+      margin: 3.5mm auto 1.5mm auto;
     }
 
-    .qr-box img, .qr-box canvas {
+    .qr-box img,
+    .qr-box canvas {
       margin: 0 auto;
       display: block;
     }
 
-    /* ตั้งค่าการพิมพ์ A4 */
+    /* สไตล์เฉพาะตอนสั่งพิมพ์ / บันทึก PDF */
     @media print {
       @page {
         size: A4 portrait;
@@ -79,6 +87,10 @@
       }
       .no-print {
         display: none !important;
+      }
+      .preview-wrapper {
+        overflow: visible !important;
+        padding: 0 !important;
       }
       .a4-page {
         margin: 0 !important;
@@ -95,138 +107,158 @@
 </head>
 <body class="text-slate-800 pb-12">
 
-  <!-- ==================== แถบควบคุมด้านบน (ซ่อนตอนสั่งพิมพ์) ==================== -->
-  <header class="no-print sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+  <!-- ==================== CONTROL BAR (ซ่อนอัตโนมัติตอนพิมพ์) ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
     <div class="max-w-6xl mx-auto px-4 py-3 space-y-3">
+
+      <!-- แถวบน: ชื่อระบบ + ปุ่มสลับหน้า/หลัง + ปุ่มพิมพ์ -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-[#1E3A8A] text-white flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#881337] text-white flex items-center justify-center shadow-sm shrink-0">
             <i data-lucide="id-card" class="w-5 h-5"></i>
           </div>
           <div>
-            <h1 class="font-bold text-slate-900 text-sm sm:text-base">ระบบพิมพ์ป้ายชื่อคล้องคอ A6 (4 ใบ / A4)</h1>
-            <p class="text-xs text-slate-500">โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</p>
+            <h1 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">
+              ระบบพิมพ์ป้ายคล้องคอ A6 (4 ใบ / A4)
+            </h1>
+            <p class="text-xs text-slate-500">
+              โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)
+            </p>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
           <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> กลับ Dashboard
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Dashboard
           </a>
-          <button onclick="setMode('front')" id="btn-front" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#1E3A8A] text-white shadow-sm transition">
+          <button type="button" onclick="setMode('front')" id="btn-front" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#1E3A8A] text-white shadow-sm transition">
             ด้านหน้า (ชื่อ + Smart QR)
           </button>
-          <button onclick="setMode('back')" id="btn-back" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-            ด้านหลัง (แบบเรียบง่าย)
+          <button type="button" onclick="setMode('back')" id="btn-back" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            ด้านหลัง (QR คู่หูจราจร AI)
           </button>
-          <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#881337] hover:bg-[#6B0F2A] text-white shadow-sm transition">
+          <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#881337] hover:bg-[#6B0F2A] text-white shadow-sm transition">
             <i data-lucide="printer" class="w-4 h-4"></i> สั่งพิมพ์ / บันทึก PDF
           </button>
         </div>
       </div>
 
-      <!-- ตั้งค่าลิงก์และจำนวนป้ายเปล่า -->
+      <!-- แถวตั้งค่า: API URL, ลิงก์ Portal, กรองหน่วยหลัก, ป้ายเปล่า Walk-in -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 pt-2 border-t border-slate-100 text-xs">
-        <div class="md:col-span-5">
+        <div class="md:col-span-4">
           <label class="block text-slate-500 mb-1">Apps Script API URL (ดึงรายชื่อจาก Google Sheets):</label>
           <div class="flex gap-1.5">
-            <input type="url" id="api-url-input" class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
-            <button onclick="loadFromApi()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium hover:bg-slate-700 transition">โหลด</button>
+            <input type="url" id="api-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-[11px]" />
+            <button type="button" onclick="loadFromApi()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white font-medium hover:bg-slate-700 shrink-0">โหลด</button>
           </div>
         </div>
 
-        <div class="md:col-span-5">
-          <label class="block text-slate-500 mb-1">ลิงก์ Portal (ฐานสร้าง Smart QR ด้านหน้าป้าย):</label>
-          <input type="url" id="portal-url-input" oninput="renderPages()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
+        <div class="md:col-span-4">
+          <label class="block text-slate-500 mb-1">ลิงก์หน้า Portal สำหรับ Smart QR ด้านหน้าป้าย:</label>
+          <input type="url" id="portal-url-input" oninput="renderPages()" placeholder="https://watchaiyanun.github.io/ai-seminar-69/portal.html" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-[11px]" />
         </div>
 
         <div class="md:col-span-2">
-          <label class="block text-slate-500 mb-1">ป้ายเปล่า (Walk-in):</label>
-          <select id="blank-count" onchange="renderPages()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]">
+          <label class="block text-slate-500 mb-1">กรองตามหน่วยหลัก:</label>
+          <select id="filter-unit" onchange="renderPages()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white">
+            <option value="all">ทั้งหมดทุกหน่วย</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-slate-500 mb-1">เพิ่มป้ายเปล่า (Walk-in):</label>
+          <select id="blank-count" onchange="renderPages()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white">
             <option value="0">ไม่เพิ่ม (0 ใบ)</option>
             <option value="4" selected>เพิ่ม 4 ใบ (1 แผ่น)</option>
             <option value="8">เพิ่ม 8 ใบ (2 แผ่น)</option>
+            <option value="12">เพิ่ม 12 ใบ (3 แผ่น)</option>
           </select>
         </div>
       </div>
 
       <!-- แถบสถานะและคำแนะนำการพิมพ์ -->
-      <div class="text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
-        <span id="summary-text">กำลังเตรียมข้อมูล...</span>
-        <span class="text-amber-600 font-medium">* ตอนกด Print ให้ตั้งค่า Margins = None และติ๊กเปิด Background graphics</span>
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <span id="summary-text" class="text-slate-600 font-medium">กำลังเตรียมข้อมูล...</span>
+        <span class="text-amber-700 font-medium">* ตอนกด Print ให้ตั้งค่า Margins = None และติ๊กเปิด Background graphics</span>
       </div>
 
-      <!-- กล่องแจ้งเตือนกรณีเกิดข้อผิดพลาด (ใช้แทน alert) -->
-      <div id="alert-box" class="hidden px-3.5 py-2.5 rounded-xl text-xs font-medium border"></div>
+      <!-- กล่องแจ้งเตือนสถานะ / Error (แทน alert) -->
+      <div id="status-alert" class="hidden p-2.5 rounded-xl text-xs border"></div>
     </div>
   </header>
 
-  <!-- ==================== พื้นที่แสดงตัวอย่างและสั่งพิมพ์ A4 ==================== -->
-  <main id="pages-container" class="py-4 overflow-x-auto"></main>
+  <!-- ==================== PREVIEW & PRINT CONTAINER ==================== -->
+  <main class="preview-wrapper">
+    <div id="pages-container"></div>
+  </main>
 
   <script>
-    // ลิงก์ Google Apps Script ของโครงการ
+    // ลิงก์ Google Apps Script, ลิงก์ Portal ค่าเริ่มต้น และลิงก์แชทบอทตำรวจคู่หูจราจร AI
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const FALLBACK_PORTAL_URL = "https://watchaiyanun.github.io/ai-seminar-69/portal.html";
+    const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
 
-    // ข้อมูลตัวอย่างกรณีเชื่อมต่อ API ไม่ได้
-    const FALLBACK_DATA = [
-      { id: 'KM69-01', fullName: 'พ.ต.อ.จักกฤศน์ โฉสูงเนิน', position: 'รอง ผบก.อก.รรท. รอง ผบก.น.5', mainUnit: 'บช.น.', unitDetail: 'บช.น. (บก.น.5)', role: 'ผู้เข้าร่วมสัมมนา' },
-      { id: 'KM69-40', fullName: 'พ.ต.อ.อังกูร ทวีเกตุ', position: 'ผกก.กลุ่มงานวิจัยฯ 2', mainUnit: 'สยศ.ตร.', unitDetail: 'สยศ.ตร.(วจ.)', role: 'คณะทำงาน' },
-      { id: 'KM69-46', fullName: 'พ.ต.อ.หญิง จินดา กลับกลาย', position: 'ผู้ทรงคุณวุฒิ', mainUnit: 'หน่วยงานภายนอก', unitDetail: 'ผู้ทรงคุณวุฒิ', role: 'ผู้ทรงคุณวุฒิ' }
+    // ข้อมูลตัวอย่างกรณีเชื่อมต่อ API ไม่ได้ (เช่น ทดสอบแบบออฟไลน์)
+    const DEMO_DATA = [
+      { id: 'KM69-01', fullName: 'พ.ต.อ.จักกฤศน์ โฉสูงเนิน', position: 'รอง ผบก.อก.รรท. รอง ผบก.น.5', mainUnit: 'บช.น.', unitDetail: 'บช.น. (บก.น.5)', role: 'ผู้เข้าร่วมสัมมนา', rsvp: 'ยืนยันเข้าร่วม', substituteName: '', substitutePosition: '' },
+      { id: 'KM69-40', fullName: 'พ.ต.อ.อังกูร ทวีเกตุ', position: 'ผกก.กลุ่มงานวิจัยฯ 2', mainUnit: 'สยศ.ตร.', unitDetail: 'สยศ.ตร.(วจ.)', role: 'คณะทำงาน', rsvp: 'ยืนยันเข้าร่วม', substituteName: '', substitutePosition: '' },
+      { id: 'KM69-46', fullName: 'พ.ต.อ.หญิง จินดา กลับกลาย', position: 'ผู้ทรงคุณวุฒิ', mainUnit: 'หน่วยงานภายนอก', unitDetail: 'ผู้ทรงคุณวุฒิ', role: 'ผู้ทรงคุณวุฒิ', rsvp: 'ยืนยันเข้าร่วม', substituteName: '', substitutePosition: '' },
+      { id: 'KM69-02', fullName: 'พ.ต.อ.อาทิตย์ พรหมนอก', position: 'ผกก.สอบสวน บก.น.2', mainUnit: 'บช.น.', unitDetail: 'บช.น. (บก.น.2)', role: 'ผู้เข้าร่วมสัมมนา', rsvp: 'ส่งผู้แทนเข้าร่วม', substituteName: 'พ.ต.ท.สมหมาย ตัวอย่าง', substitutePosition: 'รอง ผกก.สอบสวน บก.น.2' }
     ];
 
     let participants = [];
     let currentMode = 'front'; // 'front' | 'back'
 
-    // ตัวช่วยอ่าน/เขียน localStorage อย่างปลอดภัย
-    function safeStorageGet(key) {
-      try { return localStorage.getItem(key); } catch (e) { return null; }
-    }
-    function safeStorageSet(key, val) {
-      try { localStorage.setItem(key, val); } catch (e) {}
-    }
+    function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
-
-      // สร้างลิงก์ portal.html อัตโนมัติจากที่อยู่เว็บปัจจุบัน
-      let defaultPortal = 'https://watchaiyanun.github.io/ai-seminar-69/portal.html';
+    function detectDefaultPortalUrl() {
       try {
-        if (window.location.protocol.startsWith('http')) {
-          defaultPortal = new URL('portal.html', window.location.href).href;
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+          return new URL('portal.html', window.location.href).href;
         }
       } catch (e) {}
+      return FALLBACK_PORTAL_URL;
+    }
 
-      document.getElementById('api-url-input').value = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
-      document.getElementById('portal-url-input').value = safeStorageGet('ai_seminar_portal_url') || defaultPortal;
-
-      loadFromApi();
-    });
-
-    function showAlert(message, type = 'error') {
-      const box = document.getElementById('alert-box');
-      if (!message) {
+    function showStatusAlert(msg, type = 'info') {
+      const box = document.getElementById('status-alert');
+      if (!msg) {
         box.classList.add('hidden');
         return;
       }
       const styles = {
         error: 'bg-rose-50 border-rose-200 text-rose-700',
         warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        success: 'bg-emerald-50 border-emerald-200 text-emerald-700'
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+        info: 'bg-blue-50 border-blue-200 text-blue-700'
       };
-      box.className = `px-3.5 py-2.5 rounded-xl text-xs font-medium border ${styles[type] || styles.warning}`;
-      box.textContent = message;
+      box.className = `p-2.5 rounded-xl text-xs border ${styles[type] || styles.info}`;
+      box.textContent = msg;
       box.classList.remove('hidden');
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+
+      const savedApi = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
+      const savedPortal = safeStorageGet('ai_seminar_portal_url') || detectDefaultPortalUrl();
+
+      document.getElementById('api-url-input').value = savedApi;
+      document.getElementById('portal-url-input').value = savedPortal;
+
+      loadFromApi();
+    });
+
     async function loadFromApi() {
-      showAlert('');
+      showStatusAlert('');
       const apiUrl = document.getElementById('api-url-input').value.trim();
       safeStorageSet('ai_seminar_api_url', apiUrl);
 
       if (!apiUrl) {
-        participants = [...FALLBACK_DATA];
-        showAlert('ยังไม่ได้ระบุ API URL กำลังแสดงข้อมูลตัวอย่าง', 'warning');
+        participants = [...DEMO_DATA];
+        populateUnitFilter();
+        showStatusAlert('ยังไม่ได้ระบุ API URL — แสดงข้อมูลตัวอย่าง 4 รายชื่อ', 'warning');
         renderPages();
         return;
       }
@@ -245,17 +277,31 @@
             position: String(p.position || ''),
             mainUnit: String(p.mainUnit || p.group || ''),
             unitDetail: String(p.unitDetail || p.unit || ''),
-            role: String(p.role || 'ผู้เข้าร่วมสัมมนา')
+            role: String(p.role || 'ผู้เข้าร่วมสัมมนา'),
+            rsvp: String(p.rsvp || 'รอการยืนยัน'),
+            substituteName: String(p.substituteName || '').trim(),
+            substitutePosition: String(p.substitutePosition || '').trim()
           }));
+          populateUnitFilter();
           renderPages();
         } else {
-          throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
+          throw new Error(json.message || 'ไม่สามารถโหลดรายชื่อได้');
         }
       } catch (err) {
-        participants = [...FALLBACK_DATA];
-        showAlert(`เชื่อมต่อ API ไม่สำเร็จ (${err.message}) กำลังแสดงข้อมูลตัวอย่างแทน`, 'error');
+        participants = [...DEMO_DATA];
+        populateUnitFilter();
+        showStatusAlert(`เชื่อมต่อ Google Sheets ไม่สำเร็จ (${err.message}) — แสดงข้อมูลตัวอย่างชั่วคราว`, 'error');
         renderPages();
       }
+    }
+
+    function populateUnitFilter() {
+      const select = document.getElementById('filter-unit');
+      const prev = select.value;
+      const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))];
+      select.innerHTML = '<option value="all">ทั้งหมดทุกหน่วย</option>' +
+        units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+      if (units.includes(prev)) select.value = prev;
     }
 
     function setMode(mode) {
@@ -273,42 +319,45 @@
       renderPages();
     }
 
-    // กำหนดแถบสีแยกตามบทบาท/กลุ่ม เพื่อความชัดเจนหน้างาน
+    // กำหนดโทนสีแถบป้ายตามบทบาท/สังกัด
     function getBadgeTheme(item) {
       if (item.isBlank) {
-        return { bg: '#475569', pillBg: '#F1F5F9', pillText: '#334155', label: 'ผู้เข้าร่วมหน้างาน (Walk-in)' };
+        return { bg: '#475569', pillBg: '#F1F5F9', pillText: '#334155', label: 'Walk-in / ลงทะเบียนหน้างาน' };
       }
       const role = String(item.role || '');
       const unit = String(item.mainUnit || '');
 
-      if (role.includes('คณะทำงาน')) {
+      if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) {
         return { bg: '#0F766E', pillBg: '#CCFBF1', pillText: '#0F766E', label: 'คณะทำงาน' };
       }
-      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || unit.includes('ภายนอก')) {
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || unit.includes('หน่วยงานภายนอก')) {
         return { bg: '#881337', pillBg: '#FFE4E6', pillText: '#881337', label: role || 'หน่วยงานภายนอก' };
       }
-      return { bg: '#1E3A8A', pillBg: '#DBEAFE', pillText: '#1E3A8A', label: item.mainUnit || 'ผู้เข้าร่วมสัมมนา' };
+      return { bg: '#1E3A8A', pillBg: '#DBEAFE', pillText: '#1E3A8A', label: unit || 'ผู้เข้าร่วมสัมมนา' };
     }
 
     function renderPages() {
       const container = document.getElementById('pages-container');
       container.innerHTML = '';
 
-      const portalBase = document.getElementById('portal-url-input').value.trim() || 'https://watchaiyanun.github.io/ai-seminar-69/portal.html';
+      const portalBase = document.getElementById('portal-url-input').value.trim() || FALLBACK_PORTAL_URL;
       safeStorageSet('ai_seminar_portal_url', portalBase);
 
+      const unitFilter = document.getElementById('filter-unit').value;
       const blankCount = parseInt(document.getElementById('blank-count').value, 10) || 0;
-      const allItems = [...participants];
+
+      const filtered = participants.filter(p => unitFilter === 'all' || p.mainUnit === unitFilter);
+      const allItems = [...filtered];
 
       for (let i = 0; i < blankCount; i++) {
-        allItems.push({ id: '', fullName: '', position: '', mainUnit: 'Walk-in', unitDetail: '', role: 'Walk-in', isBlank: true });
+        allItems.push({ id: '', fullName: '', position: '', mainUnit: '', unitDetail: '', role: 'Walk-in', isBlank: true });
       }
 
       const totalPages = Math.ceil(allItems.length / 4) || 1;
       document.getElementById('summary-text').textContent =
-        `รายชื่อจริง ${participants.length} ราย + ป้ายเปล่า ${blankCount} ใบ = รวม ${allItems.length} ใบ (${totalPages} แผ่น A4)`;
+        `กำลังแสดง ${currentMode === 'front' ? 'ด้านหน้า' : 'ด้านหลัง'} • รายชื่อ ${filtered.length} คน + ป้ายเปล่า ${blankCount} ใบ = รวม ${allItems.length} ใบ (${totalPages} แผ่น A4)`;
 
-      // จัดวาง 4 ใบต่อ 1 แผ่น A4
+      // แบ่งจัดวาง 4 ใบต่อ 1 แผ่น A4
       for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
         const pageEl = document.createElement('div');
         pageEl.className = 'a4-page';
@@ -318,36 +367,56 @@
           const globalIdx = pageIdx * 4 + idx;
           const card = document.createElement('div');
           card.className = 'badge-card';
-          card.innerHTML = currentMode === 'front' ? buildFrontHtml(item, globalIdx) : buildBackHtml();
+          card.innerHTML = currentMode === 'front' ? buildFrontHtml(item, globalIdx) : buildBackHtml(globalIdx);
           pageEl.appendChild(card);
         });
 
         container.appendChild(pageEl);
       }
 
-      // สร้าง Smart QR Code ด้านหน้าป้าย
-      if (currentMode === 'front' && typeof QRCode !== 'undefined') {
-        allItems.forEach((item, idx) => {
-          if (!item.isBlank && item.id) {
-            const el = document.getElementById(`qr-front-${idx}`);
-            if (el) {
-              const sep = portalBase.includes('?') ? '&' : '?';
-              const smartUrl = `${portalBase}${sep}id=${encodeURIComponent(item.id)}`;
-              new QRCode(el, {
-                text: smartUrl,
-                width: 104,
-                height: 104,
-                correctLevel: QRCode.CorrectLevel.L
+      // สร้าง QR Code หลังจากใส่ HTML ลง DOM แล้ว
+      if (typeof QRCode !== 'undefined') {
+        if (currentMode === 'front') {
+          allItems.forEach((item, idx) => {
+            if (!item.isBlank && item.id) {
+              const el = document.getElementById(`qr-front-${idx}`);
+              if (el) {
+                const sep = portalBase.includes('?') ? '&' : '?';
+                const smartUrl = `${portalBase}${sep}id=${encodeURIComponent(item.id)}`;
+                new QRCode(el, {
+                  text: smartUrl,
+                  width: 102,
+                  height: 102,
+                  correctLevel: QRCode.CorrectLevel.L
+                });
+              }
+            }
+          });
+        } else {
+          // ด้านหลังป้าย: สร้าง QR Code สำหรับเข้าแชทบอทตำรวจคู่หูจราจร AI
+          allItems.forEach((_, idx) => {
+            const elAi = document.getElementById(`qr-ai-${idx}`);
+            if (elAi) {
+              new QRCode(elAi, {
+                text: AI_CHATBOT_URL,
+                width: 112,
+                height: 112,
+                correctLevel: QRCode.CorrectLevel.M
               });
             }
-          }
-        });
+          });
+        }
       }
     }
 
-    // ==================== ออกแบบด้านหน้าป้าย (ชื่อ + Smart QR เดียวจบ) ====================
+    // ==================== ออกแบบด้านหน้าป้าย (รองรับชื่อผู้แทนอัตโนมัติ + Smart QR) ====================
     function buildFrontHtml(item, idx) {
       const theme = getBadgeTheme(item);
+      const isSub = !item.isBlank && item.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(item.substituteName);
+      const displayName = isSub ? item.substituteName : item.fullName;
+      const displayPos = isSub ? (item.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (item.position || '');
+      const pillLabel = isSub ? `ผู้แทน • ${item.mainUnit || theme.label}` : theme.label;
+
       return `
         <!-- แถบหัวป้าย -->
         <div style="background-color: ${theme.bg};" class="text-white px-3.5 pb-2.5 pt-0.5 text-center">
@@ -360,8 +429,8 @@
         <!-- เนื้อหาตรงกลาง -->
         <div class="flex-1 flex flex-col items-center justify-between px-4 py-3 text-center">
           <div class="w-full">
-            <span style="background-color: ${theme.pillBg}; color: ${theme.pillText};" class="inline-block px-3 py-0.5 rounded-full text-[10.5px] font-semibold">
-              ${escapeHtml(theme.label)}
+            <span style="background-color: ${isSub ? '#F3E8FF' : theme.pillBg}; color: ${isSub ? '#6B21A8' : theme.pillText};" class="inline-block px-3 py-0.5 rounded-full text-[10.5px] font-semibold">
+              ${escapeHtml(pillLabel)}
             </span>
 
             ${item.isBlank ? `
@@ -371,10 +440,11 @@
                 <p class="text-[10px] text-slate-400">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
               </div>
             ` : `
-              <div class="mt-2.5">
-                <h3 class="text-[17px] font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.fullName)}</h3>
-                <p class="text-[11px] font-medium text-slate-600 mt-1 line-clamp-2">${escapeHtml(item.position || '')}</p>
-                <p class="text-[10.5px] text-slate-500 mt-0.5">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
+              <div class="mt-2">
+                <h3 class="text-[16.5px] font-bold text-slate-900 leading-snug break-words">${escapeHtml(displayName)}</h3>
+                <p class="text-[11px] font-medium text-slate-600 mt-0.5 line-clamp-2">${escapeHtml(displayPos)}</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
+                ${isSub ? `<p class="text-[9px] text-purple-700 font-medium mt-0.5">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
               </div>
             `}
           </div>
@@ -382,12 +452,12 @@
           <!-- Smart QR Code -->
           <div class="mt-1.5 flex flex-col items-center">
             ${item.isBlank ? `
-              <div class="w-[104px] h-[104px] border border-dashed border-slate-300 rounded-xl flex items-center justify-center text-[10px] text-slate-400">
+              <div class="w-[102px] h-[102px] border border-dashed border-slate-300 rounded-xl flex items-center justify-center text-[10px] text-slate-400">
                 Walk-in
               </div>
               <p class="text-[11px] font-mono font-bold text-slate-400 mt-1">WALK-IN</p>
             ` : `
-              <div id="qr-front-${idx}" class="qr-box p-1.5 bg-white border border-slate-200 rounded-xl shadow-xs"></div>
+              <div id="qr-front-${idx}" class="qr-box p-1.5 bg-white border border-slate-200 rounded-xl shadow-sm"></div>
               <p class="text-[11px] font-mono font-bold text-slate-800 mt-1">${escapeHtml(item.id)}</p>
               <p class="text-[8.5px] text-slate-500 leading-tight">สแกนเพื่อเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
             `}
@@ -399,34 +469,36 @@
       `;
     }
 
-    // ==================== ออกแบบด้านหลังป้าย (เรียบง่าย เน้นให้สแกนด้านหน้า) ====================
-    function buildBackHtml() {
+    // ==================== ออกแบบด้านหลังป้าย (QR Code แชทบอทตำรวจคู่หูจราจร AI) ====================
+    function buildBackHtml(idx) {
       return `
         <!-- แถบหัวป้ายด้านหลัง -->
-        <div class="bg-[#1E3A8A] text-white px-4 pb-3 pt-0.5 text-center">
+        <div class="bg-[#1E3A8A] text-white px-4 pb-2.5 pt-0.5 text-center">
           <div class="lanyard-slot"></div>
           <p class="text-[9.5px] tracking-widest uppercase text-blue-200">AI TRAFFIC KM SEMINAR 2026</p>
         </div>
 
-        <!-- เนื้อหาแบบมินิมอล สบายตา -->
-        <div class="flex-1 flex flex-col items-center justify-between px-5 py-6 text-center bg-gradient-to-b from-white to-slate-50/80">
-          <div class="space-y-1.5 mt-2">
-            <p class="text-[11px] font-medium text-slate-500">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
-            <h2 class="text-lg font-bold text-[#1E3A8A] leading-snug">แชทบอท AI คู่หูจราจร</h2>
-            <div class="w-12 h-1 bg-[#881337] rounded-full mx-auto my-2"></div>
-            <p class="text-xs font-semibold text-slate-700 pt-1">30 พฤศจิกายน – 2 ธันวาคม 2569</p>
-            <p class="text-[10.5px] text-slate-500 leading-relaxed">
-              ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล<br>จังหวัดปทุมธานี
+        <!-- เนื้อหาด้านหลัง: QR แชทบอทตำรวจคู่หูจราจร -->
+        <div class="flex-1 flex flex-col items-center justify-between px-4 py-4 text-center bg-gradient-to-b from-white to-slate-50/90">
+          <div class="space-y-1">
+            <h2 class="text-[15px] font-bold text-[#1E3A8A] leading-tight">👮‍♂️ คู่หูจราจร AI</h2>
+            <p class="text-[9.5px] text-slate-600 leading-relaxed px-1">
+              สอบถามข้อมูลและค้นหาแนวทางการปฏิบัติงานด้านการจราจร<br>ผ่านแชทบอทตำรวจคู่หูจราจร
             </p>
           </div>
 
-          <!-- กล่องชี้เป้าให้พลิกไปสแกน QR ด้านหน้า -->
-          <div class="w-full py-3.5 px-3 rounded-2xl bg-blue-50/70 border border-blue-200/80 space-y-1">
-            <p class="text-xs font-bold text-[#1E3A8A]">สแกน QR Code ด้านหน้าป้าย</p>
-            <p class="text-[10px] text-slate-600">เพื่อเปิดดูเอกสาร • กำหนดการ • ห้องพัก • แบบประเมิน</p>
+          <!-- QR Code เข้าสู่ AI Chatbot -->
+          <div class="flex flex-col items-center my-1">
+            <div id="qr-ai-${idx}" class="qr-box p-2 bg-white border-2 border-[#1E3A8A]/20 rounded-2xl shadow-sm"></div>
+            <p class="text-[10px] font-bold text-[#881337] mt-1.5">สแกนเพื่อเข้าใช้งานแชทบอท AI</p>
+            <p class="text-[9px] font-mono text-slate-500">pinai-fine.police.go.th</p>
           </div>
 
-          <p class="text-[9.5px] text-slate-400">กรุณาสวมป้ายชื่อตลอดระยะเวลาการเข้าร่วมสัมมนา</p>
+          <!-- ข้อมูลงานย่อ -->
+          <div class="w-full pt-2 border-t border-slate-200 text-[9px] text-slate-500 space-y-0.5">
+            <p class="font-semibold text-slate-700">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</p>
+            <p class="text-[8.5px] text-slate-400">สแกน QR ด้านหน้าป้ายเพื่อดูเอกสาร • ห้องพัก • แบบประเมิน</p>
+          </div>
         </div>
 
         <!-- แถบสีด้านล่าง -->
