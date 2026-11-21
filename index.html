@@ -47,6 +47,13 @@
     body { font-family: 'Prompt', sans-serif; }
     #reader video { border-radius: 0.75rem; object-fit: cover; }
 
+    /* Custom Scrollbar สำหรับกล่องรายชื่อซ้าย-ขวา */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    /* สไตล์เฉพาะตอนสั่งพิมพ์ใบเซ็นชื่อกระดาษ A4 */
     @media print {
       @page {
         size: A4 portrait;
@@ -80,13 +87,13 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
 
   <!-- ==================== MAIN WEB APP UI (ซ่อนตอนพิมพ์) ==================== -->
   <div id="app-ui" class="no-print flex flex-col min-h-screen">
 
     <!-- Top Navbar -->
-    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 flex items-center justify-center text-white shadow-md shrink-0">
@@ -101,7 +108,14 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <!-- Auto Refresh Toggle -->
+          <button onclick="toggleAutoRefresh()" id="btn-auto-refresh" title="เปิด/ปิด อัปเดตอัตโนมัติทุก 15 วินาที" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition">
+            <span id="auto-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="auto-label">Auto-Refresh: ปิด</span>
+          </button>
+
+          <!-- Connection Status Badge -->
+          <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว
           </span>
 
@@ -122,19 +136,19 @@
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5 flex-1">
 
-      <!-- Day Selector & Action Bar -->
-      <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+      <!-- Day Selector & Quick Actions -->
+      <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">เลือกวันสัมมนา:</span>
-          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">วันสัมมนา:</span>
+          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
             วันที่ 1 (30 พ.ย. 69)
           </button>
-          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
             วันที่ 2 (1 ธ.ค. 69)
           </button>
-          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
             วันที่ 3 (2 ธ.ค. 69)
           </button>
         </div>
@@ -152,83 +166,136 @@
         </div>
       </section>
 
-      <!-- KPI Cards -->
-      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <div class="flex items-center justify-between">
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ผู้ลงทะเบียนทั้งหมด</p>
-            <div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-400">
-              <i data-lucide="users" class="w-4 h-4"></i>
-            </div>
+      <!-- KPI Summary Bar -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">ลงทะเบียนทั้งหมด</p>
+            <p id="kpi-total" class="text-2xl sm:text-3xl font-bold mt-1 text-slate-800 dark:text-white">0</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">รวม Walk-in</p>
           </div>
-          <p id="kpi-total" class="text-2xl sm:text-3xl font-bold mt-2 text-slate-800 dark:text-white">0</p>
-          <p class="text-xs text-slate-400 mt-1">รวมผู้เข้าร่วม Walk-in</p>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <div class="flex items-center justify-between">
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">เข้าร่วมแล้ว (วันนี้)</p>
-            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-              <i data-lucide="user-check" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <p id="kpi-checked" class="text-2xl sm:text-3xl font-bold mt-2 text-emerald-600 dark:text-emerald-400">0</p>
-          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-400 flex items-center justify-center">
+            <i data-lucide="users" class="w-5 h-5"></i>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <div class="flex items-center justify-between">
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ยังไม่เข้าร่วม</p>
-            <div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-maroon-600 dark:text-rose-400">
-              <i data-lucide="user-x" class="w-4 h-4"></i>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between">
+          <div class="flex-1 pr-2">
+            <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">เข้าร่วมแล้ว (ซ้าย)</p>
+            <p id="kpi-checked" class="text-2xl sm:text-3xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">0</p>
+            <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
           </div>
-          <p id="kpi-pending" class="text-2xl sm:text-3xl font-bold mt-2 text-maroon-700 dark:text-rose-400">0</p>
-          <p class="text-xs text-slate-400 mt-1">รอลงทะเบียนหน้างาน</p>
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <i data-lucide="user-check" class="w-5 h-5"></i>
+          </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <div class="flex items-center justify-between">
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">อัตราการเข้าร่วม</p>
-            <div class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-              <i data-lucide="pie-chart" class="w-4 h-4"></i>
-            </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-800/60 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">ยังไม่เข้าร่วม (ขวา)</p>
+            <p id="kpi-pending" class="text-2xl sm:text-3xl font-bold mt-1 text-maroon-700 dark:text-rose-400">0</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">รอลงทะเบียน</p>
           </div>
-          <p id="kpi-percent" class="text-2xl sm:text-3xl font-bold mt-2 text-navy-700 dark:text-indigo-400">0%</p>
-          <p id="kpi-eval" class="text-xs text-slate-400 mt-1">ประเมินแล้ว 0 คน</p>
+          <div class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-maroon-600 dark:text-rose-400 flex items-center justify-center">
+            <i data-lucide="user-x" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">อัตราการเข้าร่วม</p>
+            <p id="kpi-percent" class="text-2xl sm:text-3xl font-bold mt-1 text-navy-700 dark:text-indigo-400">0%</p>
+            <p id="kpi-eval" class="text-[11px] text-slate-400 mt-0.5">ประเมินแล้ว 0 คน</p>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <i data-lucide="pie-chart" class="w-5 h-5"></i>
+          </div>
         </div>
       </section>
 
-      <!-- Filters & Search -->
-      <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-3 justify-between">
-          <div class="relative flex-1 max-w-md">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input
-              type="text"
-              id="search-input"
-              oninput="renderTable()"
-              placeholder="ค้นหารหัส (AI69-01), ชื่อ-สกุล, สังกัด..."
-              class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
-            />
+      <!-- Search, Group Filter & View Switcher -->
+      <section class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center">
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input
+            type="text"
+            id="search-input"
+            oninput="renderViews()"
+            placeholder="ค้นหารหัส (AI69-01), ชื่อ-สกุล, สังกัด..."
+            class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
+          />
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="filter-group" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+            <option value="all">กลุ่มงาน: ทั้งหมด</option>
+          </select>
+
+          <!-- View Mode Toggle -->
+          <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700">
+            <button onclick="setViewMode('split')" id="view-btn-split" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition">
+              <i data-lucide="columns-2" class="w-3.5 h-3.5"></i> แยกซ้าย-ขวา
+            </button>
+            <button onclick="setViewMode('table')" id="view-btn-table" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
+              <i data-lucide="table-2" class="w-3.5 h-3.5"></i> ตารางรวม
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== SPLIT VIEW (ซ้าย: เข้าแล้ว | ขวา: ยังไม่เข้า) ==================== -->
+      <section id="split-view-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+        <!-- LEFT COLUMN: เข้าร่วมแล้ว -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-emerald-200 dark:border-emerald-800/70 overflow-hidden flex flex-col">
+          <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h2 class="font-bold text-base leading-tight">เข้าร่วมสัมมนาแล้ว</h2>
+                <p class="text-[11px] text-emerald-100">เรียงตามเวลาเข้าล่าสุดอยู่ด้านบน (<span class="current-day-text">30 พ.ย. 69</span>)</p>
+              </div>
+            </div>
+            <span id="split-checked-badge" class="px-3 py-1 rounded-full bg-white text-emerald-700 font-bold text-sm shadow-sm">
+              0 คน
+            </span>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <select id="filter-status" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
-              <option value="all">สถานะ: ทั้งหมด</option>
-              <option value="checked">เข้าร่วมแล้ว</option>
-              <option value="pending">ยังไม่เข้าร่วม</option>
-            </select>
-
-            <select id="filter-group" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
-              <option value="all">กลุ่มงาน: ทั้งหมด</option>
-            </select>
+          <div id="checked-list" class="p-3.5 space-y-2.5 max-h-[620px] overflow-y-auto custom-scroll bg-emerald-50/30 dark:bg-slate-900/30 min-h-[240px]">
+            <!-- Checked-in cards injected by JS -->
           </div>
         </div>
 
-        <!-- Participant Table -->
+        <!-- RIGHT COLUMN: ยังไม่เข้าร่วม -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-rose-200 dark:border-rose-900/70 overflow-hidden flex flex-col">
+          <div class="px-5 py-3.5 bg-gradient-to-r from-maroon-700 to-rose-700 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h2 class="font-bold text-base leading-tight">ยังไม่เข้าร่วม / รอลงทะเบียน</h2>
+                <p class="text-[11px] text-rose-100">เรียงตามรหัสประจำตัว (<span class="current-day-text">30 พ.ย. 69</span>)</p>
+              </div>
+            </div>
+            <span id="split-pending-badge" class="px-3 py-1 rounded-full bg-white text-maroon-700 font-bold text-sm shadow-sm">
+              0 คน
+            </span>
+          </div>
+
+          <div id="pending-list" class="p-3.5 space-y-2.5 max-h-[620px] overflow-y-auto custom-scroll bg-rose-50/20 dark:bg-slate-900/30 min-h-[240px]">
+            <!-- Pending cards injected by JS -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==================== TABLE VIEW (มุมมองตารางรวม) ==================== -->
+      <section id="table-view-container" class="hidden bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -237,18 +304,15 @@
                 <th class="py-3.5 px-4 font-semibold">ยศ - ชื่อ - สกุล</th>
                 <th class="py-3.5 px-4 font-semibold hidden md:table-cell">ตำแหน่ง / สังกัด</th>
                 <th class="py-3.5 px-4 font-semibold hidden lg:table-cell">กลุ่มงาน</th>
-                <th class="py-3.5 px-4 font-semibold text-center">สถานะ (<span id="th-day-label">30 พ.ย. 69</span>)</th>
+                <th class="py-3.5 px-4 font-semibold text-center">สถานะ (<span class="current-day-text">30 พ.ย. 69</span>)</th>
                 <th class="py-3.5 px-4 font-semibold text-right">จัดการ (Manual)</th>
               </tr>
             </thead>
-            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70 text-sm">
-              <tr>
-                <td colspan="6" class="py-10 text-center text-slate-400">กำลังโหลดข้อมูล...</td>
-              </tr>
-            </tbody>
+            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70 text-sm"></tbody>
           </table>
         </div>
       </section>
+
     </main>
 
     <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800">
@@ -427,8 +491,10 @@
     let API_URL = localStorage.getItem('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let currentDay = detectDefaultDay();
+    let currentView = 'split'; // 'split' | 'table'
     let html5QrCode = null;
     let lastScanned = { id: null, time: 0 };
+    let autoRefreshTimer = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -458,15 +524,57 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
+    function toggleAutoRefresh() {
+      const dot = document.getElementById('auto-dot');
+      const label = document.getElementById('auto-label');
+      const btn = document.getElementById('btn-auto-refresh');
+
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+        dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        label.textContent = 'Auto-Refresh: ปิด';
+        btn.className = 'hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition';
+        showToast('ปิดโหมดอัปเดตอัตโนมัติแล้ว', 'info');
+      } else {
+        autoRefreshTimer = setInterval(() => fetchParticipants(false), 15000);
+        dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-ping';
+        label.textContent = 'Auto-Refresh: 15 วิ';
+        btn.className = 'hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 transition';
+        showToast('เปิดอัปเดตข้อมูลอัตโนมัติทุก 15 วินาที', 'success');
+      }
+    }
+
     function updateApiStatusBadge() {
       const badge = document.getElementById('api-status-badge');
       if (API_URL) {
-        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
         badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว';
       } else {
-        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
         badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง (Demo)';
       }
+    }
+
+    function setViewMode(mode) {
+      currentView = mode;
+      const splitContainer = document.getElementById('split-view-container');
+      const tableContainer = document.getElementById('table-view-container');
+      const btnSplit = document.getElementById('view-btn-split');
+      const btnTable = document.getElementById('view-btn-table');
+
+      if (mode === 'split') {
+        splitContainer.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
+        btnSplit.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition';
+        btnTable.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
+      } else {
+        splitContainer.classList.add('hidden');
+        tableContainer.classList.remove('hidden');
+        btnTable.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition';
+        btnSplit.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
+      }
+      renderViews();
     }
 
     async function fetchParticipants(showToastMsg = false) {
@@ -501,9 +609,7 @@
     }
 
     async function postToApi(payload) {
-      if (!API_URL) {
-        return handleDemoPost(payload);
-      }
+      if (!API_URL) return handleDemoPost(payload);
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -518,10 +624,10 @@
         const p = participants.find(x => x.id.toUpperCase() === String(payload.id).trim().toUpperCase());
         if (!p) return { status: 'not_found', message: `ไม่พบรหัส ${payload.id} ในระบบ` };
         if (!payload.undo && p[payload.day]) {
-          return { status: 'already_checked_in', message: `${p.prefix}${p.fullName} เช็คชื่อไปแล้วเมื่อ ${p[payload.day]}`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+          return { status: 'already_checked_in', message: `${p.prefix}${p.fullName} เช็คชื่อไปแล้วเมื่อ ${p[payload.day]}` };
         }
         p[payload.day] = payload.undo ? '' : timeStr;
-        return { status: 'success', time: p[payload.day], message: payload.undo ? `ยกเลิกเช็คชื่อ ${p.prefix}${p.fullName} แล้ว` : `เช็คชื่อ ${p.prefix}${p.fullName} สำเร็จ (${timeStr})`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+        return { status: 'success', time: p[payload.day], message: payload.undo ? `ยกเลิกเช็คชื่อ ${p.prefix}${p.fullName} แล้ว` : `เช็คชื่อ ${p.prefix}${p.fullName} สำเร็จ (${timeStr})` };
       }
       if (payload.action === 'addWalkIn') {
         const newId = 'AI69-' + String(participants.length + 1).padStart(2, '0');
@@ -541,12 +647,13 @@
     function selectDay(dayKey, shouldRender = true) {
       currentDay = dayKey;
       document.querySelectorAll('.day-tab').forEach(btn => {
-        btn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
+        btn.className = 'day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
       });
-      const activeBtn = document.getElementById(`tab-${dayKey}`);
-      activeBtn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-semibold transition bg-navy-700 text-white shadow-sm';
+      document.getElementById(`tab-${dayKey}`).className = 'day-tab px-3.5 py-2 rounded-xl text-sm font-semibold transition bg-navy-700 text-white shadow-sm';
 
-      document.getElementById('th-day-label').textContent = DAY_CONFIG[dayKey].label;
+      document.querySelectorAll('.current-day-text').forEach(el => {
+        el.textContent = DAY_CONFIG[dayKey].label;
+      });
       if (shouldRender) updateDashboard();
     }
 
@@ -571,21 +678,16 @@
       document.getElementById('kpi-pending').textContent = pending;
       document.getElementById('kpi-percent').textContent = `${percent}%`;
       document.getElementById('kpi-progress-bar').style.width = `${percent}%`;
-      document.getElementById('kpi-eval').textContent = `ทำแบบประเมินแล้ว ${evaluated} คน`;
+      document.getElementById('kpi-eval').textContent = `ประเมินแล้ว ${evaluated} คน`;
 
-      renderTable();
+      renderViews();
     }
 
-    function renderTable() {
+    function getFilteredParticipants() {
       const query = document.getElementById('search-input').value.trim().toLowerCase();
-      const statusFilter = document.getElementById('filter-status').value;
       const groupFilter = document.getElementById('filter-group').value;
-      const tbody = document.getElementById('participants-tbody');
 
-      const filtered = participants.filter(p => {
-        const isChecked = Boolean(p[currentDay]);
-        if (statusFilter === 'checked' && !isChecked) return false;
-        if (statusFilter === 'pending' && isChecked) return false;
+      return participants.filter(p => {
         if (groupFilter !== 'all' && p.group !== groupFilter) return false;
         if (query) {
           const text = `${p.id} ${p.prefix}${p.fullName} ${p.unit} ${p.group} ${p.phone}`.toLowerCase();
@@ -593,14 +695,98 @@
         }
         return true;
       });
+    }
 
+    function renderViews() {
+      const filtered = getFilteredParticipants();
+      if (currentView === 'split') {
+        renderSplitView(filtered);
+      } else {
+        renderTableView(filtered);
+      }
+    }
+
+    // ==================== RENDER SPLIT VIEW (ซ้าย-ขวา) ====================
+    function renderSplitView(filtered) {
+      const checkedItems = filtered
+        .filter(p => Boolean(p[currentDay]))
+        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay]))); // ล่าสุดอยู่บน
+
+      const pendingItems = filtered
+        .filter(p => !Boolean(p[currentDay]))
+        .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+
+      document.getElementById('split-checked-badge').textContent = `${checkedItems.length} คน`;
+      document.getElementById('split-pending-badge').textContent = `${pendingItems.length} คน`;
+
+      const checkedEl = document.getElementById('checked-list');
+      const pendingEl = document.getElementById('pending-list');
+
+      // ฝั่งซ้าย: เข้าร่วมแล้ว
+      if (checkedItems.length === 0) {
+        checkedEl.innerHTML = `
+          <div class="py-16 text-center text-slate-400">
+            <p class="text-sm">ยังไม่มีผู้เช็คชื่อเข้าร่วมในวันนี้</p>
+          </div>`;
+      } else {
+        checkedEl.innerHTML = checkedItems.map(p => `
+          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm hover:shadow-md transition flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="mt-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
+                  <h3 class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">${escapeHtml(p.unit || '-')} ${p.group ? '• ' + escapeHtml(p.group) : ''}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">
+                ${escapeHtml(p[currentDay])}
+              </span>
+              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" title="ยกเลิกการเช็คชื่อ" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-800/60 transition">
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // ฝั่งขวา: ยังไม่เข้าร่วม
+      if (pendingItems.length === 0) {
+        pendingEl.innerHTML = `
+          <div class="py-16 text-center text-emerald-600 dark:text-emerald-400">
+            <p class="text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</p>
+          </div>`;
+      } else {
+        pendingEl.innerHTML = pendingItems.map(p => `
+          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 dark:hover:border-rose-700 transition flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="mt-0.5 w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
+                  <h3 class="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">${escapeHtml(p.unit || '-')} ${p.group ? '• ' + escapeHtml(p.group) : ''}</p>
+              </div>
+            </div>
+
+            <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
+              เช็คชื่อเข้า
+            </button>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ==================== RENDER TABLE VIEW (ตารางรวม) ====================
+    function renderTableView(filtered) {
+      const tbody = document.getElementById('participants-tbody');
       if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-10 text-center text-slate-400">
-              ไม่พบรายชื่อที่ตรงกับเงื่อนไข
-            </td>
-          </tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
         return;
       }
 
@@ -611,17 +797,13 @@
           ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> เข้าร่วมแล้ว (${escapeHtml(timeVal)})
              </span>`
-          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-               <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> ยังไม่มา
+          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> ยังไม่มา
              </span>`;
 
         const actionBtn = isChecked
-          ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-800 transition">
-               ยกเลิก
-             </button>`
-          : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
-               เช็คชื่อ
-             </button>`;
+          ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 border border-rose-200 dark:border-rose-800 transition">ยกเลิก</button>`
+          : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">เช็คชื่อ</button>`;
 
         return `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
@@ -673,6 +855,7 @@
       }
     }
 
+    // ==================== QR CODE SCANNER ====================
     function openScannerModal() {
       document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
       document.getElementById('scan-result-box').classList.add('hidden');
@@ -786,6 +969,7 @@
       } catch (e) {}
     }
 
+    // ==================== WALK-IN ====================
     function openWalkInModal() {
       document.getElementById('walkin-form').reset();
       document.getElementById('wi-day-text').textContent = DAY_CONFIG[currentDay].label;
@@ -829,6 +1013,7 @@
       }
     }
 
+    // ==================== PRINT A4 SHEET ====================
     function prepareAndPrintSheet() {
       document.getElementById('print-day-title').textContent = DAY_CONFIG[currentDay].full;
       const tbody = document.getElementById('print-tbody');
@@ -862,6 +1047,7 @@
       window.print();
     }
 
+    // ==================== SETTINGS & TOAST ====================
     function openSettingsModal() {
       document.getElementById('settings-api-url').value = API_URL;
       document.getElementById('settings-modal').classList.remove('hidden');
