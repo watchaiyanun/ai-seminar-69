@@ -450,6 +450,61 @@
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
             <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
               <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
+            <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ผู้พักร่วม (Roommate)</label>
+            <input type="text" id="ed-roommate" placeholder="ระบุชื่อคู่พัก (กรณีพักคู่)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
+            <select id="ed-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
+              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
+              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">สถานะหนังสือส่งตัว</label>
+            <select id="ed-letter" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="ส่งแล้ว">ส่งแล้ว</option>
+              <option value="ยังไม่ส่ง">ยังไม่ส่ง</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ทะเบียนรถ (VIP)</label>
+            <input type="text" id="ed-plate" placeholder="เช่น กข 1234" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="ed-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-navy-800 dark:text-blue-200">แนบไฟล์หนังสือส่งตัว (PDF / รูปภาพ ไม่เกิน 5MB)</label>
+            <a id="ed-letter-link" href="#" target="_blank" class="hidden text-xs font-bold text-emerald-600 hover:underline">📎 เปิดไฟล์เดิม ↗</a>
+          </div>
+          <input type="file" id="ed-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white hover:file:bg-navy-800" />
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ยกเลิก</button>
+          <button type="submit" id="ed-submit-btn" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-semibold">บันทึกการแก้ไข</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: QR CODE SCANNER (MODERN KIOSK EDITION) ==================== -->
   <div id="scanner-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div id="scanner-dialog" class="bg-slate-900 text-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-700/80 my-auto">
@@ -1284,6 +1339,13 @@
       }
     }
 
+    function updateScannerLiveCount() {
+      const el = document.getElementById('scanner-live-count');
+      if (!el) return;
+      const checked = participants.filter(p => isCheckedIn(p)).length;
+      el.textContent = `${checked} / ${participants.length}`;
+    }
+
     function openScannerModal() {
       document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
       updateScannerLiveCount();
@@ -1293,36 +1355,47 @@
       startCameraScanner();
     }
 
-    function updateScannerLiveCount() {
-      const checked = participants.filter(p => isCheckedIn(p)).length;
-      const el = document.getElementById('scanner-live-count');
-      if (el) el.textContent = `${checked} / ${participants.length}`;
+    async function stopQrReaderSafely() {
+      if (!html5QrCode) return;
+      try {
+        if (html5QrCode.isScanning) {
+          await html5QrCode.stop();
+        }
+        await html5QrCode.clear();
+      } catch (e) {}
+      html5QrCode = null;
     }
 
-    function startCameraScanner() {
+    async function startCameraScanner() {
       if (typeof Html5Qrcode === 'undefined') {
         showScanFeedback('error', 'ไม่สามารถโหลดตัวสแกนได้ กรุณาพิมพ์รหัสด้านล่างแทนครับ');
         return;
       }
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {}).finally(() => {
-          html5QrCode = null;
-          initQrReader();
-        });
-      } else {
-        initQrReader();
-      }
+      await stopQrReaderSafely();
+      await initQrReader();
     }
 
-    function initQrReader() {
+    async function initQrReader() {
+      const readerEl = document.getElementById('reader');
+      if (readerEl) readerEl.innerHTML = '';
       html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start(
-        { facingMode: scannerFacingMode },
-        { fps: 12, qrbox: { width: 220, height: 220 } },
-        onScanSuccess
-      ).catch(() => {
-        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้อง หรือพิมพ์รหัสด้านล่างแทนครับ');
-      });
+      const config = { fps: 12, qrbox: { width: 220, height: 220 } };
+
+      try {
+        await html5QrCode.start({ facingMode: scannerFacingMode }, config, onScanSuccess);
+      } catch (primaryErr) {
+        // กรณีเปิดบนคอมพิวเตอร์/โน้ตบุ๊กที่ไม่มีกล้องหลัง ให้สลับไปค้นหากล้องที่มีในเครื่องอัตโนมัติ
+        try {
+          const cameras = await Html5Qrcode.getCameras();
+          if (cameras && cameras.length > 0) {
+            await html5QrCode.start(cameras[0].id, config, onScanSuccess);
+            const label = document.getElementById('camera-mode-label');
+            if (label) label.textContent = 'กล้องหลัก';
+            return;
+          }
+        } catch (fallbackErr) {}
+        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ (ต้องเปิดผ่าน HTTPS และอนุญาตสิทธิ์กล้อง) สามารถพิมพ์รหัสหรือใช้เครื่องยิง USB ด้านล่างแทนได้ครับ');
+      }
     }
 
     function toggleScannerCamera() {
@@ -1401,15 +1474,12 @@
       `).join('');
     }
 
-    function closeScannerModal() {
+    async function closeScannerModal() {
       if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
       document.getElementById('scanner-modal').classList.add('hidden');
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
-        html5QrCode = null;
-      }
+      await stopQrReaderSafely();
     }
 
     function extractParticipantId(rawText) {
