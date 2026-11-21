@@ -59,26 +59,26 @@
       table.print-table tr { page-break-inside: avoid; }
     }
   </style>
-</head>
-<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
-
-  <!-- ==================== MAIN WEB APP UI ==================== -->
-  <div id="app-ui" class="no-print flex flex-col min-h-screen">
-
-    <!-- Top Navbar -->
-    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 flex items-center justify-center text-white shadow-md shrink-0">
-            <i data-lucide="qr-code" class="w-5 h-5"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
+            <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
+            </select>
           </div>
-          <div class="truncate">
-            <h1 class="text-sm sm:text-base font-bold text-navy-800 dark:text-white truncate">
-              โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)
-            </h1>
-            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-              30 พ.ย. – 2 ธ.ค. 2569 ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี
-            </p>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
+            <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
+            <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ผู้พักร่วม (Roommate)</label>
+            <input type="text" id="ed-roommate" placeholder="ระบุชื่อคู่พัก (กรณีพักคู่)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
         </div>
 
@@ -728,7 +728,8 @@
             food: String(p.food || 'อาหารทั่วไป'),
             substituteName: String(p.substituteName || '').trim(),
             substitutePosition: String(p.substitutePosition || '').trim(),
-            letterUrl: String(p.letterUrl || '').trim()
+            letterUrl: String(p.letterUrl || '').trim(),
+            roommate: String(p.roommate || '').trim()
           }));
           populateUnitFilter();
           updateDashboard();
@@ -852,7 +853,7 @@
         if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
         if (rsvpFilter !== 'all' && p.rsvp !== rsvpFilter) return false;
         if (q) {
-          const text = `${p.id} ${p.fullName} ${p.position} ${p.substituteName} ${p.substitutePosition} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.licensePlate} ${p.phone}`.toLowerCase();
+          const text = `${p.id} ${p.fullName} ${p.position} ${p.substituteName} ${p.substitutePosition} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.roommate} ${p.licensePlate} ${p.phone}`.toLowerCase();
           if (!text.includes(q)) return false;
         }
         return true;
@@ -877,6 +878,7 @@
       const tags = [getRsvpBadge(p.rsvp)];
       if (p.roomNo) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">ห้อง ${escapeHtml(p.roomNo)}</span>`);
       else if (p.stay30 === 'พัก' || p.stay1 === 'พัก') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">พักโรงแรม</span>`);
+      if (p.roommate) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300">พักคู่: ${escapeHtml(p.roommate)}</span>`);
       if (p.food && p.food !== 'อาหารทั่วไป') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">${escapeHtml(p.food)}</span>`);
       if (p.letterUrl) tags.push(`<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200">📎 หนังสือส่งตัว</a>`);
       return tags.join(' ');
@@ -970,7 +972,8 @@
             <td class="py-3 px-3 text-center whitespace-nowrap">${getRsvpBadge(p.rsvp)}</td>
             <td class="py-3 px-3 text-center whitespace-nowrap text-xs">
               <div>${stayText}</div>
-              ${p.roomNo ? `<span class="font-mono font-bold text-indigo-600 dark:text-indigo-400">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}
+              ${p.roomNo ? `<div class="font-mono font-bold text-indigo-600 dark:text-indigo-400">ห้อง ${escapeHtml(p.roomNo)}</div>` : ''}
+              ${p.roommate ? `<div class="text-[10px] text-sky-700 dark:text-sky-400">คู่กับ: ${escapeHtml(p.roommate)}</div>` : ''}
             </td>
             <td class="py-3 px-3 text-center text-xs">
               <div>${escapeHtml(p.food)}</div>
@@ -1094,6 +1097,7 @@
                 </div>` : ''}
               <div><span class="text-slate-400">ที่พัก:</span> 30 พ.ย. (${escapeHtml(c.stay30 || '-')}) / 1 ธ.ค. (${escapeHtml(c.stay1 || '-')})</div>
               <div><span class="text-slate-400">ห้องพัก / เบอร์:</span> ${escapeHtml(c.roomNo || '-')} / ${escapeHtml(c.phone || '-')}</div>
+              ${c.roommate ? `<div class="sm:col-span-2 text-sky-800 dark:text-sky-300"><strong>ผู้พักร่วม (Roommate):</strong> ${escapeHtml(c.roommate)}</div>` : ''}
               ${req.note ? `<div class="sm:col-span-2 text-amber-800 dark:text-amber-300"><strong>หมายเหตุ:</strong> ${escapeHtml(req.note)}</div>` : ''}
               ${req.letterUrl ? `<div class="sm:col-span-2 pt-1"><a href="${escapeHtml(req.letterUrl)}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 font-bold hover:underline">📎 เปิดดูไฟล์หนังสือส่งตัวที่แนบมา ↗</a></div>` : ''}
             </div>
@@ -1142,6 +1146,7 @@
       document.getElementById('ed-stay30').value = p.stay30 || '';
       document.getElementById('ed-stay1').value = p.stay1 || '';
       document.getElementById('ed-room').value = p.roomNo || '';
+      document.getElementById('ed-roommate').value = p.roommate || '';
       document.getElementById('ed-food').value = p.food || 'อาหารทั่วไป';
       document.getElementById('ed-letter').value = p.officialLetter || '';
       document.getElementById('ed-plate').value = p.licensePlate || '';
@@ -1204,6 +1209,7 @@
         stay30: document.getElementById('ed-stay30').value,
         stay1: document.getElementById('ed-stay1').value,
         roomNo: document.getElementById('ed-room').value.trim(),
+        roommate: document.getElementById('ed-roommate').value.trim(),
         food: document.getElementById('ed-food').value,
         officialLetter: fileData ? 'ส่งแล้ว' : document.getElementById('ed-letter').value,
         licensePlate: document.getElementById('ed-plate').value.trim(),
