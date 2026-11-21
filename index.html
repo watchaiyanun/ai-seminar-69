@@ -155,26 +155,26 @@
           </a>
         </div>
       </section>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
-            <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
-            </select>
+
+      <!-- KPI Summary Cards (5 การ์ด) -->
+      <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <p class="text-xs text-slate-500 dark:text-slate-400">เป้าหมายทั้งหมด</p>
+          <div class="flex items-baseline justify-between mt-1">
+            <p id="kpi-total" class="text-2xl font-bold text-slate-900 dark:text-white">0</p>
+            <span id="kpi-rsvp-confirm" class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">ยืนยัน 0</span>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
-            <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
-            </select>
+          <p id="kpi-sub-count" class="text-[11px] text-purple-600 dark:text-purple-400 font-medium mt-1">ส่งผู้แทน 0 ราย</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60">
+          <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">เช็กอินแล้ว (ซ้าย)</p>
+          <div class="flex items-baseline justify-between mt-1">
+            <p id="kpi-checked" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</p>
+            <span id="kpi-percent" class="text-xs font-bold text-emerald-600 dark:text-emerald-400">0%</span>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
-            <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ผู้พักร่วม (Roommate)</label>
-            <input type="text" id="ed-roommate" placeholder="ระบุชื่อคู่พัก (กรณีพักคู่)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          <div class="w-full bg-emerald-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
 
@@ -422,7 +422,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
             <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
@@ -438,6 +438,10 @@
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
             <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ผู้พักร่วม (Roommate)</label>
+            <input type="text" id="ed-roommate" placeholder="ระบุชื่อคู่พัก (กรณีพักคู่)" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
         </div>
 
