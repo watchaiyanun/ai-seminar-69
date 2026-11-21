@@ -22,7 +22,8 @@
           },
           colors: {
             navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
-            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 400: '#F3D478', 500: '#D4AF37' }
           }
         }
       }
@@ -33,6 +34,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- HTML5 QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <!-- QRCode.js สำหรับสร้าง Smart QR Code ประจำตัวของแต่ละคน -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     body { font-family: 'Prompt', sans-serif; }
@@ -41,6 +44,14 @@
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
     .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    /* จัดตำแหน่ง QR Code ขนาดย่อในการ์ดและขนาดใหญ่ใน Modal */
+    .mini-qr-slot img, .mini-qr-slot canvas,
+    #person-qr-canvas img, #person-qr-canvas canvas {
+      margin: 0 auto;
+      display: block;
+      border-radius: 4px;
+    }
 
     /* เอฟเฟกต์เส้นเลเซอร์สแกน QR Code แบบทันสมัย */
     @keyframes scanLaser {
@@ -77,17 +88,20 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-slate-50/90 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
 
   <!-- ==================== MAIN WEB APP UI (ซ่อนตอนพิมพ์) ==================== -->
   <div id="app-ui" class="no-print flex flex-col min-h-screen">
 
+    <!-- แถบสีเอกลักษณ์ตำรวจด้านบนสุด -->
+    <div class="h-1.5 w-full bg-gradient-to-r from-maroon-700 via-gold-500 to-navy-700"></div>
+
     <!-- Top Navbar -->
-    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 flex items-center justify-center text-white shadow-md shrink-0">
-            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 via-navy-800 to-maroon-700 flex items-center justify-center text-white shadow-md ring-2 ring-gold-500/40 shrink-0">
+            <i data-lucide="qr-code" class="w-5 h-5 text-gold-400"></i>
           </div>
           <div class="truncate">
             <h1 class="text-sm sm:text-base lg:text-lg font-bold text-navy-800 dark:text-white truncate">
@@ -155,57 +169,77 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openScannerModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium shadow-sm transition">
+          <button onclick="openScannerModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-navy-700 hover:bg-navy-800 text-white shadow-sm transition">
             <i data-lucide="scan-line" class="w-4 h-4"></i> สแกน QR เช็กอิน
           </button>
-          <button onclick="openWalkInModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium shadow-sm transition">
+          <button onclick="openWalkInModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-maroon-700 hover:bg-maroon-800 text-white shadow-sm transition">
             <i data-lucide="user-plus" class="w-4 h-4"></i> เพิ่ม Walk-in
           </button>
-          <button onclick="prepareAndPrintSheet()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 text-sm font-medium shadow-sm transition">
+          <button onclick="prepareAndPrintSheet()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 transition">
             <i data-lucide="printer" class="w-4 h-4"></i> พิมพ์ใบเซ็นชื่อ A4
           </button>
-          <a href="badges.html" target="_blank" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium shadow-sm transition">
+          <a href="badges.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white shadow-sm transition">
             <i data-lucide="id-card" class="w-4 h-4"></i> พิมพ์ป้ายคล้องคอ
           </a>
-          <a href="monitor.html" target="_blank" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 text-sm font-medium shadow-sm transition">
+          <a href="monitor.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition">
             <i data-lucide="tv" class="w-4 h-4"></i> จอห้องสัมมนา (Live TV)
           </a>
-          <a href="portal.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-medium transition">
+          <a href="portal.html" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 text-navy-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition">
             <i data-lucide="external-link" class="w-4 h-4"></i> Portal
           </a>
         </div>
       </section>
 
-      <!-- KPI Summary Cards (5 การ์ด) -->
+      <!-- KPI Summary Cards (5 การ์ด ดีไซน์ทันสมัยพร้อมไอคอน) -->
       <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 dark:text-slate-400">เป้าหมายทั้งหมด</p>
-          <div class="flex items-baseline justify-between mt-1">
+        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200/80 dark:border-slate-700/80 border-t-4 border-t-navy-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">เป้าหมายทั้งหมด</p>
+            <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-300 flex items-center justify-center">
+              <i data-lucide="users" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between mt-1.5">
             <p id="kpi-total" class="text-2xl font-bold text-slate-900 dark:text-white">0</p>
             <span id="kpi-rsvp-confirm" class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">ยืนยัน 0</span>
           </div>
           <p id="kpi-sub-count" class="text-[11px] text-purple-600 dark:text-purple-400 font-medium mt-1">ส่งผู้แทน 0 ราย</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60">
-          <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">เช็กอินแล้ว (ซ้าย)</p>
-          <div class="flex items-baseline justify-between mt-1">
+        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-emerald-200/80 dark:border-emerald-800/60 border-t-4 border-t-emerald-500">
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">เช็กอินแล้ว (ซ้าย)</p>
+            <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between mt-1.5">
             <p id="kpi-checked" class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">0</p>
             <span id="kpi-percent" class="text-xs font-bold text-emerald-600 dark:text-emerald-400">0%</span>
           </div>
-          <div class="w-full bg-emerald-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          <div class="w-full bg-emerald-100 dark:bg-slate-700 h-2 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-800/60">
-          <p class="text-xs text-rose-700 dark:text-rose-400 font-medium">ยังไม่เช็กอิน (ขวา)</p>
-          <p id="kpi-pending" class="text-2xl font-bold mt-1 text-maroon-700 dark:text-rose-400">0</p>
+        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-rose-200/80 dark:border-rose-800/60 border-t-4 border-t-maroon-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-rose-700 dark:text-rose-400 font-semibold">ยังไม่เช็กอิน (ขวา)</p>
+            <div class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-maroon-700 dark:text-rose-400 flex items-center justify-center">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+          <p id="kpi-pending" class="text-2xl font-bold mt-1.5 text-maroon-700 dark:text-rose-400">0</p>
           <p class="text-[11px] text-slate-400 mt-1">รอลงทะเบียน (<span class="current-day-text">30 พ.ย. 69</span>)</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 dark:text-slate-400">ยอดเข้าพักโรงแรม</p>
+        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200/80 dark:border-slate-700/80 border-t-4 border-t-indigo-500">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">ยอดเข้าพักโรงแรม</p>
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <i data-lucide="bed-double" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
           <div class="flex items-center gap-3 mt-1.5 text-sm font-bold text-indigo-700 dark:text-indigo-400">
             <span>30 พ.ย.: <span id="kpi-stay30">0</span></span>
             <span class="text-slate-300">|</span>
@@ -214,8 +248,13 @@
           <p id="kpi-rooms" class="text-[11px] text-slate-400 mt-1">จัดเลขห้องแล้ว 0 ราย</p>
         </div>
 
-        <div class="col-span-2 lg:col-span-1 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <p class="text-xs text-slate-500 dark:text-slate-400">อาหารพิเศษ & ประเมิน</p>
+        <div class="col-span-2 lg:col-span-1 bg-white dark:bg-slate-800/90 p-4 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200/80 dark:border-slate-700/80 border-t-4 border-t-amber-500">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">อาหารพิเศษ & ประเมิน</p>
+            <div class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
           <div class="flex items-center gap-2 mt-1.5 text-xs font-semibold">
             <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">ฮาลาล: <span id="kpi-halal">0</span></span>
             <span class="px-2 py-0.5 rounded bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300">มังฯ/อื่น: <span id="kpi-veg">0</span></span>
@@ -296,6 +335,7 @@
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-700">
                 <th class="py-3 px-3 font-semibold">รหัส</th>
+                <th class="py-3 px-3 font-semibold text-center">QR Code</th>
                 <th class="py-3 px-3 font-semibold">ผู้เข้าร่วมจริง / ผู้แทน (มาแทนใคร)</th>
                 <th class="py-3 px-3 font-semibold">หน่วยหลัก / สังกัด</th>
                 <th class="py-3 px-3 font-semibold text-center">ตอบรับ</th>
@@ -660,6 +700,54 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: PERSON SMART QR CODE PASS (ขยาย / คัดลอกลิงก์ / ดาวน์โหลดส่ง LINE) ==================== -->
+  <div id="person-qr-modal" onclick="closePersonQrModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-gradient-to-r from-navy-800 via-navy-700 to-maroon-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center shrink-0">
+            <i data-lucide="qr-code" class="w-5 h-5 text-gold-400"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[10px] uppercase tracking-widest text-blue-200 font-semibold">Smart QR Pass</p>
+            <h3 id="pqr-id" class="font-mono font-bold text-base leading-tight">KM69-01</h3>
+          </div>
+        </div>
+        <button type="button" onclick="closePersonQrModal()" class="p-1.5 rounded-lg hover:bg-white/15 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 text-center space-y-4">
+        <div class="space-y-0.5">
+          <h4 id="pqr-name" class="text-base font-bold text-slate-900 dark:text-white leading-snug"></h4>
+          <p id="pqr-unit" class="text-xs text-slate-500 dark:text-slate-400"></p>
+          <p id="pqr-meta" class="text-[11px] font-medium text-indigo-700 dark:text-indigo-300 pt-0.5"></p>
+        </div>
+
+        <div class="inline-block p-3.5 bg-white rounded-2xl border-2 border-navy-700/15 shadow-md">
+          <div id="person-qr-canvas" class="w-[210px] h-[210px] flex items-center justify-center"></div>
+        </div>
+
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          สแกนเพื่อเช็กอิน • ดูเอกสาร • ตรวจสอบห้องพัก • ทำแบบประเมิน
+        </p>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" onclick="copyPersonPortalLink()" class="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs font-semibold transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> คัดลอกลิงก์
+          </button>
+          <button type="button" onclick="downloadPersonQrImage()" class="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> บันทึกรูป QR
+          </button>
+        </div>
+        <a id="pqr-open-portal" href="#" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-semibold shadow-sm transition">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i> เปิดหน้าบัตรอิเล็กทรอนิกส์ (Portal)
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
@@ -702,6 +790,7 @@
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const FALLBACK_PORTAL_URL = "https://watchaiyanun.github.io/ai-seminar-69/portal.html";
     const DAY_CONFIG = {
       day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
       day2: { label: '1 ธ.ค. 69',  full: 'วันอังคารที่ 1 ธันวาคม 2569' },
@@ -723,14 +812,7 @@
     let scannerFacingMode = 'environment'; // 'environment' (กล้องหลัง) | 'user' (กล้องหน้า Kiosk)
     let voiceGreetingEnabled = true;
     let recentScans = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
-      if (safeStorageGet('theme') === 'dark') document.documentElement.classList.add('dark');
-      updateApiStatusBadge();
-      selectDay(currentDay, false);
-      refreshAllData(false);
-    });
+    let activeQrPerson = null;
 
     function detectDefaultDay() {
       const now = new Date();
@@ -739,6 +821,43 @@
       if (m === 12 && d === 1) return 'day2';
       if (m === 12 && d === 2) return 'day3';
       return 'day1';
+    }
+
+    function initDashboardApp() {
+      if (safeStorageGet('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+      if (window.lucide) lucide.createIcons();
+      updateApiStatusBadge();
+      selectDay(currentDay, false);
+      refreshAllData(false);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePersonQrModal();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDashboardApp);
+    } else {
+      initDashboardApp();
+    }
+
+    function detectDefaultPortalUrl() {
+      try {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+          return new URL('portal.html', window.location.href).href;
+        }
+      } catch (e) {}
+      return FALLBACK_PORTAL_URL;
+    }
+
+    function getSmartQrUrl(participantId) {
+      const base = safeStorageGet('ai_seminar_portal_url') || detectDefaultPortalUrl();
+      const sep = base.includes('?') ? '&' : '?';
+      return `${base}${sep}id=${encodeURIComponent(participantId)}`;
     }
 
     function toggleDarkMode() {
@@ -1009,20 +1128,25 @@
       document.getElementById('checked-list').innerHTML = checkedItems.length === 0
         ? `<div class="py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้เช็กอินในวันนี้</div>`
         : checkedItems.map(p => `
-          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm flex items-start justify-between gap-2.5">
+          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm hover:shadow-md hover:border-emerald-400/80 transition flex items-center justify-between gap-3">
+            <!-- QR Code ประจำตัวขนาดย่อ (คลิกเพื่อขยาย/ดาวน์โหลด/คัดลอกลิงก์) -->
+            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="shrink-0 p-1.5 bg-white rounded-xl border border-emerald-200 shadow-xs hover:scale-105 hover:border-navy-700 transition flex flex-col items-center">
+              <div class="mini-qr-slot w-[52px] h-[52px]" data-qr-id="${escapeHtml(p.id)}"></div>
+              <span class="text-[9px] font-bold text-navy-700 mt-0.5">ขยาย QR</span>
+            </button>
+
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 mb-1">
-                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
+                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
+                <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-[11px] font-semibold">${escapeHtml(p[currentDay])}</span>
               </div>
               ${buildNameBlock(p)}
               <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
+
             <div class="flex flex-col items-end gap-1.5 shrink-0">
-              <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">${escapeHtml(p[currentDay])}</span>
-              <div class="flex items-center gap-1">
-                <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600">แก้ไข</button>
-                <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2 py-1 rounded-lg text-[11px] font-medium text-rose-600 hover:bg-rose-50 border border-rose-200">ยกเลิก</button>
-              </div>
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="w-full px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition">แก้ไข</button>
+              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="w-full px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-rose-600 hover:bg-rose-50 border border-rose-200 transition">ยกเลิก</button>
             </div>
           </div>
         `).join('');
@@ -1030,26 +1154,52 @@
       document.getElementById('pending-list').innerHTML = pendingItems.length === 0
         ? `<div class="py-16 text-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</div>`
         : pendingItems.map(p => `
-          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 transition flex items-start justify-between gap-2.5">
+          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-maroon-600/50 transition flex items-center justify-between gap-3">
+            <!-- QR Code ประจำตัวขนาดย่อ (คลิกเพื่อขยาย/ดาวน์โหลด/คัดลอกลิงก์) -->
+            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="shrink-0 p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs hover:scale-105 hover:border-navy-700 transition flex flex-col items-center">
+              <div class="mini-qr-slot w-[52px] h-[52px]" data-qr-id="${escapeHtml(p.id)}"></div>
+              <span class="text-[9px] font-bold text-navy-700 mt-0.5">ขยาย QR</span>
+            </button>
+
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 mb-1">
-                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
+                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
               </div>
               ${buildNameBlock(p)}
               <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600">แก้ไข</button>
-              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">เช็กอิน</button>
+
+            <div class="flex flex-col items-end gap-1.5 shrink-0">
+              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="w-full px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">เช็กอิน</button>
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="w-full px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition">แก้ไข</button>
             </div>
           </div>
         `).join('');
+
+      renderAllMiniQrCodes();
+    }
+
+    // สร้าง Smart QR Code ขนาดย่อในการ์ดและตารางทั้งหมด
+    function renderAllMiniQrCodes() {
+      if (typeof QRCode === 'undefined') return;
+      document.querySelectorAll('.mini-qr-slot').forEach(slot => {
+        const pid = slot.getAttribute('data-qr-id');
+        if (!pid) return;
+        slot.innerHTML = '';
+        const size = slot.classList.contains('table-qr') ? 44 : 52;
+        new QRCode(slot, {
+          text: getSmartQrUrl(pid),
+          width: size,
+          height: size,
+          correctLevel: QRCode.CorrectLevel.L
+        });
+      });
     }
 
     function renderTableView(filtered) {
       const tbody = document.getElementById('participants-tbody');
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
         return;
       }
 
@@ -1063,8 +1213,13 @@
              <div class="text-[11px] text-slate-500">${escapeHtml(p.position || '-')}</div>`;
 
         return `
-          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30">
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
             <td class="py-3 px-3 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-2 px-3 text-center">
+              <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="inline-block p-1 bg-white rounded-lg border border-slate-200 hover:border-navy-700 hover:scale-105 transition shadow-xs">
+                <div class="mini-qr-slot table-qr w-[44px] h-[44px]" data-qr-id="${escapeHtml(p.id)}"></div>
+              </button>
+            </td>
             <td class="py-3 px-3">${nameCell}</td>
             <td class="py-3 px-3">
               <div class="font-medium text-slate-700 dark:text-slate-200">${escapeHtml(p.mainUnit)}</div>
@@ -1090,14 +1245,98 @@
                 : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700">ยังไม่มา</span>`}
             </td>
             <td class="py-3 px-3 text-right whitespace-nowrap space-x-1">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600">แก้ไข</button>
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">แก้ไข</button>
               ${checked
-                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200">ยกเลิก</button>`
-                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600">เช็กอิน</button>`}
+                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200 hover:bg-rose-50">ยกเลิก</button>`
+                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600 hover:bg-emerald-700">เช็กอิน</button>`}
             </td>
           </tr>
         `;
       }).join('');
+
+      renderAllMiniQrCodes();
+    }
+
+    // ==================== PERSON SMART QR MODAL (ขยาย / คัดลอก / ดาวน์โหลดรูป) ====================
+    function openPersonQrModal(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      activeQrPerson = p;
+
+      const isSub = hasSubstitute(p);
+      const displayName = isSub ? p.substituteName : p.fullName;
+      const qrUrl = getSmartQrUrl(p.id);
+
+      document.getElementById('pqr-id').textContent = p.id;
+      document.getElementById('pqr-name').textContent = displayName;
+      document.getElementById('pqr-unit').textContent = isSub
+        ? `ผู้แทน: ${p.fullName} • ${p.unitDetail || p.mainUnit}`
+        : `${p.position || p.role || ''} • ${p.unitDetail || p.mainUnit}`.replace(/^\s*•\s*/, '');
+
+      const metaParts = [];
+      if (p.roomNo) metaParts.push(`ห้อง ${p.roomNo}`);
+      if (p.food && p.food !== 'อาหารทั่วไป') metaParts.push(p.food);
+      document.getElementById('pqr-meta').textContent = metaParts.join(' • ');
+      document.getElementById('pqr-open-portal').href = qrUrl;
+
+      const canvasBox = document.getElementById('person-qr-canvas');
+      canvasBox.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(canvasBox, {
+          text: qrUrl,
+          width: 210,
+          height: 210,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      document.getElementById('person-qr-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closePersonQrModal() {
+      document.getElementById('person-qr-modal').classList.add('hidden');
+    }
+
+    function copyPersonPortalLink() {
+      if (!activeQrPerson) return;
+      const url = getSmartQrUrl(activeQrPerson.id);
+      const tempInput = document.createElement('textarea');
+      tempInput.value = url;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(`คัดลอกลิงก์ Portal ของ ${activeQrPerson.id} แล้ว`, 'success');
+      } catch (e) {
+        showToast('ไม่สามารถคัดลอกลิงก์ได้', 'error');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function downloadPersonQrImage() {
+      if (!activeQrPerson) return;
+      const box = document.getElementById('person-qr-canvas');
+      const canvas = box.querySelector('canvas');
+      const img = box.querySelector('img');
+      let dataUrl = '';
+
+      if (canvas) dataUrl = canvas.toDataURL('image/png');
+      else if (img && img.src) dataUrl = img.src;
+
+      if (!dataUrl) {
+        showToast('ยังไม่พบภาพ QR Code สำหรับดาวน์โหลด', 'error');
+        return;
+      }
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `SmartQR_${activeQrPerson.id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`บันทึกรูป SmartQR_${activeQrPerson.id}.png แล้ว`, 'success');
     }
 
     function renderSummaryView() {
