@@ -59,23 +59,28 @@
   <!-- ==================== MAIN CONTENT ==================== -->
   <main class="w-full max-w-2xl mx-auto px-3.5 sm:px-6 -mt-7 space-y-4">
 
-    <!-- ==================== PERSONAL DIGITAL PASS (แสดงเมื่อสแกนจาก Smart QR รายบุคคล) ==================== -->
+    <!-- ==================== PERSONAL DIGITAL PASS ==================== -->
     <section id="personal-card" class="hidden bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 border-blue-200 space-y-3.5">
       <div class="flex items-start justify-between gap-2.5">
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             <span id="pc-id" class="px-2.5 py-0.5 rounded-md bg-navy-700 text-white font-mono text-xs font-bold shrink-0">KM69-00</span>
             <span id="pc-unit" class="px-2.5 py-0.5 rounded-md bg-blue-50 text-navy-700 text-xs font-semibold break-words"></span>
+            <span id="pc-sub-badge" class="hidden px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-800 text-xs font-bold">ผู้แทนเข้าร่วม</span>
           </div>
           <h2 id="pc-name" class="text-base sm:text-lg font-bold text-slate-900 mt-1.5 leading-snug break-words"></h2>
           <p id="pc-position" class="text-xs sm:text-sm text-slate-500 break-words"></p>
+          <!-- แสดงชื่อตัวจริงกรณีส่งผู้แทน -->
+          <div id="pc-orig-box" class="hidden mt-2 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-xs text-purple-900">
+            <span class="font-semibold">มาแทน:</span> <span id="pc-orig-name"></span>
+          </div>
         </div>
         <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
           <i data-lucide="user-check" class="w-5 h-5"></i>
         </div>
       </div>
 
-      <!-- สถานะห้องพักและอาหาร -->
+      <!-- สถานะห้องพัก อาหาร และหนังสือส่งตัว -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5 border-t border-slate-100 text-xs sm:text-sm">
         <div class="bg-slate-50 rounded-xl p-2.5 sm:p-3">
           <p class="text-[11px] text-slate-400">ที่พัก / เลขห้อง</p>
@@ -87,7 +92,17 @@
         </div>
       </div>
 
-      <!-- กราฟแท่งแนวนอนแสดงความคืบหน้าการเข้าร่วมกิจกรรม (เปอร์เซ็นต์) -->
+      <!-- แสดงลิงก์หนังสือส่งตัว (ถ้าแนบแล้ว) + ปุ่มขอแก้ไขข้อมูล -->
+      <div class="flex flex-col sm:flex-row gap-2 pt-1">
+        <a id="pc-letter-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex-1 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i> ดูหนังสือส่งตัวที่แนบไว้
+        </a>
+        <button type="button" onclick="openEditRequestModal()" class="flex-1 py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="edit-3" class="w-4 h-4 shrink-0"></i> ขอแก้ไขข้อมูล / แจ้งส่งผู้แทน / แนบหนังสือส่งตัว
+        </button>
+      </div>
+
+      <!-- กราฟแท่งแนวนอนแสดงความคืบหน้าการเข้าร่วมกิจกรรม -->
       <div class="pt-3 border-t border-slate-100 space-y-3">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5">
@@ -100,15 +115,11 @@
           </div>
         </div>
 
-        <!-- กราฟแท่งแนวนอนรวม (0% - 100%) -->
         <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80">
           <div id="pc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-blue-600 to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
         </div>
 
-        <!-- กราฟแท่งแนวนอนแยกรายกิจกรรม (4 กิจกรรม x 25%) -->
-        <div id="pc-activity-bars" class="space-y-2.5 pt-1">
-          <!-- Injected by JS -->
-        </div>
+        <div id="pc-activity-bars" class="space-y-2.5 pt-1"></div>
       </div>
     </section>
 
@@ -122,13 +133,12 @@
       </button>
     </div>
 
-    <!-- Inline Message Box (ใช้แทน alert) -->
+    <!-- Inline Message Box -->
     <div id="portal-alert" class="hidden p-3.5 rounded-xl text-xs sm:text-sm border"></div>
 
     <!-- ==================== TAB 1: เอกสาร & กำหนดการ ==================== -->
     <section id="section-info" class="space-y-3.5 sm:space-y-4">
 
-      <!-- Google Drive Card -->
       <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3">
         <div class="flex items-start gap-3">
           <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
@@ -144,7 +154,6 @@
         </a>
       </div>
 
-      <!-- 3-Day Schedule Card -->
       <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3.5 sm:space-y-4">
         <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
           <i data-lucide="calendar-days" class="w-5 h-5 text-maroon-700 shrink-0"></i> กำหนดการสัมมนา 3 วัน
@@ -159,7 +168,6 @@
         <div id="schedule-list" class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm"></div>
       </div>
 
-      <!-- Quick Prompt to Evaluate -->
       <div class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-2xl p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
           <p class="font-semibold text-sm">ร่วมประเมินความพึงพอใจ</p>
@@ -171,16 +179,14 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 2: แบบประเมินความพึงพอใจ ==================== -->
+    <!-- ==================== TAB 2: แบบประเมินความพึงพอใจ (นิรนาม 100%) ==================== -->
     <section id="section-eval" class="hidden space-y-4">
-
       <form id="eval-form" onsubmit="submitEvaluation(event)" class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 space-y-4 sm:space-y-5">
         <div class="border-b border-slate-100 pb-3">
           <h2 class="font-bold text-slate-900 text-sm sm:text-base">แบบประเมินความพึงพอใจงานสัมมนา</h2>
           <p class="text-xs text-slate-500 mt-0.5">ระดับคะแนน: 1 = น้อยที่สุด, 5 = มากที่สุด</p>
         </div>
 
-        <!-- กล่องยืนยันความเป็นส่วนตัว (Anonymous 100%) -->
         <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-2.5">
           <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
           <div class="text-xs text-emerald-900 leading-relaxed">
@@ -189,10 +195,8 @@
           </div>
         </div>
 
-        <!-- Star Rating Questions -->
         <div id="rating-questions" class="space-y-3 sm:space-y-4"></div>
 
-        <!-- Comment Box -->
         <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-slate-700">ข้อเสนอแนะเพิ่มเติม / สิ่งที่อยากให้ปรับปรุงในแชทบอท AI คู่หูจราจร</label>
           <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะของท่านที่นี่ (ถ้ามี)..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
@@ -203,7 +207,6 @@
         </button>
       </form>
 
-      <!-- Thank You Screen -->
       <div id="eval-success-card" class="hidden bg-white rounded-2xl p-8 shadow-sm border border-emerald-200 text-center space-y-4">
         <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
           <i data-lucide="check-circle-2" class="w-9 h-9"></i>
@@ -219,9 +222,130 @@
           </button>
         </div>
       </div>
-
     </section>
   </main>
+
+  <!-- ==================== MODAL: ขอแก้ไขข้อมูล / แจ้งส่งผู้แทน / แนบหนังสือส่งตัว ==================== -->
+  <div id="request-edit-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 my-auto">
+      <div class="px-4 sm:px-5 py-3.5 bg-navy-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-5 h-5 shrink-0"></i>
+          <div>
+            <h2 class="font-bold text-sm sm:text-base">แจ้งขอแก้ไขข้อมูล / ส่งผู้แทน</h2>
+            <p class="text-[11px] text-blue-200">คำขอจะถูกส่งแจ้งเตือนไปที่เจ้าหน้าที่เพื่อตรวจสอบและอนุมัติ</p>
+          </div>
+        </div>
+        <button onclick="closeEditRequestModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="req-edit-form" onsubmit="submitEditRequest(event)" class="p-4 sm:p-5 space-y-3.5 max-h-[80vh] overflow-y-auto">
+        <!-- การตอบรับ -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">สถานะการตอบรับเข้าร่วมสัมมนา</label>
+          <select id="req-rsvp" onchange="toggleReqSubstituteFields()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:ring-2 focus:ring-navy-700">
+            <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม (มาด้วยตนเอง)</option>
+            <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
+            <option value="รอการยืนยัน">รอการยืนยัน</option>
+            <option value="ไม่สามารถเข้าร่วม">ไม่สามารถเข้าร่วม</option>
+          </select>
+        </div>
+
+        <!-- กล่องข้อมูลผู้แทน (แสดงเมื่อเลือก ส่งผู้แทนเข้าร่วม) -->
+        <div id="req-sub-box" class="hidden p-3.5 rounded-xl bg-purple-50 border border-purple-200 space-y-2.5">
+          <p class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4"></i> ข้อมูลผู้แทนที่เข้าร่วม (มาแทน: <span id="req-orig-label" class="underline"></span>)
+          </p>
+          <div>
+            <label class="block text-xs font-medium text-purple-800 mb-1">ยศ ชื่อ - สกุล (ผู้แทน) *</label>
+            <input type="text" id="req-sub-name" placeholder="ระบุยศ ชื่อ - นามสกุล ของผู้แทน" class="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-purple-800 mb-1">ตำแหน่ง (ผู้แทน)</label>
+            <input type="text" id="req-sub-position" placeholder="ระบุตำแหน่งของผู้แทน" class="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white text-sm" />
+          </div>
+        </div>
+
+        <!-- ชื่อและตำแหน่งตัวจริง -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">ยศ ชื่อ - สกุล (เจ้าของสิทธิ์)</label>
+            <input type="text" id="req-name" required class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">ตำแหน่ง</label>
+            <input type="text" id="req-position" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+          </div>
+        </div>
+
+        <!-- ที่พัก และ เลขห้อง -->
+        <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">พักคืน 30 พ.ย.</label>
+            <select id="req-stay30" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="พัก">พัก</option>
+              <option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">พักคืน 1 ธ.ค.</label>
+            <select id="req-stay1" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm">
+              <option value="">ยังไม่ระบุ</option>
+              <option value="พัก">พัก</option>
+              <option value="ไม่พัก">ไม่พัก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">เลขที่ห้อง</label>
+            <input type="text" id="req-room" placeholder="ถ้ามี" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm" />
+          </div>
+        </div>
+
+        <!-- อาหาร เบอร์โทร ทะเบียนรถ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">ข้อจำกัดอาหาร</label>
+            <select id="req-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm">
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
+              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
+              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
+            <input type="tel" id="req-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">ทะเบียนรถ (กรณีนำรถมาเอง / VIP)</label>
+          <input type="text" id="req-plate" placeholder="เช่น กข 1234 กทม." class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+        </div>
+
+        <!-- แนบไฟล์หนังสือส่งตัว -->
+        <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+          <label class="block text-xs font-bold text-navy-800 flex items-center gap-1.5">
+            <i data-lucide="paperclip" class="w-4 h-4"></i> แนบไฟล์หนังสือส่งตัว (PDF / รูปภาพ ไม่เกิน 5MB)
+          </label>
+          <input type="file" id="req-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white hover:file:bg-navy-800" />
+          <p class="text-[11px] text-slate-500">ระบบจะอัปโหลดไฟล์เก็บไว้ใน Google Drive ของโครงการโดยอัตโนมัติ</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">หมายเหตุถึงเจ้าหน้าที่ (ถ้ามี)</label>
+          <input type="text" id="req-note" placeholder="เช่น ขอพักห้องคู่กับ..., ขอแก้ไขยศ..." class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+        </div>
+
+        <div id="req-modal-error" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs"></div>
+
+        <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeEditRequestModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium">ยกเลิก</button>
+          <button type="submit" id="req-submit-btn" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-semibold">ส่งคำขอไปยังเจ้าหน้าที่</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
@@ -279,7 +403,7 @@
         success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
         info: 'bg-blue-50 border-blue-200 text-blue-700'
       };
-      box.className = `p-3.5 rounded-xl text-sm border ${styles[type] || styles.info}`;
+      box.className = `p-3.5 rounded-xl text-xs sm:text-sm border ${styles[type] || styles.info}`;
       box.textContent = msg;
       box.classList.remove('hidden');
     }
@@ -311,7 +435,7 @@
       });
 
       document.getElementById('schedule-list').innerHTML = SCHEDULES[dayKey].map(item => `
-        <div class="flex flex-col xs:flex-row sm:flex-row gap-1.5 sm:gap-3 items-start bg-slate-50/70 sm:bg-transparent p-2.5 sm:p-0 rounded-xl">
+        <div class="flex flex-col sm:flex-row gap-1.5 sm:gap-3 items-start bg-slate-50/70 sm:bg-transparent p-2.5 sm:p-0 rounded-xl">
           <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-navy-700 font-mono text-[11px] sm:text-xs font-semibold shrink-0">${item.time}</span>
           <p class="text-slate-700 leading-snug sm:pt-0.5 break-words">${item.title}</p>
         </div>
@@ -328,7 +452,6 @@
             fullName: p.prefix ? `${p.prefix}${p.fullName}` : p.fullName
           }));
 
-          // หากเข้ามาจาก Smart QR Code ให้แสดงบัตรข้อมูลส่วนตัวพร้อมกราฟความคืบหน้า
           if (qrParticipantId) {
             const matched = allParticipants.find(p => String(p.id).toUpperCase() === qrParticipantId);
             if (matched) {
@@ -345,47 +468,46 @@
     function renderPersonalCard(p) {
       document.getElementById('pc-id').textContent = p.id;
       document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || p.group || '';
-      document.getElementById('pc-name').textContent = p.fullName;
-      document.getElementById('pc-position').textContent = p.position || p.role || '';
+
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName;
+      if (isSub) {
+        document.getElementById('pc-sub-badge').classList.remove('hidden');
+        document.getElementById('pc-name').textContent = p.substituteName;
+        document.getElementById('pc-position').textContent = p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา';
+        document.getElementById('pc-orig-name').textContent = `${p.fullName}${p.position ? ' (' + p.position + ')' : ''}`;
+        document.getElementById('pc-orig-box').classList.remove('hidden');
+      } else {
+        document.getElementById('pc-sub-badge').classList.add('hidden');
+        document.getElementById('pc-orig-box').classList.add('hidden');
+        document.getElementById('pc-name').textContent = p.fullName;
+        document.getElementById('pc-position').textContent = p.position || p.role || '';
+      }
 
       const stayDays = [p.stay30 === 'พัก' ? '30 พ.ย.' : '', p.stay1 === 'พัก' ? '1 ธ.ค.' : ''].filter(Boolean).join(', ');
       const roomText = p.roomNo ? `ห้อง ${p.roomNo}${stayDays ? ` (${stayDays})` : ''}` : (stayDays ? `พักคืน ${stayDays}` : 'ไม่ระบุ / ไม่เข้าพัก');
       document.getElementById('pc-room').textContent = roomText;
       document.getElementById('pc-food').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
 
+      const letterLink = document.getElementById('pc-letter-link');
+      if (p.letterUrl) {
+        letterLink.href = p.letterUrl;
+        letterLink.classList.remove('hidden');
+      } else {
+        letterLink.classList.add('hidden');
+      }
+
       // คำนวณเปอร์เซ็นต์ความครบถ้วนจาก 4 กิจกรรม (กิจกรรมละ 25%)
       const isDone = val => Boolean(val && String(val).trim() !== '' && String(val).trim() !== 'ยังไม่มา' && String(val).trim() !== '-');
       const activities = [
-        {
-          label: 'เช็กอินวันที่ 1 (30 พ.ย. 69)',
-          done: isDone(p.day1),
-          detail: isDone(p.day1) ? `เข้าร่วมแล้ว (${p.day1})` : 'รอเช็กอิน',
-          barColor: 'bg-emerald-500'
-        },
-        {
-          label: 'เช็กอินวันที่ 2 (1 ธ.ค. 69)',
-          done: isDone(p.day2),
-          detail: isDone(p.day2) ? `เข้าร่วมแล้ว (${p.day2})` : 'รอเช็กอิน',
-          barColor: 'bg-emerald-500'
-        },
-        {
-          label: 'เช็กอินวันที่ 3 (2 ธ.ค. 69)',
-          done: isDone(p.day3),
-          detail: isDone(p.day3) ? `เข้าร่วมแล้ว (${p.day3})` : 'รอเช็กอิน',
-          barColor: 'bg-emerald-500'
-        },
-        {
-          label: 'แบบประเมินความพึงพอใจ',
-          done: Boolean(p.evaluated),
-          detail: p.evaluated ? 'ทำแบบประเมินแล้ว' : 'ยังไม่ประเมิน',
-          barColor: 'bg-blue-600'
-        }
+        { label: 'เช็กอินวันที่ 1 (30 พ.ย. 69)', done: isDone(p.day1), detail: isDone(p.day1) ? `เข้าร่วมแล้ว (${p.day1})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
+        { label: 'เช็กอินวันที่ 2 (1 ธ.ค. 69)', done: isDone(p.day2), detail: isDone(p.day2) ? `เข้าร่วมแล้ว (${p.day2})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
+        { label: 'เช็กอินวันที่ 3 (2 ธ.ค. 69)', done: isDone(p.day3), detail: isDone(p.day3) ? `เข้าร่วมแล้ว (${p.day3})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
+        { label: 'แบบประเมินความพึงพอใจ', done: Boolean(p.evaluated), detail: p.evaluated ? 'ทำแบบประเมินแล้ว' : 'ยังไม่ประเมิน', barColor: 'bg-blue-600' }
       ];
 
       const completedCount = activities.filter(a => a.done).length;
       const totalPercent = Math.round((completedCount / activities.length) * 100);
 
-      // อัปเดตกราฟแท่งรวม
       document.getElementById('pc-progress-percent').textContent = `${totalPercent}%`;
       document.getElementById('pc-progress-bar').style.width = `${totalPercent}%`;
 
@@ -398,7 +520,6 @@
         statusBadge.className = 'text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
       }
 
-      // วาดกราฟแท่งแนวนอนแยกรายกิจกรรม
       document.getElementById('pc-activity-bars').innerHTML = activities.map(act => {
         const pct = act.done ? 100 : 0;
         return `
@@ -421,6 +542,135 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // ==================== EDIT REQUEST MODAL LOGIC ====================
+    function openEditRequestModal() {
+      if (!currentParticipant) return;
+      const p = currentParticipant;
+      document.getElementById('req-rsvp').value = p.rsvp || 'ยืนยันเข้าร่วม';
+      document.getElementById('req-name').value = p.fullName || '';
+      document.getElementById('req-position').value = p.position || '';
+      document.getElementById('req-orig-label').textContent = p.fullName || '';
+      document.getElementById('req-sub-name').value = p.substituteName || '';
+      document.getElementById('req-sub-position').value = p.substitutePosition || '';
+      document.getElementById('req-stay30').value = p.stay30 || '';
+      document.getElementById('req-stay1').value = p.stay1 || '';
+      document.getElementById('req-room').value = p.roomNo || '';
+      document.getElementById('req-food').value = p.food || 'อาหารทั่วไป';
+      document.getElementById('req-phone').value = p.phone || '';
+      document.getElementById('req-plate').value = p.licensePlate || '';
+      document.getElementById('req-note').value = '';
+      document.getElementById('req-letter-file').value = '';
+      document.getElementById('req-modal-error').classList.add('hidden');
+
+      toggleReqSubstituteFields();
+      document.getElementById('request-edit-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeEditRequestModal() {
+      document.getElementById('request-edit-modal').classList.add('hidden');
+    }
+
+    function toggleReqSubstituteFields() {
+      const isSub = document.getElementById('req-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
+      document.getElementById('req-sub-box').classList.toggle('hidden', !isSub);
+      document.getElementById('req-sub-name').required = isSub;
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = String(reader.result).split(',')[1];
+          resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: base64 });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function submitEditRequest(e) {
+      e.preventDefault();
+      if (!currentParticipant) return;
+
+      const errBox = document.getElementById('req-modal-error');
+      errBox.classList.add('hidden');
+
+      const fileInput = document.getElementById('req-letter-file');
+      let fileData = null;
+      if (fileInput.files && fileInput.files[0]) {
+        const f = fileInput.files[0];
+        if (f.size > 5 * 1024 * 1024) {
+          errBox.textContent = 'ขนาดไฟล์เกิน 5MB กรุณาย่อไฟล์แล้วลองใหม่อีกครั้งครับ';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        try {
+          fileData = await readFileAsBase64(f);
+        } catch (err) {
+          errBox.textContent = 'ไม่สามารถอ่านไฟล์ได้ กรุณาลองใหม่';
+          errBox.classList.remove('hidden');
+          return;
+        }
+      }
+
+      const btn = document.getElementById('req-submit-btn');
+      btn.disabled = true;
+      btn.textContent = fileData ? 'กำลังอัปโหลดไฟล์และส่งคำขอ...' : 'กำลังส่งคำขอ...';
+
+      const rsvp = document.getElementById('req-rsvp').value;
+      const subName = document.getElementById('req-sub-name').value.trim();
+      const subPos = document.getElementById('req-sub-position').value.trim();
+
+      const summaryParts = [];
+      if (rsvp === 'ส่งผู้แทนเข้าร่วม') summaryParts.push(`ส่งผู้แทน: ${subName}`);
+      else if (rsvp !== currentParticipant.rsvp) summaryParts.push(`ตอบรับ: ${rsvp}`);
+      if (document.getElementById('req-name').value.trim() !== currentParticipant.fullName) summaryParts.push('แก้ไขชื่อ-สกุล');
+      if (document.getElementById('req-stay30').value !== currentParticipant.stay30 || document.getElementById('req-stay1').value !== currentParticipant.stay1) summaryParts.push('อัปเดตที่พัก');
+      if (document.getElementById('req-food').value !== currentParticipant.food) summaryParts.push(`อาหาร: ${document.getElementById('req-food').value}`);
+      if (fileData) summaryParts.push('แนบหนังสือส่งตัว');
+
+      const payload = {
+        action: 'submitEditRequest',
+        id: currentParticipant.id,
+        originalName: currentParticipant.fullName,
+        fullName: document.getElementById('req-name').value.trim(),
+        position: document.getElementById('req-position').value.trim(),
+        rsvp: rsvp,
+        substituteName: rsvp === 'ส่งผู้แทนเข้าร่วม' ? subName : '',
+        substitutePosition: rsvp === 'ส่งผู้แทนเข้าร่วม' ? subPos : '',
+        stay30: document.getElementById('req-stay30').value,
+        stay1: document.getElementById('req-stay1').value,
+        roomNo: document.getElementById('req-room').value.trim(),
+        food: document.getElementById('req-food').value,
+        phone: document.getElementById('req-phone').value.trim(),
+        licensePlate: document.getElementById('req-plate').value.trim(),
+        note: document.getElementById('req-note').value.trim(),
+        summaryText: summaryParts.join(' • ') || 'ขออัปเดตข้อมูลส่วนตัว',
+        fileData: fileData
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        closeEditRequestModal();
+        showMessage(json.message, 'success');
+      } catch (err) {
+        errBox.textContent = 'ส่งคำขอไม่สำเร็จ: ' + err.message;
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ส่งคำขอไปยังเจ้าหน้าที่';
+      }
+    }
+
+    // ==================== EVALUATION LOGIC ====================
     function renderRatingQuestions() {
       const container = document.getElementById('rating-questions');
       container.innerHTML = RATING_FIELDS.map(f => `
@@ -460,14 +710,13 @@
     async function submitEvaluation(e) {
       e.preventDefault();
       showMessage('');
-
       const btn = document.getElementById('eval-submit-btn');
       btn.disabled = true;
       btn.innerHTML = 'กำลังส่งข้อมูล...';
 
       const payload = {
         action: 'submitEvaluation',
-        id: qrParticipantId || '', // ส่งไปเพื่อติ๊กสถานะ "ประเมินแล้ว" เท่านั้น ไม่บันทึกลงตารางคะแนน
+        id: qrParticipantId || '',
         content: ratings.content,
         speaker: ratings.speaker,
         venue: ratings.venue,
@@ -488,7 +737,6 @@
         document.getElementById('eval-success-card').classList.remove('hidden');
         document.getElementById('eval-receipt').textContent = 'บันทึกผลประเมินแบบไม่ระบุตัวตนเรียบร้อยแล้ว';
 
-        // อัปเดตกราฟแท่งความคืบหน้าทันทีหากเปิดจาก Smart QR
         if (currentParticipant) {
           currentParticipant.evaluated = true;
           renderPersonalCard(currentParticipant);
@@ -500,12 +748,6 @@
         btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> ส่งแบบประเมินความพึงพอใจ';
         if (window.lucide) lucide.createIcons();
       }
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      })[m]);
     }
   </script>
 </body>
