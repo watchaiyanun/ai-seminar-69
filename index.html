@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ระบบลงทะเบียน & Dashboard สัมมนาคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</title>
 
-  <!-- Google Fonts: Prompt (UI) & Sarabun (Print Sheet) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,16 +21,8 @@
             sarabun: ['Sarabun', 'sans-serif'],
           },
           colors: {
-            navy: {
-              700: '#1E3A8A',
-              800: '#172554',
-              900: '#0F172A',
-            },
-            maroon: {
-              600: '#9F1239',
-              700: '#881337',
-              800: '#6B0F2A',
-            }
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
           }
         }
       }
@@ -46,18 +37,13 @@
   <style>
     body { font-family: 'Prompt', sans-serif; }
     #reader video { border-radius: 0.75rem; object-fit: cover; }
-
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
     .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
 
-    /* สไตล์เฉพาะตอนสั่งพิมพ์ใบเซ็นชื่อกระดาษ A4 */
     @media print {
-      @page {
-        size: A4 portrait;
-        margin: 10mm 10mm 14mm 10mm;
-      }
+      @page { size: A4 portrait; margin: 10mm 10mm 14mm 10mm; }
       body {
         background: #ffffff !important;
         color: #000000 !important;
@@ -67,16 +53,8 @@
       }
       .no-print { display: none !important; }
       .print-only { display: block !important; }
-      table.print-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-      }
-      table.print-table th, table.print-table td {
-        border: 1px solid #000000;
-        padding: 4px 5px;
-        vertical-align: middle;
-      }
+      table.print-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      table.print-table th, table.print-table td { border: 1px solid #000000; padding: 4px 5px; vertical-align: middle; }
       table.print-table thead { display: table-header-group; }
       table.print-table tr { page-break-inside: avoid; }
     }
@@ -105,16 +83,22 @@
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <!-- ปุ่มกระดิ่งแจ้งเตือนคำขอแก้ไขจากผู้เข้าร่วม -->
+          <button onclick="openRequestsModal()" id="btn-notifications" title="คำขอแก้ไขข้อมูลจากผู้เข้าร่วม" class="relative p-2 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 transition">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span id="notif-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center shadow animate-bounce">0</span>
+          </button>
+
           <button onclick="toggleAutoRefresh()" id="btn-auto-refresh" title="เปิด/ปิด อัปเดตอัตโนมัติทุก 15 วินาที" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition">
             <span id="auto-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
             <span id="auto-label">Auto-Refresh: ปิด</span>
           </button>
 
-          <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <span id="api-status-badge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว
           </span>
 
-          <button onclick="fetchParticipants(true)" title="รีเฟรชข้อมูล" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+          <button onclick="refreshAllData(true)" title="รีเฟรชข้อมูล" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
             <i data-lucide="refresh-cw" id="refresh-icon" class="w-5 h-5"></i>
           </button>
 
@@ -133,19 +117,24 @@
     <!-- Main Container -->
     <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5 flex-1">
 
+      <!-- Banner แจ้งเตือนเมื่อมีคำขอแก้ไขรออนุมัติ -->
+      <div id="pending-req-banner" class="hidden bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-2.5 text-amber-900 dark:text-amber-200 text-sm">
+          <i data-lucide="bell-ring" class="w-5 h-5 text-amber-600 shrink-0"></i>
+          <span>มีคำขอแก้ไขข้อมูล / แจ้งส่งผู้แทน จากผู้เข้าร่วมสัมมนา <strong id="banner-req-count">0</strong> รายการ รอเจ้าหน้าที่ตรวจสอบ</span>
+        </div>
+        <button onclick="openRequestsModal()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shrink-0 transition">
+          ตรวจสอบและอนุมัติ
+        </button>
+      </div>
+
       <!-- Day Selector & Action Buttons -->
       <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white dark:bg-slate-800 p-3.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">วันสัมมนา:</span>
-          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
-            วันที่ 1 (30 พ.ย. 69)
-          </button>
-          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
-            วันที่ 2 (1 ธ.ค. 69)
-          </button>
-          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">
-            วันที่ 3 (2 ธ.ค. 69)
-          </button>
+          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">วันที่ 1 (30 พ.ย. 69)</button>
+          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">วันที่ 2 (1 ธ.ค. 69)</button>
+          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-3.5 py-2 rounded-xl text-sm font-medium transition">วันที่ 3 (2 ธ.ค. 69)</button>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -161,7 +150,7 @@
           <a href="badges.html" target="_blank" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium shadow-sm transition">
             <i data-lucide="id-card" class="w-4 h-4"></i> พิมพ์ป้ายคล้องคอ
           </a>
-          <a href="portal.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-medium transition" title="เปิดหน้า Portal ผู้เข้าร่วม">
+          <a href="portal.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-medium transition">
             <i data-lucide="external-link" class="w-4 h-4"></i> Portal
           </a>
         </div>
@@ -175,7 +164,7 @@
             <p id="kpi-total" class="text-2xl font-bold text-slate-800 dark:text-white">0</p>
             <span id="kpi-rsvp-confirm" class="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-navy-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">ยืนยัน 0</span>
           </div>
-          <p id="kpi-tbd" class="text-[11px] text-slate-400 mt-1">รอระบุชื่อ 0 ราย</p>
+          <p id="kpi-sub-count" class="text-[11px] text-purple-600 dark:text-purple-400 mt-1">ส่งผู้แทน 0 ราย</p>
         </div>
 
         <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-emerald-200 dark:border-emerald-800/60">
@@ -220,20 +209,14 @@
         <div class="flex flex-col sm:flex-row gap-2 flex-1">
           <div class="relative flex-1 max-w-md">
             <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input
-              type="text"
-              id="search-input"
-              oninput="renderViews()"
-              placeholder="ค้นหารหัส (KM69-01), ชื่อ, สังกัด, เลขห้อง, ทะเบียนรถ..."
-              class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
-            />
+            <input type="text" id="search-input" oninput="renderViews()" placeholder="ค้นหารหัส, ชื่อตัวจริง, ชื่อผู้แทน, สังกัด, เลขห้อง..." class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700" />
           </div>
 
-          <select id="filter-unit" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+          <select id="filter-unit" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
             <option value="all">หน่วยหลัก: ทั้งหมด</option>
           </select>
 
-          <select id="filter-rsvp" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+          <select id="filter-rsvp" onchange="renderViews()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
             <option value="all">การตอบรับ: ทั้งหมด</option>
             <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม</option>
             <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
@@ -242,30 +225,25 @@
           </select>
         </div>
 
-        <!-- 3-Mode View Switcher -->
         <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 self-start xl:self-auto">
           <button onclick="setViewMode('split')" id="view-btn-split" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition">
             <i data-lucide="columns-2" class="w-3.5 h-3.5"></i> แยกซ้าย-ขวา
           </button>
-          <button onclick="setViewMode('table')" id="view-btn-table" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
+          <button onclick="setViewMode('table')" id="view-btn-table" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 transition">
             <i data-lucide="table-2" class="w-3.5 h-3.5"></i> ตารางข้อมูลครบ
           </button>
-          <button onclick="setViewMode('summary')" id="view-btn-summary" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition">
+          <button onclick="setViewMode('summary')" id="view-btn-summary" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 transition">
             <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> สรุปภาพรวม & สำรวจ
           </button>
         </div>
       </section>
 
-      <!-- ==================== VIEW 1: SPLIT VIEW (ซ้ายเข้าแล้ว | ขวายังไม่เข้า) ==================== -->
+      <!-- ==================== VIEW 1: SPLIT VIEW ==================== -->
       <section id="split-view-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-
-        <!-- LEFT: เช็กอินแล้ว -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-emerald-200 dark:border-emerald-800/70 overflow-hidden flex flex-col">
           <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-              </div>
+              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
               <div>
                 <h2 class="font-bold text-base leading-tight">เข้าร่วมสัมมนาแล้ว</h2>
                 <p class="text-[11px] text-emerald-100">เรียงตามเวลาเข้าล่าสุดอยู่ด้านบน (<span class="current-day-text">30 พ.ย. 69</span>)</p>
@@ -276,13 +254,10 @@
           <div id="checked-list" class="p-3.5 space-y-2.5 max-h-[640px] overflow-y-auto custom-scroll bg-emerald-50/30 dark:bg-slate-900/30 min-h-[260px]"></div>
         </div>
 
-        <!-- RIGHT: ยังไม่เช็กอิน -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-rose-200 dark:border-rose-900/70 overflow-hidden flex flex-col">
           <div class="px-5 py-3.5 bg-gradient-to-r from-maroon-700 to-rose-700 text-white flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                <i data-lucide="clock" class="w-5 h-5"></i>
-              </div>
+              <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center"><i data-lucide="clock" class="w-5 h-5"></i></div>
               <div>
                 <h2 class="font-bold text-base leading-tight">ยังไม่เข้าร่วม / รอลงทะเบียน</h2>
                 <p class="text-[11px] text-rose-100">เรียงตามรหัสลำดับ (<span class="current-day-text">30 พ.ย. 69</span>)</p>
@@ -294,18 +269,18 @@
         </div>
       </section>
 
-      <!-- ==================== VIEW 2: FULL DATA TABLE (ข้อมูลสำรวจครบทุกช่อง) ==================== -->
+      <!-- ==================== VIEW 2: FULL TABLE ==================== -->
       <section id="table-view-container" class="hidden bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase border-b border-slate-200 dark:border-slate-700">
                 <th class="py-3 px-3 font-semibold">รหัส</th>
-                <th class="py-3 px-3 font-semibold">ยศ ชื่อ - สกุล / ตำแหน่ง</th>
+                <th class="py-3 px-3 font-semibold">ผู้เข้าร่วมจริง / ผู้แทน (มาแทนใคร)</th>
                 <th class="py-3 px-3 font-semibold">หน่วยหลัก / สังกัด</th>
                 <th class="py-3 px-3 font-semibold text-center">ตอบรับ</th>
                 <th class="py-3 px-3 font-semibold text-center">ที่พัก & ห้อง</th>
-                <th class="py-3 px-3 font-semibold text-center">อาหาร / เอกสาร</th>
+                <th class="py-3 px-3 font-semibold text-center">อาหาร / หนังสือส่งตัว</th>
                 <th class="py-3 px-3 font-semibold text-center">เช็กอิน (<span class="current-day-text">30 พ.ย.</span>)</th>
                 <th class="py-3 px-3 font-semibold text-right">จัดการ</th>
               </tr>
@@ -315,10 +290,8 @@
         </div>
       </section>
 
-      <!-- ==================== VIEW 3: EXECUTIVE SUMMARY DASHBOARD (เหมือนหน้าสรุปใน Excel) ==================== -->
+      <!-- ==================== VIEW 3: SUMMARY ==================== -->
       <section id="summary-view-container" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-        <!-- 1. สรุปจำนวนแยกตามหน่วยหลัก -->
         <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           <div class="px-5 py-4 bg-navy-800 text-white flex items-center justify-between">
             <h2 class="font-bold text-sm sm:text-base">1. สรุปจำนวนผู้เข้าร่วมแยกตามหน่วยหลัก (โควตา vs เช็กอินจริง)</h2>
@@ -340,10 +313,9 @@
           </div>
         </div>
 
-        <!-- 2. สถานะการตอบรับ / เช็กอิน / ที่พัก / อาหาร -->
         <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           <div class="px-5 py-4 bg-maroon-700 text-white">
-            <h2 class="font-bold text-sm sm:text-base">2. สถานะการตอบรับ / เช็กอิน / ที่พัก / อาหาร (อัปเดตอัตโนมัติ)</h2>
+            <h2 class="font-bold text-sm sm:text-base">2. สถานะการตอบรับ / เช็กอิน / ที่พัก / อาหาร</h2>
           </div>
           <div class="p-4">
             <table class="w-full text-sm border-collapse">
@@ -351,9 +323,7 @@
             </table>
           </div>
         </div>
-
       </section>
-
     </main>
 
     <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800">
@@ -361,20 +331,35 @@
     </footer>
   </div>
 
-  <!-- ==================== MODAL: EDIT PARTICIPANT (แก้ไขข้อมูลสำรวจรายบุคคล) ==================== -->
+  <!-- ==================== MODAL: EDIT REQUESTS APPROVAL (แจ้งเตือนเจ้าหน้าที่) ==================== -->
+  <div id="requests-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto">
+      <div class="px-5 py-4 bg-amber-600 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+          <div>
+            <h2 class="font-bold text-base">คำขอแก้ไขข้อมูล / ส่งผู้แทน จากผู้เข้าร่วมสัมมนา</h2>
+            <p class="text-xs text-amber-100">ตรวจสอบความถูกต้องและกด "อนุมัติ" เพื่ออัปเดตลง Google Sheets ทันที</p>
+          </div>
+        </div>
+        <button onclick="closeRequestsModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="requests-list-container" class="p-5 space-y-3 max-h-[75vh] overflow-y-auto custom-scroll"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EDIT PARTICIPANT (แก้ไข + ผู้แทน + แนบหนังสือส่งตัว) ==================== -->
   <div id="edit-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto">
       <div class="px-5 py-4 bg-navy-800 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="edit-3" class="w-5 h-5"></i>
           <div>
-            <h2 class="font-semibold text-base">แก้ไขข้อมูลผู้เข้าร่วมและรายละเอียดสำรวจ</h2>
+            <h2 class="font-semibold text-base">แก้ไขข้อมูลผู้เข้าร่วม / ผู้แทน / แนบหนังสือส่งตัว</h2>
             <p class="text-xs text-blue-200">รหัสประจำตัว: <span id="ed-id-display" class="font-mono font-bold text-white"></span></p>
           </div>
         </div>
-        <button onclick="closeEditModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeEditModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <form id="edit-form" onsubmit="submitEditParticipant(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scroll">
@@ -382,26 +367,21 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล *</label>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล (ตัวจริงตามบัญชี) *</label>
             <input type="text" id="ed-name" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง</label>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง (ตัวจริง)</label>
             <input type="text" id="ed-position" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หน่วยหลัก</label>
             <select id="ed-main-unit" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="บช.น.">บช.น.</option>
-              <option value="บช.ก.">บช.ก.</option>
-              <option value="ภ.1">ภ.1</option>
-              <option value="ภ.2">ภ.2</option>
-              <option value="ภ.6">ภ.6</option>
-              <option value="ภ.7">ภ.7</option>
-              <option value="กมค.">กมค.</option>
-              <option value="สงป.">สงป.</option>
-              <option value="สทส.">สทส.</option>
-              <option value="สยศ.ตร.">สยศ.ตร.</option>
+              <option value="บช.น.">บช.น.</option><option value="บช.ก.">บช.ก.</option>
+              <option value="ภ.1">ภ.1</option><option value="ภ.2">ภ.2</option>
+              <option value="ภ.6">ภ.6</option><option value="ภ.7">ภ.7</option>
+              <option value="กมค.">กมค.</option><option value="สงป.">สงป.</option>
+              <option value="สทส.">สทส.</option><option value="สยศ.ตร.">สยศ.ตร.</option>
               <option value="หน่วยงานภายนอก">หน่วยงานภายนอก</option>
             </select>
           </div>
@@ -418,7 +398,7 @@
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">สถานะตอบรับ</label>
-            <select id="ed-rsvp" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
+            <select id="ed-rsvp" onchange="toggleStaffSubstituteFields()" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
               <option value="รอการยืนยัน">รอการยืนยัน</option>
               <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม</option>
               <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
@@ -427,21 +407,32 @@
           </div>
         </div>
 
+        <!-- กล่องกรอกข้อมูลผู้แทน (แสดงเมื่อเลือก ส่งผู้แทนเข้าร่วม) -->
+        <div id="ed-sub-box" class="hidden p-3.5 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 space-y-2.5">
+          <p class="text-xs font-bold text-purple-800 dark:text-purple-300">ระบุข้อมูลผู้แทน (มาแทนเจ้าของชื่อด้านบน)</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">ยศ ชื่อ - สกุล (ผู้แทน) *</label>
+              <input type="text" id="ed-sub-name" placeholder="เช่น ร.ต.อ.สมหมาย ใจดี" class="w-full px-3 py-2 rounded-xl border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">ตำแหน่ง (ผู้แทน)</label>
+              <input type="text" id="ed-sub-position" placeholder="เช่น รอง สว.จร." class="w-full px-3 py-2 rounded-xl border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-900 text-sm" />
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-700">
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
             <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="">ยังไม่ระบุ</option>
-              <option value="พัก">พัก</option>
-              <option value="ไม่พัก">ไม่พัก</option>
+              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
             </select>
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
             <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="">ยังไม่ระบุ</option>
-              <option value="พัก">พัก</option>
-              <option value="ไม่พัก">ไม่พัก</option>
+              <option value="">ยังไม่ระบุ</option><option value="พัก">พัก</option><option value="ไม่พัก">ไม่พัก</option>
             </select>
           </div>
           <div>
@@ -454,17 +445,13 @@
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
             <select id="ed-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
-              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
-              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option><option value="อาหารฮาลาล">อาหารฮาลาล</option><option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หนังสือส่งตัว</label>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">สถานะหนังสือส่งตัว</label>
             <select id="ed-letter" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="">ยังไม่ระบุ</option>
-              <option value="ส่งแล้ว">ส่งแล้ว</option>
-              <option value="ยังไม่ส่ง">ยังไม่ส่ง</option>
+              <option value="">ยังไม่ระบุ</option><option value="ส่งแล้ว">ส่งแล้ว</option><option value="ยังไม่ส่ง">ยังไม่ส่ง</option>
             </select>
           </div>
           <div>
@@ -475,6 +462,15 @@
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
             <input type="tel" id="ed-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
           </div>
+        </div>
+
+        <!-- อัปโหลดไฟล์หนังสือส่งตัว -->
+        <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-navy-800 dark:text-blue-300">แนบไฟล์หนังสือส่งตัว (PDF / รูปภาพ ไม่เกิน 5MB)</label>
+            <a id="ed-letter-link" href="#" target="_blank" class="hidden text-xs font-semibold text-emerald-600 hover:underline">เปิดดูไฟล์เดิม ↗</a>
+          </div>
+          <input type="file" id="ed-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white" />
         </div>
 
         <div class="pt-3 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-700">
@@ -496,20 +492,15 @@
             <p class="text-xs text-blue-200">กำลังเช็กอินของ: <span id="scanner-day-label" class="font-semibold text-white"></span></p>
           </div>
         </div>
-        <button onclick="closeScannerModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeScannerModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <div class="p-5 space-y-4">
-        <div class="relative bg-slate-900 rounded-xl overflow-hidden min-h-[260px] flex items-center justify-center">
-          <div id="reader" class="w-full"></div>
-        </div>
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden min-h-[260px] flex items-center justify-center"><div id="reader" class="w-full"></div></div>
         <div id="scan-result-box" class="hidden p-3.5 rounded-xl border text-sm"></div>
         <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
           <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1.5">หรือพิมพ์รหัสป้ายชื่อ (เช่น KM69-01):</label>
           <div class="flex gap-2">
-            <input type="text" id="manual-qr-input" placeholder="KM69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-navy-700" />
+            <input type="text" id="manual-qr-input" placeholder="KM69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase" />
             <button onclick="submitManualCode()" class="px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">ยืนยัน</button>
           </div>
         </div>
@@ -521,15 +512,9 @@
   <div id="walkin-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
       <div class="px-5 py-4 bg-maroon-700 text-white flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5"></i>
-          <h2 class="font-semibold text-base">เพิ่มผู้เข้าร่วมหน้างาน (Walk-in / ผู้แทน)</h2>
-        </div>
-        <button onclick="closeWalkInModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center gap-2"><i data-lucide="user-plus" class="w-5 h-5"></i><h2 class="font-semibold text-base">เพิ่มผู้เข้าร่วมหน้างาน (Walk-in)</h2></div>
+        <button onclick="closeWalkInModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <form id="walkin-form" onsubmit="submitWalkIn(event)" class="p-5 space-y-3">
         <div>
           <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล *</label>
@@ -543,16 +528,11 @@
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">หน่วยหลัก</label>
             <select id="wi-main-unit" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="บช.น.">บช.น.</option>
-              <option value="บช.ก.">บช.ก.</option>
-              <option value="ภ.1">ภ.1</option>
-              <option value="ภ.2">ภ.2</option>
-              <option value="ภ.6">ภ.6</option>
-              <option value="ภ.7">ภ.7</option>
-              <option value="กมค.">กมค.</option>
-              <option value="สงป.">สงป.</option>
-              <option value="สทส.">สทส.</option>
-              <option value="สยศ.ตร.">สยศ.ตร.</option>
+              <option value="บช.น.">บช.น.</option><option value="บช.ก.">บช.ก.</option>
+              <option value="ภ.1">ภ.1</option><option value="ภ.2">ภ.2</option>
+              <option value="ภ.6">ภ.6</option><option value="ภ.7">ภ.7</option>
+              <option value="กมค.">กมค.</option><option value="สงป.">สงป.</option>
+              <option value="สทส.">สทส.</option><option value="สยศ.ตร.">สยศ.ตร.</option>
               <option value="หน่วยงานภายนอก" selected>หน่วยงานภายนอก</option>
             </select>
           </div>
@@ -561,9 +541,7 @@
           <div>
             <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
             <select id="wi-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm">
-              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
-              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
-              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option><option value="อาหารฮาลาล">อาหารฮาลาล</option><option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
             </select>
           </div>
           <div>
@@ -619,8 +597,8 @@
         <tr style="background-color: #f1f5f9;">
           <th style="width: 5%; text-align: center;">ลำดับ</th>
           <th style="width: 10%; text-align: center;">รหัส</th>
-          <th style="width: 24%; text-align: left;">ยศ ชื่อ - สกุล</th>
-          <th style="width: 22%; text-align: left;">ตำแหน่ง</th>
+          <th style="width: 26%; text-align: left;">ยศ ชื่อ - สกุล (ผู้เข้าร่วม / ผู้แทน)</th>
+          <th style="width: 20%; text-align: left;">ตำแหน่ง</th>
           <th style="width: 15%; text-align: left;">สังกัด</th>
           <th style="width: 16%; text-align: center;">ลายมือชื่อ</th>
           <th style="width: 8%; text-align: center;">หมายเหตุ</th>
@@ -645,37 +623,31 @@
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
-
     const DAY_CONFIG = {
       day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
       day2: { label: '1 ธ.ค. 69',  full: 'วันอังคารที่ 1 ธันวาคม 2569' },
       day3: { label: '2 ธ.ค. 69',  full: 'วันพุธที่ 2 ธันวาคม 2569' }
     };
-
     const UNIT_ORDER = ['บช.น.', 'บช.ก.', 'ภ.1', 'ภ.2', 'ภ.6', 'ภ.7', 'กมค.', 'สงป.', 'สทส.', 'สยศ.ตร.', 'หน่วยงานภายนอก'];
 
-    // ตัวช่วยอ่าน/เขียน localStorage แบบปลอดภัย (ป้องกัน Error ในโหมด Preview/iframe)
-    function safeStorageGet(key) {
-      try { return localStorage.getItem(key); } catch (e) { return null; }
-    }
-    function safeStorageSet(key, val) {
-      try { localStorage.setItem(key, val); } catch (e) {}
-    }
+    function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
     let API_URL = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
+    let editRequests = [];
     let currentDay = detectDefaultDay();
-    let currentView = 'split'; // 'split' | 'table' | 'summary'
+    let currentView = 'split';
     let html5QrCode = null;
     let lastScanned = { id: null, time: 0 };
     let autoRefreshTimer = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       if (window.lucide) lucide.createIcons();
-      initTheme();
+      if (safeStorageGet('theme') === 'dark') document.documentElement.classList.add('dark');
       updateApiStatusBadge();
       selectDay(currentDay, false);
-      fetchParticipants();
+      refreshAllData(false);
     });
 
     function detectDefaultDay() {
@@ -687,22 +659,9 @@
       return 'day1';
     }
 
-    function initTheme() {
-      if (safeStorageGet('theme') === 'dark') document.documentElement.classList.add('dark');
-    }
-
     function toggleDarkMode() {
       const isDark = document.documentElement.classList.toggle('dark');
       safeStorageSet('theme', isDark ? 'dark' : 'light');
-    }
-
-    function initTheme() {
-      if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-    }
-
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
     function toggleAutoRefresh() {
@@ -717,11 +676,11 @@
         btn.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 transition';
         showToast('ปิดโหมดอัปเดตอัตโนมัติแล้ว', 'info');
       } else {
-        autoRefreshTimer = setInterval(() => fetchParticipants(false), 15000);
+        autoRefreshTimer = setInterval(() => refreshAllData(false), 15000);
         dot.className = 'w-2 h-2 rounded-full bg-blue-500 animate-ping';
         label.textContent = 'Auto-Refresh: 15 วิ';
         btn.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 transition';
-        showToast('เปิดอัปเดตข้อมูลอัตโนมัติทุก 15 วินาที', 'success');
+        showToast('เปิดอัปเดตข้อมูลและแจ้งเตือนอัตโนมัติทุก 15 วินาที', 'success');
       }
     }
 
@@ -739,18 +698,20 @@
         const btn = document.getElementById(`view-btn-${m}`);
         btn.className = m === mode
           ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition'
-          : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition';
+          : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 transition';
       });
       renderViews();
+    }
+
+    async function refreshAllData(showToastMsg = false) {
+      await Promise.all([fetchParticipants(showToastMsg), fetchEditRequests()]);
     }
 
     async function fetchParticipants(showToastMsg = false) {
       const icon = document.getElementById('refresh-icon');
       if (icon) icon.classList.add('animate-spin');
       try {
-        if (!API_URL) {
-          throw new Error('ยังไม่ได้ตั้งค่า Web App URL');
-        }
+        if (!API_URL) throw new Error('ยังไม่ได้ตั้งค่า Web App URL');
         const res = await fetch(`${API_URL}?action=getParticipants`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
@@ -764,7 +725,10 @@
             unitDetail: String(p.unitDetail || p.unit || ''),
             role: String(p.role || ''),
             rsvp: String(p.rsvp || 'รอการยืนยัน'),
-            food: String(p.food || 'อาหารทั่วไป')
+            food: String(p.food || 'อาหารทั่วไป'),
+            substituteName: String(p.substituteName || '').trim(),
+            substitutePosition: String(p.substitutePosition || '').trim(),
+            letterUrl: String(p.letterUrl || '').trim()
           }));
           populateUnitFilter();
           updateDashboard();
@@ -773,11 +737,38 @@
           throw new Error(json.message || 'ไม่สามารถโหลดข้อมูลได้');
         }
       } catch (err) {
-        console.error(err);
         updateDashboard();
         showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         if (icon) icon.classList.remove('animate-spin');
+      }
+    }
+
+    async function fetchEditRequests() {
+      if (!API_URL) return;
+      try {
+        const res = await fetch(`${API_URL}?action=getRequests`);
+        const json = await res.json();
+        if (json.status === 'success') {
+          editRequests = json.data || [];
+          updateNotificationUI();
+        }
+      } catch (e) {}
+    }
+
+    function updateNotificationUI() {
+      const pendingCount = editRequests.filter(r => r.status === 'รออนุมัติ').length;
+      const badge = document.getElementById('notif-badge');
+      const banner = document.getElementById('pending-req-banner');
+
+      if (pendingCount > 0) {
+        badge.textContent = pendingCount;
+        badge.classList.remove('hidden');
+        document.getElementById('banner-req-count').textContent = pendingCount;
+        banner.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+        banner.classList.add('hidden');
       }
     }
 
@@ -806,19 +797,18 @@
       const select = document.getElementById('filter-unit');
       const currentVal = select.value;
       const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))];
-      units.sort((a, b) => {
-        const ia = UNIT_ORDER.indexOf(a);
-        const ib = UNIT_ORDER.indexOf(b);
-        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-      });
-      select.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' +
-        units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+      units.sort((a, b) => (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) - (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b)));
+      select.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' + units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
       if (units.includes(currentVal)) select.value = currentVal;
     }
 
     function isCheckedIn(p, dayKey = currentDay) {
       const v = String(p[dayKey] || '').trim();
       return v !== '' && v !== 'ยังไม่มา' && v !== '-';
+    }
+
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
     }
 
     function updateDashboard() {
@@ -828,7 +818,7 @@
       const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
 
       const confirmed = participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length;
-      const tbd = participants.filter(p => String(p.fullName || '').includes('รอระบุ')).length;
+      const subCount = participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length;
       const stay30 = participants.filter(p => p.stay30 === 'พัก').length;
       const stay1 = participants.filter(p => p.stay1 === 'พัก').length;
       const rooms = participants.filter(p => Boolean(p.roomNo)).length;
@@ -838,7 +828,7 @@
 
       document.getElementById('kpi-total').textContent = total;
       document.getElementById('kpi-rsvp-confirm').textContent = `ยืนยัน ${confirmed}`;
-      document.getElementById('kpi-tbd').textContent = `รอระบุชื่อ ${tbd} ราย`;
+      document.getElementById('kpi-sub-count').textContent = `ส่งผู้แทน ${subCount} ราย`;
       document.getElementById('kpi-checked').textContent = checked;
       document.getElementById('kpi-pending').textContent = pending;
       document.getElementById('kpi-percent').textContent = `${percent}%`;
@@ -862,7 +852,7 @@
         if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
         if (rsvpFilter !== 'all' && p.rsvp !== rsvpFilter) return false;
         if (q) {
-          const text = `${p.id} ${p.fullName} ${p.position} ${p.mainUnit} ${p.unitDetail} ${p.role} ${p.roomNo} ${p.licensePlate} ${p.phone}`.toLowerCase();
+          const text = `${p.id} ${p.fullName} ${p.position} ${p.substituteName} ${p.substitutePosition} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.licensePlate} ${p.phone}`.toLowerCase();
           if (!text.includes(q)) return false;
         }
         return true;
@@ -878,7 +868,7 @@
 
     function getRsvpBadge(rsvp) {
       if (rsvp === 'ยืนยันเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">ยืนยันแล้ว</span>';
-      if (rsvp === 'ส่งผู้แทนเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">ส่งผู้แทน</span>';
+      if (rsvp === 'ส่งผู้แทนเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">ส่งผู้แทน</span>';
       if (rsvp === 'ไม่สามารถเข้าร่วม') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400">ไม่สะดวก</span>';
       return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">รอยืนยัน</span>';
     }
@@ -888,69 +878,71 @@
       if (p.roomNo) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">ห้อง ${escapeHtml(p.roomNo)}</span>`);
       else if (p.stay30 === 'พัก' || p.stay1 === 'พัก') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">พักโรงแรม</span>`);
       if (p.food && p.food !== 'อาหารทั่วไป') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">${escapeHtml(p.food)}</span>`);
-      if (p.licensePlate) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">รถ: ${escapeHtml(p.licensePlate)}</span>`);
+      if (p.letterUrl) tags.push(`<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200">📎 หนังสือส่งตัว</a>`);
       return tags.join(' ');
     }
 
-    // ==================== RENDER SPLIT VIEW ====================
-    function renderSplitView(filtered) {
-      const checkedItems = filtered
-        .filter(p => isCheckedIn(p))
-        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
+    function buildNameBlock(p) {
+      if (hasSubstitute(p)) {
+        return `
+          <h3 class="font-bold text-sm text-purple-900 dark:text-purple-200 truncate">${escapeHtml(p.substituteName)}</h3>
+          <p class="text-[11px] text-purple-700 dark:text-purple-300 truncate">ผู้แทน • ${escapeHtml(p.substitutePosition || 'ไม่ระบุตำแหน่ง')}</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">มาแทน: <span class="font-medium">${escapeHtml(p.fullName)}</span> (${escapeHtml(p.unitDetail || p.mainUnit)})</p>
+        `;
+      }
+      return `
+        <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+      `;
+    }
 
-      const pendingItems = filtered
-        .filter(p => !isCheckedIn(p))
-        .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+    function renderSplitView(filtered) {
+      const checkedItems = filtered.filter(p => isCheckedIn(p)).sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
+      const pendingItems = filtered.filter(p => !isCheckedIn(p)).sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
 
       document.getElementById('split-checked-badge').textContent = `${checkedItems.length} คน`;
       document.getElementById('split-pending-badge').textContent = `${pendingItems.length} คน`;
 
-      const checkedEl = document.getElementById('checked-list');
-      const pendingEl = document.getElementById('pending-list');
-
-      checkedEl.innerHTML = checkedItems.length === 0
+      document.getElementById('checked-list').innerHTML = checkedItems.length === 0
         ? `<div class="py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้เช็กอินในวันนี้</div>`
         : checkedItems.map(p => `
           <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm flex items-start justify-between gap-2.5">
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 mb-1">
                 <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
-                <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              ${buildNameBlock(p)}
               <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
             <div class="flex flex-col items-end gap-1.5 shrink-0">
               <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-semibold">${escapeHtml(p[currentDay])}</span>
               <div class="flex items-center gap-1">
-                <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600">แก้ไข</button>
-                <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2 py-1 rounded-lg text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">ยกเลิก</button>
+                <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2 py-1 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600">แก้ไข</button>
+                <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2 py-1 rounded-lg text-[11px] font-medium text-rose-600 hover:bg-rose-50 border border-rose-200">ยกเลิก</button>
               </div>
             </div>
           </div>
         `).join('');
 
-      pendingEl.innerHTML = pendingItems.length === 0
+      document.getElementById('pending-list').innerHTML = pendingItems.length === 0
         ? `<div class="py-16 text-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</div>`
         : pendingItems.map(p => `
-          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 dark:hover:border-rose-700 transition flex items-start justify-between gap-2.5">
+          <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-rose-300 transition flex items-start justify-between gap-2.5">
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 mb-1">
                 <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
-                <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              ${buildNameBlock(p)}
               <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600">แก้ไข</button>
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600">แก้ไข</button>
               <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">เช็กอิน</button>
             </div>
           </div>
         `).join('');
     }
 
-    // ==================== RENDER FULL TABLE VIEW ====================
     function renderTableView(filtered) {
       const tbody = document.getElementById('participants-tbody');
       if (filtered.length === 0) {
@@ -961,16 +953,19 @@
       tbody.innerHTML = filtered.map(p => {
         const checked = isCheckedIn(p);
         const stayText = [p.stay30 === 'พัก' ? '30พ.ย.' : '', p.stay1 === 'พัก' ? '1ธ.ค.' : ''].filter(Boolean).join(', ') || '-';
+        const nameCell = hasSubstitute(p)
+          ? `<div class="font-bold text-purple-800 dark:text-purple-300">${escapeHtml(p.substituteName)} <span class="text-[10px] font-normal">(${escapeHtml(p.substitutePosition || 'ผู้แทน')})</span></div>
+             <div class="text-[11px] text-slate-500">มาแทน: ${escapeHtml(p.fullName)}</div>`
+          : `<div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.fullName)}</div>
+             <div class="text-[11px] text-slate-500">${escapeHtml(p.position || '-')}</div>`;
+
         return `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30">
             <td class="py-3 px-3 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
-            <td class="py-3 px-3">
-              <div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.fullName)}</div>
-              <div class="text-[11px] text-slate-500">${escapeHtml(p.position || '-')}</div>
-            </td>
+            <td class="py-3 px-3">${nameCell}</td>
             <td class="py-3 px-3">
               <div class="font-medium text-slate-700 dark:text-slate-200">${escapeHtml(p.mainUnit)}</div>
-              <div class="text-[11px] text-slate-500">${escapeHtml(p.unitDetail)} (${escapeHtml(p.role)})</div>
+              <div class="text-[11px] text-slate-500">${escapeHtml(p.unitDetail)}</div>
             </td>
             <td class="py-3 px-3 text-center whitespace-nowrap">${getRsvpBadge(p.rsvp)}</td>
             <td class="py-3 px-3 text-center whitespace-nowrap text-xs">
@@ -979,27 +974,28 @@
             </td>
             <td class="py-3 px-3 text-center text-xs">
               <div>${escapeHtml(p.food)}</div>
-              <div class="text-[11px] text-slate-400">${escapeHtml(p.officialLetter || (p.licensePlate ? 'รถ: ' + p.licensePlate : '-'))}</div>
+              <div class="mt-0.5">
+                ${p.letterUrl
+                  ? `<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="text-emerald-600 font-semibold hover:underline">📎 ดูหนังสือส่งตัว</a>`
+                  : `<span class="text-[11px] text-slate-400">${escapeHtml(p.officialLetter || '-')}</span>`}
+              </div>
             </td>
             <td class="py-3 px-3 text-center whitespace-nowrap">
               ${checked
-                ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">${escapeHtml(p[currentDay])}</span>`
-                : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">ยังไม่มา</span>`
-              }
+                ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">${escapeHtml(p[currentDay])}</span>`
+                : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700">ยังไม่มา</span>`}
             </td>
             <td class="py-3 px-3 text-right whitespace-nowrap space-x-1">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">แก้ไข</button>
+              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600">แก้ไข</button>
               ${checked
-                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200 hover:bg-rose-50">ยกเลิก</button>`
-                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600 hover:bg-emerald-700">เช็กอิน</button>`
-              }
+                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200">ยกเลิก</button>`
+                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600">เช็กอิน</button>`}
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    // ==================== RENDER EXECUTIVE SUMMARY (เหมือน Dashboard Excel) ====================
     function renderSummaryView() {
       const total = participants.length || 1;
       const unitMap = {};
@@ -1010,12 +1006,7 @@
         if (isCheckedIn(p)) unitMap[u].checked++;
       });
 
-      const unitKeys = Object.keys(unitMap).sort((a, b) => {
-        const ia = UNIT_ORDER.indexOf(a);
-        const ib = UNIT_ORDER.indexOf(b);
-        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-      });
-
+      const unitKeys = Object.keys(unitMap).sort((a, b) => (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) - (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b)));
       const totalChecked = participants.filter(p => isCheckedIn(p)).length;
 
       document.getElementById('summary-units-tbody').innerHTML = unitKeys.map(u => {
@@ -1024,43 +1015,30 @@
         const checkPct = item.total > 0 ? Math.round((item.checked / item.total) * 100) : 0;
         return `
           <tr>
-            <td class="py-2.5 font-medium text-slate-800 dark:text-slate-100">${escapeHtml(u)}</td>
+            <td class="py-2.5 font-medium">${escapeHtml(u)}</td>
             <td class="py-2.5 text-center font-semibold">${item.total}</td>
             <td class="py-2.5 text-center text-xs text-slate-500">${sharePct}%</td>
-            <td class="py-2.5 text-center font-bold text-emerald-600 dark:text-emerald-400">${item.checked}</td>
+            <td class="py-2.5 text-center font-bold text-emerald-600">${item.checked}</td>
             <td class="py-2.5">
               <div class="flex items-center gap-2">
-                <div class="flex-1 bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div class="bg-emerald-500 h-full rounded-full" style="width: ${checkPct}%"></div>
-                </div>
+                <div class="flex-1 bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full rounded-full" style="width: ${checkPct}%"></div></div>
                 <span class="text-[11px] font-mono text-slate-500 w-8 text-right">${checkPct}%</span>
               </div>
             </td>
           </tr>
         `;
-      }).join('') + `
-        <tr class="bg-slate-50 dark:bg-slate-900/50 font-bold">
-          <td class="py-3">รวมทั้งหมด (ตามบัญชี)</td>
-          <td class="py-3 text-center">${participants.length}</td>
-          <td class="py-3 text-center">100%</td>
-          <td class="py-3 text-center text-emerald-600 dark:text-emerald-400">${totalChecked}</td>
-          <td class="py-3 text-xs text-right pr-1">${Math.round((totalChecked / total) * 100)}%</td>
-        </tr>
-      `;
+      }).join('');
 
       const metrics = [
-        { label: 'ยืนยันเข้าร่วมแล้ว (ตร. + ภายนอก)', val: participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length, color: 'text-blue-600' },
-        { label: 'ส่งผู้แทนเข้าร่วม', val: participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length, color: 'text-purple-600' },
+        { label: 'ยืนยันเข้าร่วมแล้ว (มาด้วยตนเอง)', val: participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length, color: 'text-blue-600' },
+        { label: 'ส่งผู้แทนเข้าร่วม', val: participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length, color: 'text-purple-600 font-bold' },
         { label: 'รอการยืนยันทั้งหมด', val: participants.filter(p => p.rsvp === 'รอการยืนยัน').length, color: 'text-amber-600' },
         { label: `เช็กอินหน้างานแล้ว (${DAY_CONFIG[currentDay].label})`, val: totalChecked, color: 'text-emerald-600 font-bold' },
-        { label: `ยังไม่เช็กอินหน้างาน (${DAY_CONFIG[currentDay].label})`, val: participants.length - totalChecked, color: 'text-rose-600' },
         { label: 'ยอดเข้าพักคืนวันที่ 30 พ.ย.', val: participants.filter(p => p.stay30 === 'พัก').length, color: 'text-indigo-600' },
         { label: 'ยอดเข้าพักคืนวันที่ 1 ธ.ค.', val: participants.filter(p => p.stay1 === 'พัก').length, color: 'text-indigo-600' },
-        { label: 'จัดเลขห้องพักเรียบร้อยแล้ว', val: participants.filter(p => Boolean(p.roomNo)).length, color: 'text-slate-700 dark:text-slate-200' },
-        { label: 'ต้องการอาหารฮาลาล (รวม)', val: participants.filter(p => String(p.food).includes('ฮาลาล')).length, color: 'text-orange-600' },
-        { label: 'ต้องการอาหารมังสวิรัติ/อื่นๆ (รวม)', val: participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length, color: 'text-teal-600' },
-        { label: 'ส่งหนังสือส่งตัวแล้ว', val: participants.filter(p => p.officialLetter === 'ส่งแล้ว').length, color: 'text-emerald-600' },
-        { label: 'รายชื่อที่ยังว่าง (รอระบุชื่อ)', val: participants.filter(p => String(p.fullName || '').includes('รอระบุ')).length, color: 'text-rose-500' }
+        { label: 'แนบไฟล์หนังสือส่งตัวแล้ว', val: participants.filter(p => Boolean(p.letterUrl) || p.officialLetter === 'ส่งแล้ว').length, color: 'text-emerald-600' },
+        { label: 'ต้องการอาหารฮาลาล', val: participants.filter(p => String(p.food).includes('ฮาลาล')).length, color: 'text-orange-600' },
+        { label: 'ต้องการอาหารมังสวิรัติ/อื่นๆ', val: participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length, color: 'text-teal-600' }
       ];
 
       document.getElementById('summary-metrics-tbody').innerHTML = metrics.map(m => `
@@ -1069,6 +1047,82 @@
           <td class="py-2.5 text-right font-bold text-base ${m.color}">${m.val} <span class="text-xs font-normal text-slate-400">คน</span></td>
         </tr>
       `).join('');
+    }
+
+    // ==================== REQUESTS APPROVAL MODAL ====================
+    function openRequestsModal() {
+      renderRequestsModal();
+      document.getElementById('requests-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeRequestsModal() {
+      document.getElementById('requests-modal').classList.add('hidden');
+    }
+
+    function renderRequestsModal() {
+      const container = document.getElementById('requests-list-container');
+      if (editRequests.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-sm">ยังไม่มีคำขอแก้ไขข้อมูลจากผู้เข้าร่วมสัมมนา</div>`;
+        return;
+      }
+
+      container.innerHTML = editRequests.map(req => {
+        const isPending = req.status === 'รออนุมัติ';
+        const c = req.changes || {};
+        const statusColor = isPending ? 'bg-amber-100 text-amber-800' : (req.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700');
+
+        return `
+          <div class="p-4 rounded-2xl border ${isPending ? 'border-amber-300 bg-amber-50/40 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/30'} space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-navy-700 text-white">${escapeHtml(req.participantId)}</span>
+                  <span class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(req.originalName)}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusColor}">${escapeHtml(req.status)}</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">ส่งเมื่อ ${escapeHtml(req.timestamp)} • ${escapeHtml(req.summaryText)}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
+              <div><span class="text-slate-400">ตอบรับ:</span> <strong>${escapeHtml(c.rsvp || '-')}</strong></div>
+              <div><span class="text-slate-400">อาหาร:</span> <strong>${escapeHtml(c.food || '-')}</strong></div>
+              ${c.rsvp === 'ส่งผู้แทนเข้าร่วม' ? `
+                <div class="sm:col-span-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200">
+                  <strong>ผู้แทน:</strong> ${escapeHtml(c.substituteName || '-')} (${escapeHtml(c.substitutePosition || '-')})
+                </div>` : ''}
+              <div><span class="text-slate-400">ที่พัก:</span> 30 พ.ย. (${escapeHtml(c.stay30 || '-')}) / 1 ธ.ค. (${escapeHtml(c.stay1 || '-')})</div>
+              <div><span class="text-slate-400">ห้องพัก / เบอร์:</span> ${escapeHtml(c.roomNo || '-')} / ${escapeHtml(c.phone || '-')}</div>
+              ${req.note ? `<div class="sm:col-span-2 text-amber-800 dark:text-amber-300"><strong>หมายเหตุ:</strong> ${escapeHtml(req.note)}</div>` : ''}
+              ${req.letterUrl ? `<div class="sm:col-span-2 pt-1"><a href="${escapeHtml(req.letterUrl)}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 font-bold hover:underline">📎 เปิดดูไฟล์หนังสือส่งตัวที่แนบมา ↗</a></div>` : ''}
+            </div>
+
+            ${isPending ? `
+              <div class="flex justify-end gap-2 pt-1">
+                <button onclick="processRequest('${escapeHtml(req.requestId)}', 'reject', this)" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50">ปฏิเสธ</button>
+                <button onclick="processRequest('${escapeHtml(req.requestId)}', 'approve', this)" class="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">อนุมัติและอัปเดตทันที</button>
+              </div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function processRequest(requestId, decision, btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = 'กำลังดำเนินการ...';
+      try {
+        const res = await postToApi({ action: 'processEditRequest', requestId, decision });
+        if (res.status === 'success') {
+          showToast(res.message, decision === 'approve' ? 'success' : 'info');
+          await refreshAllData(false);
+          renderRequestsModal();
+        } else {
+          showToast(res.message, 'error');
+        }
+      } catch (err) {
+        showToast('ดำเนินการไม่สำเร็จ: ' + err.message, 'error');
+      }
     }
 
     // ==================== EDIT MODAL ====================
@@ -1083,6 +1137,8 @@
       document.getElementById('ed-unit-detail').value = p.unitDetail || '';
       document.getElementById('ed-role').value = p.role || '';
       document.getElementById('ed-rsvp').value = p.rsvp || 'รอการยืนยัน';
+      document.getElementById('ed-sub-name').value = p.substituteName || '';
+      document.getElementById('ed-sub-position').value = p.substitutePosition || '';
       document.getElementById('ed-stay30').value = p.stay30 || '';
       document.getElementById('ed-stay1').value = p.stay1 || '';
       document.getElementById('ed-room').value = p.roomNo || '';
@@ -1090,19 +1146,50 @@
       document.getElementById('ed-letter').value = p.officialLetter || '';
       document.getElementById('ed-plate').value = p.licensePlate || '';
       document.getElementById('ed-phone').value = p.phone || '';
+      document.getElementById('ed-letter-file').value = '';
+
+      const linkEl = document.getElementById('ed-letter-link');
+      if (p.letterUrl) { linkEl.href = p.letterUrl; linkEl.classList.remove('hidden'); }
+      else { linkEl.classList.add('hidden'); }
+
+      toggleStaffSubstituteFields();
       document.getElementById('edit-modal').classList.remove('hidden');
     }
 
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.add('hidden');
+    function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+    function toggleStaffSubstituteFields() {
+      const isSub = document.getElementById('ed-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
+      document.getElementById('ed-sub-box').classList.toggle('hidden', !isSub);
+      document.getElementById('ed-sub-name').required = isSub;
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: String(reader.result).split(',')[1] });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
     async function submitEditParticipant(e) {
       e.preventDefault();
+      const fileInput = document.getElementById('ed-letter-file');
+      let fileData = null;
+      if (fileInput.files && fileInput.files[0]) {
+        if (fileInput.files[0].size > 5 * 1024 * 1024) {
+          showToast('ขนาดไฟล์หนังสือส่งตัวต้องไม่เกิน 5MB', 'error');
+          return;
+        }
+        fileData = await readFileAsBase64(fileInput.files[0]);
+      }
+
       const btn = document.getElementById('ed-submit-btn');
       btn.disabled = true;
-      btn.textContent = 'กำลังบันทึก...';
+      btn.textContent = fileData ? 'กำลังอัปโหลดและบันทึก...' : 'กำลังบันทึก...';
 
+      const rsvp = document.getElementById('ed-rsvp').value;
       const payload = {
         action: 'updateParticipant',
         id: document.getElementById('ed-id').value,
@@ -1111,14 +1198,17 @@
         mainUnit: document.getElementById('ed-main-unit').value,
         unitDetail: document.getElementById('ed-unit-detail').value.trim(),
         role: document.getElementById('ed-role').value.trim(),
-        rsvp: document.getElementById('ed-rsvp').value,
+        rsvp: rsvp,
+        substituteName: rsvp === 'ส่งผู้แทนเข้าร่วม' ? document.getElementById('ed-sub-name').value.trim() : '',
+        substitutePosition: rsvp === 'ส่งผู้แทนเข้าร่วม' ? document.getElementById('ed-sub-position').value.trim() : '',
         stay30: document.getElementById('ed-stay30').value,
         stay1: document.getElementById('ed-stay1').value,
         roomNo: document.getElementById('ed-room').value.trim(),
         food: document.getElementById('ed-food').value,
-        officialLetter: document.getElementById('ed-letter').value,
+        officialLetter: fileData ? 'ส่งแล้ว' : document.getElementById('ed-letter').value,
         licensePlate: document.getElementById('ed-plate').value.trim(),
-        phone: document.getElementById('ed-phone').value.trim()
+        phone: document.getElementById('ed-phone').value.trim(),
+        fileData: fileData
       };
 
       try {
@@ -1126,7 +1216,7 @@
         if (res.status === 'success') {
           showToast(res.message, 'success');
           closeEditModal();
-          await fetchParticipants();
+          await fetchParticipants(false);
         } else {
           showToast(res.message, 'error');
         }
@@ -1138,7 +1228,7 @@
       }
     }
 
-    // ==================== CHECK-IN & SCANNER ====================
+    // ==================== CHECK-IN, SCANNER, WALK-IN, PRINT ====================
     async function manualToggleCheckIn(id, isUndo) {
       const p = participants.find(x => x.id === id);
       if (!p) return;
@@ -1168,20 +1258,13 @@
       document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
       document.getElementById('scan-result-box').classList.add('hidden');
       document.getElementById('scanner-modal').classList.remove('hidden');
-
       if (typeof Html5Qrcode === 'undefined') {
-        showScanFeedback('error', 'ไม่สามารถโหลดตัวสแกน QR Code ได้ กรุณาพิมพ์รหัสด้านล่างแทนครับ');
+        showScanFeedback('error', 'ไม่สามารถโหลดตัวสแกนได้ กรุณาพิมพ์รหัสด้านล่างแทนครับ');
         return;
       }
-
       html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 230, height: 230 } },
-        onScanSuccess
-      ).catch(() => {
-        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้อง หรือพิมพ์รหัสด้านล่างแทนครับ');
-      });
+      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 230, height: 230 } }, onScanSuccess)
+        .catch(() => showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์กล้อง หรือพิมพ์รหัสด้านล่างแทนครับ'));
     }
 
     function closeScannerModal() {
@@ -1192,13 +1275,11 @@
       }
     }
 
-    // แกะรหัสประจำตัว (KM69-XX) จากทั้งลิงก์ Smart QR Code และรหัสธรรมดา
     function extractParticipantId(rawText) {
       const text = String(rawText || '').trim();
       try {
         if (text.startsWith('http://') || text.startsWith('https://')) {
-          const url = new URL(text);
-          const idParam = url.searchParams.get('id');
+          const idParam = new URL(text).searchParams.get('id');
           if (idParam) return idParam.trim().toUpperCase();
         }
       } catch (e) {}
@@ -1225,16 +1306,18 @@
 
     async function processQrCheckIn(id) {
       const localP = participants.find(x => x.id.toUpperCase() === id.toUpperCase());
+      const displayName = localP ? (hasSubstitute(localP) ? `${localP.substituteName} (แทน ${localP.fullName})` : localP.fullName) : id;
+
       if (localP) {
         if (isCheckedIn(localP)) {
           playBeep(440, 150);
-          showScanFeedback('warning', `<strong>${escapeHtml(localP.fullName)}</strong><br>เช็กอินไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
+          showScanFeedback('warning', `<strong>${escapeHtml(displayName)}</strong><br>เช็กอินไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
           return;
         }
         localP[currentDay] = new Date().toTimeString().split(' ')[0];
         updateDashboard();
         playBeep(880, 120);
-        showScanFeedback('success', `<strong>เช็กอินสำเร็จ!</strong><br>${escapeHtml(localP.fullName)} (${escapeHtml(localP.unitDetail || localP.mainUnit)})`);
+        showScanFeedback('success', `<strong>เช็กอินสำเร็จ!</strong><br>${escapeHtml(displayName)}`);
       } else {
         showScanFeedback('info', `กำลังตรวจสอบรหัส ${escapeHtml(id)}...`);
       }
@@ -1243,7 +1326,7 @@
         const res = await postToApi({ action: 'checkIn', id, day: currentDay, method: 'QR Scan' });
         if (res.status === 'success') {
           if (localP) localP[currentDay] = res.time;
-          else await fetchParticipants();
+          else await fetchParticipants(false);
           updateDashboard();
         } else if (res.status === 'already_checked_in') {
           playBeep(440, 150);
@@ -1261,10 +1344,10 @@
     function showScanFeedback(type, htmlMsg) {
       const box = document.getElementById('scan-result-box');
       const styles = {
-        success: 'bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-200',
-        warning: 'bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-200',
-        error:   'bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-200',
-        info:    'bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-200'
+        success: 'bg-emerald-50 border-emerald-300 text-emerald-800',
+        warning: 'bg-amber-50 border-amber-300 text-amber-800',
+        error:   'bg-rose-50 border-rose-300 text-rose-800',
+        info:    'bg-blue-50 border-blue-300 text-blue-800'
       };
       box.className = `p-3.5 rounded-xl border text-sm ${styles[type]}`;
       box.innerHTML = htmlMsg;
@@ -1276,131 +1359,95 @@
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.value = 0.15;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        setTimeout(() => { osc.stop(); ctx.close(); }, duration);
+        osc.type = 'sine'; osc.frequency.value = freq; gain.gain.value = 0.15;
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); setTimeout(() => { osc.stop(); ctx.close(); }, duration);
       } catch (e) {}
     }
 
-    // ==================== WALK-IN ====================
     function openWalkInModal() {
       document.getElementById('walkin-form').reset();
       document.getElementById('wi-day-text').textContent = DAY_CONFIG[currentDay].label;
       document.getElementById('walkin-modal').classList.remove('hidden');
     }
-
-    function closeWalkInModal() {
-      document.getElementById('walkin-modal').classList.add('hidden');
-    }
+    function closeWalkInModal() { document.getElementById('walkin-modal').classList.add('hidden'); }
 
     async function submitWalkIn(e) {
       e.preventDefault();
       const btn = document.getElementById('wi-submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'กำลังบันทึก...';
-
-      const payload = {
-        action: 'addWalkIn',
-        fullName: document.getElementById('wi-name').value.trim(),
-        position: document.getElementById('wi-position').value.trim(),
-        mainUnit: document.getElementById('wi-main-unit').value,
-        food: document.getElementById('wi-food').value,
-        phone: document.getElementById('wi-phone').value.trim(),
-        checkInDay: document.getElementById('wi-checkin-now').checked ? currentDay : ''
-      };
-
+      btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
       try {
-        const res = await postToApi(payload);
-        if (res.status === 'success') {
-          showToast(res.message, 'success');
-          closeWalkInModal();
-          await fetchParticipants();
-        } else {
-          showToast(res.message, 'error');
-        }
+        const res = await postToApi({
+          action: 'addWalkIn',
+          fullName: document.getElementById('wi-name').value.trim(),
+          position: document.getElementById('wi-position').value.trim(),
+          mainUnit: document.getElementById('wi-main-unit').value,
+          food: document.getElementById('wi-food').value,
+          phone: document.getElementById('wi-phone').value.trim(),
+          checkInDay: document.getElementById('wi-checkin-now').checked ? currentDay : ''
+        });
+        if (res.status === 'success') { showToast(res.message, 'success'); closeWalkInModal(); await fetchParticipants(false); }
+        else showToast(res.message, 'error');
       } catch (err) {
         showToast('บันทึก Walk-in ไม่สำเร็จ: ' + err.message, 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'บันทึกข้อมูล';
+        btn.disabled = false; btn.textContent = 'บันทึกข้อมูล';
       }
     }
 
-    // ==================== PRINT A4 SHEET ====================
     function prepareAndPrintSheet() {
       document.getElementById('print-day-title').textContent = DAY_CONFIG[currentDay].full;
-      const checkedCount = participants.filter(p => isCheckedIn(p)).length;
       document.getElementById('print-total-count').textContent = participants.length;
-      document.getElementById('print-checked-count').textContent = checkedCount;
+      document.getElementById('print-checked-count').textContent = participants.filter(p => isCheckedIn(p)).length;
 
-      let rowsHtml = participants.map((p, idx) => `
-        <tr>
-          <td style="text-align: center;">${idx + 1}</td>
-          <td style="text-align: center; font-family: monospace;">${escapeHtml(p.id)}</td>
-          <td>${escapeHtml(p.fullName)}</td>
-          <td>${escapeHtml(p.position || p.role)}</td>
-          <td>${escapeHtml(p.unitDetail || p.mainUnit)}</td>
-          <td style="height: 26px;"></td>
-          <td style="text-align: center; font-size: 10px;">${escapeHtml(p[currentDay] || '')}</td>
-        </tr>
-      `).join('');
-
-      for (let i = 1; i <= 5; i++) {
-        rowsHtml += `
+      let rowsHtml = participants.map((p, idx) => {
+        const nameCol = hasSubstitute(p)
+          ? `<strong>${escapeHtml(p.substituteName)}</strong><br><span style="font-size:10px;">(ผู้แทน: ${escapeHtml(p.fullName)})</span>`
+          : escapeHtml(p.fullName);
+        const posCol = hasSubstitute(p) ? escapeHtml(p.substitutePosition || 'ผู้แทน') : escapeHtml(p.position || p.role);
+        return `
           <tr>
-            <td style="text-align: center; height: 26px;">${participants.length + i}</td>
-            <td></td><td></td><td></td><td></td><td></td><td></td>
+            <td style="text-align: center;">${idx + 1}</td>
+            <td style="text-align: center; font-family: monospace;">${escapeHtml(p.id)}</td>
+            <td>${nameCol}</td>
+            <td>${posCol}</td>
+            <td>${escapeHtml(p.unitDetail || p.mainUnit)}</td>
+            <td style="height: 28px;"></td>
+            <td style="text-align: center; font-size: 10px;">${escapeHtml(p[currentDay] || '')}</td>
           </tr>
         `;
+      }).join('');
+
+      for (let i = 1; i <= 5; i++) {
+        rowsHtml += `<tr><td style="text-align: center; height: 28px;">${participants.length + i}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
       }
       document.getElementById('print-tbody').innerHTML = rowsHtml;
       window.print();
     }
 
-    // ==================== SETTINGS & TOAST ====================
     function openSettingsModal() {
       document.getElementById('settings-api-url').value = API_URL;
       document.getElementById('settings-modal').classList.remove('hidden');
     }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.add('hidden');
-    }
-
+    function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden'); }
     function saveApiSettings() {
       API_URL = document.getElementById('settings-api-url').value.trim();
       safeStorageSet('ai_seminar_api_url', API_URL);
-      updateApiStatusBadge();
-      closeSettingsModal();
-      fetchParticipants(true);
+      updateApiStatusBadge(); closeSettingsModal(); refreshAllData(true);
     }
 
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
-      const colors = {
-        success: 'bg-emerald-600 text-white',
-        error: 'bg-rose-600 text-white',
-        warning: 'bg-amber-500 text-white',
-        info: 'bg-navy-700 text-white'
-      };
+      const colors = { success: 'bg-emerald-600 text-white', error: 'bg-rose-600 text-white', warning: 'bg-amber-500 text-white', info: 'bg-navy-700 text-white' };
       const el = document.createElement('div');
       el.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 ${colors[type]}`;
       el.textContent = message;
       container.appendChild(el);
-      setTimeout(() => {
-        el.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => el.remove(), 300);
-      }, 3200);
+      setTimeout(() => { el.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => el.remove(), 300); }, 3200);
     }
 
     function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      })[m]);
+      return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
     }
   </script>
 </body>
