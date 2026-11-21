@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Seminar Portal - โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</title>
+  <title>Digital Pass & Portal - แชทบอท AI คู่หูจราจร</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
         extend: {
           fontFamily: { sans: ['Prompt', 'sans-serif'] },
           colors: {
-            navy: { 700: '#1E3A8A', 800: '#172554' },
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0B132B' },
             maroon: { 700: '#881337', 800: '#6B0F2A' }
           }
         }
@@ -27,6 +27,8 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode.js สำหรับสร้าง QR Code ประจำตัวบนบัตรอิเล็กทรอนิกส์ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     html, body {
@@ -37,98 +39,157 @@
     }
     .star-btn svg { transition: transform 0.15s ease, fill 0.15s ease, color 0.15s ease; }
     .star-btn:active svg { transform: scale(1.2); }
+    .qr-inline img, .qr-inline canvas { margin: 0 auto; display: block; border-radius: 6px; }
+    .id-card-mesh {
+      background:
+        radial-gradient(circle at 85% 15%, rgba(159, 18, 57, 0.55) 0%, transparent 45%),
+        radial-gradient(circle at 15% 85%, rgba(37, 99, 235, 0.4) 0%, transparent 50%),
+        linear-gradient(135deg, #0F172A 0%, #1E3A8A 55%, #172554 100%);
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-10 sm:pb-14">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
 
   <!-- ==================== HERO HEADER ==================== -->
-  <header class="bg-gradient-to-br from-navy-800 via-navy-700 to-maroon-700 text-white pt-6 pb-12 sm:pt-8 sm:pb-14 px-4 shadow-md">
-    <div class="w-full max-w-2xl mx-auto text-center space-y-2">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/15 backdrop-blur-sm border border-white/20">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 shrink-0"></i> 30 พ.ย. – 2 ธ.ค. 2569
+  <header class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 text-white pt-6 pb-14 px-4 shadow-md">
+    <div class="w-full max-w-xl mx-auto text-center space-y-1.5">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white/10 backdrop-blur-md border border-white/20 text-blue-100">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i> 30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี
       </span>
-      <h1 class="text-lg sm:text-2xl font-bold leading-snug px-1">
-        โครงการสัมมนาจัดทำคลังความรู้งานจราจร<br class="hidden sm:inline"> (แชทบอท AI คู่หูจราจร)
+      <h1 class="text-lg sm:text-xl font-bold leading-snug">
+        โครงการสัมมนาจัดทำคลังความรู้งานจราจร
       </h1>
-      <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">
-        ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี
+      <p class="text-xs sm:text-sm text-blue-200 font-medium">
+        แชทบอท AI คู่หูจราจร (Digital Participant Portal)
       </p>
     </div>
   </header>
 
   <!-- ==================== MAIN CONTENT ==================== -->
-  <main class="w-full max-w-2xl mx-auto px-3.5 sm:px-6 -mt-7 space-y-4">
+  <main class="w-full max-w-xl mx-auto px-3.5 sm:px-5 -mt-9 space-y-4">
 
-    <!-- ==================== PERSONAL DIGITAL PASS ==================== -->
-    <section id="personal-card" class="hidden bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 border-blue-200 space-y-3.5">
-      <div class="flex items-start justify-between gap-2.5">
+    <!-- ==================== ELECTRONIC ID CARD (บัตรประจำตัวอิเล็กทรอนิกส์) ==================== -->
+    <section id="personal-card" class="hidden rounded-3xl shadow-xl overflow-hidden border border-white/20 bg-white">
+      <!-- ส่วนบนของบัตร: ดีไซน์บัตรอิเล็กทรอนิกส์สีกรมท่าเมทัลลิก -->
+      <div class="id-card-mesh text-white p-5 relative">
+        <!-- แถบหัวบัตร -->
+        <div class="flex items-center justify-between gap-2 pb-3 border-b border-white/15">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
+              <i data-lucide="shield-check" class="w-4 h-4 text-amber-300"></i>
+            </div>
+            <div>
+              <p class="text-[10px] tracking-widest uppercase text-blue-200 font-semibold leading-none">OFFICIAL E-PASS</p>
+              <p class="text-[11px] text-white/90 font-medium mt-0.5">บัตรประจำตัวผู้เข้าร่วมสัมมนา</p>
+            </div>
+          </div>
+          <span id="pc-id" class="px-2.5 py-1 rounded-lg bg-white/15 backdrop-blur-sm border border-white/25 font-mono text-xs font-bold tracking-wider">KM69-00</span>
+        </div>
+
+        <!-- เนื้อหาหลักของบัตร + QR Code ประจำตัว (กรณีลืมป้ายคล้องคอ) -->
+        <div class="flex items-center justify-between gap-3.5 pt-4">
+          <div class="min-w-0 flex-1 space-y-1.5">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span id="pc-unit" class="px-2.5 py-0.5 rounded-full bg-blue-400/20 border border-blue-300/30 text-blue-100 text-[11px] font-semibold"></span>
+              <span id="pc-sub-badge" class="hidden px-2.5 py-0.5 rounded-full bg-purple-400/25 border border-purple-300/40 text-purple-100 text-[11px] font-bold">ผู้แทนเข้าร่วม</span>
+            </div>
+            <h2 id="pc-name" class="text-lg sm:text-xl font-bold leading-snug tracking-tight break-words"></h2>
+            <p id="pc-position" class="text-xs text-blue-100/90 leading-relaxed break-words"></p>
+
+            <!-- แสดงชื่อเจ้าของสิทธิ์เดิมกรณีมาแทน -->
+            <div id="pc-orig-box" class="hidden mt-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 text-[11px] text-purple-100">
+              <span class="opacity-80">มาแทน:</span> <strong id="pc-orig-name"></strong>
+            </div>
+          </div>
+
+          <!-- QR Code ประจำตัว (กดเพื่อขยายเต็มจอให้สตาฟยิงสแกนได้) -->
+          <button type="button" onclick="openQrZoomModal()" title="กดเพื่อขยาย QR Code สำหรับสแกนเช็กอิน" class="shrink-0 bg-white p-2 rounded-2xl shadow-lg active:scale-95 transition flex flex-col items-center">
+            <div id="pc-qr-box" class="qr-inline w-[84px] h-[84px]"></div>
+            <span class="text-[9px] font-bold text-navy-800 mt-1 flex items-center gap-0.5">
+              <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i> ขยาย QR เช็กอิน
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ส่วนล่างของบัตร: ข้อมูลที่พัก/Roommate/อาหาร + กราฟความคืบหน้าแท่งเดียว -->
+      <div class="p-4 sm:p-5 space-y-4 bg-white">
+        <!-- ข้อมูลห้องพัก + คู่พัก + อาหาร -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-0.5">
+            <p class="text-[11px] text-slate-400 flex items-center gap-1">
+              <i data-lucide="bed-double" class="w-3.5 h-3.5 text-indigo-500"></i> ที่พัก / เลขห้อง / ผู้พักร่วม
+            </p>
+            <p id="pc-room" class="font-bold text-indigo-800 text-xs sm:text-sm break-words">-</p>
+            <p id="pc-roommate" class="hidden text-[11px] text-sky-700 font-medium"></p>
+          </div>
+          <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-0.5">
+            <p class="text-[11px] text-slate-400 flex items-center gap-1">
+              <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-500"></i> อาหาร / การตอบรับ
+            </p>
+            <p id="pc-food" class="font-bold text-slate-800 text-xs sm:text-sm break-words">-</p>
+          </div>
+        </div>
+
+        <!-- กราฟแท่งเดียวแสดง % ความคืบหน้าการเข้าร่วมกิจกรรมทั้งหมด -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="award" class="w-4 h-4 text-navy-700 shrink-0"></i>
+              <span class="text-xs font-bold text-slate-800">ความคืบหน้าการเข้าร่วมกิจกรรม</span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span id="pc-progress-status" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">0/4</span>
+              <span id="pc-progress-percent" class="text-base font-extrabold text-navy-700 font-mono">0%</span>
+            </div>
+          </div>
+
+          <!-- แท่งกราฟเดี่ยว (Single Horizontal Bar) -->
+          <div class="w-full h-4 bg-slate-200/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+            <div id="pc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-blue-500 to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
+          </div>
+
+          <!-- ป้ายสถานะย่อย 4 กิจกรรมใต้แท่งกราฟ -->
+          <div id="pc-milestones" class="grid grid-cols-4 gap-1.5 pt-0.5 text-center"></div>
+        </div>
+
+        <!-- ปุ่มดูหนังสือส่งตัว + ปุ่มขอแก้ไขข้อมูล -->
+        <div class="flex flex-col sm:flex-row gap-2">
+          <a id="pc-letter-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex-1 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i> ดูหนังสือส่งตัว
+          </a>
+          <button type="button" onclick="openEditRequestModal()" class="flex-1 py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="edit-3" class="w-4 h-4 shrink-0"></i> ขอแก้ไขข้อมูล / ผู้แทน / คู่พัก / หนังสือส่งตัว
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== การ์ดช่องทางเข้าสู่ AI CHATBOT คู่หูจราจร ==================== -->
+    <section class="rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-navy-800 via-navy-700 to-indigo-800 text-white shadow-lg border border-blue-400/20 space-y-3">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-2xl shrink-0">
+          👮‍♂️
+        </div>
         <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span id="pc-id" class="px-2.5 py-0.5 rounded-md bg-navy-700 text-white font-mono text-xs font-bold shrink-0">KM69-00</span>
-            <span id="pc-unit" class="px-2.5 py-0.5 rounded-md bg-blue-50 text-navy-700 text-xs font-semibold break-words"></span>
-            <span id="pc-sub-badge" class="hidden px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-800 text-xs font-bold">ผู้แทนเข้าร่วม</span>
-          </div>
-          <h2 id="pc-name" class="text-base sm:text-lg font-bold text-slate-900 mt-1.5 leading-snug break-words"></h2>
-          <p id="pc-position" class="text-xs sm:text-sm text-slate-500 break-words"></p>
-          <!-- แสดงชื่อตัวจริงกรณีส่งผู้แทน -->
-          <div id="pc-orig-box" class="hidden mt-2 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-xs text-purple-900">
-            <span class="font-semibold">มาแทน:</span> <span id="pc-orig-name"></span>
-          </div>
-        </div>
-        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
-          <i data-lucide="user-check" class="w-5 h-5"></i>
+          <h2 class="font-bold text-base leading-tight">คู่หูจราจร AI</h2>
+          <p class="text-xs text-blue-100/90 mt-1 leading-relaxed">
+            สำหรับเจ้าหน้าที่ที่ต้องการสอบถามข้อมูล หรือค้นหาแนวทางการปฏิบัติงานด้านการจราจร สามารถเข้าใช้งานแชทบอทตำรวจคู่หูจราจรได้ที่ลิงก์ด้านล่าง
+          </p>
         </div>
       </div>
-
-      <!-- สถานะห้องพัก อาหาร และหนังสือส่งตัว -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5 border-t border-slate-100 text-xs sm:text-sm">
-        <div class="bg-slate-50 rounded-xl p-2.5 sm:p-3">
-          <p class="text-[11px] text-slate-400">ที่พัก / เลขห้อง</p>
-          <p id="pc-room" class="font-semibold text-indigo-700 mt-0.5 break-words">-</p>
-        </div>
-        <div class="bg-slate-50 rounded-xl p-2.5 sm:p-3">
-          <p class="text-[11px] text-slate-400">อาหาร / การตอบรับ</p>
-          <p id="pc-food" class="font-semibold text-slate-700 mt-0.5 break-words">-</p>
-        </div>
-      </div>
-
-      <!-- แสดงลิงก์หนังสือส่งตัว (ถ้าแนบแล้ว) + ปุ่มขอแก้ไขข้อมูล -->
-      <div class="flex flex-col sm:flex-row gap-2 pt-1">
-        <a id="pc-letter-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden flex-1 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="file-check-2" class="w-4 h-4 shrink-0"></i> ดูหนังสือส่งตัวที่แนบไว้
-        </a>
-        <button type="button" onclick="openEditRequestModal()" class="flex-1 py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="edit-3" class="w-4 h-4 shrink-0"></i> ขอแก้ไขข้อมูล / แจ้งส่งผู้แทน / แนบหนังสือส่งตัว
-        </button>
-      </div>
-
-      <!-- กราฟแท่งแนวนอนแสดงความคืบหน้าการเข้าร่วมกิจกรรม -->
-      <div class="pt-3 border-t border-slate-100 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5">
-            <i data-lucide="bar-chart-horizontal" class="w-4 h-4 text-navy-700 shrink-0"></i>
-            <span class="text-xs sm:text-sm font-bold text-slate-800">ความครบถ้วนการเข้าร่วมกิจกรรม</span>
-          </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <span id="pc-progress-status" class="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0/4 กิจกรรม</span>
-            <span id="pc-progress-percent" class="text-sm sm:text-base font-bold text-navy-700 font-mono">0%</span>
-          </div>
-        </div>
-
-        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80">
-          <div id="pc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-blue-600 to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
-        </div>
-
-        <div id="pc-activity-bars" class="space-y-2.5 pt-1"></div>
-      </div>
+      <a href="https://pinai-fine.police.go.th/" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-white hover:bg-blue-50 text-navy-800 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-md transition">
+        <span>🔗 เข้าสู่แชทบอทตำรวจคู่หูจราจร</span>
+        <i data-lucide="external-link" class="w-4 h-4 shrink-0"></i>
+      </a>
     </section>
 
     <!-- Navigation Tabs -->
     <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-2 gap-1.5">
-      <button onclick="switchTab('info')" id="tab-info" class="py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 sm:gap-2 bg-navy-700 text-white shadow-sm transition">
+      <button onclick="switchTab('info')" id="tab-info" class="py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition">
         <i data-lucide="folder-open" class="w-4 h-4 shrink-0"></i> <span class="truncate">เอกสาร & กำหนดการ</span>
       </button>
-      <button onclick="switchTab('eval')" id="tab-eval" class="py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 hover:bg-slate-100 transition">
+      <button onclick="switchTab('eval')" id="tab-eval" class="py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100 transition">
         <i data-lucide="star" class="w-4 h-4 shrink-0"></i> <span class="truncate">แบบประเมินผล</span>
       </button>
     </div>
@@ -137,16 +198,15 @@
     <div id="portal-alert" class="hidden p-3.5 rounded-xl text-xs sm:text-sm border"></div>
 
     <!-- ==================== TAB 1: เอกสาร & กำหนดการ ==================== -->
-    <section id="section-info" class="space-y-3.5 sm:space-y-4">
-
+    <section id="section-info" class="space-y-4">
       <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3">
         <div class="flex items-start gap-3">
-          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
-            <i data-lucide="hard-drive" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
+            <i data-lucide="hard-drive" class="w-5 h-5"></i>
           </div>
           <div class="flex-1 min-w-0">
             <h2 class="font-bold text-slate-900 text-sm sm:text-base">คลังเอกสารประกอบการสัมมนา</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 leading-relaxed">ดาวน์โหลดสไลด์วิทยากร คู่มือ โจทย์ Workshop และภาพบรรยากาศงานผ่าน Google Drive</p>
+            <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">ดาวน์โหลดสไลด์วิทยากร คู่มือ โจทย์ Workshop และภาพบรรยากาศงานผ่าน Google Drive</p>
           </div>
         </div>
         <a id="drive-link-btn" href="https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
@@ -154,24 +214,24 @@
         </a>
       </div>
 
-      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3.5 sm:space-y-4">
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3.5">
         <h2 class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
           <i data-lucide="calendar-days" class="w-5 h-5 text-maroon-700 shrink-0"></i> กำหนดการสัมมนา 3 วัน
         </h2>
 
-        <div class="grid grid-cols-3 gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-xl text-[11px] sm:text-xs font-medium">
+        <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-[11px] sm:text-xs font-medium">
           <button onclick="showSchedule('day1')" id="sch-btn-day1" class="py-2 px-1 rounded-lg bg-white text-navy-700 shadow-sm font-semibold transition">30 พ.ย. 69</button>
           <button onclick="showSchedule('day2')" id="sch-btn-day2" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 transition">1 ธ.ค. 69</button>
           <button onclick="showSchedule('day3')" id="sch-btn-day3" class="py-2 px-1 rounded-lg text-slate-600 hover:text-slate-900 transition">2 ธ.ค. 69</button>
         </div>
 
-        <div id="schedule-list" class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm"></div>
+        <div id="schedule-list" class="space-y-2.5 text-xs sm:text-sm"></div>
       </div>
 
       <div class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-2xl p-4 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div>
           <p class="font-semibold text-sm">ร่วมประเมินความพึงพอใจ</p>
-          <p class="text-xs text-rose-100 mt-0.5">ใช้เวลาไม่เกิน 1 นาที เพื่อนำไปพัฒนา AI คู่หูจราจร</p>
+          <p class="text-xs text-rose-100 mt-0.5">แบบประเมินนิรนาม 100% เพื่อนำไปพัฒนา AI คู่หูจราจร</p>
         </div>
         <button onclick="switchTab('eval')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs sm:text-sm font-bold shrink-0 hover:bg-rose-50 transition">
           ทำแบบประเมิน
@@ -181,7 +241,7 @@
 
     <!-- ==================== TAB 2: แบบประเมินความพึงพอใจ (นิรนาม 100%) ==================== -->
     <section id="section-eval" class="hidden space-y-4">
-      <form id="eval-form" onsubmit="submitEvaluation(event)" class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 space-y-4 sm:space-y-5">
+      <form id="eval-form" onsubmit="submitEvaluation(event)" class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 space-y-4">
         <div class="border-b border-slate-100 pb-3">
           <h2 class="font-bold text-slate-900 text-sm sm:text-base">แบบประเมินความพึงพอใจงานสัมมนา</h2>
           <p class="text-xs text-slate-500 mt-0.5">ระดับคะแนน: 1 = น้อยที่สุด, 5 = มากที่สุด</p>
@@ -195,7 +255,7 @@
           </div>
         </div>
 
-        <div id="rating-questions" class="space-y-3 sm:space-y-4"></div>
+        <div id="rating-questions" class="space-y-3"></div>
 
         <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-slate-700">ข้อเสนอแนะเพิ่มเติม / สิ่งที่อยากให้ปรับปรุงในแชทบอท AI คู่หูจราจร</label>
@@ -225,14 +285,28 @@
     </section>
   </main>
 
-  <!-- ==================== MODAL: ขอแก้ไขข้อมูล / แจ้งส่งผู้แทน / แนบหนังสือส่งตัว ==================== -->
+  <!-- ==================== MODAL: ขยาย QR CODE สำหรับเช็กอิน (กรณีลืมป้ายคล้องคอ) ==================== -->
+  <div id="qr-zoom-modal" onclick="closeQrZoomModal()" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-5">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-xs w-full p-6 text-center space-y-4 shadow-2xl">
+      <div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Digital Check-in Pass</p>
+        <h3 id="zoom-qr-name" class="text-base font-bold text-slate-900 mt-1 leading-snug"></h3>
+        <p id="zoom-qr-id" class="font-mono text-sm font-bold text-navy-700 mt-0.5"></p>
+      </div>
+      <div id="zoom-qr-box" class="qr-inline p-3 bg-white border-2 border-slate-200 rounded-2xl inline-block"></div>
+      <p class="text-xs text-slate-500">ยื่นหน้าจอนี้ให้เจ้าหน้าที่สแกนเช็กอินแทนป้ายคล้องคอได้ทันที</p>
+      <button type="button" onclick="closeQrZoomModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ขอแก้ไขข้อมูล / ส่งผู้แทน / คู่พัก / หนังสือส่งตัว ==================== -->
   <div id="request-edit-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 my-auto">
       <div class="px-4 sm:px-5 py-3.5 bg-navy-800 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="edit-3" class="w-5 h-5 shrink-0"></i>
           <div>
-            <h2 class="font-bold text-sm sm:text-base">แจ้งขอแก้ไขข้อมูล / ส่งผู้แทน</h2>
+            <h2 class="font-bold text-sm sm:text-base">แจ้งขอแก้ไขข้อมูล / ส่งผู้แทน / จับคู่ห้องพัก</h2>
             <p class="text-[11px] text-blue-200">คำขอจะถูกส่งแจ้งเตือนไปที่เจ้าหน้าที่เพื่อตรวจสอบและอนุมัติ</p>
           </div>
         </div>
@@ -240,7 +314,6 @@
       </div>
 
       <form id="req-edit-form" onsubmit="submitEditRequest(event)" class="p-4 sm:p-5 space-y-3.5 max-h-[80vh] overflow-y-auto">
-        <!-- การตอบรับ -->
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">สถานะการตอบรับเข้าร่วมสัมมนา</label>
           <select id="req-rsvp" onchange="toggleReqSubstituteFields()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:ring-2 focus:ring-navy-700">
@@ -251,7 +324,6 @@
           </select>
         </div>
 
-        <!-- กล่องข้อมูลผู้แทน (แสดงเมื่อเลือก ส่งผู้แทนเข้าร่วม) -->
         <div id="req-sub-box" class="hidden p-3.5 rounded-xl bg-purple-50 border border-purple-200 space-y-2.5">
           <p class="text-xs font-bold text-purple-900 flex items-center gap-1.5">
             <i data-lucide="users" class="w-4 h-4"></i> ข้อมูลผู้แทนที่เข้าร่วม (มาแทน: <span id="req-orig-label" class="underline"></span>)
@@ -266,7 +338,6 @@
           </div>
         </div>
 
-        <!-- ชื่อและตำแหน่งตัวจริง -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">ยศ ชื่อ - สกุล (เจ้าของสิทธิ์)</label>
@@ -278,7 +349,6 @@
           </div>
         </div>
 
-        <!-- ที่พัก และ เลขห้อง -->
         <div class="grid grid-cols-3 gap-2 pt-1 border-t border-slate-100">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">พักคืน 30 พ.ย.</label>
@@ -302,7 +372,12 @@
           </div>
         </div>
 
-        <!-- อาหาร เบอร์โทร ทะเบียนรถ -->
+        <!-- ช่องจับคู่ห้องพัก (Roommate) -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">ผู้พักร่วม (Roommate) — กรณีพักห้องคู่</label>
+          <input type="text" id="req-roommate" placeholder="ระบุยศ ชื่อ-สกุล ผู้ที่ต้องการพักห้องคู่ด้วย (ถ้ามี)" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">ข้อจำกัดอาหาร</label>
@@ -323,18 +398,16 @@
           <input type="text" id="req-plate" placeholder="เช่น กข 1234 กทม." class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
         </div>
 
-        <!-- แนบไฟล์หนังสือส่งตัว -->
         <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1.5">
           <label class="block text-xs font-bold text-navy-800 flex items-center gap-1.5">
             <i data-lucide="paperclip" class="w-4 h-4"></i> แนบไฟล์หนังสือส่งตัว (PDF / รูปภาพ ไม่เกิน 5MB)
           </label>
           <input type="file" id="req-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white hover:file:bg-navy-800" />
-          <p class="text-[11px] text-slate-500">ระบบจะอัปโหลดไฟล์เก็บไว้ใน Google Drive ของโครงการโดยอัตโนมัติ</p>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">หมายเหตุถึงเจ้าหน้าที่ (ถ้ามี)</label>
-          <input type="text" id="req-note" placeholder="เช่น ขอพักห้องคู่กับ..., ขอแก้ไขยศ..." class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
+          <input type="text" id="req-note" placeholder="ระบุรายละเอียดเพิ่มเติม..." class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm" />
         </div>
 
         <div id="req-modal-error" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs"></div>
@@ -418,11 +491,11 @@
       const btnEval = document.getElementById('tab-eval');
 
       if (isInfo) {
-        btnInfo.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 sm:gap-2 bg-navy-700 text-white shadow-sm transition';
-        btnEval.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 hover:bg-slate-100 transition';
+        btnInfo.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition';
+        btnEval.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100 transition';
       } else {
-        btnEval.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 sm:gap-2 bg-maroon-700 text-white shadow-sm transition';
-        btnInfo.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 sm:gap-2 text-slate-600 hover:bg-slate-100 transition';
+        btnEval.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 bg-maroon-700 text-white shadow-sm transition';
+        btnInfo.className = 'py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-100 transition';
       }
     }
 
@@ -449,7 +522,8 @@
         if (json.status === 'success') {
           allParticipants = (json.data || []).map(p => ({
             ...p,
-            fullName: p.prefix ? `${p.prefix}${p.fullName}` : p.fullName
+            fullName: p.prefix ? `${p.prefix}${p.fullName}` : p.fullName,
+            roommate: String(p.roommate || '').trim()
           }));
 
           if (qrParticipantId) {
@@ -483,9 +557,26 @@
         document.getElementById('pc-position').textContent = p.position || p.role || '';
       }
 
+      // สร้าง QR Code ประจำตัวบนบัตรอิเล็กทรอนิกส์ (ใช้เช็กอินกรณีลืมป้ายคล้องคอ)
+      const qrBox = document.getElementById('pc-qr-box');
+      qrBox.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrBox, { text: window.location.href, width: 84, height: 84, correctLevel: QRCode.CorrectLevel.L });
+      }
+
+      // แสดงที่พัก เลขห้อง และผู้พักร่วม (Roommate)
       const stayDays = [p.stay30 === 'พัก' ? '30 พ.ย.' : '', p.stay1 === 'พัก' ? '1 ธ.ค.' : ''].filter(Boolean).join(', ');
       const roomText = p.roomNo ? `ห้อง ${p.roomNo}${stayDays ? ` (${stayDays})` : ''}` : (stayDays ? `พักคืน ${stayDays}` : 'ไม่ระบุ / ไม่เข้าพัก');
       document.getElementById('pc-room').textContent = roomText;
+
+      const roommateEl = document.getElementById('pc-roommate');
+      if (p.roommate) {
+        roommateEl.textContent = `ผู้พักร่วม: ${p.roommate}`;
+        roommateEl.classList.remove('hidden');
+      } else {
+        roommateEl.classList.add('hidden');
+      }
+
       document.getElementById('pc-food').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
 
       const letterLink = document.getElementById('pc-letter-link');
@@ -496,50 +587,55 @@
         letterLink.classList.add('hidden');
       }
 
-      // คำนวณเปอร์เซ็นต์ความครบถ้วนจาก 4 กิจกรรม (กิจกรรมละ 25%)
+      // กราฟแท่งเดียว + ป้ายสถานะ 4 กิจกรรม
       const isDone = val => Boolean(val && String(val).trim() !== '' && String(val).trim() !== 'ยังไม่มา' && String(val).trim() !== '-');
-      const activities = [
-        { label: 'เช็กอินวันที่ 1 (30 พ.ย. 69)', done: isDone(p.day1), detail: isDone(p.day1) ? `เข้าร่วมแล้ว (${p.day1})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
-        { label: 'เช็กอินวันที่ 2 (1 ธ.ค. 69)', done: isDone(p.day2), detail: isDone(p.day2) ? `เข้าร่วมแล้ว (${p.day2})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
-        { label: 'เช็กอินวันที่ 3 (2 ธ.ค. 69)', done: isDone(p.day3), detail: isDone(p.day3) ? `เข้าร่วมแล้ว (${p.day3})` : 'รอเช็กอิน', barColor: 'bg-emerald-500' },
-        { label: 'แบบประเมินความพึงพอใจ', done: Boolean(p.evaluated), detail: p.evaluated ? 'ทำแบบประเมินแล้ว' : 'ยังไม่ประเมิน', barColor: 'bg-blue-600' }
+      const milestones = [
+        { short: '30 พ.ย.', done: isDone(p.day1) },
+        { short: '1 ธ.ค.', done: isDone(p.day2) },
+        { short: '2 ธ.ค.', done: isDone(p.day3) },
+        { short: 'ประเมิน', done: Boolean(p.evaluated) }
       ];
 
-      const completedCount = activities.filter(a => a.done).length;
-      const totalPercent = Math.round((completedCount / activities.length) * 100);
+      const completedCount = milestones.filter(m => m.done).length;
+      const totalPercent = Math.round((completedCount / milestones.length) * 100);
 
       document.getElementById('pc-progress-percent').textContent = `${totalPercent}%`;
       document.getElementById('pc-progress-bar').style.width = `${totalPercent}%`;
 
       const statusBadge = document.getElementById('pc-progress-status');
       if (totalPercent === 100) {
-        statusBadge.textContent = 'ครบทุกกิจกรรมแล้ว';
-        statusBadge.className = 'text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+        statusBadge.textContent = 'ครบ 100%';
+        statusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
       } else {
-        statusBadge.textContent = `${completedCount}/${activities.length} กิจกรรม`;
-        statusBadge.className = 'text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
+        statusBadge.textContent = `${completedCount}/${milestones.length} กิจกรรม`;
+        statusBadge.className = 'text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800';
       }
 
-      document.getElementById('pc-activity-bars').innerHTML = activities.map(act => {
-        const pct = act.done ? 100 : 0;
-        return `
-          <div class="space-y-1">
-            <div class="flex items-center justify-between gap-2 text-xs">
-              <span class="font-medium ${act.done ? 'text-slate-800' : 'text-slate-500'}">${act.label}</span>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <span class="text-[11px] ${act.done ? 'text-emerald-600 font-semibold' : 'text-slate-400'}">${act.detail}</span>
-                <span class="font-mono text-[11px] font-bold w-8 text-right ${act.done ? 'text-slate-800' : 'text-slate-400'}">${pct}%</span>
-              </div>
-            </div>
-            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all duration-700 ${act.done ? act.barColor : 'bg-slate-200'}" style="width: ${pct}%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      document.getElementById('pc-milestones').innerHTML = milestones.map(m => `
+        <div class="py-1 px-1 rounded-lg text-[10px] font-semibold border ${m.done ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-400'}">
+          ${m.done ? '✓ ' : ''}${m.short}
+        </div>
+      `).join('');
 
       document.getElementById('personal-card').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
+    }
+
+    function openQrZoomModal() {
+      if (!currentParticipant) return;
+      const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && currentParticipant.substituteName;
+      document.getElementById('zoom-qr-name').textContent = isSub ? currentParticipant.substituteName : currentParticipant.fullName;
+      document.getElementById('zoom-qr-id').textContent = currentParticipant.id;
+      const box = document.getElementById('zoom-qr-box');
+      box.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(box, { text: window.location.href, width: 210, height: 210, correctLevel: QRCode.CorrectLevel.M });
+      }
+      document.getElementById('qr-zoom-modal').classList.remove('hidden');
+    }
+
+    function closeQrZoomModal() {
+      document.getElementById('qr-zoom-modal').classList.add('hidden');
     }
 
     // ==================== EDIT REQUEST MODAL LOGIC ====================
@@ -555,6 +651,7 @@
       document.getElementById('req-stay30').value = p.stay30 || '';
       document.getElementById('req-stay1').value = p.stay1 || '';
       document.getElementById('req-room').value = p.roomNo || '';
+      document.getElementById('req-roommate').value = p.roommate || '';
       document.getElementById('req-food').value = p.food || 'อาหารทั่วไป';
       document.getElementById('req-phone').value = p.phone || '';
       document.getElementById('req-plate').value = p.licensePlate || '';
@@ -621,12 +718,14 @@
       const rsvp = document.getElementById('req-rsvp').value;
       const subName = document.getElementById('req-sub-name').value.trim();
       const subPos = document.getElementById('req-sub-position').value.trim();
+      const roommateVal = document.getElementById('req-roommate').value.trim();
 
       const summaryParts = [];
       if (rsvp === 'ส่งผู้แทนเข้าร่วม') summaryParts.push(`ส่งผู้แทน: ${subName}`);
       else if (rsvp !== currentParticipant.rsvp) summaryParts.push(`ตอบรับ: ${rsvp}`);
       if (document.getElementById('req-name').value.trim() !== currentParticipant.fullName) summaryParts.push('แก้ไขชื่อ-สกุล');
       if (document.getElementById('req-stay30').value !== currentParticipant.stay30 || document.getElementById('req-stay1').value !== currentParticipant.stay1) summaryParts.push('อัปเดตที่พัก');
+      if (roommateVal !== (currentParticipant.roommate || '')) summaryParts.push(`พักคู่: ${roommateVal || 'ยกเลิก'}`);
       if (document.getElementById('req-food').value !== currentParticipant.food) summaryParts.push(`อาหาร: ${document.getElementById('req-food').value}`);
       if (fileData) summaryParts.push('แนบหนังสือส่งตัว');
 
@@ -642,6 +741,7 @@
         stay30: document.getElementById('req-stay30').value,
         stay1: document.getElementById('req-stay1').value,
         roomNo: document.getElementById('req-room').value.trim(),
+        roommate: roommateVal,
         food: document.getElementById('req-food').value,
         phone: document.getElementById('req-phone').value.trim(),
         licensePlate: document.getElementById('req-plate').value.trim(),
