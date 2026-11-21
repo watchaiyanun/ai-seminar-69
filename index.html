@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบเช็คชื่อ & Dashboard สัมมนา AI Chatbot (30 พ.ย. - 2 ธ.ค. 69)</title>
+
+  <!-- Google Fonts: Prompt (UI) & Sarabun (Print Sheet) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            sarabun: ['Sarabun', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              700: '#1E3A8A',
+              800: '#172554',
+              900: '#0F172A',
+            },
+            maroon: {
+              600: '#9F1239',
+              700: '#881337',
+              800: '#6B0F2A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HTML5 QR Code Scanner -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    /* สไตล์สำหรับหน้าจอปกติ */
+    body { font-family: 'Prompt', sans-serif; }
+    #reader video { border-radius: 0.75rem; object-fit: cover; }
+
+    /* สไตล์เฉพาะตอนสั่งพิมพ์ใบเซ็นชื่อกระดาษ A4 */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 15mm 12mm;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Sarabun', sans-serif !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      table.print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.print-table th, table.print-table td {
+        border: 1px solid #000000;
+        padding: 5px 6px;
+        vertical-align: middle;
+      }
+      table.print-table thead {
+        display: table-header-group;
+      }
+      table.print-table tr {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+  <!-- ==================== MAIN WEB APP UI (ซ่อนตอนพิมพ์) ==================== -->
+  <div id="app-ui" class="no-print flex flex-col min-h-screen">
+
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 flex items-center justify-center text-white shadow-md shrink-0">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          </div>
+          <div class="truncate">
+            <h1 class="text-base sm:text-lg font-bold text-navy-800 dark:text-white truncate">
+              ระบบลงทะเบียนสัมมนา AI Chatbot
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">30 พ.ย. – 2 ธ.ค. 2569</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Connection Status Badge -->
+          <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง
+          </span>
+
+          <button onclick="fetchParticipants(true)" title="รีเฟรชข้อมูล" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="refresh-cw" id="refresh-icon" class="w-5 h-5"></i>
+          </button>
+
+          <button onclick="openSettingsModal()" title="ตั้งค่า API URL" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </button>
+
+          <button onclick="toggleDarkMode()" title="สลับโหมดสี" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
+
+      <!-- Day Selector & Action Bar -->
+      <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <!-- 3-Day Tabs -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">เลือกวันสัมมนา:</span>
+          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 1 (30 พ.ย. 69)
+          </button>
+          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 2 (1 ธ.ค. 69)
+          </button>
+          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 3 (2 ธ.ค. 69)
+          </button>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openScannerModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium shadow-sm transition">
+            <i data-lucide="scan-line" class="w-4 h-4"></i> สแกน QR เช็คชื่อ
+          </button>
+          <button onclick="openWalkInModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium shadow-sm transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> เพิ่ม Walk-in
+          </button>
+          <button onclick="prepareAndPrintSheet()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 text-sm font-medium shadow-sm transition">
+            <i data-lucide="printer" class="w-4 h-4"></i> พิมพ์ใบเซ็นชื่อ A4
+          </button>
+        </div>
+      </section>
+
+      <!-- KPI Cards -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ผู้ลงทะเบียนทั้งหมด</p>
+            <div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-400">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-total" class="text-2xl sm:text-3xl font-bold mt-2 text-slate-800 dark:text-white">0</p>
+          <p class="text-xs text-slate-400 mt-1">รวมผู้เข้าร่วม Walk-in</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">เข้าร่วมแล้ว (วันนี้)</p>
+            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+              <i data-lucide="user-check" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-checked" class="text-2xl sm:text-3xl font-bold mt-2 text-emerald-600 dark:text-emerald-400">0</p>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ยังไม่เข้าร่วม</p>
+            <div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-maroon-600 dark:text-rose-400">
+              <i data-lucide="user-x" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-pending" class="text-2xl sm:text-3xl font-bold mt-2 text-maroon-700 dark:text-rose-400">0</p>
+          <p class="text-xs text-slate-400 mt-1">รอลงทะเบียนหน้างาน</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">อัตราการเข้าร่วม</p>
+            <div class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-percent" class="text-2xl sm:text-3xl font-bold mt-2 text-navy-700 dark:text-indigo-400">0%</p>
+          <p id="kpi-eval" class="text-xs text-slate-400 mt-1">ประเมินแล้ว 0 คน</p>
+        </div>
+      </section>
+
+      <!-- Filters & Search -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-3 justify-between">
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input
+              type="text"
+              id="search-input"
+              oninput="renderTable()"
+              placeholder="ค้นหารหัส (AI69-01), ชื่อ-สกุล, สังกัด..."
+              class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filter-status" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+              <option value="all">สถานะ: ทั้งหมด</option>
+              <option value="checked">เข้าร่วมแล้ว</option>
+              <option value="pending">ยังไม่เข้าร่วม</option>
+            </select>
+
+            <select id="filter-group" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+              <option value="all">กลุ่มงาน: ทั้งหมด</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Participant Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                <th class="py-3.5 px-4 font-semibold">รหัส</th>
+                <th class="py-3.5 px-4 font-semibold">ยศ - ชื่อ - สกุล</th>
+                <th class="py-3.5 px-4 font-semibold hidden md:table-cell">ตำแหน่ง / สังกัด</th>
+                <th class="py-3.5 px-4 font-semibold hidden lg:table-cell">กลุ่มงาน</th>
+                <th class="py-3.5 px-4 font-semibold text-center">สถานะ (<span id="th-day-label">30 พ.ย. 69</span>)</th>
+                <th class="py-3.5 px-4 font-semibold text-right">จัดการ (Manual)</th>
+              </tr>
+            </thead>
+            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70 text-sm">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800">
+      ระบบบริหารจัดการผู้เข้าร่วมสัมมนา AI Chatbot • เชื่อมต่อฐานข้อมูล Google Sheets แบบ Real-time
+    </footer>
+  </div>
+
+  <!-- ==================== MODAL: QR CODE SCANNER ==================== -->
+  <div id="scanner-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-navy-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="camera" class="w-5 h-5"></i>
+          <div>
+            <h2 class="font-semibold text-base">สแกน QR Code ป้ายชื่อ</h2>
+            <p class="text-xs text-blue-200">กำลังเช็คชื่อของ: <span id="scanner-day-label" class="font-semibold text-white"></span></p>
+          </div>
+        </div>
+        <button onclick="closeScannerModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Camera Viewport -->
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden min-h-[260px] flex items-center justify-center">
+          <div id="reader" class="w-full"></div>
+        </div>
+
+        <!-- Scan Feedback Box -->
+        <div id="scan-result-box" class="hidden p-3.5 rounded-xl border text-sm"></div>
+
+        <!-- Manual ID Input Fallback -->
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1.5">หรือพิมพ์รหัสป้ายชื่อ (กรณีกล้องอ่านไม่ได้):</label>
+          <div class="flex gap-2">
+            <input type="text" id="manual-qr-input" placeholder="เช่น AI69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-navy-700" />
+            <button onclick="submitManualCode()" class="px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">ยืนยัน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADD WALK-IN ==================== -->
+  <div id="walkin-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-maroon-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+          <h2 class="font-semibold text-base">เพิ่มผู้เข้าร่วมหน้างาน (Walk-in / ผู้แทน)</h2>
+        </div>
+        <button onclick="closeWalkInModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="walkin-form" onsubmit="submitWalkIn(event)" class="p-5 space-y-3.5">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ/คำนำหน้า</label>
+            <input type="text" id="wi-prefix" placeholder="เช่น ร.ต.อ." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ชื่อ - สกุล <span class="text-rose-500">*</span></label>
+            <input type="text" id="wi-name" required placeholder="ระบุชื่อและนามสกุล" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง / สังกัด</label>
+          <input type="text" id="wi-unit" placeholder="เช่น รอง สว.จร. / สยศ.ตร." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">กลุ่มงาน</label>
+            <input type="text" id="wi-group" value="Walk-in" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="wi-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 pt-1 cursor-pointer">
+          <input type="checkbox" id="wi-checkin-now" checked class="w-4 h-4 rounded text-navy-700 focus:ring-navy-700" />
+          <span class="text-sm text-slate-700 dark:text-slate-300">เช็คชื่อเข้าร่วมใน <strong id="wi-day-text"></strong> ทันที</span>
+        </label>
+
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeWalkInModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ยกเลิก</button>
+          <button type="submit" id="wi-submit-btn" class="px-5 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS (API URL) ==================== -->
+  <div id="settings-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <h2 class="font-semibold text-base">ตั้งค่าการเชื่อมต่อ Google Apps Script</h2>
+        </div>
+        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Web App URL (ลงท้ายด้วย /exec)</label>
+          <input type="url" id="settings-api-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm font-mono" />
+          <p class="text-xs text-slate-400 mt-1.5">หากปล่อยว่าง ระบบจะทำงานใน "โหมดจำลอง (Demo Mode)" ด้วยข้อมูลตัวอย่าง</p>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ปิด</button>
+          <button onclick="saveApiSettings()" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">บันทึกและโหลดข้อมูล</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ==================== PRINT AREA: ใบลงลายมือชื่อกระดาษ A4 ==================== -->
+  <div id="print-area" class="print-only hidden">
+    <div class="text-center mb-4">
+      <h1 class="text-lg font-bold">แบบลงลายมือชื่อผู้เข้าร่วมการประชุมสัมมนาเชิงปฏิบัติการ</h1>
+      <h2 class="text-base font-semibold">โครงการพัฒนาและทดสอบระบบ AI Chatbot ด้านงานจราจร</h2>
+      <p class="text-sm mt-1">ประจำวันที่ <span id="print-day-title" class="font-bold"></span></p>
+    </div>
+
+    <table class="print-table">
+      <thead>
+        <tr style="background-color: #f1f5f9;">
+          <th style="width: 6%; text-align: center;">ลำดับ</th>
+          <th style="width: 11%; text-align: center;">รหัส</th>
+          <th style="width: 26%; text-align: left;">ยศ - ชื่อ - สกุล</th>
+          <th style="width: 24%; text-align: left;">ตำแหน่ง / สังกัด</th>
+          <th style="width: 13%; text-align: center;">เบอร์โทรศัพท์</th>
+          <th style="width: 14%; text-align: center;">ลายมือชื่อ</th>
+          <th style="width: 6%; text-align: center;">เวลา</th>
+        </tr>
+      </thead>
+      <tbody id="print-tbody">
+        <!-- Populated before window.print() -->
+      </tbody>
+    </table>
+
+    <div class="mt-6 flex justify-between text-sm px-4">
+      <div>
+        <p>ยอดผู้ลงทะเบียนทั้งหมด: <strong id="print-total-count">0</strong> ราย</p>
+        <p>ยอดผู้เข้าร่วมจริง (ตามระบบ): <strong id="print-checked-count">0</strong> ราย</p>
+      </div>
+      <div class="text-center">
+        <p>ลงชื่อ ....................................................... ผู้รับรอง</p>
+        <p class="mt-1">(..................................................................)</p>
+        <p class="mt-0.5">ตำแหน่ง ..........................................................</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // =========================================================================
+    // 1. ตั้งค่า URL ของ Google Apps Script ที่นี่ (วางระหว่างเครื่องหมายคำพูด)
+    // =========================================================================
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบเช็คชื่อ & Dashboard สัมมนา AI Chatbot (30 พ.ย. - 2 ธ.ค. 69)</title>
+
+  <!-- Google Fonts: Prompt (UI) & Sarabun (Print Sheet) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            sarabun: ['Sarabun', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              700: '#1E3A8A',
+              800: '#172554',
+              900: '#0F172A',
+            },
+            maroon: {
+              600: '#9F1239',
+              700: '#881337',
+              800: '#6B0F2A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HTML5 QR Code Scanner -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    /* สไตล์สำหรับหน้าจอปกติ */
+    body { font-family: 'Prompt', sans-serif; }
+    #reader video { border-radius: 0.75rem; object-fit: cover; }
+
+    /* สไตล์เฉพาะตอนสั่งพิมพ์ใบเซ็นชื่อกระดาษ A4 */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 12mm 15mm 12mm;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Sarabun', sans-serif !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      table.print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.print-table th, table.print-table td {
+        border: 1px solid #000000;
+        padding: 5px 6px;
+        vertical-align: middle;
+      }
+      table.print-table thead {
+        display: table-header-group;
+      }
+      table.print-table tr {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+  <!-- ==================== MAIN WEB APP UI (ซ่อนตอนพิมพ์) ==================== -->
+  <div id="app-ui" class="no-print flex flex-col min-h-screen">
+
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 flex items-center justify-center text-white shadow-md shrink-0">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+          </div>
+          <div class="truncate">
+            <h1 class="text-base sm:text-lg font-bold text-navy-800 dark:text-white truncate">
+              ระบบลงทะเบียนสัมมนา AI Chatbot
+            </h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">30 พ.ย. – 2 ธ.ค. 2569</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Connection Status Badge -->
+          <span id="api-status-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง
+          </span>
+
+          <button onclick="fetchParticipants(true)" title="รีเฟรชข้อมูล" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="refresh-cw" id="refresh-icon" class="w-5 h-5"></i>
+          </button>
+
+          <button onclick="openSettingsModal()" title="ตั้งค่า API URL" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </button>
+
+          <button onclick="toggleDarkMode()" title="สลับโหมดสี" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">
+
+      <!-- Day Selector & Action Bar -->
+      <section class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <!-- 3-Day Tabs -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1 hidden sm:inline">เลือกวันสัมมนา:</span>
+          <button onclick="selectDay('day1')" id="tab-day1" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 1 (30 พ.ย. 69)
+          </button>
+          <button onclick="selectDay('day2')" id="tab-day2" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 2 (1 ธ.ค. 69)
+          </button>
+          <button onclick="selectDay('day3')" id="tab-day3" class="day-tab px-4 py-2 rounded-xl text-sm font-medium transition">
+            วันที่ 3 (2 ธ.ค. 69)
+          </button>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openScannerModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium shadow-sm transition">
+            <i data-lucide="scan-line" class="w-4 h-4"></i> สแกน QR เช็คชื่อ
+          </button>
+          <button onclick="openWalkInModal()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium shadow-sm transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> เพิ่ม Walk-in
+          </button>
+          <button onclick="prepareAndPrintSheet()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 text-sm font-medium shadow-sm transition">
+            <i data-lucide="printer" class="w-4 h-4"></i> พิมพ์ใบเซ็นชื่อ A4
+          </button>
+        </div>
+      </section>
+
+      <!-- KPI Cards -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ผู้ลงทะเบียนทั้งหมด</p>
+            <div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-navy-700 dark:text-blue-400">
+              <i data-lucide="users" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-total" class="text-2xl sm:text-3xl font-bold mt-2 text-slate-800 dark:text-white">0</p>
+          <p class="text-xs text-slate-400 mt-1">รวมผู้เข้าร่วม Walk-in</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">เข้าร่วมแล้ว (วันนี้)</p>
+            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+              <i data-lucide="user-check" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-checked" class="text-2xl sm:text-3xl font-bold mt-2 text-emerald-600 dark:text-emerald-400">0</p>
+          <div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">ยังไม่เข้าร่วม</p>
+            <div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-maroon-600 dark:text-rose-400">
+              <i data-lucide="user-x" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-pending" class="text-2xl sm:text-3xl font-bold mt-2 text-maroon-700 dark:text-rose-400">0</p>
+          <p class="text-xs text-slate-400 mt-1">รอลงทะเบียนหน้างาน</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">อัตราการเข้าร่วม</p>
+            <div class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <p id="kpi-percent" class="text-2xl sm:text-3xl font-bold mt-2 text-navy-700 dark:text-indigo-400">0%</p>
+          <p id="kpi-eval" class="text-xs text-slate-400 mt-1">ประเมินแล้ว 0 คน</p>
+        </div>
+      </section>
+
+      <!-- Filters & Search -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-3 justify-between">
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input
+              type="text"
+              id="search-input"
+              oninput="renderTable()"
+              placeholder="ค้นหารหัส (AI69-01), ชื่อ-สกุล, สังกัด..."
+              class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
+            />
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filter-status" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+              <option value="all">สถานะ: ทั้งหมด</option>
+              <option value="checked">เข้าร่วมแล้ว</option>
+              <option value="pending">ยังไม่เข้าร่วม</option>
+            </select>
+
+            <select id="filter-group" onchange="renderTable()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+              <option value="all">กลุ่มงาน: ทั้งหมด</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Participant Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                <th class="py-3.5 px-4 font-semibold">รหัส</th>
+                <th class="py-3.5 px-4 font-semibold">ยศ - ชื่อ - สกุล</th>
+                <th class="py-3.5 px-4 font-semibold hidden md:table-cell">ตำแหน่ง / สังกัด</th>
+                <th class="py-3.5 px-4 font-semibold hidden lg:table-cell">กลุ่มงาน</th>
+                <th class="py-3.5 px-4 font-semibold text-center">สถานะ (<span id="th-day-label">30 พ.ย. 69</span>)</th>
+                <th class="py-3.5 px-4 font-semibold text-right">จัดการ (Manual)</th>
+              </tr>
+            </thead>
+            <tbody id="participants-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/70 text-sm">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 dark:border-slate-800">
+      ระบบบริหารจัดการผู้เข้าร่วมสัมมนา AI Chatbot • เชื่อมต่อฐานข้อมูล Google Sheets แบบ Real-time
+    </footer>
+  </div>
+
+  <!-- ==================== MODAL: QR CODE SCANNER ==================== -->
+  <div id="scanner-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-navy-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="camera" class="w-5 h-5"></i>
+          <div>
+            <h2 class="font-semibold text-base">สแกน QR Code ป้ายชื่อ</h2>
+            <p class="text-xs text-blue-200">กำลังเช็คชื่อของ: <span id="scanner-day-label" class="font-semibold text-white"></span></p>
+          </div>
+        </div>
+        <button onclick="closeScannerModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Camera Viewport -->
+        <div class="relative bg-slate-900 rounded-xl overflow-hidden min-h-[260px] flex items-center justify-center">
+          <div id="reader" class="w-full"></div>
+        </div>
+
+        <!-- Scan Feedback Box -->
+        <div id="scan-result-box" class="hidden p-3.5 rounded-xl border text-sm"></div>
+
+        <!-- Manual ID Input Fallback -->
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1.5">หรือพิมพ์รหัสป้ายชื่อ (กรณีกล้องอ่านไม่ได้):</label>
+          <div class="flex gap-2">
+            <input type="text" id="manual-qr-input" placeholder="เช่น AI69-01" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-navy-700" />
+            <button onclick="submitManualCode()" class="px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">ยืนยัน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADD WALK-IN ==================== -->
+  <div id="walkin-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-maroon-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+          <h2 class="font-semibold text-base">เพิ่มผู้เข้าร่วมหน้างาน (Walk-in / ผู้แทน)</h2>
+        </div>
+        <button onclick="closeWalkInModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="walkin-form" onsubmit="submitWalkIn(event)" class="p-5 space-y-3.5">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ยศ/คำนำหน้า</label>
+            <input type="text" id="wi-prefix" placeholder="เช่น ร.ต.อ." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ชื่อ - สกุล <span class="text-rose-500">*</span></label>
+            <input type="text" id="wi-name" required placeholder="ระบุชื่อและนามสกุล" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง / สังกัด</label>
+          <input type="text" id="wi-unit" placeholder="เช่น รอง สว.จร. / สยศ.ตร." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">กลุ่มงาน</label>
+            <input type="text" id="wi-group" value="Walk-in" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="wi-phone" placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm" />
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 pt-1 cursor-pointer">
+          <input type="checkbox" id="wi-checkin-now" checked class="w-4 h-4 rounded text-navy-700 focus:ring-navy-700" />
+          <span class="text-sm text-slate-700 dark:text-slate-300">เช็คชื่อเข้าร่วมใน <strong id="wi-day-text"></strong> ทันที</span>
+        </label>
+
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeWalkInModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ยกเลิก</button>
+          <button type="submit" id="wi-submit-btn" class="px-5 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-medium">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS (API URL) ==================== -->
+  <div id="settings-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <h2 class="font-semibold text-base">ตั้งค่าการเชื่อมต่อ Google Apps Script</h2>
+        </div>
+        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5">Web App URL (ลงท้ายด้วย /exec)</label>
+          <input type="url" id="settings-api-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm font-mono" />
+          <p class="text-xs text-slate-400 mt-1.5">หากปล่อยว่าง ระบบจะทำงานใน "โหมดจำลอง (Demo Mode)" ด้วยข้อมูลตัวอย่าง</p>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-medium">ปิด</button>
+          <button onclick="saveApiSettings()" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium">บันทึกและโหลดข้อมูล</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ==================== PRINT AREA: ใบลงลายมือชื่อกระดาษ A4 ==================== -->
+  <div id="print-area" class="print-only hidden">
+    <div class="text-center mb-4">
+      <h1 class="text-lg font-bold">แบบลงลายมือชื่อผู้เข้าร่วมการประชุมสัมมนาเชิงปฏิบัติการ</h1>
+      <h2 class="text-base font-semibold">โครงการพัฒนาและทดสอบระบบ AI Chatbot ด้านงานจราจร</h2>
+      <p class="text-sm mt-1">ประจำวันที่ <span id="print-day-title" class="font-bold"></span></p>
+    </div>
+
+    <table class="print-table">
+      <thead>
+        <tr style="background-color: #f1f5f9;">
+          <th style="width: 6%; text-align: center;">ลำดับ</th>
+          <th style="width: 11%; text-align: center;">รหัส</th>
+          <th style="width: 26%; text-align: left;">ยศ - ชื่อ - สกุล</th>
+          <th style="width: 24%; text-align: left;">ตำแหน่ง / สังกัด</th>
+          <th style="width: 13%; text-align: center;">เบอร์โทรศัพท์</th>
+          <th style="width: 14%; text-align: center;">ลายมือชื่อ</th>
+          <th style="width: 6%; text-align: center;">เวลา</th>
+        </tr>
+      </thead>
+      <tbody id="print-tbody">
+        <!-- Populated before window.print() -->
+      </tbody>
+    </table>
+
+    <div class="mt-6 flex justify-between text-sm px-4">
+      <div>
+        <p>ยอดผู้ลงทะเบียนทั้งหมด: <strong id="print-total-count">0</strong> ราย</p>
+        <p>ยอดผู้เข้าร่วมจริง (ตามระบบ): <strong id="print-checked-count">0</strong> ราย</p>
+      </div>
+      <div class="text-center">
+        <p>ลงชื่อ ....................................................... ผู้รับรอง</p>
+        <p class="mt-1">(..................................................................)</p>
+        <p class="mt-0.5">ตำแหน่ง ..........................................................</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // =========================================================================
+    // 1. ตั้งค่า URL ของ Google Apps Script ที่นี่ (วางระหว่างเครื่องหมายคำพูด)
+    // =========================================================================
+    const DEFAULT_API_URL = "";
+
+    const DAY_CONFIG = {
+      day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
+      day2: { label: '1 ธ.ค. 69',  full: 'วันอังคารที่ 1 ธันวาคม 2569' },
+      day3: { label: '2 ธ.ค. 69',  full: 'วันพุธที่ 2 ธันวาคม 2569' }
+    };
+
+    // ข้อมูลตัวอย่างสำหรับทดสอบกรณีที่ยังไม่ได้ใส่ API URL
+    const DEMO_DATA = [
+      { id: 'AI69-01', prefix: 'พ.ต.อ.', fullName: 'สมชาย ใจดี', unit: 'ผกก.กลุ่มงานวิจัย', group: 'ผู้บริหาร', phone: '081-111-1111', day1: '08:42:15', day2: '', day3: '', evaluated: true, type: 'ลงทะเบียนล่วงหน้า' },
+      { id: 'AI69-02', prefix: 'พ.ต.ท.', fullName: 'วิชัย รักชาติ', unit: 'รอง ผกก.จร.', group: 'ผู้ปฏิบัติงาน', phone: '082-222-2222', day1: '', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' },
+      { id: 'AI69-03', prefix: 'ร.ต.อ.', fullName: 'สมหญิง จริงใจ', unit: 'รอง สว.กลุ่มงานวิจัย', group: 'วิทยากร/ทีมงาน', phone: '083-333-3333', day1: '08:15:00', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' }
+    ];
+
+    let API_URL = localStorage.getItem('ai_seminar_api_url') || DEFAULT_API_URL;
+    let participants = [];
+    let currentDay = detectDefaultDay();
+    let html5QrCode = null;
+    let lastScanned = { id: null, time: 0 };
+
+    // =========================================================================
+    // 2. INITIALIZATION
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initTheme();
+      updateApiStatusBadge();
+      selectDay(currentDay, false);
+      fetchParticipants();
+    });
+
+    function detectDefaultDay() {
+      const now = new Date();
+      const m = now.getMonth() + 1;
+      const d = now.getDate();
+      if (m === 12 && d === 1) return 'day2';
+      if (m === 12 && d === 2) return 'day3';
+      return 'day1';
+    }
+
+    function initTheme() {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function updateApiStatusBadge() {
+      const badge = document.getElementById('api-status-badge');
+      if (API_URL) {
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว';
+      } else {
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง (Demo)';
+      }
+    }
+
+    // =========================================================================
+    // 3. DATA FETCHING & API CALLS
+    // =========================================================================
+    async function fetchParticipants(showToastMsg = false) {
+      const icon = document.getElementById('refresh-icon');
+      icon.classList.add('animate-spin');
+
+      try {
+        if (!API_URL) {
+          if (participants.length === 0) participants = JSON.parse(JSON.stringify(DEMO_DATA));
+          populateGroupFilter();
+          updateDashboard();
+          if (showToastMsg) showToast('อัปเดตข้อมูล (โหมดจำลอง)', 'info');
+          return;
+        }
+
+        const res = await fetch(`${API_URL}?action=getParticipants`);
+        const json = await res.json();
+        if (json.status === 'success') {
+          participants = json.data || [];
+          populateGroupFilter();
+          updateDashboard();
+          if (showToastMsg) showToast(`โหลดข้อมูลล่าสุดแล้ว (${participants.length} รายการ)`, 'success');
+        } else {
+          throw new Error(json.message || 'ไม่สามารถโหลดข้อมูลได้');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        icon.classList.remove('animate-spin');
+      }
+    }
+
+    async function postToApi(payload) {
+      if (!API_URL) {
+        return handleDemoPost(payload);
+      }
+      // ใช้ text/plain เพื่อหลีกเลี่ยง CORS preflight ของ Google Apps Script
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    }
+
+    function handleDemoPost(payload) {
+      const timeStr = new Date().toTimeString().split(' ')[0];
+      if (payload.action === 'checkIn') {
+        const p = participants.find(x => x.id.toUpperCase() === String(payload.id).trim().toUpperCase());
+        if (!p) return { status: 'not_found', message: `ไม่พบรหัส ${payload.id} ในระบบ` };
+        if (!payload.undo && p[payload.day]) {
+          return { status: 'already_checked_in', message: `${p.prefix}${p.fullName} เช็คชื่อไปแล้วเมื่อ ${p[payload.day]}`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+        }
+        p[payload.day] = payload.undo ? '' : timeStr;
+        return { status: 'success', time: p[payload.day], message: payload.undo ? `ยกเลิกเช็คชื่อ ${p.prefix}${p.fullName} แล้ว` : `เช็คชื่อ ${p.prefix}${p.fullName} สำเร็จ (${timeStr})`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+      }
+      if (payload.action === 'addWalkIn') {
+        const newId = 'AI69-' + String(participants.length + 1).padStart(2, '0');
+        participants.push({
+          id: newId, prefix: payload.prefix, fullName: payload.fullName,
+          unit: payload.unit, group: payload.group || 'Walk-in', phone: payload.phone,
+          day1: payload.checkInDay === 'day1' ? timeStr : '',
+          day2: payload.checkInDay === 'day2' ? timeStr : '',
+          day3: payload.checkInDay === 'day3' ? timeStr : '',
+          evaluated: false, type: 'Walk-in / หน้างาน'
+        });
+        return { status: 'success', id: newId, message: `เพิ่ม ${payload.prefix}${payload.fullName} (${newId}) สำเร็จ` };
+      }
+      return { status: 'error', message: 'Unknown demo action' };
+    }
+
+    // =========================================================================
+    // 4. DASHBOARD & TABLE RENDERING
+    // =========================================================================
+    function selectDay(dayKey, shouldRender = true) {
+      currentDay = dayKey;
+      document.querySelectorAll('.day-tab').forEach(btn => {
+        btn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
+      });
+      const activeBtn = document.getElementById(`tab-${dayKey}`);
+      activeBtn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-semibold transition bg-navy-700 text-white shadow-sm';
+
+      document.getElementById('th-day-label').textContent = DAY_CONFIG[dayKey].label;
+      if (shouldRender) updateDashboard();
+    }
+
+    function populateGroupFilter() {
+      const select = document.getElementById('filter-group');
+      const currentVal = select.value;
+      const groups = [...new Set(participants.map(p => p.group).filter(Boolean))];
+      select.innerHTML = '<option value="all">กลุ่มงาน: ทั้งหมด</option>' +
+        groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+      if (groups.includes(currentVal)) select.value = currentVal;
+    }
+
+    function updateDashboard() {
+      const total = participants.length;
+      const checked = participants.filter(p => Boolean(p[currentDay])).length;
+      const pending = total - checked;
+      const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+      const evaluated = participants.filter(p => p.evaluated).length;
+
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-checked').textContent = checked;
+      document.getElementById('kpi-pending').textContent = pending;
+      document.getElementById('kpi-percent').textContent = `${percent}%`;
+      document.getElementById('kpi-progress-bar').style.width = `${percent}%`;
+      document.getElementById('kpi-eval').textContent = `ทำแบบประเมินแล้ว ${evaluated} คน`;
+
+      renderTable();
+    }
+
+    function renderTable() {
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('filter-status').value;
+      const groupFilter = document.getElementById('filter-group').value;
+      const tbody = document.getElementById('participants-tbody');
+
+      const filtered = participants.filter(p => {
+        const isChecked = Boolean(p[currentDay]);
+        if (statusFilter === 'checked' && !isChecked) return false;
+        if (statusFilter === 'pending' && isChecked) return false;
+        if (groupFilter !== 'all' && p.group !== groupFilter) return false;
+        if (query) {
+          const text = `${p.id} ${p.prefix}${p.fullName} ${p.unit} ${p.group} ${p.phone}`.toLowerCase();
+          if (!text.includes(query)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 text-center text-slate-400">
+              ไม่พบรายชื่อที่ตรงกับเงื่อนไข
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        const timeVal = p[currentDay];
+        const isChecked = Boolean(timeVal);
+        const statusBadge = isChecked
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> เข้าร่วมแล้ว (${escapeHtml(timeVal)})
+             </span>`
+          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> ยังไม่มา
+             </span>`;
+
+        const actionBtn = isChecked
+          ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-800 transition">
+               ยกเลิก
+             </button>`
+          : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
+               เช็คชื่อ
+             </button>`;
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
+            <td class="py-3.5 px-4 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-3.5 px-4">
+              <div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</div>
+              <div class="text-xs text-slate-500 md:hidden">${escapeHtml(p.unit)}</div>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600 dark:text-slate-300 hidden md:table-cell">${escapeHtml(p.unit || '-')}</td>
+            <td class="py-3.5 px-4 hidden lg:table-cell">
+              <span class="px-2 py-0.5 rounded-md text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${escapeHtml(p.group || '-')}</span>
+            </td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">${statusBadge}</td>
+            <td class="py-3.5 px-4 text-right whitespace-nowrap">${actionBtn}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function manualToggleCheckIn(id, isUndo) {
+      // Optimistic local update
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      const oldVal = p[currentDay];
+      const nowTime = new Date().toTimeString().split(' ')[0];
+      p[currentDay] = isUndo ? '' : nowTime;
+      updateDashboard();
+
+      try {
+        const res = await postToApi({
+          action: 'checkIn',
+          id: id,
+          day: currentDay,
+          method: 'Manual Dashboard',
+          undo: isUndo
+        });
+        if (res.status === 'success') {
+          p[currentDay] = res.time || '';
+          updateDashboard();
+          showToast(res.message, isUndo ? 'info' : 'success');
+        } else {
+          p[currentDay] = oldVal;
+          updateDashboard();
+          showToast(res.message, 'warning');
+        }
+      } catch (err) {
+        p[currentDay] = oldVal;
+        updateDashboard();
+        showToast('เกิดข้อผิดพลาดในการบันทึก: ' + err.message, 'error');
+      }
+    }
+
+    // =========================================================================
+    // 5. QR CODE SCANNER
+    // =========================================================================
+    function openScannerModal() {
+      document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
+      document.getElementById('scan-result-box').classList.add('hidden');
+      document.getElementById('scanner-modal').classList.remove('hidden');
+
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 230, height: 230 } },
+        onScanSuccess
+      ).catch(err => {
+        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ (ต้องเปิดผ่าน HTTPS หรืออนุญาตสิทธิ์กล้อง) สามารถพิมพ์รหัสด้านล่างแทนได้ครับ');
+      });
+    }
+
+    function closeScannerModal() {
+      document.getElementById('scanner-modal').classList.add('hidden');
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+        html5QrCode = null;
+      }
+    }
+
+    async function onScanSuccess(decodedText) {
+      const cleanId = decodedText.trim();
+      const now = Date.now();
+      // ป้องกันการสแกนรหัสเดิมซ้ำรัวๆ ภายใน 3 วินาที
+      if (lastScanned.id === cleanId && (now - lastScanned.time) < 3000) return;
+      lastScanned = { id: cleanId, time: now };
+
+      await processQrCheckIn(cleanId);
+    }
+
+    async function submitManualCode() {
+      const input = document.getElementById('manual-qr-input');
+      const id = input.value.trim().toUpperCase();
+      if (!id) return;
+      input.value = '';
+      await processQrCheckIn(id);
+    }
+
+    async function processQrCheckIn(id) {
+      // ตรวจสอบจากข้อมูลใน Local Cache ก่อนเพื่อความเร็วสูงสุด
+      const localP = participants.find(x => x.id.toUpperCase() === id.toUpperCase());
+      if (localP) {
+        if (localP[currentDay]) {
+          playBeep(440, 150);
+          showScanFeedback('warning', `<strong>${escapeHtml(localP.prefix + localP.fullName)}</strong><br>เช็คชื่อไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
+          return;
+        }
+        // อัปเดตหน้าจอทันที + ส่งไปบันทึกหลังบ้าน
+        const tempTime = new Date().toTimeString().split(' ')[0];
+        localP[currentDay] = tempTime;
+        updateDashboard();
+        playBeep(880, 120);
+        showScanFeedback('success', `<strong>เช็คชื่อสำเร็จ!</strong><br>${escapeHtml(localP.prefix + localP.fullName)} (${escapeHtml(localP.unit)})`);
+      } else {
+        showScanFeedback('info', `กำลังตรวจสอบรหัส ${escapeHtml(id)} กับฐานข้อมูล...`);
+      }
+
+      try {
+        const res = await postToApi({
+          action: 'checkIn',
+          id: id,
+          day: currentDay,
+          method: 'QR Scan'
+        });
+
+        if (res.status === 'success') {
+          if (localP) localP[currentDay] = res.time;
+          else await fetchParticipants();
+          updateDashboard();
+          if (!localP) {
+            playBeep(880, 120);
+            showScanFeedback('success', res.message);
+          }
+        } else if (res.status === 'already_checked_in') {
+          playBeep(440, 150);
+          showScanFeedback('warning', res.message);
+        } else {
+          if (localP) { localP[currentDay] = ''; updateDashboard(); }
+          playBeep(220, 250);
+          showScanFeedback('error', res.message);
+        }
+      } catch (err) {
+        showScanFeedback('error', 'บันทึกไม่สำเร็จ: ' + err.message);
+      }
+    }
+
+    function showScanFeedback(type, htmlMsg) {
+      const box = document.getElementById('scan-result-box');
+      const styles = {
+        success: 'bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-200',
+        warning: 'bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-200',
+        error:   'bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-200',
+        info:    'bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-200'
+      };
+      box.className = `p-3.5 rounded-xl border text-sm ${styles[type]}`;
+      box.innerHTML = htmlMsg;
+      box.classList.remove('hidden');
+    }
+
+    function playBeep(freq = 880, duration = 120) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.15;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, duration);
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // 6. WALK-IN MODAL
+    // =========================================================================
+    function openWalkInModal() {
+      document.getElementById('walkin-form').reset();
+      document.getElementById('wi-day-text').textContent = DAY_CONFIG[currentDay].label;
+      document.getElementById('walkin-modal').classList.remove('hidden');
+    }
+
+    function closeWalkInModal() {
+      document.getElementById('walkin-modal').classList.add('hidden');
+    }
+
+    async function submitWalkIn(e) {
+      e.preventDefault();
+      const btn = document.getElementById('wi-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        action: 'addWalkIn',
+        prefix: document.getElementById('wi-prefix').value.trim(),
+        fullName: document.getElementById('wi-name').value.trim(),
+        unit: document.getElementById('wi-unit').value.trim(),
+        group: document.getElementById('wi-group').value.trim() || 'Walk-in',
+        phone: document.getElementById('wi-phone').value.trim(),
+        checkInDay: document.getElementById('wi-checkin-now').checked ? currentDay : ''
+      };
+
+      try {
+        const res = await postToApi(payload);
+        if (res.status === 'success') {
+          showToast(res.message, 'success');
+          closeWalkInModal();
+          await fetchParticipants();
+        } else {
+          showToast(res.message, 'error');
+        }
+      } catch (err) {
+        showToast('บันทึก Walk-in ไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกข้อมูล';
+      }
+    }
+
+    // =========================================================================
+    // 7. PRINT PAPER SIGN-IN SHEET (ใบเซ็นชื่อ A4)
+    // =========================================================================
+    function prepareAndPrintSheet() {
+      document.getElementById('print-day-title').textContent = DAY_CONFIG[currentDay].full;
+      const tbody = document.getElementById('print-tbody');
+
+      const checkedCount = participants.filter(p => Boolean(p[currentDay])).length;
+      document.getElementById('print-total-count').textContent = participants.length;
+      document.getElementById('print-checked-count').textContent = checkedCount;
+
+      let rowsHtml = participants.map((p, idx) => `
+        <tr>
+          <td style="text-align: center;">${idx + 1}</td>
+          <td style="text-align: center; font-family: monospace;">${escapeHtml(p.id)}</td>
+          <td>${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</td>
+          <td>${escapeHtml(p.unit || '')}</td>
+          <td style="text-align: center;">${escapeHtml(p.phone || '')}</td>
+          <td style="height: 28px;"></td>
+          <td style="text-align: center; font-size: 11px;">${escapeHtml(p[currentDay] || '')}</td>
+        </tr>
+      `).join('');
+
+      // เพิ่มบรรทัดว่าง 5 แถวท้ายตารางสำหรับ Walk-in หน้างาน
+      for (let i = 1; i <= 5; i++) {
+        rowsHtml += `
+          <tr>
+            <td style="text-align: center; height: 28px;">${participants.length + i}</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = rowsHtml;
+      window.print();
+    }
+
+    // =========================================================================
+    // 8. SETTINGS & UTILITIES
+    // =========================================================================
+    function openSettingsModal() {
+      document.getElementById('settings-api-url').value = API_URL;
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function saveApiSettings() {
+      API_URL = document.getElementById('settings-api-url').value.trim();
+      localStorage.setItem('ai_seminar_api_url', API_URL);
+      updateApiStatusBadge();
+      closeSettingsModal();
+      fetchParticipants(true);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-white',
+        info: 'bg-navy-700 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 ${colors[type]}`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>";
+
+    const DAY_CONFIG = {
+      day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
+      day2: { label: '1 ธ.ค. 69',  full: 'วันอังคารที่ 1 ธันวาคม 2569' },
+      day3: { label: '2 ธ.ค. 69',  full: 'วันพุธที่ 2 ธันวาคม 2569' }
+    };
+
+    // ข้อมูลตัวอย่างสำหรับทดสอบกรณีที่ยังไม่ได้ใส่ API URL
+    const DEMO_DATA = [
+      { id: 'AI69-01', prefix: 'พ.ต.อ.', fullName: 'สมชาย ใจดี', unit: 'ผกก.กลุ่มงานวิจัย', group: 'ผู้บริหาร', phone: '081-111-1111', day1: '08:42:15', day2: '', day3: '', evaluated: true, type: 'ลงทะเบียนล่วงหน้า' },
+      { id: 'AI69-02', prefix: 'พ.ต.ท.', fullName: 'วิชัย รักชาติ', unit: 'รอง ผกก.จร.', group: 'ผู้ปฏิบัติงาน', phone: '082-222-2222', day1: '', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' },
+      { id: 'AI69-03', prefix: 'ร.ต.อ.', fullName: 'สมหญิง จริงใจ', unit: 'รอง สว.กลุ่มงานวิจัย', group: 'วิทยากร/ทีมงาน', phone: '083-333-3333', day1: '08:15:00', day2: '', day3: '', evaluated: false, type: 'ลงทะเบียนล่วงหน้า' }
+    ];
+
+    let API_URL = localStorage.getItem('ai_seminar_api_url') || DEFAULT_API_URL;
+    let participants = [];
+    let currentDay = detectDefaultDay();
+    let html5QrCode = null;
+    let lastScanned = { id: null, time: 0 };
+
+    // =========================================================================
+    // 2. INITIALIZATION
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initTheme();
+      updateApiStatusBadge();
+      selectDay(currentDay, false);
+      fetchParticipants();
+    });
+
+    function detectDefaultDay() {
+      const now = new Date();
+      const m = now.getMonth() + 1;
+      const d = now.getDate();
+      if (m === 12 && d === 1) return 'day2';
+      if (m === 12 && d === 2) return 'day3';
+      return 'day1';
+    }
+
+    function initTheme() {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function updateApiStatusBadge() {
+      const badge = document.getElementById('api-status-badge');
+      if (API_URL) {
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว';
+      } else {
+        badge.className = 'hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> โหมดจำลอง (Demo)';
+      }
+    }
+
+    // =========================================================================
+    // 3. DATA FETCHING & API CALLS
+    // =========================================================================
+    async function fetchParticipants(showToastMsg = false) {
+      const icon = document.getElementById('refresh-icon');
+      icon.classList.add('animate-spin');
+
+      try {
+        if (!API_URL) {
+          if (participants.length === 0) participants = JSON.parse(JSON.stringify(DEMO_DATA));
+          populateGroupFilter();
+          updateDashboard();
+          if (showToastMsg) showToast('อัปเดตข้อมูล (โหมดจำลอง)', 'info');
+          return;
+        }
+
+        const res = await fetch(`${API_URL}?action=getParticipants`);
+        const json = await res.json();
+        if (json.status === 'success') {
+          participants = json.data || [];
+          populateGroupFilter();
+          updateDashboard();
+          if (showToastMsg) showToast(`โหลดข้อมูลล่าสุดแล้ว (${participants.length} รายการ)`, 'success');
+        } else {
+          throw new Error(json.message || 'ไม่สามารถโหลดข้อมูลได้');
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('เชื่อมต่อ Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        icon.classList.remove('animate-spin');
+      }
+    }
+
+    async function postToApi(payload) {
+      if (!API_URL) {
+        return handleDemoPost(payload);
+      }
+      // ใช้ text/plain เพื่อหลีกเลี่ยง CORS preflight ของ Google Apps Script
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    }
+
+    function handleDemoPost(payload) {
+      const timeStr = new Date().toTimeString().split(' ')[0];
+      if (payload.action === 'checkIn') {
+        const p = participants.find(x => x.id.toUpperCase() === String(payload.id).trim().toUpperCase());
+        if (!p) return { status: 'not_found', message: `ไม่พบรหัส ${payload.id} ในระบบ` };
+        if (!payload.undo && p[payload.day]) {
+          return { status: 'already_checked_in', message: `${p.prefix}${p.fullName} เช็คชื่อไปแล้วเมื่อ ${p[payload.day]}`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+        }
+        p[payload.day] = payload.undo ? '' : timeStr;
+        return { status: 'success', time: p[payload.day], message: payload.undo ? `ยกเลิกเช็คชื่อ ${p.prefix}${p.fullName} แล้ว` : `เช็คชื่อ ${p.prefix}${p.fullName} สำเร็จ (${timeStr})`, participant: { id: p.id, name: `${p.prefix}${p.fullName}`, unit: p.unit } };
+      }
+      if (payload.action === 'addWalkIn') {
+        const newId = 'AI69-' + String(participants.length + 1).padStart(2, '0');
+        participants.push({
+          id: newId, prefix: payload.prefix, fullName: payload.fullName,
+          unit: payload.unit, group: payload.group || 'Walk-in', phone: payload.phone,
+          day1: payload.checkInDay === 'day1' ? timeStr : '',
+          day2: payload.checkInDay === 'day2' ? timeStr : '',
+          day3: payload.checkInDay === 'day3' ? timeStr : '',
+          evaluated: false, type: 'Walk-in / หน้างาน'
+        });
+        return { status: 'success', id: newId, message: `เพิ่ม ${payload.prefix}${payload.fullName} (${newId}) สำเร็จ` };
+      }
+      return { status: 'error', message: 'Unknown demo action' };
+    }
+
+    // =========================================================================
+    // 4. DASHBOARD & TABLE RENDERING
+    // =========================================================================
+    function selectDay(dayKey, shouldRender = true) {
+      currentDay = dayKey;
+      document.querySelectorAll('.day-tab').forEach(btn => {
+        btn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
+      });
+      const activeBtn = document.getElementById(`tab-${dayKey}`);
+      activeBtn.className = 'day-tab px-4 py-2 rounded-xl text-sm font-semibold transition bg-navy-700 text-white shadow-sm';
+
+      document.getElementById('th-day-label').textContent = DAY_CONFIG[dayKey].label;
+      if (shouldRender) updateDashboard();
+    }
+
+    function populateGroupFilter() {
+      const select = document.getElementById('filter-group');
+      const currentVal = select.value;
+      const groups = [...new Set(participants.map(p => p.group).filter(Boolean))];
+      select.innerHTML = '<option value="all">กลุ่มงาน: ทั้งหมด</option>' +
+        groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+      if (groups.includes(currentVal)) select.value = currentVal;
+    }
+
+    function updateDashboard() {
+      const total = participants.length;
+      const checked = participants.filter(p => Boolean(p[currentDay])).length;
+      const pending = total - checked;
+      const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+      const evaluated = participants.filter(p => p.evaluated).length;
+
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-checked').textContent = checked;
+      document.getElementById('kpi-pending').textContent = pending;
+      document.getElementById('kpi-percent').textContent = `${percent}%`;
+      document.getElementById('kpi-progress-bar').style.width = `${percent}%`;
+      document.getElementById('kpi-eval').textContent = `ทำแบบประเมินแล้ว ${evaluated} คน`;
+
+      renderTable();
+    }
+
+    function renderTable() {
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('filter-status').value;
+      const groupFilter = document.getElementById('filter-group').value;
+      const tbody = document.getElementById('participants-tbody');
+
+      const filtered = participants.filter(p => {
+        const isChecked = Boolean(p[currentDay]);
+        if (statusFilter === 'checked' && !isChecked) return false;
+        if (statusFilter === 'pending' && isChecked) return false;
+        if (groupFilter !== 'all' && p.group !== groupFilter) return false;
+        if (query) {
+          const text = `${p.id} ${p.prefix}${p.fullName} ${p.unit} ${p.group} ${p.phone}`.toLowerCase();
+          if (!text.includes(query)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 text-center text-slate-400">
+              ไม่พบรายชื่อที่ตรงกับเงื่อนไข
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        const timeVal = p[currentDay];
+        const isChecked = Boolean(timeVal);
+        const statusBadge = isChecked
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> เข้าร่วมแล้ว (${escapeHtml(timeVal)})
+             </span>`
+          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+               <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> ยังไม่มา
+             </span>`;
+
+        const actionBtn = isChecked
+          ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-800 transition">
+               ยกเลิก
+             </button>`
+          : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">
+               เช็คชื่อ
+             </button>`;
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
+            <td class="py-3.5 px-4 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-3.5 px-4">
+              <div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</div>
+              <div class="text-xs text-slate-500 md:hidden">${escapeHtml(p.unit)}</div>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600 dark:text-slate-300 hidden md:table-cell">${escapeHtml(p.unit || '-')}</td>
+            <td class="py-3.5 px-4 hidden lg:table-cell">
+              <span class="px-2 py-0.5 rounded-md text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${escapeHtml(p.group || '-')}</span>
+            </td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">${statusBadge}</td>
+            <td class="py-3.5 px-4 text-right whitespace-nowrap">${actionBtn}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function manualToggleCheckIn(id, isUndo) {
+      // Optimistic local update
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      const oldVal = p[currentDay];
+      const nowTime = new Date().toTimeString().split(' ')[0];
+      p[currentDay] = isUndo ? '' : nowTime;
+      updateDashboard();
+
+      try {
+        const res = await postToApi({
+          action: 'checkIn',
+          id: id,
+          day: currentDay,
+          method: 'Manual Dashboard',
+          undo: isUndo
+        });
+        if (res.status === 'success') {
+          p[currentDay] = res.time || '';
+          updateDashboard();
+          showToast(res.message, isUndo ? 'info' : 'success');
+        } else {
+          p[currentDay] = oldVal;
+          updateDashboard();
+          showToast(res.message, 'warning');
+        }
+      } catch (err) {
+        p[currentDay] = oldVal;
+        updateDashboard();
+        showToast('เกิดข้อผิดพลาดในการบันทึก: ' + err.message, 'error');
+      }
+    }
+
+    // =========================================================================
+    // 5. QR CODE SCANNER
+    // =========================================================================
+    function openScannerModal() {
+      document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
+      document.getElementById('scan-result-box').classList.add('hidden');
+      document.getElementById('scanner-modal').classList.remove('hidden');
+
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 230, height: 230 } },
+        onScanSuccess
+      ).catch(err => {
+        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ (ต้องเปิดผ่าน HTTPS หรืออนุญาตสิทธิ์กล้อง) สามารถพิมพ์รหัสด้านล่างแทนได้ครับ');
+      });
+    }
+
+    function closeScannerModal() {
+      document.getElementById('scanner-modal').classList.add('hidden');
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+        html5QrCode = null;
+      }
+    }
+
+    async function onScanSuccess(decodedText) {
+      const cleanId = decodedText.trim();
+      const now = Date.now();
+      // ป้องกันการสแกนรหัสเดิมซ้ำรัวๆ ภายใน 3 วินาที
+      if (lastScanned.id === cleanId && (now - lastScanned.time) < 3000) return;
+      lastScanned = { id: cleanId, time: now };
+
+      await processQrCheckIn(cleanId);
+    }
+
+    async function submitManualCode() {
+      const input = document.getElementById('manual-qr-input');
+      const id = input.value.trim().toUpperCase();
+      if (!id) return;
+      input.value = '';
+      await processQrCheckIn(id);
+    }
+
+    async function processQrCheckIn(id) {
+      // ตรวจสอบจากข้อมูลใน Local Cache ก่อนเพื่อความเร็วสูงสุด
+      const localP = participants.find(x => x.id.toUpperCase() === id.toUpperCase());
+      if (localP) {
+        if (localP[currentDay]) {
+          playBeep(440, 150);
+          showScanFeedback('warning', `<strong>${escapeHtml(localP.prefix + localP.fullName)}</strong><br>เช็คชื่อไปแล้วเมื่อเวลา ${escapeHtml(localP[currentDay])}`);
+          return;
+        }
+        // อัปเดตหน้าจอทันที + ส่งไปบันทึกหลังบ้าน
+        const tempTime = new Date().toTimeString().split(' ')[0];
+        localP[currentDay] = tempTime;
+        updateDashboard();
+        playBeep(880, 120);
+        showScanFeedback('success', `<strong>เช็คชื่อสำเร็จ!</strong><br>${escapeHtml(localP.prefix + localP.fullName)} (${escapeHtml(localP.unit)})`);
+      } else {
+        showScanFeedback('info', `กำลังตรวจสอบรหัส ${escapeHtml(id)} กับฐานข้อมูล...`);
+      }
+
+      try {
+        const res = await postToApi({
+          action: 'checkIn',
+          id: id,
+          day: currentDay,
+          method: 'QR Scan'
+        });
+
+        if (res.status === 'success') {
+          if (localP) localP[currentDay] = res.time;
+          else await fetchParticipants();
+          updateDashboard();
+          if (!localP) {
+            playBeep(880, 120);
+            showScanFeedback('success', res.message);
+          }
+        } else if (res.status === 'already_checked_in') {
+          playBeep(440, 150);
+          showScanFeedback('warning', res.message);
+        } else {
+          if (localP) { localP[currentDay] = ''; updateDashboard(); }
+          playBeep(220, 250);
+          showScanFeedback('error', res.message);
+        }
+      } catch (err) {
+        showScanFeedback('error', 'บันทึกไม่สำเร็จ: ' + err.message);
+      }
+    }
+
+    function showScanFeedback(type, htmlMsg) {
+      const box = document.getElementById('scan-result-box');
+      const styles = {
+        success: 'bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-200',
+        warning: 'bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-200',
+        error:   'bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-200',
+        info:    'bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-200'
+      };
+      box.className = `p-3.5 rounded-xl border text-sm ${styles[type]}`;
+      box.innerHTML = htmlMsg;
+      box.classList.remove('hidden');
+    }
+
+    function playBeep(freq = 880, duration = 120) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.value = 0.15;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        setTimeout(() => { osc.stop(); ctx.close(); }, duration);
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // 6. WALK-IN MODAL
+    // =========================================================================
+    function openWalkInModal() {
+      document.getElementById('walkin-form').reset();
+      document.getElementById('wi-day-text').textContent = DAY_CONFIG[currentDay].label;
+      document.getElementById('walkin-modal').classList.remove('hidden');
+    }
+
+    function closeWalkInModal() {
+      document.getElementById('walkin-modal').classList.add('hidden');
+    }
+
+    async function submitWalkIn(e) {
+      e.preventDefault();
+      const btn = document.getElementById('wi-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      const payload = {
+        action: 'addWalkIn',
+        prefix: document.getElementById('wi-prefix').value.trim(),
+        fullName: document.getElementById('wi-name').value.trim(),
+        unit: document.getElementById('wi-unit').value.trim(),
+        group: document.getElementById('wi-group').value.trim() || 'Walk-in',
+        phone: document.getElementById('wi-phone').value.trim(),
+        checkInDay: document.getElementById('wi-checkin-now').checked ? currentDay : ''
+      };
+
+      try {
+        const res = await postToApi(payload);
+        if (res.status === 'success') {
+          showToast(res.message, 'success');
+          closeWalkInModal();
+          await fetchParticipants();
+        } else {
+          showToast(res.message, 'error');
+        }
+      } catch (err) {
+        showToast('บันทึก Walk-in ไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'บันทึกข้อมูล';
+      }
+    }
+
+    // =========================================================================
+    // 7. PRINT PAPER SIGN-IN SHEET (ใบเซ็นชื่อ A4)
+    // =========================================================================
+    function prepareAndPrintSheet() {
+      document.getElementById('print-day-title').textContent = DAY_CONFIG[currentDay].full;
+      const tbody = document.getElementById('print-tbody');
+
+      const checkedCount = participants.filter(p => Boolean(p[currentDay])).length;
+      document.getElementById('print-total-count').textContent = participants.length;
+      document.getElementById('print-checked-count').textContent = checkedCount;
+
+      let rowsHtml = participants.map((p, idx) => `
+        <tr>
+          <td style="text-align: center;">${idx + 1}</td>
+          <td style="text-align: center; font-family: monospace;">${escapeHtml(p.id)}</td>
+          <td>${escapeHtml(p.prefix)}${escapeHtml(p.fullName)}</td>
+          <td>${escapeHtml(p.unit || '')}</td>
+          <td style="text-align: center;">${escapeHtml(p.phone || '')}</td>
+          <td style="height: 28px;"></td>
+          <td style="text-align: center; font-size: 11px;">${escapeHtml(p[currentDay] || '')}</td>
+        </tr>
+      `).join('');
+
+      // เพิ่มบรรทัดว่าง 5 แถวท้ายตารางสำหรับ Walk-in หน้างาน
+      for (let i = 1; i <= 5; i++) {
+        rowsHtml += `
+          <tr>
+            <td style="text-align: center; height: 28px;">${participants.length + i}</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = rowsHtml;
+      window.print();
+    }
+
+    // =========================================================================
+    // 8. SETTINGS & UTILITIES
+    // =========================================================================
+    function openSettingsModal() {
+      document.getElementById('settings-api-url').value = API_URL;
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function saveApiSettings() {
+      API_URL = document.getElementById('settings-api-url').value.trim();
+      localStorage.setItem('ai_seminar_api_url', API_URL);
+      updateApiStatusBadge();
+      closeSettingsModal();
+      fetchParticipants(true);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-white',
+        info: 'bg-navy-700 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 ${colors[type]}`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>

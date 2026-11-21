@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seminar Portal - สัมมนา AI Chatbot ด้านงานจราจร</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554' },
+            maroon: { 700: '#881337', 800: '#6B0F2A' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .star-btn svg { transition: transform 0.15s ease, fill 0.15s ease, color 0.15s ease; }
+    .star-btn:active svg { transform: scale(1.25); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-10">
+
+  <!-- ==================== HERO HEADER ==================== -->
+  <header class="bg-gradient-to-br from-navy-800 via-navy-700 to-maroon-700 text-white pt-7 pb-12 px-4 shadow-md">
+    <div class="max-w-lg mx-auto text-center space-y-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/15 backdrop-blur-sm border border-white/20">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 30 พ.ย. – 2 ธ.ค. 2569
+      </span>
+      <h1 class="text-xl sm:text-2xl font-bold leading-snug">
+        โครงการสัมมนาเชิงปฏิบัติการ<br>AI Chatbot ด้านงานจราจร
+      </h1>
+      <p class="text-xs sm:text-sm text-blue-100">
+        ศูนย์รวมเอกสารประกอบการสัมมนา กำหนดการ และแบบประเมินผล
+      </p>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="max-w-lg mx-auto px-4 -mt-7 space-y-5">
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white p-1.5 rounded-2xl shadow-md border border-slate-200 grid grid-cols-2 gap-1.5">
+      <button onclick="switchTab('info')" id="tab-info" class="py-2.5 px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-navy-700 text-white shadow-sm transition">
+        <i data-lucide="folder-open" class="w-4 h-4"></i> เอกสาร & กำหนดการ
+      </button>
+      <button onclick="switchTab('eval')" id="tab-eval" class="py-2.5 px-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100 transition">
+        <i data-lucide="star" class="w-4 h-4"></i> แบบประเมินผล
+      </button>
+    </div>
+
+    <!-- ==================== TAB 1: เอกสาร & กำหนดการ ==================== -->
+    <section id="section-info" class="space-y-4">
+
+      <!-- Google Drive Card -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3">
+        <div class="flex items-start gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
+            <i data-lucide="hard-drive" class="w-6 h-6"></i>
+          </div>
+          <div class="flex-1">
+            <h2 class="font-bold text-slate-900 text-base">คลังเอกสารประกอบการสัมมนา</h2>
+            <p class="text-xs text-slate-500 mt-0.5">ดาวน์โหลดสไลด์วิทยากร คู่มือ โจทย์ Workshop และภาพบรรยากาศงานผ่าน Google Drive</p>
+          </div>
+        </div>
+        <a id="drive-link-btn" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
+          <i data-lucide="external-link" class="w-4 h-4"></i> เปิดคลังเอกสาร (Google Drive)
+        </a>
+      </div>
+
+      <!-- 3-Day Schedule Card -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-slate-900 text-base flex items-center gap-2">
+            <i data-lucide="calendar-days" class="w-5 h-5 text-maroon-700"></i> กำหนดการสัมมนา 3 วัน
+          </h2>
+        </div>
+
+        <!-- Day Pills -->
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+          <button onclick="showSchedule('day1')" id="sch-btn-day1" class="py-2 rounded-lg bg-white text-navy-700 shadow-sm font-semibold transition">30 พ.ย. 69</button>
+          <button onclick="showSchedule('day2')" id="sch-btn-day2" class="py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">1 ธ.ค. 69</button>
+          <button onclick="showSchedule('day3')" id="sch-btn-day3" class="py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">2 ธ.ค. 69</button>
+        </div>
+
+        <!-- Schedule Timeline -->
+        <div id="schedule-list" class="space-y-3 text-sm"></div>
+      </div>
+
+      <!-- Quick Prompt to Evaluate -->
+      <div class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-2xl p-4 text-white flex items-center justify-between gap-3 shadow-sm">
+        <div>
+          <p class="font-semibold text-sm">เข้าร่วมสัมมนาเรียบร้อยแล้ว?</p>
+          <p class="text-xs text-rose-100">ร่วมประเมินความพึงพอใจเพื่อนำไปพัฒนาโครงการ</p>
+        </div>
+        <button onclick="switchTab('eval')" class="px-4 py-2 rounded-xl bg-white text-maroon-800 text-xs font-bold shrink-0 hover:bg-rose-50 transition">
+          ทำแบบประเมิน
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: แบบประเมินความพึงพอใจ ==================== -->
+    <section id="section-eval" class="hidden space-y-4">
+
+      <!-- Evaluation Form Card -->
+      <form id="eval-form" onsubmit="submitEvaluation(event)" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-5">
+        <div class="border-b border-slate-100 pb-3">
+          <h2 class="font-bold text-slate-900 text-base">แบบประเมินความพึงพอใจงานสัมมนา</h2>
+          <p class="text-xs text-slate-500 mt-0.5">ระดับคะแนน: 1 = น้อยที่สุด, 5 = มากที่สุด</p>
+        </div>
+
+        <!-- Participant Selector -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-700">เลือกชื่อผู้เข้าร่วมสัมมนา <span class="text-rose-500">*</span></label>
+          <input
+            type="text"
+            id="participant-search"
+            oninput="filterParticipantOptions()"
+            placeholder="พิมพ์ชื่อเพื่อค้นหาเร็วขึ้น..."
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"
+          />
+          <select id="participant-select" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+            <option value="">-- กำลังโหลดรายชื่อ... --</option>
+          </select>
+        </div>
+
+        <!-- Star Rating Questions -->
+        <div id="rating-questions" class="space-y-4">
+          <!-- Injected by JS -->
+        </div>
+
+        <!-- Comment Box -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-700">ข้อเสนอแนะเพิ่มเติม / สิ่งที่อยากให้ปรับปรุงใน AI Chatbot</label>
+          <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะของท่านที่นี่ (ถ้ามี)..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="eval-submit-btn" class="w-full py-3.5 px-4 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition">
+          <i data-lucide="send" class="w-4 h-4"></i> ส่งแบบประเมินความพึงพอใจ
+        </button>
+      </form>
+
+      <!-- Thank You Screen (Hidden initially) -->
+      <div id="eval-success-card" class="hidden bg-white rounded-2xl p-8 shadow-sm border border-emerald-200 text-center space-y-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-9 h-9"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">ขอบคุณสำหรับการประเมิน!</h2>
+          <p class="text-sm text-slate-500 mt-1">ระบบได้บันทึกข้อมูลของท่านเรียบร้อยแล้ว</p>
+        </div>
+        <div id="eval-receipt" class="inline-block px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600"></div>
+        <div class="pt-2">
+          <button onclick="switchTab('info')" class="px-5 py-2.5 rounded-xl bg-navy-700 text-white text-sm font-medium hover:bg-navy-800 transition">
+            กลับไปหน้าเอกสารและกำหนดการ
+          </button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. ตั้งค่า URL ที่นี่ (วางลิงก์ /exec และลิงก์โฟลเดอร์ Google Drive)
+    // =========================================================================
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+const DEFAULT_DRIVE_URL = "https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I";
+
+    const API_URL = DEFAULT_API_URL || localStorage.getItem('ai_seminar_api_url') || "";
+    const DRIVE_URL = DEFAULT_DRIVE_URL !== "https://drive.google.com/"
+      ? DEFAULT_DRIVE_URL
+      : (localStorage.getItem('ai_seminar_drive_url') || "https://drive.google.com/");
+
+    // แก้ไขกำหนดการ 3 วันได้ที่นี่
+    const SCHEDULES = {
+      day1: [
+        { time: '08:30 - 09:00', title: 'ลงทะเบียนและรับเอกสารประกอบการสัมมนา' },
+        { time: '09:00 - 10:30', title: 'พิธีเปิด และบรรยายภาพรวมโครงการ AI Chatbot ด้านงานจราจร' },
+        { time: '10:45 - 12:00', title: 'สาธิตการทำงานและโครงสร้างฐานข้อมูล 5 กลุ่มหลัก' },
+        { time: '13:00 - 16:30', title: 'แบ่งกลุ่ม Workshop วิเคราะห์โจทย์การใช้งานจริงหน้างาน' }
+      ],
+      day2: [
+        { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 2' },
+        { time: '09:00 - 12:00', title: 'ทดสอบระบบ AI Chatbot (ภาคปฏิบัติ) และบันทึกข้อผิดพลาด' },
+        { time: '13:00 - 16:30', title: 'ปรับปรุงคำตอบและตรวจสอบความถูกต้องทางกฎหมายจราจร' }
+      ],
+      day3: [
+        { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 3' },
+        { time: '09:00 - 12:00', title: 'นำเสนอผลการทดสอบและข้อเสนอแนะจากแต่ละกลุ่ม' },
+        { time: '13:00 - 15:30', title: 'สรุปแนวทางการต่อยอด ทำแบบประเมิน และพิธีปิดการสัมมนา' }
+      ]
+    };
+
+    const RATING_FIELDS = [
+      { key: 'content', label: '1. เนื้อหาและประโยชน์ที่ได้รับจากการสัมมนา' },
+      { key: 'speaker', label: '2. ความรู้ความสามารถและการถ่ายทอดของวิทยากร' },
+      { key: 'venue',   label: '3. ความเหมาะสมของสถานที่ อาหาร และการอำนวยความสะดวก' },
+      { key: 'overall', label: '4. ความพึงพอใจในภาพรวมของการจัดสัมมนา' }
+    ];
+
+    const ratings = { content: 5, speaker: 5, venue: 5, overall: 5 };
+    let allParticipants = [];
+
+    // =========================================================================
+    // 2. INITIALIZATION
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('drive-link-btn').href = DRIVE_URL;
+      showSchedule('day1');
+      renderRatingQuestions();
+      loadParticipants();
+      lucide.createIcons();
+
+      // ถ้าเข้าผ่านลิงก์ ?tab=eval ให้เปิดหน้าแบบประเมินทันที
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'eval') switchTab('eval');
+    });
+
+    function switchTab(tab) {
+      const isInfo = tab === 'info';
+      document.getElementById('section-info').classList.toggle('hidden', !isInfo);
+      document.getElementById('section-eval').classList.toggle('hidden', isInfo);
+
+      const btnInfo = document.getElementById('tab-info');
+      const btnEval = document.getElementById('tab-eval');
+
+      if (isInfo) {
+        btnInfo.className = 'py-2.5 px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-navy-700 text-white shadow-sm transition';
+        btnEval.className = 'py-2.5 px-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100 transition';
+      } else {
+        btnEval.className = 'py-2.5 px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-maroon-700 text-white shadow-sm transition';
+        btnInfo.className = 'py-2.5 px-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 text-slate-600 hover:bg-slate-100 transition';
+      }
+    }
+
+    // =========================================================================
+    // 3. SCHEDULE RENDERING
+    // =========================================================================
+    function showSchedule(dayKey) {
+      ['day1', 'day2', 'day3'].forEach(k => {
+        const btn = document.getElementById(`sch-btn-${k}`);
+        btn.className = k === dayKey
+          ? 'py-2 rounded-lg bg-white text-navy-700 shadow-sm font-semibold transition'
+          : 'py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      });
+
+      const list = document.getElementById('schedule-list');
+      list.innerHTML = SCHEDULES[dayKey].map(item => `
+        <div class="flex gap-3 items-start">
+          <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-navy-700 font-mono text-xs font-semibold shrink-0">${item.time}</span>
+          <p class="text-slate-700 leading-snug pt-0.5">${item.title}</p>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 4. PARTICIPANT LIST & STAR RATINGS
+    // =========================================================================
+    async function loadParticipants() {
+      const select = document.getElementById('participant-select');
+      try {
+        if (!API_URL) {
+          allParticipants = [
+            { id: 'AI69-01', prefix: 'พ.ต.อ.', fullName: 'สมชาย ใจดี', unit: 'ผกก.กลุ่มงานวิจัย', evaluated: false },
+            { id: 'AI69-02', prefix: 'พ.ต.ท.', fullName: 'วิชัย รักชาติ', unit: 'รอง ผกก.จร.', evaluated: false },
+            { id: 'AI69-03', prefix: 'ร.ต.อ.', fullName: 'สมหญิง จริงใจ', unit: 'รอง สว.กลุ่มงานวิจัย', evaluated: false }
+          ];
+          renderParticipantOptions(allParticipants);
+          return;
+        }
+
+        const res = await fetch(`${API_URL}?action=getParticipants`);
+        const json = await res.json();
+        if (json.status === 'success') {
+          allParticipants = json.data || [];
+          renderParticipantOptions(allParticipants);
+        }
+      } catch (err) {
+        select.innerHTML = '<option value="ไม่ระบุ|ผู้เข้าร่วมทั่วไป">ผู้เข้าร่วมทั่วไป (ไม่ระบุชื่อ)</option>';
+      }
+    }
+
+    function renderParticipantOptions(list) {
+      const select = document.getElementById('participant-select');
+      const options = [
+        '<option value="">-- กรุณาเลือกชื่อของท่าน --</option>',
+        ...list.map(p => {
+          const name = `${p.prefix}${p.fullName}`;
+          const doneTag = p.evaluated ? ' (ประเมินแล้ว)' : '';
+          return `<option value="${escapeHtml(p.id)}|${escapeHtml(name)}">${escapeHtml(p.id)} - ${escapeHtml(name)}${doneTag}</option>`;
+        }),
+        '<option value="ไม่ระบุ|ผู้เข้าร่วมทั่วไป">ผู้เข้าร่วมทั่วไป / ไม่พบรายชื่อ</option>'
+      ];
+      select.innerHTML = options.join('');
+    }
+
+    function filterParticipantOptions() {
+      const q = document.getElementById('participant-search').value.trim().toLowerCase();
+      const filtered = allParticipants.filter(p =>
+        `${p.id} ${p.prefix}${p.fullName} ${p.unit}`.toLowerCase().includes(q)
+      );
+      renderParticipantOptions(filtered);
+    }
+
+    function renderRatingQuestions() {
+      const container = document.getElementById('rating-questions');
+      container.innerHTML = RATING_FIELDS.map(f => `
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs sm:text-sm font-medium text-slate-800">${f.label}</label>
+            <span id="score-text-${f.key}" class="text-xs font-bold text-amber-600 shrink-0">${ratings[f.key]}/5</span>
+          </div>
+          <div class="flex items-center gap-2">
+            ${[1, 2, 3, 4, 5].map(num => `
+              <button type="button" onclick="setRating('${f.key}', ${num})" class="star-btn p-1 focus:outline-none" aria-label="${num} ดาว">
+                <svg id="star-${f.key}-${num}" class="w-8 h-8 ${num <= ratings[f.key] ? 'text-amber-400 fill-amber-400' : 'text-slate-300 fill-transparent'}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setRating(key, value) {
+      ratings[key] = value;
+      document.getElementById(`score-text-${key}`).textContent = `${value}/5`;
+      for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById(`star-${key}-${i}`);
+        if (i <= value) {
+          star.classList.add('text-amber-400', 'fill-amber-400');
+          star.classList.remove('text-slate-300', 'fill-transparent');
+        } else {
+          star.classList.remove('text-amber-400', 'fill-amber-400');
+          star.classList.add('text-slate-300', 'fill-transparent');
+        }
+      }
+    }
+
+    // =========================================================================
+    // 5. SUBMIT EVALUATION
+    // =========================================================================
+    async function submitEvaluation(e) {
+      e.preventDefault();
+      const selectedVal = document.getElementById('participant-select').value;
+      if (!selectedVal) {
+        alert('กรุณาเลือกชื่อผู้เข้าร่วมสัมมนาก่อนส่งแบบประเมิน');
+        return;
+      }
+
+      const [id, fullName] = selectedVal.split('|');
+      const btn = document.getElementById('eval-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = 'กำลังส่งข้อมูล...';
+
+      const payload = {
+        action: 'submitEvaluation',
+        id: id,
+        fullName: fullName,
+        content: ratings.content,
+        speaker: ratings.speaker,
+        venue: ratings.venue,
+        overall: ratings.overall,
+        comment: document.getElementById('eval-comment').value.trim()
+      };
+
+      try {
+        if (API_URL) {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (json.status !== 'success') throw new Error(json.message);
+        }
+
+        document.getElementById('eval-form').classList.add('hidden');
+        document.getElementById('eval-success-card').classList.remove('hidden');
+        document.getElementById('eval-receipt').textContent = `ผู้ประเมิน: ${fullName} (${id})`;
+        lucide.createIcons();
+      } catch (err) {
+        alert('ส่งแบบประเมินไม่สำเร็จ: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> ส่งแบบประเมินความพึงพอใจ';
+        lucide.createIcons();
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
