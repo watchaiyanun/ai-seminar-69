@@ -447,7 +447,7 @@
       'pending-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false }
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initMonitorApp() {
       if (window.lucide) lucide.createIcons();
       startThaiClock();
       initScrollHoverPause();
@@ -465,7 +465,13 @@
           closeTickerModal();
         }
       });
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMonitorApp);
+    } else {
+      initMonitorApp();
+    }
 
     // ==================== นาฬิกาเวลาไทย REAL-TIME ====================
     function startThaiClock() {
