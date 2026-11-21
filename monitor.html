@@ -39,6 +39,8 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode.js สำหรับโหมดโชว์ QR แชทบอท AI กลางจอใหญ่ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     /* พื้นหลังโทนขาวสะอาด กลมกลืนกับหน้า Dashboard และ Portal */
@@ -81,6 +83,20 @@
       border-radius: 999px;
       border: 2px solid #F3D478;
       animation: pulseRing 1.8s infinite;
+    }
+
+    /* แถบข่าววิ่งประชาสัมพันธ์แบบสถานีข่าว */
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: inline-flex;
+      white-space: nowrap;
+      animation: tickerMove 28s linear infinite;
+    }
+    .ticker-track:hover {
+      animation-play-state: paused;
     }
   </style>
 </head>
@@ -143,6 +159,18 @@
 
         <!-- ปุ่มควบคุม -->
         <div class="flex items-center gap-1.5">
+          <button onclick="openCountdownModal()" id="btn-countdown" title="ตั้งเวลานับถอยหลังเริ่มประชุม / พักเบรก" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
+            <i data-lucide="timer" class="w-4 h-4 text-police-goldLight"></i>
+            <span id="countdown-header-text" class="hidden xl:inline">นับถอยหลัง</span>
+          </button>
+          <button onclick="openTickerModal()" title="แก้ไขข้อความประกาศข่าววิ่งด้านล่าง" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
+            <i data-lucide="megaphone" class="w-4 h-4 text-amber-300"></i>
+            <span class="hidden 2xl:inline">ประกาศวิ่ง</span>
+          </button>
+          <button onclick="openAiQrSpotlight()" title="โชว์ QR Code แชทบอทตำรวจคู่หูจราจร AI เต็มจอ" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-police-navy hover:bg-blue-900 border border-blue-400/50 text-xs font-semibold text-white transition">
+            <i data-lucide="qr-code" class="w-4 h-4 text-police-goldLight"></i>
+            <span class="hidden 2xl:inline">QR คู่หู AI</span>
+          </button>
           <button onclick="toggleAutoScroll()" id="btn-autoscroll" title="เปิด/ปิด เลื่อนรายชื่ออัตโนมัติบนจอทีวี" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
             <i data-lucide="scroll-text" class="w-4 h-4"></i>
             <span id="autoscroll-label" class="hidden xl:inline">เลื่อนอัตโนมัติ: ปิด</span>
@@ -157,6 +185,20 @@
       </div>
     </div>
   </header>
+
+  <!-- ==================== FLOATING COUNTDOWN BAR (แสดงเมื่อเปิดนับถอยหลัง) ==================== -->
+  <div id="countdown-banner" class="hidden bg-gradient-to-r from-police-navyDark via-police-navy to-police-maroonDark text-white border-b-2 border-police-gold px-4 py-2.5 shadow-md">
+    <div class="max-w-[1680px] mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-0.5 rounded-full bg-police-gold text-police-maroonDark text-xs font-extrabold uppercase tracking-wider animate-pulse">Countdown</span>
+        <span id="countdown-title-display" class="text-sm sm:text-base font-bold">เริ่มการสัมมนาในอีก</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="countdown-clock-display" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-goldLight tracking-wider">10:00</span>
+        <button onclick="stopCountdown()" class="px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-semibold border border-white/20">หยุด / ปิด</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ==================== MAIN BROADCAST BODY (WHITE THEME) ==================== -->
   <main class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 flex-1 flex flex-col">
@@ -263,14 +305,98 @@
     </section>
   </main>
 
+  <!-- ==================== LIVE NEWS TICKER (แถบประกาศข่าววิ่งประชาสัมพันธ์) ==================== -->
+  <div class="bg-police-navyDark text-white border-t-2 border-police-gold flex items-center overflow-hidden">
+    <div class="bg-police-maroon px-4 py-2 text-xs sm:text-sm font-bold text-police-goldLight flex items-center gap-1.5 shrink-0 z-10 shadow-md">
+      <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i> ประกาศหน้างาน
+    </div>
+    <div class="flex-1 overflow-hidden py-2">
+      <div id="live-ticker-track" class="ticker-track text-xs sm:text-sm font-medium text-blue-50"></div>
+    </div>
+  </div>
+
   <!-- ==================== FOOTER STATUS BAR ==================== -->
-  <footer class="px-6 py-2.5 text-xs text-slate-500 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-white">
+  <footer class="px-6 py-2 text-xs text-slate-500 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-white">
     <span>สำนักงานตำรวจแห่งชาติ • ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี (30 พ.ย. – 2 ธ.ค. 2569)</span>
     <span id="last-sync-text" class="font-mono font-semibold text-police-navy">กำลังเชื่อมต่อข้อมูล...</span>
   </footer>
 
+  <!-- ==================== MODAL: ตั้งเวลานับถอยหลัง ==================== -->
+  <div id="countdown-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="px-5 py-4 bg-gradient-to-r from-police-maroonDark to-police-navyDark text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="timer" class="w-5 h-5 text-police-goldLight"></i>
+          <h3 class="font-bold text-base">ตั้งเวลานับถอยหลังบนจอใหญ่</h3>
+        </div>
+        <button onclick="closeCountdownModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ข้อความหัวข้อ</label>
+          <input type="text" id="cd-title-input" value="เริ่มการสัมมนาในอีก" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-navy focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">เลือกเวลาด่วน (นาที)</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button type="button" onclick="startCountdown(5)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-sm transition">5 นาที</button>
+            <button type="button" onclick="startCountdown(10)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-sm transition">10 นาที</button>
+            <button type="button" onclick="startCountdown(15)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-sm transition">15 นาที</button>
+            <button type="button" onclick="startCountdown(30)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-sm transition">30 นาที</button>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2 border-t border-slate-100">
+          <input type="number" id="cd-custom-min" min="1" max="180" value="15" class="w-24 px-3 py-2 rounded-xl border border-slate-300 text-sm text-center font-mono font-bold" />
+          <button type="button" onclick="startCountdown(parseInt(document.getElementById('cd-custom-min').value, 10) || 10)" class="flex-1 py-2.5 rounded-xl bg-police-maroon hover:bg-police-maroonDark text-white text-sm font-bold transition">เริ่มนับถอยหลัง</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: แก้ไขข้อความประกาศข่าววิ่ง ==================== -->
+  <div id="ticker-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="px-5 py-4 bg-gradient-to-r from-police-navyDark to-police-maroonDark text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="megaphone" class="w-5 h-5 text-police-goldLight"></i>
+          <h3 class="font-bold text-base">แก้ไขข้อความประกาศข่าววิ่งหน้างาน</h3>
+        </div>
+        <button onclick="closeTickerModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-500">คั่นแต่ละข้อความด้วยเครื่องหมาย <code class="px-1.5 py-0.5 rounded bg-slate-100 font-bold">•</code> ข้อความจะวิ่งแสดงผลด้านล่างจอทันที</p>
+        <textarea id="ticker-input" rows="4" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-navy focus:outline-none"></textarea>
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeTickerModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium">ยกเลิก</button>
+          <button type="button" onclick="saveTickerMessage()" class="px-5 py-2 rounded-xl bg-police-navy hover:bg-police-navyDark text-white text-sm font-bold">อัปเดตประกาศทันที</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SPOTLIGHT QR แชทบอทตำรวจคู่หูจราจร AI ==================== -->
+  <div id="ai-qr-modal" onclick="closeAiQrSpotlight()" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden border-4 border-police-gold text-center">
+      <div class="px-6 py-5 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark text-white">
+        <p class="text-xs font-bold tracking-widest uppercase text-police-goldLight">ROYAL THAI POLICE • AI ASSISTANT</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">👮‍♂️ คู่หูจราจร AI</h2>
+        <p class="text-sm text-blue-100 mt-1">สแกน QR Code เพื่อเข้าใช้งานแชทบอทตำรวจคู่หูจราจรได้ทันที</p>
+      </div>
+      <div class="p-8 flex flex-col items-center space-y-4 bg-slate-50">
+        <div id="spotlight-ai-qr" class="p-4 bg-white rounded-3xl border-2 border-police-navy/20 shadow-lg"></div>
+        <div>
+          <p class="font-mono text-lg font-extrabold text-police-navy">https://pinai-fine.police.go.th/</p>
+          <p class="text-xs text-slate-500 mt-1">สอบถามข้อมูลและค้นหาแนวทางการปฏิบัติงานด้านการจราจร</p>
+        </div>
+        <button type="button" onclick="closeAiQrSpotlight()" class="px-6 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-bold transition">ปิดหน้าต่าง (Esc)</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
+    const DEFAULT_TICKER_MSG = "ยินดีต้อนรับผู้เข้าร่วมโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร) • สแกน QR Code บนป้ายคล้องคอเพื่อเปิดเอกสารสัมมนา ตรวจสอบห้องพัก และทำแบบประเมิน • ทดลองใช้งานแชทบอทตำรวจคู่หูจราจรได้ที่ https://pinai-fine.police.go.th/";
     const DAY_CONFIG = {
       day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
       day2: { label: '1 ธ.ค. 69',  full: 'วันอังคารที่ 1 ธันวาคม 2569' },
@@ -279,6 +405,7 @@
     const UNIT_ORDER = ['บช.น.', 'บช.ก.', 'ภ.1', 'ภ.2', 'ภ.6', 'ภ.7', 'กมค.', 'สงป.', 'สทส.', 'สยศ.ตร.', 'หน่วยงานภายนอก'];
 
     function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
     let API_URL = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let currentDay = detectDefaultDay();
@@ -286,15 +413,8 @@
     let isFirstLoad = true;
     let autoScrollEnabled = false;
     let autoScrollTimer = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
-      startThaiClock();
-      selectDay(currentDay, false);
-      fetchLiveStatus();
-      // อัปเดตข้อมูลหน้าจอห้องสัมมนาอัตโนมัติทุก 8 วินาที
-      setInterval(fetchLiveStatus, 8000);
-    });
+    let countdownTimer = null;
+    let countdownRemainingSec = 0;
 
     function detectDefaultDay() {
       const now = new Date();
@@ -303,6 +423,40 @@
       if (m === 12 && d === 1) return 'day2';
       if (m === 12 && d === 2) return 'day3';
       return 'day1';
+    }
+
+    // สถานะการเลื่อนแยกอิสระซ้าย-ขวา (แก้ปัญหาค้างที่ด้านล่างและรองรับหยุดเมื่อเอาเมาส์ชี้)
+    const scrollState = {
+      'checked-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false },
+      'pending-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      startThaiClock();
+      initScrollHoverPause();
+      renderLiveTicker();
+      selectDay(currentDay, false);
+      fetchLiveStatus();
+      // อัปเดตข้อมูลหน้าจอห้องสัมมนาอัตโนมัติทุก 8 วินาที
+      setInterval(fetchLiveStatus, 8000);
+      // กด Esc เพื่อปิดป๊อปอัป
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeAiQrSpotlight();
+          closeCountdownModal();
+          closeTickerModal();
+        }
+      });
+    });
+
+    function initScrollHoverPause() {
+      Object.keys(scrollState).forEach(id => {
+        const box = document.getElementById(id);
+        if (!box) return;
+        box.addEventListener('mouseenter', () => { scrollState[id].hovered = true; });
+        box.addEventListener('mouseleave', () => { scrollState[id].hovered = false; });
+      });
     }
 
     // นาฬิกาเวลาประเทศไทยแบบ Real-time
@@ -390,51 +544,40 @@
         isFirstLoad = false;
 
         renderBoard();
-        const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
-        document.getElementById('last-sync-text').textContent = `อัปเดตล่าสุด ${nowStr} น.`;
+
+        const syncTime = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+        const syncEl = document.getElementById('last-sync-text');
+        if (syncEl) syncEl.textContent = `อัปเดตล่าสุด ${syncTime} น. (เชื่อมต่อ Google Sheets)`;
       } catch (err) {
-        document.getElementById('last-sync-text').textContent = `รอเชื่อมต่อสัญญาณ... (${err.message})`;
+        console.error('fetchLiveStatus error:', err);
+        const syncEl = document.getElementById('last-sync-text');
+        if (syncEl) syncEl.textContent = `เชื่อมต่อข้อมูลไม่สำเร็จ (${err.message})`;
       }
     }
 
-    function showVipWelcome(p) {
-      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
-      const displayName = isSub ? p.substituteName : p.fullName;
-      const unitInfo = isSub
-        ? `ผู้แทน ${p.fullName} • ${p.unitDetail || p.mainUnit}`
-        : `${p.position ? p.position + ' • ' : ''}${p.unitDetail || p.mainUnit}`;
-
-      document.getElementById('vip-name').textContent = displayName;
-      document.getElementById('vip-unit').textContent = unitInfo;
-      document.getElementById('vip-time').textContent = `เช็กอินเวลา ${p[currentDay]} น.`;
-
-      const banner = document.getElementById('vip-welcome-banner');
-      banner.classList.remove('hidden', 'welcome-animate');
-      void banner.offsetWidth;
-      banner.classList.add('welcome-animate');
-      setTimeout(() => banner.classList.add('hidden'), 5300);
-    }
-
+    // แสดงผลตัวเลขสถิติ แถบความคืบหน้า และรายชื่อแยกซ้าย-ขวา
     function renderBoard() {
       const total = participants.length;
       const checkedList = participants
         .filter(p => isCheckedIn(p))
-        .sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
+        .sort((a, b) => String(b[currentDay] || '').localeCompare(String(a[currentDay] || '')));
       const pendingList = participants
         .filter(p => !isCheckedIn(p))
         .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
 
-      const pct = total > 0 ? Math.round((checkedList.length / total) * 100) : 0;
+      const checkedCount = checkedList.length;
+      const pendingCount = pendingList.length;
+      const percent = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
 
-      document.getElementById('stat-checked').textContent = checkedList.length;
-      document.getElementById('stat-pending').textContent = pendingList.length;
+      document.getElementById('stat-checked').textContent = checkedCount;
+      document.getElementById('stat-pending').textContent = pendingCount;
       document.getElementById('stat-total').textContent = total;
-      document.getElementById('stat-percent').textContent = `${pct}%`;
-      document.getElementById('stat-progress-bar').style.width = `${pct}%`;
-      document.getElementById('left-count-badge').textContent = `${checkedList.length} ราย`;
-      document.getElementById('right-count-badge').textContent = `${pendingList.length} ราย`;
+      document.getElementById('stat-percent').textContent = `${percent}%`;
+      document.getElementById('stat-progress-bar').style.width = `${percent}%`;
+      document.getElementById('left-count-badge').textContent = `${checkedCount} ราย`;
+      document.getElementById('right-count-badge').textContent = `${pendingCount} ราย`;
 
-      // ป้ายสรุปย่อรายหน่วยหลัก
+      // สรุปย่อรายหน่วยหลัก
       const unitMap = {};
       participants.forEach(p => {
         const u = p.mainUnit || 'อื่นๆ';
@@ -442,74 +585,97 @@
         unitMap[u].total++;
         if (isCheckedIn(p)) unitMap[u].checked++;
       });
-      const unitKeys = Object.keys(unitMap).sort((a, b) => (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) - (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b)));
+      const unitKeys = Object.keys(unitMap).sort((a, b) =>
+        (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) -
+        (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b))
+      );
       document.getElementById('unit-pills').innerHTML = unitKeys.map(u => {
-        const item = unitMap[u];
-        const allIn = item.checked === item.total && item.total > 0;
+        const st = unitMap[u];
+        const doneAll = st.total > 0 && st.checked === st.total;
         return `
-          <span class="shrink-0 px-2.5 py-1 rounded-lg border font-medium ${allIn ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'}">
-            ${escapeHtml(u)} <strong class="font-mono ${allIn ? 'text-emerald-700' : 'text-police-navy'}">${item.checked}/${item.total}</strong>
+          <span class="px-2.5 py-1 rounded-full border shrink-0 font-medium ${doneAll ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-700'}">
+            ${escapeHtml(u)} <strong class="font-mono ${doneAll ? 'text-emerald-700' : 'text-police-navy'}">${st.checked}/${st.total}</strong>
           </span>
         `;
       }).join('');
 
-      // ฝั่งซ้าย: เข้าร่วมแล้ว (การ์ดสีขาวขอบเขียว/ทอง อ่านง่ายชัดเจน)
+      // การ์ดฝั่งซ้าย (เข้าร่วมแล้ว)
       const checkedGrid = document.getElementById('checked-grid');
       if (checkedList.length === 0) {
-        checkedGrid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 text-base">ยังไม่มีผู้รายงานตัวเข้าร่วมสัมมนาในวันนี้</div>`;
+        checkedGrid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้รายงานตัวในวันนี้</div>`;
       } else {
-        checkedGrid.innerHTML = checkedList.map((p, idx) => {
+        checkedGrid.innerHTML = checkedList.map(p => {
           const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
-          const name = isSub ? p.substituteName : p.fullName;
-          const isLatest = idx === 0;
+          const showName = isSub ? p.substituteName : p.fullName;
+          const showPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || '');
           return `
-            <div class="p-3.5 rounded-2xl border transition-all shadow-sm ${isLatest ? 'bg-emerald-50/90 border-2 border-police-gold ring-2 ring-police-gold/25' : 'bg-white border-emerald-200/80'} flex items-center justify-between gap-3">
+            <div class="bg-white rounded-xl p-3 border border-emerald-200 shadow-sm flex items-start justify-between gap-2">
               <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 mb-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">${escapeHtml(p.id)}</span>
-                  <span class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium truncate">${escapeHtml(p.mainUnit)}</span>
-                  ${isLatest ? '<span class="text-[10px] px-2 py-0.5 rounded bg-police-gold text-police-maroonDark font-bold">ล่าสุด</span>' : ''}
+                  <span class="text-[11px] font-semibold text-police-navy truncate">${escapeHtml(p.mainUnit)}</span>
+                  ${isSub ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">ผู้แทน</span>` : ''}
                 </div>
-                <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">${escapeHtml(name)}</h3>
-                <p class="text-xs text-slate-500 truncate mt-0.5">${isSub ? `ผู้แทน: ${escapeHtml(p.fullName)}` : escapeHtml(p.unitDetail || p.position)}</p>
+                <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate mt-1">${escapeHtml(showName)}</h3>
+                <p class="text-xs text-slate-500 truncate">${escapeHtml(showPos || p.unitDetail)}</p>
+                ${isSub ? `<p class="text-[11px] text-purple-700 truncate">มาแทน: ${escapeHtml(p.fullName)}</p>` : ''}
               </div>
-              <div class="text-right shrink-0">
-                <span class="inline-block px-2.5 py-1 rounded-xl bg-emerald-100 border border-emerald-300 font-mono text-xs sm:text-sm font-bold text-emerald-800">
-                  ${escapeHtml(p[currentDay])} น.
-                </span>
+              <div class="shrink-0 text-right">
+                <span class="inline-block px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-xs font-bold text-emerald-700">${escapeHtml(p[currentDay])} น.</span>
               </div>
             </div>
           `;
         }).join('');
       }
 
-      // ฝั่งขวา: ยังไม่เข้าร่วม (การ์ดสีขาวขอบเทา-เลือดหมู)
+      // การ์ดฝั่งขวา (ยังไม่เข้าร่วม)
       const pendingGrid = document.getElementById('pending-grid');
       if (pendingList.length === 0) {
-        pendingGrid.innerHTML = `<div class="col-span-full py-20 text-center text-emerald-700 text-lg font-bold">ผู้เข้าร่วมสัมมนารายงานตัวครบทุกท่านแล้ว</div>`;
+        pendingGrid.innerHTML = `<div class="col-span-full py-16 text-center text-emerald-700 font-bold text-base">ผู้เข้าร่วมรายงานตัวครบทุกท่านแล้ว!</div>`;
       } else {
         pendingGrid.innerHTML = pendingList.map(p => {
           const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
-          const name = isSub ? p.substituteName : p.fullName;
+          const showName = isSub ? p.substituteName : p.fullName;
+          const showPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || '');
           return `
-            <div class="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+            <div class="bg-white rounded-xl p-3 border border-rose-200/80 shadow-sm flex items-start justify-between gap-2">
               <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 mb-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-rose-100 text-police-maroonDark">${escapeHtml(p.id)}</span>
-                  <span class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium truncate">${escapeHtml(p.mainUnit)}</span>
-                  ${isSub ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 font-semibold">ผู้แทน</span>' : ''}
+                  <span class="text-[11px] font-semibold text-slate-600 truncate">${escapeHtml(p.mainUnit)}</span>
+                  ${isSub ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">ผู้แทน</span>` : ''}
                 </div>
-                <h3 class="font-semibold text-sm sm:text-base text-slate-900 truncate">${escapeHtml(name)}</h3>
-                <p class="text-xs text-slate-500 truncate mt-0.5">${isSub ? `มาแทน: ${escapeHtml(p.fullName)}` : escapeHtml(p.unitDetail || p.position)}</p>
+                <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate mt-1">${escapeHtml(showName)}</h3>
+                <p class="text-xs text-slate-500 truncate">${escapeHtml(showPos || p.unitDetail)}</p>
+                ${isSub ? `<p class="text-[11px] text-purple-700 truncate">มาแทน: ${escapeHtml(p.fullName)}</p>` : ''}
               </div>
-              <span class="shrink-0 px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-police-maroon">รอเช็กอิน</span>
+              <div class="shrink-0">
+                <span class="inline-block px-2 py-0.5 rounded-full bg-rose-50 text-police-maroon text-[11px] font-semibold border border-rose-200">รอเช็กอิน</span>
+              </div>
             </div>
           `;
         }).join('');
       }
     }
 
-    // โหมดเลื่อนรายชื่ออัตโนมัติ (เหมาะสำหรับเปิดทิ้งไว้บนจอทีวีห้องสัมมนา)
+    // ป๊อปอัปต้อนรับ VIP เมื่อมีผู้สแกนเช็กอินใหม่เข้ามา
+    function showVipWelcome(p) {
+      if (!p) return;
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+      document.getElementById('vip-name').textContent = isSub ? p.substituteName : p.fullName;
+      document.getElementById('vip-unit').textContent = isSub
+        ? `ผู้แทน ${p.fullName} • ${p.unitDetail || p.mainUnit}`
+        : `${p.position ? p.position + ' • ' : ''}${p.unitDetail || p.mainUnit}`;
+      document.getElementById('vip-time').textContent = p[currentDay] ? `เวลา ${p[currentDay]} น.` : '';
+
+      const banner = document.getElementById('vip-welcome-banner');
+      banner.classList.remove('hidden', 'welcome-animate');
+      void banner.offsetWidth; // รีเซ็ตแอนิเมชัน
+      banner.classList.add('welcome-animate');
+      setTimeout(() => banner.classList.add('hidden'), 5300);
+    }
+
+    // โหมดเลื่อนรายชื่ออัตโนมัติแบบวนลูปสมบูรณ์ (หยุดพัก 2.5 วิ เมื่อถึงล่างสุด แล้วค่อยๆ วนขึ้นบนสุดอย่างนุ่มนวล)
     function toggleAutoScroll() {
       autoScrollEnabled = !autoScrollEnabled;
       const label = document.getElementById('autoscroll-label');
@@ -518,23 +684,145 @@
       if (autoScrollEnabled) {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: เปิด';
         btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-police-gold text-police-maroonDark border border-police-goldLight text-xs font-bold transition';
+
+        // รีเซ็ตสถานะเริ่มต้นของทั้ง 2 ฝั่ง
+        Object.keys(scrollState).forEach(id => {
+          scrollState[id].phase = 'scrolling';
+          scrollState[id].pauseUntil = 0;
+        });
+
+        if (autoScrollTimer) clearInterval(autoScrollTimer);
         autoScrollTimer = setInterval(() => {
-          ['checked-scroll-box', 'pending-scroll-box'].forEach(id => {
+          const now = Date.now();
+          Object.keys(scrollState).forEach(id => {
             const box = document.getElementById(id);
-            if (!box || box.scrollHeight <= box.clientHeight) return;
-            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 4) {
-              box.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-              box.scrollTop += 1;
+            const st = scrollState[id];
+            if (!box || st.hovered || now < st.pauseUntil) return;
+
+            const maxScroll = box.scrollHeight - box.clientHeight;
+            if (maxScroll <= 4) return;
+
+            if (st.phase === 'scrolling') {
+              if (box.scrollTop >= maxScroll - 2) {
+                // ถึงรายชื่อล่างสุดแล้ว -> หยุดค้างให้อ่าน 2.5 วินาที ก่อนวนกลับขึ้นบนสุด
+                st.phase = 'resetting';
+                st.pauseUntil = now + 2500;
+              } else {
+                box.scrollTop += 1;
+              }
+            } else if (st.phase === 'resetting') {
+              // เลื่อนกลับขึ้นบนสุดด้วยความเร็วแบบชะลอตัว (ไม่ตีกับ smooth scroll ของเบราว์เซอร์)
+              const step = Math.max(12, Math.ceil(box.scrollTop * 0.14));
+              box.scrollTop = Math.max(0, box.scrollTop - step);
+              if (box.scrollTop <= 1) {
+                box.scrollTop = 0;
+                st.phase = 'scrolling';
+                // หยุดค้างด้านบน 2 วินาที แล้วเริ่มเลื่อนลงรอบใหม่
+                st.pauseUntil = now + 2000;
+              }
             }
           });
-        }, 45);
+        }, 38);
       } else {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: ปิด';
         btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition';
         if (autoScrollTimer) { clearInterval(autoScrollTimer); autoScrollTimer = null; }
       }
     }
+
+    // ==================== COUNTDOWN TIMER ====================
+    function openCountdownModal() {
+      document.getElementById('countdown-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeCountdownModal() { document.getElementById('countdown-modal').classList.add('hidden'); }
+
+    function startCountdown(minutes) {
+      closeCountdownModal();
+      const title = document.getElementById('cd-title-input').value.trim() || 'เริ่มการสัมมนาในอีก';
+      document.getElementById('countdown-title-display').textContent = title;
+      countdownRemainingSec = Math.max(1, minutes) * 60;
+      document.getElementById('countdown-banner').classList.remove('hidden');
+
+      if (countdownTimer) clearInterval(countdownTimer);
+      updateCountdownDisplay();
+      countdownTimer = setInterval(() => {
+        countdownRemainingSec--;
+        updateCountdownDisplay();
+        if (countdownRemainingSec <= 0) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          document.getElementById('countdown-title-display').textContent = `⏰ ครบกำหนดเวลาแล้ว (${title})`;
+          playChimeSound();
+        }
+      }, 1000);
+    }
+
+    function updateCountdownDisplay() {
+      const m = Math.floor(Math.max(0, countdownRemainingSec) / 60);
+      const s = Math.max(0, countdownRemainingSec) % 60;
+      const text = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      document.getElementById('countdown-clock-display').textContent = text;
+      const headerTxt = document.getElementById('countdown-header-text');
+      if (headerTxt) headerTxt.textContent = countdownRemainingSec > 0 ? text : 'นับถอยหลัง';
+    }
+
+    function stopCountdown() {
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+      countdownRemainingSec = 0;
+      document.getElementById('countdown-banner').classList.add('hidden');
+      const headerTxt = document.getElementById('countdown-header-text');
+      if (headerTxt) headerTxt.textContent = 'นับถอยหลัง';
+    }
+
+    function playChimeSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [523.25, 659.25, 783.99].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.14, ctx.currentTime + i * 0.22);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.22 + 0.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.22);
+          osc.stop(ctx.currentTime + i * 0.22 + 0.55);
+        });
+      } catch (e) {}
+    }
+
+    // ==================== LIVE NEWS TICKER ====================
+    function renderLiveTicker() {
+      const msg = safeStorageGet('ai_seminar_ticker') || DEFAULT_TICKER_MSG;
+      const chunk = `<span class="px-8">${escapeHtml(msg)}</span><span class="text-police-gold">✦</span>`;
+      document.getElementById('live-ticker-track').innerHTML = chunk + chunk + chunk + chunk;
+    }
+
+    function openTickerModal() {
+      document.getElementById('ticker-input').value = safeStorageGet('ai_seminar_ticker') || DEFAULT_TICKER_MSG;
+      document.getElementById('ticker-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeTickerModal() { document.getElementById('ticker-modal').classList.add('hidden'); }
+    function saveTickerMessage() {
+      const val = document.getElementById('ticker-input').value.trim();
+      safeStorageSet('ai_seminar_ticker', val || DEFAULT_TICKER_MSG);
+      renderLiveTicker();
+      closeTickerModal();
+    }
+
+    // ==================== AI CHATBOT QR SPOTLIGHT ====================
+    function openAiQrSpotlight() {
+      const box = document.getElementById('spotlight-ai-qr');
+      box.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(box, { text: AI_CHATBOT_URL, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+      }
+      document.getElementById('ai-qr-modal').classList.remove('hidden');
+    }
+    function closeAiQrSpotlight() { document.getElementById('ai-qr-modal').classList.add('hidden'); }
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
