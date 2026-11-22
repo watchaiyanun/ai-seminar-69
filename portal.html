@@ -71,7 +71,6 @@
         0 8px 18px -8px rgba(30, 58, 138, 0.28),
         0 0 0 1px rgba(212, 175, 55, 0.48);
     }
-    /* ล็อกสัดส่วนบัตรเครดิตมาตรฐาน ISO (1.586 : 1) ให้ดูเพรียวสมส่วนทุกขนาดจอ */
     .cc-card-ratio {
       min-height: 214px;
     }
@@ -81,7 +80,6 @@
         min-height: 248px;
       }
     }
-    /* ป้องกันด้านหน้าที่ถูกซ่อนมาบังการแตะบนมือถือ ทำให้กดขยาย QR ด้านหลังติดง่ายทุกจุด */
     .cc-front {
       pointer-events: auto;
     }
@@ -99,7 +97,6 @@
       pointer-events: none;
     }
 
-    /* พื้นผิวโลหะเมทัลลิกโทนตำรวจ (กรมท่า-เลือดหมู-ทอง) */
     .cc-front-bg {
       background:
         radial-gradient(circle at 88% 12%, rgba(159, 18, 57, 0.72) 0%, transparent 46%),
@@ -124,7 +121,6 @@
       );
     }
 
-    /* ลายน้ำเส้นละเอียดและจุดนิรภัยบนพื้นบัตร */
     .cc-watermark-pattern {
       background-image:
         repeating-linear-gradient(
@@ -138,7 +134,6 @@
       background-size: auto, 18px 18px;
     }
 
-    /* แสงเงาเมทัลลิกวิ่งสะท้อนผ่านหน้าบัตรอัตโนมัติ */
     @keyframes cardGlossSweep {
       0% { transform: translateX(-140%) skewX(-24deg); opacity: 0; }
       18% { opacity: 0.75; }
@@ -161,7 +156,6 @@
       pointer-events: none;
     }
 
-    /* ตราโฮโลแกรมสีรุ้งเมทัลลิกมุมบัตร */
     @keyframes holoShimmer {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -179,7 +173,6 @@
       border: 1px solid rgba(255, 255, 255, 0.16);
     }
 
-    /* เอฟเฟกต์ตราประทับสด Live Check-in Stamp & Pulse (แยก 3 วัน) */
     @keyframes emeraldPulseRing {
       0% { transform: scale(0.85); opacity: 0.9; }
       70% { transform: scale(1.9); opacity: 0; }
@@ -253,7 +246,7 @@
       <p class="text-xs sm:text-sm text-slate-500 font-medium">กำลังโหลดข้อมูลบัตรประจำตัว...</p>
     </div>
 
-    <!-- กล่องค้นหาชื่อ (แสดงกรณีเปิดหน้า portal.html ตรงๆ โดยไม่ได้สแกน QR ประจำตัว) -->
+    <!-- กล่องค้นหาชื่อ (แสดงกรณีเปิดหน้า portal.html ตรงๆ) -->
     <section id="lookup-section" class="hidden bg-white rounded-3xl p-5 shadow-md border border-slate-200 space-y-3">
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-navy-700/10 text-navy-700 flex items-center justify-center shrink-0">
@@ -274,24 +267,22 @@
     <!-- ==================== 3D FLIPPABLE CREDIT-CARD E-PASS ==================== -->
     <section id="personal-card" class="hidden space-y-3.5">
 
-      <!-- ตัวบัตรเครดิต 3 มิติ (แตะเพื่อพลิกด้านหน้า / ด้านหลัง) -->
+      <!-- ตัวบัตรเครดิต 3 มิติ -->
       <div class="cc-scene">
         <div id="cc-flipper" onclick="flipCreditCard(event)" role="button" tabindex="0" aria-label="แตะเพื่อพลิกบัตรประจำตัว" class="cc-flipper">
 
-          <!-- ========== ด้านหน้าบัตร (FRONT - LUXURY CREDIT CARD 1.586:1) ========== -->
+          <!-- ========== ด้านหน้าบัตร (FRONT) ========== -->
           <div class="cc-face cc-front cc-front-bg cc-card-ratio text-white px-4 py-3.5 sm:px-5 sm:py-4 relative flex flex-col justify-between">
             <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
             <div class="cc-gloss-sweep"></div>
 
-            <!-- ลายน้ำข้อความแนวทแยงโปร่งแสง -->
             <div class="pointer-events-none absolute inset-0 flex flex-col justify-around -rotate-12 scale-110 opacity-[0.045] select-none overflow-hidden text-[10px] font-extrabold tracking-[0.35em] uppercase whitespace-nowrap">
               <div>ROYAL THAI POLICE • AI TRAFFIC KM 2569 • OFFICIAL PASS</div>
               <div>OFFICIAL PASS • ROYAL THAI POLICE • AI TRAFFIC KM 2569</div>
               <div>AI TRAFFIC KM 2569 • OFFICIAL PASS • ROYAL THAI POLICE</div>
             </div>
 
-            <!-- ลายน้ำโล่ตำรวจ + วงจร AI -->
             <svg class="pointer-events-none absolute -right-5 -bottom-7 w-44 h-44 text-amber-200/[0.08]" viewBox="0 0 120 120" fill="none">
               <path d="M60 10L20 25v30.5C20 80.8 37.1 104.3 60 110c22.9-5.7 40-29.2 40-54.5V25L60 10z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.22"/>
               <path d="M60 22L30 33.5v22c0 19.2 12.8 37 30 41.5 17.2-4.5 30-22.3 30-41.5v-22L60 22z" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3"/>
@@ -299,7 +290,6 @@
               <path d="M60 36v6M60 70v6M40 56h6M74 56h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
 
-            <!-- แถวบน: โลโก้หน่วยงาน + ตราโฮโลแกรม + สัญลักษณ์ Contactless -->
             <div class="relative z-10 flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0">
@@ -311,7 +301,6 @@
                 </div>
               </div>
 
-              <!-- ตราโฮโลแกรมนิรภัย + ไอคอน Contactless NFC -->
               <div class="flex items-center gap-1.5 text-amber-200/80">
                 <div class="cc-holo-seal w-5 h-5 rounded-full p-[1.5px] shadow-md opacity-90" title="Official Hologram Seal">
                   <div class="w-full h-full rounded-full bg-navy-900/75 flex items-center justify-center text-[8px] font-extrabold text-amber-200">AI</div>
@@ -324,9 +313,7 @@
               </div>
             </div>
 
-            <!-- แถวกลาง: ชิปทอง EMV + รหัสประจำตัวสไตล์เลขบัตรเครดิต + ป้ายสถานะสด -->
             <div class="relative z-10 flex items-center justify-between gap-2 my-2">
-              <!-- Gold EMV Smart Chip SVG -->
               <div class="w-10 h-7 sm:w-11 sm:h-8 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-yellow-600 p-[1px] shadow-md shrink-0">
                 <svg class="w-full h-full rounded-[5px]" viewBox="0 0 48 36" fill="none">
                   <rect width="48" height="36" rx="6" fill="url(#chipGrad)"/>
@@ -346,7 +333,6 @@
                   <span id="pc-unit" class="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-blue-50 text-[9.5px] font-semibold max-w-[130px] truncate"></span>
                   <span id="pc-id" class="font-mono text-base sm:text-lg font-extrabold tracking-[0.14em] text-amber-200 drop-shadow-sm">KM69-00</span>
                 </div>
-                <!-- ป้ายสถานะสดด้านบน (แสดงทันทีเมื่อเช็กอินวันนี้หรือเช็กอินแล้ว) -->
                 <div id="pc-live-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/70 text-[9px] font-bold text-emerald-200 shadow-sm">
                   <span class="emerald-pulse-dot"></span>
                   <span id="pc-live-status-text">VERIFIED • CHECKED-IN</span>
@@ -354,7 +340,6 @@
               </div>
             </div>
 
-            <!-- แถวล่าง: ชื่อ-ยศเต็มความกว้าง + ตำแหน่ง + แถบตราประทับสดแยก 3 วันแบบเพรียวกระชับ -->
             <div class="relative z-10 space-y-1.5 pt-1.5 border-t border-white/15">
               <div class="flex items-baseline justify-between gap-2">
                 <div class="min-w-0 flex-1">
@@ -369,7 +354,6 @@
                 </div>
               </div>
 
-              <!-- ตราประทับสถานะสดแยก 3 วัน (กะทัดรัด คงสัดส่วนบัตรเครดิต) -->
               <div class="grid grid-cols-3 gap-1.5 pt-0.5">
                 <div id="stamp-day1" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
                 <div id="stamp-day2" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
@@ -378,13 +362,12 @@
             </div>
           </div>
 
-          <!-- ========== ด้านหลังบัตร (BACK - แถบแม่เหล็ก + QR เช็กอิน + ที่พัก/คู่พัก/อาหาร) ========== -->
+          <!-- ========== ด้านหลังบัตร (BACK) ========== -->
           <div class="cc-face cc-back cc-back-bg cc-card-ratio text-white relative flex flex-col justify-between">
             <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
             <div class="cc-gloss-sweep"></div>
 
-            <!-- แถบแม่เหล็กด้านบนสไตล์บัตรเครดิต -->
             <div class="relative z-10 pt-3">
               <div class="h-7 w-full bg-slate-950/90 border-y border-white/10 flex items-center justify-between px-4">
                 <span class="text-[9.5px] font-mono tracking-[0.18em] text-slate-400 uppercase">SMART CHECK-IN & DETAILS</span>
@@ -392,10 +375,8 @@
               </div>
             </div>
 
-            <!-- เนื้อหาด้านหลัง: QR Code + ที่พัก + อาหาร -->
             <div class="relative z-10 px-4 py-3 sm:px-5 sm:py-3.5 flex-1 flex flex-col justify-between gap-2">
               <div class="flex items-center gap-3">
-                <!-- กล่อง QR Code เช็กอิน (แตะตรงไหนของกรอบขาวก็ขยายทันที ไม่มีพลาดจุด) -->
                 <button type="button" data-no-flip="true" onclick="event.stopPropagation(); openQrZoomModal();" title="แตะเพื่อขยาย QR Code เต็มจอ" class="qr-tap-target touch-manipulation shrink-0 bg-white p-2 rounded-xl shadow-lg border-2 border-amber-300/70 flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer">
                   <div id="pc-qr-box" class="qr-inline w-[74px] h-[74px]"></div>
                   <span class="text-[9px] font-bold text-navy-800 mt-1 px-1.5 py-0.5 rounded-full bg-blue-50 flex items-center gap-0.5">
@@ -403,14 +384,13 @@
                   </span>
                 </button>
 
-                <!-- ข้อมูลที่พัก / ผู้พักร่วม / อาหาร / การตอบรับ -->
                 <div class="flex-1 min-w-0 space-y-1.5">
                   <div class="cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5">
                     <p class="text-[9.5px] text-amber-200/90 font-semibold flex items-center gap-1">
                       <i data-lucide="bed-double" class="w-3 h-3"></i> ที่พัก / เลขห้อง / ผู้พักร่วม
                     </p>
                     <p id="pc-stay" class="text-[11px] font-bold text-white break-words leading-snug">ไม่ระบุ / ไม่เข้าพัก</p>
-                    <p id="pc-roommate" class="hidden text-[10px] text-sky-200 font-medium break-words leading-snug"></p>
+                    <p id="pc-roommate" class="hidden text-[10px] text-sky-200 font-semibold break-words leading-snug bg-sky-500/20 border border-sky-300/30 rounded-lg px-2 py-0.5 mt-0.5"></p>
                   </div>
 
                   <div class="cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5">
@@ -425,7 +405,6 @@
                 </div>
               </div>
 
-              <!-- แถบท้ายด้านหลังบัตร -->
               <div class="flex items-center justify-between pt-1.5 border-t border-white/15 text-[9.5px] text-blue-200/85">
                 <span class="truncate">ไพน์เฮิร์สท จ.ปทุมธานี • 30 พ.ย. – 2 ธ.ค. 69</span>
                 <span class="inline-flex items-center gap-1 font-semibold text-amber-200 shrink-0">
@@ -438,7 +417,7 @@
         </div>
       </div>
 
-      <!-- แถบปุ่มควบคุมบัตรด่วน (พลิกบัตร / ขยาย QR เช็กอิน) -->
+      <!-- แถบปุ่มควบคุมบัตรด่วน -->
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="flipCreditCard()" id="btn-flip-card" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-navy-800 text-xs font-bold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-maroon-700"></i>
@@ -480,6 +459,15 @@
           <i data-lucide="pencil-line" class="w-4 h-4 shrink-0"></i>
           <span>ขอแก้ไขข้อมูล / ผู้แทน / คู่พัก / หนังสือส่งตัว</span>
         </button>
+
+        <!-- แถบสีเหลืองแจ้งสถานะเมื่อมีคำขอแก้ไขที่อยู่ระหว่างรอเจ้าหน้าที่อนุมัติ -->
+        <div id="pc-pending-req-banner" class="hidden p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-2.5">
+          <i data-lucide="clock" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5 animate-pulse"></i>
+          <div class="text-xs leading-snug min-w-0">
+            <p class="font-bold">อยู่ระหว่างรอเจ้าหน้าที่อนุมัติคำขอแก้ไข</p>
+            <p id="pc-pending-req-detail" class="text-[11px] text-amber-700 mt-0.5 truncate"></p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -550,12 +538,12 @@
       </div>
 
       <!-- แบนเนอร์เชิญชวนทำแบบประเมิน -->
-      <div class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm">
+      <div id="eval-invite-banner" class="bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm">
         <div class="min-w-0">
-          <h4 class="font-bold text-sm sm:text-base">ร่วมประเมินความพึงพอใจ</h4>
-          <p class="text-[11px] sm:text-xs text-rose-100/90 mt-0.5">ไม่ระบุตัวตน 100% เพื่อนำไปพัฒนา AI คู่หูจราจร</p>
+          <h4 id="eval-invite-title" class="font-bold text-sm sm:text-base">ร่วมประเมินความพึงพอใจ</h4>
+          <p id="eval-invite-desc" class="text-[11px] sm:text-xs text-rose-100/90 mt-0.5">ไม่ระบุตัวตน 100% เพื่อนำไปพัฒนา AI คู่หูจราจร</p>
         </div>
-        <button type="button" onclick="switchPortalTab('eval')" class="shrink-0 px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs font-bold shadow-sm hover:bg-rose-50 transition">
+        <button type="button" id="eval-invite-btn" onclick="switchPortalTab('eval')" class="shrink-0 px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs font-bold shadow-sm hover:bg-rose-50 transition">
           ทำแบบประเมิน
         </button>
       </div>
@@ -563,29 +551,42 @@
 
     <!-- ==================== TAB 2: ANONYMOUS EVALUATION FORM ==================== -->
     <section id="tab-eval" class="hidden bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-4">
-      <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
-        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5"></i>
-        <div class="text-xs text-emerald-900 leading-relaxed">
-          <strong>แบบประเมินนิรนาม 100% (Anonymous):</strong> ระบบจะไม่บันทึกชื่อหรือรหัสประจำตัวคู่กับผลคะแนน เพื่อให้ทุกท่านสามารถให้ข้อเสนอแนะตามความเป็นจริงได้อย่างเต็มที่ครับ
+      <!-- ป้ายแจ้งเตือนเมื่อทำแบบประเมินเรียบร้อยแล้ว (ป้องกันการกดส่งซ้ำ) -->
+      <div id="eval-done-banner" class="hidden p-6 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-center space-y-2.5">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
+          <i data-lucide="check-circle-2" class="w-7 h-7"></i>
         </div>
+        <h3 class="text-base sm:text-lg font-extrabold text-emerald-900">ท่านทำแบบประเมินเรียบร้อยแล้ว ขอบคุณครับ</h3>
+        <p class="text-xs text-emerald-700 leading-relaxed">
+          ระบบได้รับคะแนนและข้อเสนอแนะแบบนิรนามของท่านเรียบร้อยแล้ว เพื่อความเที่ยงตรงของผลสำรวจ ระบบจึงปิดการส่งซ้ำครับ
+        </p>
       </div>
 
-      <form id="eval-form" onsubmit="submitEvaluation(event)" class="space-y-4">
-        <div id="rating-questions" class="space-y-3.5"></div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อเสนอแนะเพิ่มเติม (สำหรับการพัฒนาแชทบอท AI คู่หูจราจร)</label>
-          <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะ ปัญหาที่พบ หรือความต้องการเพิ่มเติม..." class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
+      <div id="eval-form-wrapper" class="space-y-4">
+        <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5"></i>
+          <div class="text-xs text-emerald-900 leading-relaxed">
+            <strong>แบบประเมินนิรนาม 100% (Anonymous):</strong> ระบบจะไม่บันทึกชื่อหรือรหัสประจำตัวคู่กับผลคะแนน เพื่อให้ทุกท่านสามารถให้ข้อเสนอแนะตามความเป็นจริงได้อย่างเต็มที่ครับ
+          </div>
         </div>
 
-        <button type="submit" id="eval-submit-btn" class="w-full py-3.5 px-4 rounded-2xl bg-maroon-700 hover:bg-maroon-800 active:scale-[0.99] text-white text-sm font-bold shadow-md transition">
-          ส่งแบบประเมินความพึงพอใจ
-        </button>
-      </form>
+        <form id="eval-form" onsubmit="submitEvaluation(event)" class="space-y-4">
+          <div id="rating-questions" class="space-y-3.5"></div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อเสนอแนะเพิ่มเติม (สำหรับการพัฒนาแชทบอท AI คู่หูจราจร)</label>
+            <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะ ปัญหาที่พบ หรือความต้องการเพิ่มเติม..." class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
+          </div>
+
+          <button type="submit" id="eval-submit-btn" class="w-full py-3.5 px-4 rounded-2xl bg-maroon-700 hover:bg-maroon-800 active:scale-[0.99] text-white text-sm font-bold shadow-md transition">
+            ส่งแบบประเมินความพึงพอใจ
+          </button>
+        </form>
+      </div>
     </section>
   </main>
 
-  <!-- ==================== MODAL: QR CODE ZOOM (ขยายเต็มจอให้สตาฟสแกน) ==================== -->
+  <!-- ==================== MODAL: QR CODE ZOOM ==================== -->
   <div id="qr-zoom-modal" onclick="closeQrZoomModal()" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-amber-400">
       <div class="space-y-0.5">
@@ -602,7 +603,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDIT REQUEST (ขอแก้ไขข้อมูล / ส่งผู้แทน / คู่พัก / หนังสือส่งตัว) ==================== -->
+  <!-- ==================== MODAL: EDIT REQUEST ==================== -->
   <div id="edit-req-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 my-auto">
       <div class="px-5 py-4 bg-gradient-to-r from-navy-800 to-maroon-700 text-white flex items-center justify-between">
@@ -647,7 +648,6 @@
           </div>
         </div>
 
-        <!-- กล่องข้อมูลผู้แทน -->
         <div id="req-sub-box" class="hidden p-3.5 rounded-2xl bg-purple-50 border border-purple-200 space-y-2.5">
           <p class="text-xs font-bold text-purple-900">ระบุข้อมูลผู้แทนที่เข้าร่วมแทนท่าน</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -766,7 +766,6 @@
       selectScheduleDay(detectDefaultScheduleDay());
       loadParticipantsAndInit();
 
-      // ปิดกล่องแนะนำชื่อผู้พักร่วมเมื่อคลิกพื้นที่อื่น
       document.addEventListener('click', (e) => {
         const input = document.getElementById('req-roommate');
         const box = document.getElementById('req-roommate-suggestions');
@@ -836,7 +835,9 @@
         evaluated: Boolean(p.evaluated),
         substituteName: String(p.substituteName || '').trim(),
         substitutePosition: String(p.substitutePosition || '').trim(),
-        letterUrl: String(p.letterUrl || '').trim()
+        letterUrl: String(p.letterUrl || '').trim(),
+        hasPendingRequest: Boolean(p.hasPendingRequest),
+        pendingRequestSummary: String(p.pendingRequestSummary || '').trim()
       };
     }
 
@@ -849,7 +850,6 @@
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
 
         allParticipants = (json.data || []).map(normalizeParticipant);
-
         document.getElementById('loading-card').classList.add('hidden');
 
         if (urlId) {
@@ -921,7 +921,6 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ระบบซิงค์สถานะเช็กอินแบบ Real-time ทุก 7 วินาที (ทันทีที่สตาฟยิงสแกน บัตรจะประทับตรา VERIFIED อัตโนมัติ)
     function startLiveCheckInPolling() {
       if (liveSyncTimer) clearInterval(liveSyncTimer);
       liveSyncTimer = setInterval(async () => {
@@ -950,7 +949,8 @@
             updated.day3 !== lastKnownCheckIns.day3 ||
             updated.roomNo !== currentParticipant.roomNo ||
             updated.roommate !== currentParticipant.roommate ||
-            updated.evaluated !== currentParticipant.evaluated;
+            updated.evaluated !== currentParticipant.evaluated ||
+            updated.hasPendingRequest !== currentParticipant.hasPendingRequest;
 
           if (hasChanged) {
             currentParticipant = updated;
@@ -998,7 +998,6 @@
       document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || 'ผู้เข้าร่วมสัมมนา';
       document.getElementById('pc-sub-badge').classList.toggle('hidden', !isSub);
 
-      // ปรับขนาดตัวอักษรชื่ออัตโนมัติหากชื่อยาวมากเพื่อให้แสดงครบถ้วน
       const nameEl = document.getElementById('pc-name');
       nameEl.textContent = displayName || '-';
       nameEl.className = displayName.length > 28
@@ -1007,7 +1006,6 @@
 
       document.getElementById('pc-position').textContent = displayPos;
 
-      // แสดงชื่อเจ้าของสิทธิ์ตัวจริงกรณีส่งผู้แทนเข้าร่วม
       const origBox = document.getElementById('pc-orig-box');
       if (isSub) {
         document.getElementById('pc-orig-name').textContent = p.fullName;
@@ -1026,13 +1024,15 @@
 
       const roommateEl = document.getElementById('pc-roommate');
       if (p.roommate) {
-        roommateEl.textContent = `พักคู่กับ: ${p.roommate}`;
+        roommateEl.textContent = p.roomNo
+          ? `👥 พักคู่กับ: ${p.roommate} (ห้อง ${p.roomNo})`
+          : `👥 พักคู่กับ: ${p.roommate}`;
         roommateEl.classList.remove('hidden');
       } else {
         roommateEl.classList.add('hidden');
       }
 
-      // ข้อมูลอาหาร / การตอบรับ / ลิงก์หนังสือส่งตัว ด้านหลังบัตร
+      // อาหาร / การตอบรับ และลิงก์หนังสือส่งตัว
       document.getElementById('pc-food-rsvp').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
       const letterLink = document.getElementById('pc-letter-link');
       if (p.letterUrl) {
@@ -1042,10 +1042,10 @@
         letterLink.classList.add('hidden');
       }
 
-      // สร้าง QR Code ประจำตัวด้านหลังบัตรอิเล็กทรอนิกส์
+      // สร้าง QR Code ประจำตัวบนด้านหลังบัตร
       const qrBox = document.getElementById('pc-qr-box');
-      qrBox.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
+      if (qrBox && typeof QRCode !== 'undefined') {
+        qrBox.innerHTML = '';
         new QRCode(qrBox, {
           text: getPersonalQrText(p.id),
           width: 74,
@@ -1054,7 +1054,26 @@
         });
       }
 
-      // ตราประทับสถานะสดแยก 3 วันบนหน้าบัตร (Live 3-Day Check-in Stamp & Pulse)
+      // แถบสีเหลืองแจ้งสถานะคำขอแก้ไขที่รออนุมัติ
+      const pendingBanner = document.getElementById('pc-pending-req-banner');
+      const pendingDetail = document.getElementById('pc-pending-req-detail');
+      if (pendingBanner) {
+        if (p.hasPendingRequest) {
+          if (pendingDetail) {
+            pendingDetail.textContent = p.pendingRequestSummary
+              ? `รายการที่ส่ง: ${p.pendingRequestSummary} (ข้อมูลบนบัตรจะอัปเดตอัตโนมัติหลังอนุมัติ)`
+              : 'กรุณารอเจ้าหน้าที่ตรวจสอบและอนุมัติ ข้อมูลบนบัตรจะอัปเดตอัตโนมัติครับ';
+          }
+          pendingBanner.classList.remove('hidden');
+        } else {
+          pendingBanner.classList.add('hidden');
+        }
+      }
+
+      // อัปเดตสถานะแบบประเมิน (ป้องกันการกดส่งซ้ำ)
+      updateEvaluationUiState(Boolean(p.evaluated));
+
+      // ตราประทับสถานะสดแยก 3 วันบนหน้าบัตร
       const dayConfigs = [
         { key: 'day1', elId: 'stamp-day1', date: '30 พ.ย.', time: p.day1, done: Boolean(p.day1) },
         { key: 'day2', elId: 'stamp-day2', date: '1 ธ.ค.',  time: p.day2, done: Boolean(p.day2) },
@@ -1083,7 +1102,6 @@
         }
       });
 
-      // ป้ายสถานะสดด้านบนใต้รหัสบัตร (VERIFIED • เวลาล่าสุด)
       const livePill = document.getElementById('pc-live-status-pill');
       const liveText = document.getElementById('pc-live-status-text');
       const verifiedDays = dayConfigs.filter(d => d.done);
@@ -1192,6 +1210,39 @@
     }
 
     // ==================== ANONYMOUS EVALUATION ====================
+    function updateEvaluationUiState(isEvaluated) {
+      const doneBanner = document.getElementById('eval-done-banner');
+      const formWrapper = document.getElementById('eval-form-wrapper');
+      const submitBtn = document.getElementById('eval-submit-btn');
+      const inviteBanner = document.getElementById('eval-invite-banner');
+      const inviteTitle = document.getElementById('eval-invite-title');
+      const inviteDesc = document.getElementById('eval-invite-desc');
+      const inviteBtn = document.getElementById('eval-invite-btn');
+
+      if (doneBanner && formWrapper) {
+        doneBanner.classList.toggle('hidden', !isEvaluated);
+        formWrapper.classList.toggle('hidden', isEvaluated);
+      }
+      if (submitBtn) {
+        submitBtn.disabled = isEvaluated;
+      }
+      if (inviteBanner && inviteTitle && inviteDesc && inviteBtn) {
+        if (isEvaluated) {
+          inviteBanner.className = 'bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm';
+          inviteTitle.textContent = 'ท่านทำแบบประเมินเรียบร้อยแล้ว ✓';
+          inviteDesc.textContent = 'ขอขอบคุณสำหรับความคิดเห็นอันมีค่าครับ';
+          inviteBtn.textContent = 'ประเมินแล้ว';
+          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold cursor-default';
+        } else {
+          inviteBanner.className = 'bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm';
+          inviteTitle.textContent = 'ร่วมประเมินความพึงพอใจ';
+          inviteDesc.textContent = 'ไม่ระบุตัวตน 100% เพื่อนำไปพัฒนา AI คู่หูจราจร';
+          inviteBtn.textContent = 'ทำแบบประเมิน';
+          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs font-bold shadow-sm hover:bg-rose-50 transition';
+        }
+      }
+    }
+
     function renderRatingQuestions() {
       const container = document.getElementById('rating-questions');
       if (!container) return;
@@ -1221,6 +1272,11 @@
 
     async function submitEvaluation(e) {
       e.preventDefault();
+      if (currentParticipant && currentParticipant.evaluated) {
+        showToast('ท่านทำแบบประเมินเรียบร้อยแล้ว ขอบคุณครับ', 'info');
+        updateEvaluationUiState(true);
+        return;
+      }
       const btn = document.getElementById('eval-submit-btn');
       btn.disabled = true;
       btn.textContent = 'กำลังบันทึกแบบประเมิน...';
@@ -1249,14 +1305,16 @@
           if (currentParticipant) {
             currentParticipant.evaluated = true;
             renderPersonalCard(currentParticipant, []);
+          } else {
+            updateEvaluationUiState(true);
           }
-          switchPortalTab('info');
         } else {
           showToast(json.message || 'ส่งแบบประเมินไม่สำเร็จ', 'error');
+          btn.disabled = false;
+          btn.textContent = 'ส่งแบบประเมินความพึงพอใจ';
         }
       } catch (err) {
         showToast('เกิดข้อผิดพลาดในการส่งแบบประเมิน: ' + err.message, 'error');
-      } finally {
         btn.disabled = false;
         btn.textContent = 'ส่งแบบประเมินความพึงพอใจ';
       }
@@ -1405,6 +1463,9 @@
         const json = await res.json();
         if (json.status === 'success') {
           showToast(json.message || 'ส่งคำขอแก้ไขไปยังเจ้าหน้าที่เรียบร้อยแล้ว', 'success');
+          currentParticipant.hasPendingRequest = true;
+          currentParticipant.pendingRequestSummary = summaryParts.join(' • ');
+          renderPersonalCard(currentParticipant, []);
           closeEditRequestModal();
         } else {
           showToast(json.message || 'ส่งคำขอไม่สำเร็จ', 'error');
