@@ -849,6 +849,260 @@
         }
       });
     }
+
+    // เริ่มต้นทำงานทันทีเมื่อโหลดหน้าเว็บเสร็จ
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDashboardApp);
+    } else {
+      initDashboardApp();
+    }
+
+    // ==================== CORE HELPERS & UI CONTROLS ====================
+    function updateApiStatusBadge() {
+      const badge = document.getElementById('api-status-badge');
+      if (!badge) return;
+      if (API_URL) {
+        badge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> เชื่อมต่อ Sheet แล้ว';
+      } else {
+        badge.className = 'hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span> ยังไม่ตั้งค่า API';
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      safeStorageSet('theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleAutoRefresh() {
+      const dot = document.getElementById('auto-dot');
+      const label = document.getElementById('auto-label');
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        if (label) label.textContent = 'Auto-Refresh: ปิด';
+        showToast('ปิดการอัปเดตอัตโนมัติแล้ว', 'info');
+      } else {
+        autoRefreshTimer = setInterval(() => refreshAllData(false), 15000);
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        if (label) label.textContent = 'Auto-Refresh: เปิด (15วิ)';
+        showToast('เปิดอัปเดตข้อมูลอัตโนมัติทุก 15 วินาที', 'success');
+      }
+    }
+
+    function formatThaiTime(val) {
+      const s = String(val || '').trim();
+      if (!s || s === 'ยังไม่มา' || s === '-') return '';
+      if (s.includes('1899') || s.includes('GMT')) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+        }
+        const m = s.match(/(\d{1,2}:\d{2}(?::\d{2})?)/);
+        if (m) return m[1];
+      }
+      return s;
+    }
+
+    function isCheckedIn(p, dayKey = currentDay) {
+      const v = String(p[dayKey] || '').trim();
+      return v !== '' && v !== 'ยังไม่มา' && v !== '-';
+    }
+
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
+
+    function getRsvpBadge(rsvp) {
+      if (rsvp === 'ยืนยันเข้าร่วม') {
+        return '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">ยืนยันเข้าร่วม</span>';
+      }
+      if (rsvp === 'ส่งผู้แทนเข้าร่วม') {
+        return '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">ส่งผู้แทน</span>';
+      }
+      if (rsvp === 'ไม่สามารถเข้าร่วม') {
+        return '<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">ไม่สะดวก</span>';
+      }
+      return '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">รอยืนยัน</span>';
+    }
+
+    function getSmartQrUrl(pid) {
+      let base = FALLBACK_PORTAL_URL;
+      try {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+          base = new URL('portal.html', window.location.href).href;
+        }
+      } catch (e) {}
+      const sep = base.includes('?') ? '&' : '?';
+      return `${base}${sep}id=${encodeURIComponent(pid)}`;
+    }
+
+    // ==================== API FETCH & POST ====================
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    async function refreshAllData(showMsg = false) {
+      const icon = document.getElementById('refresh-icon');
+      if (icon) icon.classList.add('animate-spin');
+      try {
+        await Promise.all([fetchParticipants(showMsg), fetchEditRequests()]);
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+      }
+    }
+
+    async function fetchParticipants(showMsg = false) {
+      if (!API_URL) return;
+      try {
+        const res = await fetch(`${API_URL}?action=getParticipants`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'โหลดรายชื่อไม่สำเร็จ');
+
+        participants = (json.data || []).map(p => ({
+          ...p,
+          id: String(p.id || '').trim(),
+          fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
+          position: String(p.position || ''),
+          mainUnit: String(p.mainUnit || p.group || 'อื่นๆ'),
+          unitDetail: String(p.unitDetail || p.unit || ''),
+          role: String(p.role || 'ผู้เข้าร่วมสัมมนา'),
+          rsvp: String(p.rsvp || 'รอการยืนยัน'),
+          day1: formatThaiTime(p.day1),
+          day2: formatThaiTime(p.day2),
+          day3: formatThaiTime(p.day3),
+          stay30: String(p.stay30 || ''),
+          stay1: String(p.stay1 || ''),
+          roomNo: String(p.roomNo || ''),
+          roommate: String(p.roommate || ''),
+          food: String(p.food || 'อาหารทั่วไป'),
+          officialLetter: String(p.officialLetter || ''),
+          licensePlate: String(p.licensePlate || ''),
+          phone: String(p.phone || ''),
+          evaluated: Boolean(p.evaluated),
+          substituteName: String(p.substituteName || '').trim(),
+          substitutePosition: String(p.substitutePosition || '').trim(),
+          letterUrl: String(p.letterUrl || '').trim()
+        }));
+
+        populateUnitFilter();
+        updateDashboard();
+        if (showMsg) showToast(`อัปเดตข้อมูลล่าสุดแล้ว (${participants.length} ราย)`, 'success');
+      } catch (err) {
+        showToast('โหลดรายชื่อจาก Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
+      }
+    }
+
+    async function fetchEditRequests() {
+      if (!API_URL) return;
+      try {
+        const res = await fetch(`${API_URL}?action=getRequests`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.status === 'success') {
+          editRequests = json.data || [];
+          updateNotifBadge();
+        }
+      } catch (e) {}
+    }
+
+    function updateNotifBadge() {
+      const badge = document.getElementById('notif-badge');
+      if (!badge) return;
+      const pendingCount = editRequests.filter(r => r.status === 'รออนุมัติ').length;
+      if (pendingCount > 0) {
+        badge.textContent = pendingCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function populateUnitFilter() {
+      const select = document.getElementById('filter-unit');
+      if (!select) return;
+      const prev = select.value;
+      const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))].sort((a, b) => {
+        const ia = UNIT_ORDER.indexOf(a);
+        const ib = UNIT_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
+      select.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' +
+        units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+      if (units.includes(prev)) select.value = prev;
+    }
+
+    // ==================== DASHBOARD KPI & VIEWS ====================
+    function updateDashboard() {
+      const total = participants.length;
+      const checked = participants.filter(p => isCheckedIn(p)).length;
+      const pending = total - checked;
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+      const rsvpConfirm = participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length;
+      const subCount = participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length;
+      const stay30 = participants.filter(p => p.stay30 === 'พัก').length;
+      const stay1 = participants.filter(p => p.stay1 === 'พัก').length;
+      const roomsCount = participants.filter(p => Boolean(p.roomNo)).length;
+      const halalCount = participants.filter(p => String(p.food).includes('ฮาลาล')).length;
+      const vegCount = participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length;
+      const evalCount = participants.filter(p => p.evaluated).length;
+
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-rsvp-confirm').textContent = `ยืนยัน ${rsvpConfirm}`;
+      document.getElementById('kpi-sub-count').textContent = `ส่งผู้แทน ${subCount} ราย`;
+      document.getElementById('kpi-checked').textContent = checked;
+      document.getElementById('kpi-percent').textContent = `${pct}%`;
+      document.getElementById('kpi-progress-bar').style.width = `${pct}%`;
+      document.getElementById('kpi-pending').textContent = pending;
+      document.getElementById('kpi-stay30').textContent = stay30;
+      document.getElementById('kpi-stay1').textContent = stay1;
+      document.getElementById('kpi-rooms').textContent = `จัดเลขห้องแล้ว ${roomsCount} ราย`;
+      document.getElementById('kpi-halal').textContent = halalCount;
+      document.getElementById('kpi-veg').textContent = vegCount;
+      document.getElementById('kpi-eval').textContent = `ประเมินผลแล้ว ${evalCount} ราย`;
+
+      updateScannerLiveCount();
+      renderViews();
+    }
+
+    function getFilteredParticipants() {
+      const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+      const unitFilter = document.getElementById('filter-unit')?.value || 'all';
+      const rsvpFilter = document.getElementById('filter-rsvp')?.value || 'all';
+
+      return participants.filter(p => {
+        if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
+        if (rsvpFilter !== 'all' && p.rsvp !== rsvpFilter) return false;
+        if (q) {
+          const hay = `${p.id} ${p.fullName} ${p.position} ${p.substituteName} ${p.substitutePosition} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.roommate}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderViews() {
+      const filtered = getFilteredParticipants();
+      if (currentView === 'split') {
+        renderSplitView(filtered);
+      } else if (currentView === 'table') {
+        renderTableView(filtered);
+      } else if (currentView === 'summary') {
+        renderSummaryView();
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     function setViewMode(mode) {
       currentView = mode;
       ['split', 'table', 'summary'].forEach(m => {
@@ -1322,8 +1576,6 @@
       document.getElementById('ed-roommate').value = name;
       document.getElementById('ed-roommate-suggestions').classList.add('hidden');
     }
-
-    function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
 
     function toggleStaffSubstituteFields() {
       const isSub = document.getElementById('ed-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
