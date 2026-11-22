@@ -64,15 +64,39 @@
       grid-area: 1 / 1;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      border-radius: 24px;
+      border-radius: 20px;
       overflow: hidden;
       box-shadow:
-        0 24px 48px -14px rgba(15, 23, 42, 0.42),
-        0 10px 20px -8px rgba(30, 58, 138, 0.28),
-        0 0 0 1px rgba(212, 175, 55, 0.42);
+        0 20px 40px -14px rgba(15, 23, 42, 0.42),
+        0 8px 18px -8px rgba(30, 58, 138, 0.28),
+        0 0 0 1px rgba(212, 175, 55, 0.48);
+    }
+    /* ล็อกสัดส่วนบัตรเครดิตมาตรฐาน ISO (1.586 : 1) ให้ดูเพรียวสมส่วนทุกขนาดจอ */
+    .cc-card-ratio {
+      min-height: 214px;
+    }
+    @media (min-width: 640px) {
+      .cc-card-ratio {
+        aspect-ratio: 1.586 / 1;
+        min-height: 248px;
+      }
+    }
+    /* ป้องกันด้านหน้าที่ถูกซ่อนมาบังการแตะบนมือถือ ทำให้กดขยาย QR ด้านหลังติดง่ายทุกจุด */
+    .cc-front {
+      pointer-events: auto;
     }
     .cc-back {
       transform: rotateY(180deg);
+      pointer-events: none;
+    }
+    .cc-flipper.is-flipped .cc-front {
+      pointer-events: none;
+    }
+    .cc-flipper.is-flipped .cc-back {
+      pointer-events: auto;
+    }
+    .qr-tap-target * {
+      pointer-events: none;
     }
 
     /* พื้นผิวโลหะเมทัลลิกโทนตำรวจ (กรมท่า-เลือดหมู-ทอง) */
@@ -80,7 +104,7 @@
       background:
         radial-gradient(circle at 88% 12%, rgba(159, 18, 57, 0.72) 0%, transparent 46%),
         radial-gradient(circle at 12% 92%, rgba(37, 99, 235, 0.5) 0%, transparent 50%),
-        radial-gradient(circle at 52% -10%, rgba(243, 212, 120, 0.24) 0%, transparent 45%),
+        radial-gradient(circle at 52% -10%, rgba(243, 212, 120, 0.26) 0%, transparent 45%),
         linear-gradient(135deg, #090F24 0%, #15224B 44%, #1E3A8A 78%, #34132E 100%);
     }
     .cc-back-bg {
@@ -92,18 +116,110 @@
     .cc-holo-sheen {
       background: linear-gradient(
         118deg,
-        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 255, 255, 0.2) 0%,
         rgba(255, 255, 255, 0.03) 34%,
         transparent 50%,
-        rgba(243, 212, 120, 0.12) 72%,
-        rgba(255, 255, 255, 0.08) 100%
+        rgba(243, 212, 120, 0.15) 72%,
+        rgba(255, 255, 255, 0.09) 100%
       );
     }
+
+    /* ลายน้ำเส้นละเอียดและจุดนิรภัยบนพื้นบัตร */
+    .cc-watermark-pattern {
+      background-image:
+        repeating-linear-gradient(
+          -32deg,
+          rgba(255, 255, 255, 0.035) 0px,
+          rgba(255, 255, 255, 0.035) 1px,
+          transparent 1px,
+          transparent 11px
+        ),
+        radial-gradient(rgba(243, 212, 120, 0.09) 1px, transparent 1px);
+      background-size: auto, 18px 18px;
+    }
+
+    /* แสงเงาเมทัลลิกวิ่งสะท้อนผ่านหน้าบัตรอัตโนมัติ */
+    @keyframes cardGlossSweep {
+      0% { transform: translateX(-140%) skewX(-24deg); opacity: 0; }
+      18% { opacity: 0.75; }
+      45% { transform: translateX(220%) skewX(-24deg); opacity: 0; }
+      100% { transform: translateX(220%) skewX(-24deg); opacity: 0; }
+    }
+    .cc-gloss-sweep {
+      position: absolute;
+      inset: 0;
+      width: 55%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.06) 28%,
+        rgba(255, 255, 255, 0.28) 50%,
+        rgba(243, 212, 120, 0.22) 64%,
+        transparent 100%
+      );
+      animation: cardGlossSweep 5.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* ตราโฮโลแกรมสีรุ้งเมทัลลิกมุมบัตร */
+    @keyframes holoShimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .cc-holo-seal {
+      background: linear-gradient(135deg, #fde68a, #93c5fd, #f9a8d4, #6ee7b7, #fde68a);
+      background-size: 260% 260%;
+      animation: holoShimmer 4s ease infinite;
+    }
+
     .cc-glass-box {
       background: rgba(255, 255, 255, 0.09);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    /* เอฟเฟกต์ตราประทับสด Live Check-in Stamp & Pulse (แยก 3 วัน) */
+    @keyframes emeraldPulseRing {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      70% { transform: scale(1.9); opacity: 0; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    .emerald-pulse-dot {
+      position: relative;
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background-color: #34d399;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .emerald-pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 999px;
+      border: 1.5px solid #6ee7b7;
+      animation: emeraldPulseRing 1.7s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+
+    @keyframes stampSlam {
+      0% { transform: scale(1.45) rotate(-6deg); opacity: 0; }
+      60% { transform: scale(0.95) rotate(1deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .stamp-animate {
+      animation: stampSlam 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .stamp-day-verified {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.42) 100%);
+      border: 1px solid rgba(52, 211, 153, 0.72);
+      box-shadow: 0 0 14px -3px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .stamp-day-pending {
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px dashed rgba(255, 255, 255, 0.22);
     }
 
     .custom-scroll::-webkit-scrollbar { width: 5px; }
@@ -160,31 +276,47 @@
 
       <!-- ตัวบัตรเครดิต 3 มิติ (แตะเพื่อพลิกด้านหน้า / ด้านหลัง) -->
       <div class="cc-scene">
-        <div id="cc-flipper" onclick="flipCreditCard()" role="button" tabindex="0" aria-label="แตะเพื่อพลิกบัตรประจำตัว" class="cc-flipper">
+        <div id="cc-flipper" onclick="flipCreditCard(event)" role="button" tabindex="0" aria-label="แตะเพื่อพลิกบัตรประจำตัว" class="cc-flipper">
 
-          <!-- ========== ด้านหน้าบัตร (FRONT - LUXURY CREDIT CARD) ========== -->
-          <div class="cc-face cc-front cc-front-bg text-white p-5 sm:p-6 relative flex flex-col justify-between min-h-[250px] sm:min-h-[268px]">
+          <!-- ========== ด้านหน้าบัตร (FRONT - LUXURY CREDIT CARD 1.586:1) ========== -->
+          <div class="cc-face cc-front cc-front-bg cc-card-ratio text-white px-4 py-3.5 sm:px-5 sm:py-4 relative flex flex-col justify-between">
+            <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
-            <!-- ลายน้ำโล่ตำรวจ -->
-            <svg class="pointer-events-none absolute -right-6 -bottom-8 w-48 h-48 text-white/[0.05]" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/>
+            <div class="cc-gloss-sweep"></div>
+
+            <!-- ลายน้ำข้อความแนวทแยงโปร่งแสง -->
+            <div class="pointer-events-none absolute inset-0 flex flex-col justify-around -rotate-12 scale-110 opacity-[0.045] select-none overflow-hidden text-[10px] font-extrabold tracking-[0.35em] uppercase whitespace-nowrap">
+              <div>ROYAL THAI POLICE • AI TRAFFIC KM 2569 • OFFICIAL PASS</div>
+              <div>OFFICIAL PASS • ROYAL THAI POLICE • AI TRAFFIC KM 2569</div>
+              <div>AI TRAFFIC KM 2569 • OFFICIAL PASS • ROYAL THAI POLICE</div>
+            </div>
+
+            <!-- ลายน้ำโล่ตำรวจ + วงจร AI -->
+            <svg class="pointer-events-none absolute -right-5 -bottom-7 w-44 h-44 text-amber-200/[0.08]" viewBox="0 0 120 120" fill="none">
+              <path d="M60 10L20 25v30.5C20 80.8 37.1 104.3 60 110c22.9-5.7 40-29.2 40-54.5V25L60 10z" stroke="currentColor" stroke-width="2.5" fill="currentColor" fill-opacity="0.22"/>
+              <path d="M60 22L30 33.5v22c0 19.2 12.8 37 30 41.5 17.2-4.5 30-22.3 30-41.5v-22L60 22z" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 3"/>
+              <circle cx="60" cy="56" r="14" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M60 36v6M60 70v6M40 56h6M74 56h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
 
-            <!-- แถวบน: โลโก้หน่วยงาน + สัญลักษณ์ Contactless -->
-            <div class="relative z-10 flex items-start justify-between gap-2">
-              <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0">
-                  <i data-lucide="shield-check" class="w-5 h-5 text-amber-300"></i>
+            <!-- แถวบน: โลโก้หน่วยงาน + ตราโฮโลแกรม + สัญลักษณ์ Contactless -->
+            <div class="relative z-10 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-amber-300"></i>
                 </div>
                 <div>
-                  <p class="text-[10px] tracking-[0.22em] uppercase text-amber-300 font-bold leading-none">ROYAL THAI POLICE</p>
-                  <p class="text-xs text-white/90 font-semibold mt-0.5">OFFICIAL AI SEMINAR E-PASS</p>
+                  <p class="text-[9px] tracking-[0.2em] uppercase text-amber-300 font-bold leading-none">ROYAL THAI POLICE</p>
+                  <p class="text-[11px] text-white/90 font-semibold leading-tight mt-0.5">OFFICIAL AI E-PASS</p>
                 </div>
               </div>
 
-              <!-- ไอคอน Contactless NFC -->
+              <!-- ตราโฮโลแกรมนิรภัย + ไอคอน Contactless NFC -->
               <div class="flex items-center gap-1.5 text-amber-200/80">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <div class="cc-holo-seal w-5 h-5 rounded-full p-[1.5px] shadow-md opacity-90" title="Official Hologram Seal">
+                  <div class="w-full h-full rounded-full bg-navy-900/75 flex items-center justify-center text-[8px] font-extrabold text-amber-200">AI</div>
+                </div>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
                   <path d="M8.5 16.5a5 5 0 0 1 0-9" />
                   <path d="M12 19a9 9 0 0 1 0-14" />
                   <path d="M15.5 21.5a13 13 0 0 1 0-19" />
@@ -192,11 +324,11 @@
               </div>
             </div>
 
-            <!-- แถวกลาง: ชิปทอง EMV + รหัสประจำตัวสไตล์เลขบัตรเครดิต -->
-            <div class="relative z-10 flex items-center justify-between gap-3 my-4">
+            <!-- แถวกลาง: ชิปทอง EMV + รหัสประจำตัวสไตล์เลขบัตรเครดิต + ป้ายสถานะสด -->
+            <div class="relative z-10 flex items-center justify-between gap-2 my-2">
               <!-- Gold EMV Smart Chip SVG -->
-              <div class="w-12 h-9 rounded-lg bg-gradient-to-br from-amber-200 via-amber-400 to-yellow-600 p-[1px] shadow-md shrink-0">
-                <svg class="w-full h-full rounded-[7px]" viewBox="0 0 48 36" fill="none">
+              <div class="w-10 h-7 sm:w-11 sm:h-8 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-yellow-600 p-[1px] shadow-md shrink-0">
+                <svg class="w-full h-full rounded-[5px]" viewBox="0 0 48 36" fill="none">
                   <rect width="48" height="36" rx="6" fill="url(#chipGrad)"/>
                   <path d="M16 0v36M32 0v36M0 12h16M32 12h16M0 24h16M32 24h16M16 18h16" stroke="#78350F" stroke-opacity="0.45" stroke-width="1.3"/>
                   <defs>
@@ -209,86 +341,95 @@
                 </svg>
               </div>
 
-              <div class="text-right min-w-0">
-                <p class="text-[9px] uppercase tracking-[0.2em] text-blue-200/75 font-semibold">MEMBER PASS ID</p>
-                <p id="pc-id" class="font-mono text-lg sm:text-xl font-extrabold tracking-[0.16em] text-amber-200 drop-shadow-sm">KM69-00</p>
+              <div class="text-right min-w-0 flex flex-col items-end">
+                <div class="flex items-center gap-1.5">
+                  <span id="pc-unit" class="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-blue-50 text-[9.5px] font-semibold max-w-[130px] truncate"></span>
+                  <span id="pc-id" class="font-mono text-base sm:text-lg font-extrabold tracking-[0.14em] text-amber-200 drop-shadow-sm">KM69-00</span>
+                </div>
+                <!-- ป้ายสถานะสดด้านบน (แสดงทันทีเมื่อเช็กอินวันนี้หรือเช็กอินแล้ว) -->
+                <div id="pc-live-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/70 text-[9px] font-bold text-emerald-200 shadow-sm">
+                  <span class="emerald-pulse-dot"></span>
+                  <span id="pc-live-status-text">VERIFIED • CHECKED-IN</span>
+                </div>
               </div>
             </div>
 
-            <!-- แถวล่าง: ชื่อ-ยศเต็มความกว้าง + ตำแหน่ง + สังกัด -->
-            <div class="relative z-10 space-y-1.5 pt-2 border-t border-white/15">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span id="pc-unit" class="px-2.5 py-0.5 rounded-full bg-white/15 border border-white/25 text-blue-50 text-[10px] font-semibold"></span>
-                <span id="pc-sub-badge" class="hidden px-2.5 py-0.5 rounded-full bg-purple-400/30 border border-purple-200/50 text-purple-50 text-[10px] font-bold">ผู้แทนเข้าร่วม</span>
+            <!-- แถวล่าง: ชื่อ-ยศเต็มความกว้าง + ตำแหน่ง + แถบตราประทับสดแยก 3 วันแบบเพรียวกระชับ -->
+            <div class="relative z-10 space-y-1.5 pt-1.5 border-t border-white/15">
+              <div class="flex items-baseline justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h2 id="pc-name" class="text-base sm:text-lg font-bold leading-tight tracking-tight text-white drop-shadow-sm break-words"></h2>
+                    <span id="pc-sub-badge" class="hidden px-2 py-0.5 rounded-full bg-purple-400/30 border border-purple-200/50 text-purple-50 text-[9px] font-bold">ผู้แทน</span>
+                  </div>
+                  <p id="pc-position" class="text-[11px] text-blue-100/85 leading-snug truncate mt-0.5"></p>
+                  <div id="pc-orig-box" class="hidden text-[10px] text-purple-200 truncate">
+                    <span class="opacity-80">มาแทน:</span> <strong id="pc-orig-name"></strong>
+                  </div>
+                </div>
               </div>
 
-              <h2 id="pc-name" class="text-lg sm:text-xl font-bold leading-snug tracking-tight text-white drop-shadow-sm break-words"></h2>
-              <p id="pc-position" class="text-xs text-blue-100/85 leading-relaxed break-words"></p>
-
-              <!-- กรณีมาแทน -->
-              <div id="pc-orig-box" class="hidden mt-1 px-2.5 py-1 rounded-lg bg-black/25 border border-white/15 text-[11px] text-purple-100">
-                <span class="opacity-80">มาแทน:</span> <strong id="pc-orig-name"></strong>
-              </div>
-
-              <div class="flex items-center justify-between pt-2 text-[10px] text-amber-200/90">
-                <span class="font-mono tracking-wider opacity-80">VALID 30 NOV – 02 DEC 2569</span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-amber-300/35 font-semibold">
-                  <i data-lucide="rotate-cw" class="w-3 h-3"></i> แตะเพื่อพลิกดูข้อมูล
-                </span>
+              <!-- ตราประทับสถานะสดแยก 3 วัน (กะทัดรัด คงสัดส่วนบัตรเครดิต) -->
+              <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+                <div id="stamp-day1" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
+                <div id="stamp-day2" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
+                <div id="stamp-day3" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
               </div>
             </div>
           </div>
 
           <!-- ========== ด้านหลังบัตร (BACK - แถบแม่เหล็ก + QR เช็กอิน + ที่พัก/คู่พัก/อาหาร) ========== -->
-          <div class="cc-face cc-back cc-back-bg text-white relative flex flex-col justify-between min-h-[250px] sm:min-h-[268px]">
+          <div class="cc-face cc-back cc-back-bg cc-card-ratio text-white relative flex flex-col justify-between">
+            <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
+            <div class="cc-gloss-sweep"></div>
 
             <!-- แถบแม่เหล็กด้านบนสไตล์บัตรเครดิต -->
-            <div class="relative z-10 pt-4">
-              <div class="h-9 w-full bg-slate-950/90 border-y border-white/10 flex items-center justify-between px-5">
-                <span class="text-[10px] font-mono tracking-[0.2em] text-slate-400 uppercase">SMART CHECK-IN & DETAILS</span>
-                <span id="pc-back-id" class="text-[11px] font-mono font-bold text-amber-300">KM69-00</span>
+            <div class="relative z-10 pt-3">
+              <div class="h-7 w-full bg-slate-950/90 border-y border-white/10 flex items-center justify-between px-4">
+                <span class="text-[9.5px] font-mono tracking-[0.18em] text-slate-400 uppercase">SMART CHECK-IN & DETAILS</span>
+                <span id="pc-back-id" class="text-[10.5px] font-mono font-bold text-amber-300">KM69-00</span>
               </div>
             </div>
 
             <!-- เนื้อหาด้านหลัง: QR Code + ที่พัก + อาหาร -->
-            <div class="relative z-10 p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
-              <div class="flex items-stretch gap-3">
-                <!-- กล่อง QR Code เช็กอิน (กดเพื่อขยายเต็มจอโดยไม่พลิกบัตรกลับ) -->
-                <button type="button" onclick="event.stopPropagation(); openQrZoomModal();" title="กดเพื่อขยาย QR Code เต็มจอ" class="shrink-0 bg-white p-2 rounded-2xl shadow-lg flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition">
-                  <div id="pc-qr-box" class="qr-inline w-[76px] h-[76px]"></div>
-                  <span class="text-[9px] font-bold text-navy-800 mt-1 flex items-center gap-0.5">
+            <div class="relative z-10 px-4 py-3 sm:px-5 sm:py-3.5 flex-1 flex flex-col justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <!-- กล่อง QR Code เช็กอิน (แตะตรงไหนของกรอบขาวก็ขยายทันที ไม่มีพลาดจุด) -->
+                <button type="button" data-no-flip="true" onclick="event.stopPropagation(); openQrZoomModal();" title="แตะเพื่อขยาย QR Code เต็มจอ" class="qr-tap-target touch-manipulation shrink-0 bg-white p-2 rounded-xl shadow-lg border-2 border-amber-300/70 flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer">
+                  <div id="pc-qr-box" class="qr-inline w-[74px] h-[74px]"></div>
+                  <span class="text-[9px] font-bold text-navy-800 mt-1 px-1.5 py-0.5 rounded-full bg-blue-50 flex items-center gap-0.5">
                     <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i> ขยาย QR
                   </span>
                 </button>
 
                 <!-- ข้อมูลที่พัก / ผู้พักร่วม / อาหาร / การตอบรับ -->
-                <div class="flex-1 min-w-0 space-y-2">
-                  <div class="cc-glass-box rounded-xl px-3 py-2 space-y-0.5">
-                    <p class="text-[10px] text-amber-200/90 font-semibold flex items-center gap-1">
+                <div class="flex-1 min-w-0 space-y-1.5">
+                  <div class="cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5">
+                    <p class="text-[9.5px] text-amber-200/90 font-semibold flex items-center gap-1">
                       <i data-lucide="bed-double" class="w-3 h-3"></i> ที่พัก / เลขห้อง / ผู้พักร่วม
                     </p>
-                    <p id="pc-stay" class="text-xs font-bold text-white break-words">ไม่ระบุ / ไม่เข้าพัก</p>
-                    <p id="pc-roommate" class="hidden text-[11px] text-sky-200 font-medium break-words"></p>
+                    <p id="pc-stay" class="text-[11px] font-bold text-white break-words leading-snug">ไม่ระบุ / ไม่เข้าพัก</p>
+                    <p id="pc-roommate" class="hidden text-[10px] text-sky-200 font-medium break-words leading-snug"></p>
                   </div>
 
-                  <div class="cc-glass-box rounded-xl px-3 py-2 space-y-0.5">
-                    <p class="text-[10px] text-amber-200/90 font-semibold flex items-center gap-1">
+                  <div class="cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5">
+                    <p class="text-[9.5px] text-amber-200/90 font-semibold flex items-center gap-1">
                       <i data-lucide="utensils" class="w-3 h-3"></i> อาหาร / การตอบรับ
                     </p>
-                    <p id="pc-food-rsvp" class="text-xs font-bold text-white break-words">อาหารทั่วไป • รอการยืนยัน</p>
-                    <a id="pc-letter-link" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="hidden inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 hover:underline pt-0.5">
-                      <i data-lucide="paperclip" class="w-3 h-3"></i> เปิดไฟล์หนังสือส่งตัว ↗
+                    <p id="pc-food-rsvp" class="text-[11px] font-bold text-white break-words leading-snug">อาหารทั่วไป • รอการยืนยัน</p>
+                    <a id="pc-letter-link" data-no-flip="true" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="hidden inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 hover:underline">
+                      <i data-lucide="paperclip" class="w-2.5 h-2.5"></i> เปิดหนังสือส่งตัว ↗
                     </a>
                   </div>
                 </div>
               </div>
 
               <!-- แถบท้ายด้านหลังบัตร -->
-              <div class="flex items-center justify-between pt-2 border-t border-white/15 text-[10px] text-blue-200/90">
-                <span class="truncate">ไพน์เฮิร์สท จ.ปทุมธานี</span>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 font-semibold text-white shrink-0">
-                  <i data-lucide="rotate-ccw" class="w-3 h-3"></i> แตะเพื่อพลิกกลับด้านหน้า
+              <div class="flex items-center justify-between pt-1.5 border-t border-white/15 text-[9.5px] text-blue-200/85">
+                <span class="truncate">ไพน์เฮิร์สท จ.ปทุมธานี • 30 พ.ย. – 2 ธ.ค. 69</span>
+                <span class="inline-flex items-center gap-1 font-semibold text-amber-200 shrink-0">
+                  <i data-lucide="rotate-ccw" class="w-2.5 h-2.5"></i> แตะพลิกกลับ
                 </span>
               </div>
             </div>
@@ -616,6 +757,8 @@
     let allParticipants = [];
     let currentParticipant = null;
     let ratings = { content: 5, speaker: 5, venue: 5, overall: 5 };
+    let liveSyncTimer = null;
+    let lastKnownCheckIns = { day1: '', day2: '', day3: '' };
 
     function initPortalApp() {
       if (window.lucide) lucide.createIcons();
@@ -655,6 +798,48 @@
       return 'd1';
     }
 
+    function formatThaiTime(val) {
+      const s = String(val || '').trim();
+      if (!s || s === 'ยังไม่มา' || s === '-') return '';
+      if (s.includes('1899') || s.includes('GMT')) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }) + ' น.';
+        }
+        const m = s.match(/(\d{1,2}:\d{2})/);
+        if (m) return m[1] + ' น.';
+      }
+      const shortMatch = s.match(/^(\d{1,2}:\d{2})(?::\d{2})?$/);
+      if (shortMatch) return shortMatch[1] + ' น.';
+      return s;
+    }
+
+    function normalizeParticipant(p) {
+      return {
+        ...p,
+        id: String(p.id || '').trim(),
+        fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
+        position: String(p.position || ''),
+        mainUnit: String(p.mainUnit || p.group || ''),
+        unitDetail: String(p.unitDetail || p.unit || ''),
+        rsvp: String(p.rsvp || 'รอการยืนยัน'),
+        day1: formatThaiTime(p.day1),
+        day2: formatThaiTime(p.day2),
+        day3: formatThaiTime(p.day3),
+        stay30: String(p.stay30 || '').trim(),
+        stay1: String(p.stay1 || '').trim(),
+        roomNo: String(p.roomNo || '').trim(),
+        roommate: String(p.roommate || '').trim(),
+        food: String(p.food || 'อาหารทั่วไป').trim(),
+        phone: String(p.phone || '').trim(),
+        licensePlate: String(p.licensePlate || '').trim(),
+        evaluated: Boolean(p.evaluated),
+        substituteName: String(p.substituteName || '').trim(),
+        substitutePosition: String(p.substitutePosition || '').trim(),
+        letterUrl: String(p.letterUrl || '').trim()
+      };
+    }
+
     async function loadParticipantsAndInit() {
       const urlId = new URLSearchParams(window.location.search).get('id');
       try {
@@ -663,29 +848,7 @@
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
 
-        allParticipants = (json.data || []).map(p => ({
-          ...p,
-          id: String(p.id || '').trim(),
-          fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
-          position: String(p.position || ''),
-          mainUnit: String(p.mainUnit || p.group || ''),
-          unitDetail: String(p.unitDetail || p.unit || ''),
-          rsvp: String(p.rsvp || 'รอการยืนยัน'),
-          day1: String(p.day1 || '').trim(),
-          day2: String(p.day2 || '').trim(),
-          day3: String(p.day3 || '').trim(),
-          stay30: String(p.stay30 || '').trim(),
-          stay1: String(p.stay1 || '').trim(),
-          roomNo: String(p.roomNo || '').trim(),
-          roommate: String(p.roommate || '').trim(),
-          food: String(p.food || 'อาหารทั่วไป').trim(),
-          phone: String(p.phone || '').trim(),
-          licensePlate: String(p.licensePlate || '').trim(),
-          evaluated: Boolean(p.evaluated),
-          substituteName: String(p.substituteName || '').trim(),
-          substitutePosition: String(p.substitutePosition || '').trim(),
-          letterUrl: String(p.letterUrl || '').trim()
-        }));
+        allParticipants = (json.data || []).map(normalizeParticipant);
 
         document.getElementById('loading-card').classList.add('hidden');
 
@@ -751,13 +914,61 @@
 
     function selectParticipant(p) {
       currentParticipant = p;
+      lastKnownCheckIns = { day1: p.day1 || '', day2: p.day2 || '', day3: p.day3 || '' };
       document.getElementById('personal-card').classList.remove('hidden');
-      renderPersonalCard(p);
+      renderPersonalCard(p, []);
+      startLiveCheckInPolling();
       if (window.lucide) lucide.createIcons();
     }
 
+    // ระบบซิงค์สถานะเช็กอินแบบ Real-time ทุก 7 วินาที (ทันทีที่สตาฟยิงสแกน บัตรจะประทับตรา VERIFIED อัตโนมัติ)
+    function startLiveCheckInPolling() {
+      if (liveSyncTimer) clearInterval(liveSyncTimer);
+      liveSyncTimer = setInterval(async () => {
+        if (!currentParticipant || document.hidden) return;
+        try {
+          const res = await fetch(`${API_URL}?action=getParticipants`);
+          if (!res.ok) return;
+          const json = await res.json();
+          if (json.status !== 'success' || !Array.isArray(json.data)) return;
+
+          allParticipants = json.data.map(normalizeParticipant);
+          const updated = allParticipants.find(x => x.id.toUpperCase() === currentParticipant.id.toUpperCase());
+          if (!updated) return;
+
+          const newlyVerifiedDays = [];
+          const dayLabels = { day1: '30 พ.ย.', day2: '1 ธ.ค.', day3: '2 ธ.ค.' };
+          ['day1', 'day2', 'day3'].forEach(k => {
+            if (!lastKnownCheckIns[k] && updated[k]) {
+              newlyVerifiedDays.push(k);
+            }
+          });
+
+          const hasChanged =
+            updated.day1 !== lastKnownCheckIns.day1 ||
+            updated.day2 !== lastKnownCheckIns.day2 ||
+            updated.day3 !== lastKnownCheckIns.day3 ||
+            updated.roomNo !== currentParticipant.roomNo ||
+            updated.roommate !== currentParticipant.roommate ||
+            updated.evaluated !== currentParticipant.evaluated;
+
+          if (hasChanged) {
+            currentParticipant = updated;
+            lastKnownCheckIns = { day1: updated.day1 || '', day2: updated.day2 || '', day3: updated.day3 || '' };
+            renderPersonalCard(updated, newlyVerifiedDays);
+
+            if (newlyVerifiedDays.length > 0) {
+              const latestKey = newlyVerifiedDays[newlyVerifiedDays.length - 1];
+              showToast(`✓ ประทับตรา VERIFIED วันที่ ${dayLabels[latestKey]} (${updated[latestKey]}) เรียบร้อยแล้ว!`, 'success');
+            }
+          }
+        } catch (e) {}
+      }, 7000);
+    }
+
     // ==================== RENDER 3D FLIPPABLE CREDIT CARD E-PASS ====================
-    function flipCreditCard() {
+    function flipCreditCard(event) {
+      if (event && event.target && event.target.closest('[data-no-flip="true"]')) return;
       const flipper = document.getElementById('cc-flipper');
       if (!flipper) return;
       const isFlipped = flipper.classList.toggle('is-flipped');
@@ -767,35 +978,68 @@
       }
     }
 
-    function renderPersonalCard(p) {
-      document.getElementById('pc-id').textContent = p.id;
-      const backIdEl = document.getElementById('pc-back-id');
-      if (backIdEl) backIdEl.textContent = p.id;
-      document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || 'ผู้เข้าร่วมสัมมนา';
+    function getPersonalQrText(pid) {
+      let base = 'https://watchaiyanun.github.io/ai-seminar-69/portal.html';
+      try {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+          base = window.location.origin + window.location.pathname;
+        }
+      } catch (e) {}
+      return `${base}?id=${encodeURIComponent(pid)}`;
+    }
 
-      // รีเซ็ตให้เริ่มที่ด้านหน้าบัตรเสมอเมื่อโหลดข้อมูลใหม่
-      const flipper = document.getElementById('cc-flipper');
-      if (flipper) flipper.classList.remove('is-flipped');
-      const flipLabel = document.getElementById('flip-btn-label');
-      if (flipLabel) flipLabel.textContent = 'พลิกดูหลังบัตร (QR & ที่พัก)';
-
-      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName;
+    function renderPersonalCard(p, newlyVerifiedDays = []) {
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
       const displayName = isSub ? p.substituteName : p.fullName;
-      const nameEl = document.getElementById('pc-name');
-      nameEl.textContent = displayName;
-      nameEl.className = displayName.length > 26
-        ? 'text-base sm:text-lg font-bold leading-snug tracking-tight text-white drop-shadow-sm break-words'
-        : 'text-lg sm:text-xl font-bold leading-snug tracking-tight text-white drop-shadow-sm break-words';
+      const displayPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || p.role || '');
 
+      document.getElementById('pc-id').textContent = p.id || '-';
+      document.getElementById('pc-back-id').textContent = p.id || '-';
+      document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || 'ผู้เข้าร่วมสัมมนา';
+      document.getElementById('pc-sub-badge').classList.toggle('hidden', !isSub);
+
+      // ปรับขนาดตัวอักษรชื่ออัตโนมัติหากชื่อยาวมากเพื่อให้แสดงครบถ้วน
+      const nameEl = document.getElementById('pc-name');
+      nameEl.textContent = displayName || '-';
+      nameEl.className = displayName.length > 28
+        ? 'text-sm sm:text-base font-bold leading-tight tracking-tight text-white drop-shadow-sm break-words'
+        : 'text-base sm:text-lg font-bold leading-tight tracking-tight text-white drop-shadow-sm break-words';
+
+      document.getElementById('pc-position').textContent = displayPos;
+
+      // แสดงชื่อเจ้าของสิทธิ์ตัวจริงกรณีส่งผู้แทนเข้าร่วม
+      const origBox = document.getElementById('pc-orig-box');
       if (isSub) {
-        document.getElementById('pc-sub-badge').classList.remove('hidden');
-        document.getElementById('pc-position').textContent = p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา';
-        document.getElementById('pc-orig-name').textContent = `${p.fullName}${p.position ? ' (' + p.position + ')' : ''}`;
-        document.getElementById('pc-orig-box').classList.remove('hidden');
+        document.getElementById('pc-orig-name').textContent = p.fullName;
+        origBox.classList.remove('hidden');
       } else {
-        document.getElementById('pc-sub-badge').classList.add('hidden');
-        document.getElementById('pc-orig-box').classList.add('hidden');
-        document.getElementById('pc-position').textContent = p.position || p.role || '';
+        origBox.classList.add('hidden');
+      }
+
+      // ข้อมูลที่พัก / เลขห้อง / ผู้พักร่วม ด้านหลังบัตร
+      const stayParts = [];
+      if (p.stay30 === 'พัก') stayParts.push('30 พ.ย.');
+      if (p.stay1 === 'พัก') stayParts.push('1 ธ.ค.');
+      let stayText = stayParts.length > 0 ? `พักคืน ${stayParts.join(' & ')}` : 'ไม่ระบุ / ไม่เข้าพัก';
+      if (p.roomNo) stayText += ` • ห้อง ${p.roomNo}`;
+      document.getElementById('pc-stay').textContent = stayText;
+
+      const roommateEl = document.getElementById('pc-roommate');
+      if (p.roommate) {
+        roommateEl.textContent = `พักคู่กับ: ${p.roommate}`;
+        roommateEl.classList.remove('hidden');
+      } else {
+        roommateEl.classList.add('hidden');
+      }
+
+      // ข้อมูลอาหาร / การตอบรับ / ลิงก์หนังสือส่งตัว ด้านหลังบัตร
+      document.getElementById('pc-food-rsvp').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
+      const letterLink = document.getElementById('pc-letter-link');
+      if (p.letterUrl) {
+        letterLink.href = p.letterUrl;
+        letterLink.classList.remove('hidden');
+      } else {
+        letterLink.classList.add('hidden');
       }
 
       // สร้าง QR Code ประจำตัวด้านหลังบัตรอิเล็กทรอนิกส์
@@ -804,91 +1048,94 @@
       if (typeof QRCode !== 'undefined') {
         new QRCode(qrBox, {
           text: getPersonalQrText(p.id),
-          width: 76,
-          height: 76,
+          width: 74,
+          height: 74,
           correctLevel: QRCode.CorrectLevel.L
         });
       }
 
-      // ข้อมูลที่พัก / เลขห้อง / ผู้พักร่วม
-      const nights = [];
-      if (p.stay30 === 'พัก') nights.push('30 พ.ย.');
-      if (p.stay1 === 'พัก') nights.push('1 ธ.ค.');
-      let stayStr = nights.length > 0 ? `พักคืน ${nights.join(', ')}` : 'ไม่ระบุ / ไม่เข้าพัก';
-      if (p.roomNo) stayStr += ` • ห้อง ${p.roomNo}`;
-      document.getElementById('pc-stay').textContent = stayStr;
+      // ตราประทับสถานะสดแยก 3 วันบนหน้าบัตร (Live 3-Day Check-in Stamp & Pulse)
+      const dayConfigs = [
+        { key: 'day1', elId: 'stamp-day1', date: '30 พ.ย.', time: p.day1, done: Boolean(p.day1) },
+        { key: 'day2', elId: 'stamp-day2', date: '1 ธ.ค.',  time: p.day2, done: Boolean(p.day2) },
+        { key: 'day3', elId: 'stamp-day3', date: '2 ธ.ค.',  time: p.day3, done: Boolean(p.day3) }
+      ];
 
-      const rmEl = document.getElementById('pc-roommate');
-      if (p.roommate) {
-        rmEl.textContent = `ผู้พักร่วม: ${p.roommate}`;
-        rmEl.classList.remove('hidden');
+      dayConfigs.forEach(d => {
+        const el = document.getElementById(d.elId);
+        if (!el) return;
+        const isJustStamped = newlyVerifiedDays.includes(d.key);
+        if (d.done) {
+          el.className = `stamp-day-verified rounded-lg px-1.5 py-1 text-center transition-all duration-300 ${isJustStamped ? 'stamp-animate' : ''}`;
+          el.innerHTML = `
+            <div class="flex items-center justify-center gap-1 text-[9px] font-extrabold text-emerald-200 leading-none">
+              <span class="emerald-pulse-dot"></span>
+              <span>${escapeHtml(d.date)}</span>
+            </div>
+            <div class="font-mono text-[9px] font-bold text-white leading-tight mt-0.5">✓ ${escapeHtml(d.time)}</div>
+          `;
+        } else {
+          el.className = 'stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300';
+          el.innerHTML = `
+            <div class="text-[9px] font-semibold text-white/80 leading-none">${escapeHtml(d.date)}</div>
+            <div class="text-[8.5px] text-slate-300/65 leading-tight mt-0.5">รอเช็กอิน</div>
+          `;
+        }
+      });
+
+      // ป้ายสถานะสดด้านบนใต้รหัสบัตร (VERIFIED • เวลาล่าสุด)
+      const livePill = document.getElementById('pc-live-status-pill');
+      const liveText = document.getElementById('pc-live-status-text');
+      const verifiedDays = dayConfigs.filter(d => d.done);
+      if (verifiedDays.length > 0) {
+        const latest = verifiedDays[verifiedDays.length - 1];
+        liveText.textContent = `VERIFIED (${latest.date}) • ${latest.time}`;
+        livePill.classList.remove('hidden');
       } else {
-        rmEl.classList.add('hidden');
+        livePill.classList.add('hidden');
       }
 
-      // อาหาร / การตอบรับ / หนังสือส่งตัว
-      document.getElementById('pc-food-rsvp').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
-      const letterEl = document.getElementById('pc-letter-link');
-      if (p.letterUrl) {
-        letterEl.href = p.letterUrl;
-        letterEl.classList.remove('hidden');
-      } else {
-        letterEl.classList.add('hidden');
-      }
-
-      renderProgressCard(p);
-    }
-
-    function getPersonalQrText(pid) {
-      try {
-        const u = new URL(window.location.href);
-        u.searchParams.set('id', pid);
-        return u.toString();
-      } catch (e) {
-        return `https://watchaiyanun.github.io/ai-seminar-69/portal.html?id=${encodeURIComponent(pid)}`;
-      }
-    }
-
-    function renderProgressCard(p) {
-      const done1 = Boolean(p.day1 && p.day1 !== 'ยังไม่มา' && p.day1 !== '-');
-      const done2 = Boolean(p.day2 && p.day2 !== 'ยังไม่มา' && p.day2 !== '-');
-      const done3 = Boolean(p.day3 && p.day3 !== 'ยังไม่มา' && p.day3 !== '-');
-      const doneEval = Boolean(p.evaluated);
-
-      const totalDone = [done1, done2, done3, doneEval].filter(Boolean).length;
-      const pct = totalDone * 25;
+      // กราฟแท่งเดียวความคืบหน้าการเข้าร่วมกิจกรรม (4 กิจกรรม = 100%)
+      const activities = [
+        { id: 'pill-day1', label: '30 พ.ย.', done: Boolean(p.day1) },
+        { id: 'pill-day2', label: '1 ธ.ค.',  done: Boolean(p.day2) },
+        { id: 'pill-day3', label: '2 ธ.ค.',  done: Boolean(p.day3) },
+        { id: 'pill-eval', label: 'ประเมิน', done: Boolean(p.evaluated) }
+      ];
+      const completedCount = activities.filter(a => a.done).length;
+      const pct = Math.round((completedCount / activities.length) * 100);
 
       document.getElementById('pc-progress-pct').textContent = `${pct}%`;
       document.getElementById('pc-progress-bar').style.width = `${pct}%`;
 
       const countBadge = document.getElementById('pc-progress-count');
-      if (totalDone === 4) {
-        countBadge.textContent = 'ครบทุกกิจกรรมแล้ว';
+      if (completedCount === activities.length) {
+        countBadge.textContent = 'ครบทุกกิจกรรมแล้ว ✓';
         countBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
       } else {
-        countBadge.textContent = `${totalDone}/4 กิจกรรม`;
+        countBadge.textContent = `${completedCount}/4 กิจกรรม`;
         countBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800';
       }
 
-      const setPill = (id, label, isDone) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = isDone ? `✓ ${label}` : label;
-        el.className = isDone
-          ? 'py-1.5 px-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 text-[11px] font-bold transition'
-          : 'py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium transition';
-      };
+      activities.forEach(a => {
+        const pill = document.getElementById(a.id);
+        if (!pill) return;
+        if (a.done) {
+          pill.textContent = `✓ ${a.label}`;
+          pill.className = 'py-1.5 px-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 text-[11px] font-bold transition';
+        } else {
+          pill.textContent = a.label;
+          pill.className = 'py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium transition';
+        }
+      });
 
-      setPill('pill-day1', '30 พ.ย.', done1);
-      setPill('pill-day2', '1 ธ.ค.', done2);
-      setPill('pill-day3', '2 ธ.ค.', done3);
-      setPill('pill-eval', 'ประเมิน', doneEval);
+      if (window.lucide) lucide.createIcons();
     }
 
     // ==================== QR ZOOM MODAL ====================
     function openQrZoomModal() {
       if (!currentParticipant) return;
-      const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && currentParticipant.substituteName;
+      const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(currentParticipant.substituteName);
       document.getElementById('zoom-qr-id').textContent = currentParticipant.id;
       document.getElementById('zoom-qr-name').textContent = isSub ? currentParticipant.substituteName : currentParticipant.fullName;
 
@@ -897,8 +1144,8 @@
       if (typeof QRCode !== 'undefined') {
         new QRCode(box, {
           text: getPersonalQrText(currentParticipant.id),
-          width: 220,
-          height: 220,
+          width: 215,
+          height: 215,
           correctLevel: QRCode.CorrectLevel.M
         });
       }
@@ -911,52 +1158,128 @@
 
     // ==================== TABS & SCHEDULE ====================
     function switchPortalTab(tab) {
-      document.getElementById('tab-info').classList.toggle('hidden', tab !== 'info');
-      document.getElementById('tab-eval').classList.toggle('hidden', tab !== 'eval');
+      const isInfo = tab === 'info';
+      document.getElementById('tab-info').classList.toggle('hidden', !isInfo);
+      document.getElementById('tab-eval').classList.toggle('hidden', isInfo);
 
-      document.getElementById('btn-tab-info').className = tab === 'info'
+      document.getElementById('btn-tab-info').className = isInfo
         ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition'
         : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
 
-      document.getElementById('btn-tab-eval').className = tab === 'eval'
+      document.getElementById('btn-tab-eval').className = !isInfo
         ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-maroon-700 text-white shadow-sm transition'
         : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
+
+      if (window.lucide) lucide.createIcons();
     }
 
-    function selectScheduleDay(key) {
+    function selectScheduleDay(dayKey) {
       ['d1', 'd2', 'd3'].forEach(k => {
-        document.getElementById(`sched-btn-${k}`).className = k === key
+        const btn = document.getElementById(`sched-btn-${k}`);
+        if (!btn) return;
+        btn.className = k === dayKey
           ? 'py-2 rounded-lg font-bold bg-white text-navy-700 shadow-xs transition'
           : 'py-2 rounded-lg font-medium text-slate-500 transition';
       });
 
-      const list = SCHEDULES[key] || [];
-      document.getElementById('schedule-list').innerHTML = list.map(item => `
+      const items = SCHEDULES[dayKey] || [];
+      document.getElementById('schedule-list').innerHTML = items.map(item => `
         <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-          <span class="px-2 py-0.5 rounded-lg bg-navy-700/10 text-navy-700 font-mono text-[11px] font-bold shrink-0">${item.time}</span>
-          <span class="text-slate-700 leading-snug">${item.title}</span>
+          <span class="shrink-0 font-mono text-[11px] font-bold text-navy-700 bg-blue-50 px-2 py-0.5 rounded-lg">${escapeHtml(item.time)}</span>
+          <span class="text-slate-700 leading-snug">${escapeHtml(item.title)}</span>
         </div>
       `).join('');
     }
 
-    // ==================== EDIT REQUEST MODAL & ROOMMATE AUTOCOMPLETE ====================
+    // ==================== ANONYMOUS EVALUATION ====================
+    function renderRatingQuestions() {
+      const container = document.getElementById('rating-questions');
+      if (!container) return;
+      container.innerHTML = RATING_ITEMS.map(item => `
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+          <p class="text-xs sm:text-sm font-semibold text-slate-800">${escapeHtml(item.label)}</p>
+          <div class="grid grid-cols-5 gap-1.5">
+            ${[1, 2, 3, 4, 5].map(score => {
+              const active = ratings[item.key] === score;
+              return `
+                <button type="button" onclick="setRating('${item.key}', ${score})" class="py-2 rounded-xl text-xs font-bold border transition ${
+                  active
+                    ? 'bg-amber-400 border-amber-500 text-navy-900 shadow-xs scale-[1.02]'
+                    : 'bg-white border-slate-200 text-slate-500 hover:bg-amber-50'
+                }">★ ${score}</button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setRating(key, score) {
+      ratings[key] = score;
+      renderRatingQuestions();
+    }
+
+    async function submitEvaluation(e) {
+      e.preventDefault();
+      const btn = document.getElementById('eval-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึกแบบประเมิน...';
+
+      try {
+        const payload = {
+          action: 'submitEvaluation',
+          id: currentParticipant ? currentParticipant.id : '',
+          content: ratings.content,
+          speaker: ratings.speaker,
+          venue: ratings.venue,
+          overall: ratings.overall,
+          comment: document.getElementById('eval-comment').value.trim()
+        };
+
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          showToast('บันทึกแบบประเมินนิรนามเรียบร้อยแล้ว ขอบคุณครับ', 'success');
+          document.getElementById('eval-comment').value = '';
+          if (currentParticipant) {
+            currentParticipant.evaluated = true;
+            renderPersonalCard(currentParticipant, []);
+          }
+          switchPortalTab('info');
+        } else {
+          showToast(json.message || 'ส่งแบบประเมินไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast('เกิดข้อผิดพลาดในการส่งแบบประเมิน: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'ส่งแบบประเมินความพึงพอใจ';
+      }
+    }
+
+    // ==================== EDIT REQUEST MODAL + ROOMMATE AUTOCOMPLETE ====================
     function openEditRequestModal() {
       if (!currentParticipant) return;
       const p = currentParticipant;
       document.getElementById('req-name').value = p.fullName || '';
       document.getElementById('req-position').value = p.position || '';
       document.getElementById('req-rsvp').value = p.rsvp || 'ยืนยันเข้าร่วม';
+      document.getElementById('req-food').value = p.food || 'อาหารทั่วไป';
       document.getElementById('req-sub-name').value = p.substituteName || '';
       document.getElementById('req-sub-pos').value = p.substitutePosition || '';
       document.getElementById('req-stay30').value = p.stay30 || '';
       document.getElementById('req-stay1').value = p.stay1 || '';
       document.getElementById('req-room').value = p.roomNo || '';
       document.getElementById('req-roommate').value = p.roommate || '';
-      document.getElementById('req-food').value = p.food || 'อาหารทั่วไป';
       document.getElementById('req-phone').value = p.phone || '';
       document.getElementById('req-plate').value = p.licensePlate || '';
-      document.getElementById('req-note').value = '';
       document.getElementById('req-letter-file').value = '';
+      document.getElementById('req-note').value = '';
 
       togglePortalSubFields();
       document.getElementById('req-roommate-suggestions').classList.add('hidden');
@@ -979,10 +1302,10 @@
       const box = document.getElementById('req-roommate-suggestions');
       if (!box) return;
       const q = String(query || '').trim().toLowerCase();
-      const myId = currentParticipant ? currentParticipant.id : '';
+      const currentId = currentParticipant ? currentParticipant.id : '';
 
       const matches = allParticipants.filter(p => {
-        if (p.id === myId) return false;
+        if (p.id === currentId) return false;
         const activeName = (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName;
         if (!q) return true;
         return `${p.id} ${activeName} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
@@ -999,8 +1322,8 @@
         return `
           <button type="button" onclick="selectPortalRoommate('${escapeHtml(activeName).replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-2.5 hover:bg-blue-50 active:bg-blue-100 transition flex items-center justify-between gap-2">
             <div class="min-w-0">
-              <div class="text-xs font-bold text-slate-800 truncate">${escapeHtml(activeName)}</div>
-              <div class="text-[10px] text-slate-500 truncate">${escapeHtml(p.id)} • ${escapeHtml(unitLabel)}</div>
+              <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(activeName)}</div>
+              <div class="text-[10px] text-slate-400 truncate">${escapeHtml(p.id)} • ${escapeHtml(unitLabel)}</div>
             </div>
             <span class="text-[10px] font-bold text-navy-700 shrink-0">เลือก</span>
           </button>
@@ -1017,7 +1340,11 @@
     function readFileAsBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: String(reader.result).split(',')[1] });
+        reader.onload = () => resolve({
+          name: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          data: String(reader.result).split(',')[1]
+        });
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
@@ -1031,7 +1358,7 @@
       let fileData = null;
       if (fileInput.files && fileInput.files[0]) {
         if (fileInput.files[0].size > 5 * 1024 * 1024) {
-          showToast('ขนาดไฟล์ต้องไม่เกิน 5MB ครับ', 'error');
+          showToast('ขนาดไฟล์หนังสือส่งตัวต้องไม่เกิน 5MB', 'error');
           return;
         }
         fileData = await readFileAsBase64(fileInput.files[0]);
@@ -1042,10 +1369,11 @@
       btn.textContent = fileData ? 'กำลังอัปโหลดและส่งคำขอ...' : 'กำลังส่งคำขอ...';
 
       const rsvp = document.getElementById('req-rsvp').value;
-      const summaryParts = [rsvp];
-      if (rsvp === 'ส่งผู้แทนเข้าร่วม') summaryParts.push(`ผู้แทน: ${document.getElementById('req-sub-name').value.trim()}`);
-      if (document.getElementById('req-roommate').value.trim()) summaryParts.push(`คู่พัก: ${document.getElementById('req-roommate').value.trim()}`);
+      const summaryParts = [];
+      if (rsvp === 'ส่งผู้แทนเข้าร่วม') summaryParts.push('แจ้งส่งผู้แทน');
       if (fileData) summaryParts.push('แนบหนังสือส่งตัว');
+      if (document.getElementById('req-roommate').value.trim()) summaryParts.push('ระบุผู้พักร่วม');
+      if (summaryParts.length === 0) summaryParts.push('ขอแก้ไขข้อมูลส่วนตัว/ที่พัก');
 
       const payload = {
         action: 'submitEditRequest',
@@ -1076,99 +1404,32 @@
         });
         const json = await res.json();
         if (json.status === 'success') {
-          showToast(json.message, 'success');
+          showToast(json.message || 'ส่งคำขอแก้ไขไปยังเจ้าหน้าที่เรียบร้อยแล้ว', 'success');
           closeEditRequestModal();
         } else {
           showToast(json.message || 'ส่งคำขอไม่สำเร็จ', 'error');
         }
       } catch (err) {
-        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+        showToast('ส่งคำขอไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
         btn.textContent = 'ส่งคำขอแก้ไข';
       }
     }
 
-    // ==================== ANONYMOUS EVALUATION ====================
-    function renderRatingQuestions() {
-      const container = document.getElementById('rating-questions');
-      container.innerHTML = RATING_ITEMS.map(item => `
-        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs sm:text-sm font-semibold text-slate-800">${item.label}</span>
-            <span id="score-label-${item.key}" class="text-xs font-bold text-amber-600 shrink-0">${ratings[item.key]} / 5</span>
-          </div>
-          <div class="grid grid-cols-5 gap-1.5">
-            ${[1, 2, 3, 4, 5].map(score => `
-              <button type="button" onclick="setRating('${item.key}', ${score})" id="star-${item.key}-${score}" class="py-2 rounded-xl border text-base font-bold transition ${score <= ratings[item.key] ? 'bg-amber-400 border-amber-500 text-white shadow-xs' : 'bg-white border-slate-200 text-slate-300'}">★</button>
-            `).join('')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function setRating(key, score) {
-      ratings[key] = score;
-      document.getElementById(`score-label-${key}`).textContent = `${score} / 5`;
-      for (let i = 1; i <= 5; i++) {
-        const btn = document.getElementById(`star-${key}-${i}`);
-        btn.className = i <= score
-          ? 'py-2 rounded-xl border text-base font-bold transition bg-amber-400 border-amber-500 text-white shadow-xs'
-          : 'py-2 rounded-xl border text-base font-bold transition bg-white border-slate-200 text-slate-300';
-      }
-    }
-
-    async function submitEvaluation(e) {
-      e.preventDefault();
-      const btn = document.getElementById('eval-submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'กำลังส่งแบบประเมิน...';
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'submitEvaluation',
-            id: currentParticipant ? currentParticipant.id : 'ไม่ระบุ',
-            content: ratings.content,
-            speaker: ratings.speaker,
-            venue: ratings.venue,
-            overall: ratings.overall,
-            comment: document.getElementById('eval-comment').value.trim()
-          })
-        });
-        const json = await res.json();
-        if (json.status === 'success') {
-          showToast(json.message, 'success');
-          document.getElementById('eval-comment').value = '';
-          if (currentParticipant) {
-            currentParticipant.evaluated = true;
-            renderProgressCard(currentParticipant);
-          }
-          switchPortalTab('info');
-        } else {
-          showToast(json.message || 'ส่งแบบประเมินไม่สำเร็จ', 'error');
-        }
-      } catch (err) {
-        showToast('ส่งไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'ส่งแบบประเมินความพึงพอใจ';
-      }
-    }
-
-    function showToast(msg, type = 'info') {
+    // ==================== TOAST & ESCAPE ====================
+    function showToast(message, type = 'info') {
       const box = document.getElementById('toast-box');
-      const colors = {
+      if (!box) return;
+      const styles = {
         success: 'bg-emerald-600 text-white',
         error: 'bg-rose-600 text-white',
         warning: 'bg-amber-500 text-white',
         info: 'bg-navy-800 text-white'
       };
       const el = document.createElement('div');
-      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-semibold text-center transition-all duration-300 ${colors[type] || colors.info}`;
-      el.textContent = msg;
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-medium text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
       box.appendChild(el);
       setTimeout(() => {
         el.classList.add('opacity-0', 'translate-y-2');
