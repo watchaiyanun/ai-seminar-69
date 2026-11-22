@@ -177,6 +177,9 @@
           <button onclick="prepareAndPrintSheet()" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 transition">
             <i data-lucide="printer" class="w-4 h-4 shrink-0"></i> ใบเซ็นชื่อ A4
           </button>
+          <button onclick="exportParticipantsCSV()" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i> Export Excel
+          </button>
           <a href="badges.html" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white shadow-sm transition">
             <i data-lucide="id-card" class="w-4 h-4 shrink-0"></i> พิมพ์ป้ายชื่อ
           </a>
@@ -382,6 +385,44 @@
             <table class="w-full text-sm border-collapse">
               <tbody id="summary-metrics-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- 3. สรุปกราฟผลประเมินความพึงพอใจแบบ Real-time (Executive Evaluation Analytics) -->
+        <div class="lg:col-span-12 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="px-5 py-4 bg-gradient-to-r from-navy-800 via-navy-700 to-maroon-700 text-white flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="star" class="w-5 h-5 text-gold-400"></i>
+              <h2 class="font-bold text-sm sm:text-base">3. สรุปผลประเมินความพึงพอใจ (แบบนิรนาม Real-time)</h2>
+            </div>
+            <span id="eval-summary-count" class="px-3 py-1 rounded-full bg-white/15 border border-white/25 text-xs font-bold">ผู้ตอบแบบประเมิน 0 ราย</span>
+          </div>
+          <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            <!-- คะแนนเฉลี่ยรวมและกราฟแท่ง 4 ด้าน -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
+                <div class="text-center px-4 py-2 rounded-2xl bg-gradient-to-br from-navy-700 to-maroon-700 text-white shadow-md shrink-0">
+                  <div id="eval-avg-total" class="text-3xl font-extrabold font-mono leading-none">0.00</div>
+                  <div class="text-[10px] text-amber-200 mt-1">เต็ม 5.00</div>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">คะแนนความพึงพอใจเฉลี่ยรวมทุกด้าน</h3>
+                  <p id="eval-satisfaction-level" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">ยังไม่มีข้อมูลการประเมินในระบบ</p>
+                </div>
+              </div>
+              <div id="eval-bars-container" class="space-y-3"></div>
+            </div>
+
+            <!-- กล่องรวมข้อเสนอแนะเพิ่มเติม (นิรนาม) -->
+            <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <i data-lucide="message-square-quote" class="w-4 h-4 text-maroon-600"></i> ข้อเสนอแนะเพิ่มเติม (นิรนาม)
+                </h3>
+                <span id="eval-comments-count" class="text-[11px] text-slate-400">0 ข้อความ</span>
+              </div>
+              <div id="eval-comments-list" class="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-1"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -806,6 +847,7 @@
     let API_URL = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let editRequests = [];
+    let evalSummary = { count: 0, averages: { content: 0, speaker: 0, venue: 0, overall: 0, total: 0 }, comments: [] };
     let currentDay = detectDefaultDay();
     let currentView = 'split';
     let html5QrCode = null;
@@ -958,7 +1000,7 @@
       const icon = document.getElementById('refresh-icon');
       if (icon) icon.classList.add('animate-spin');
       try {
-        await Promise.all([fetchParticipants(showMsg), fetchEditRequests()]);
+        await Promise.all([fetchParticipants(showMsg), fetchEditRequests(), fetchEvaluationSummary()]);
       } finally {
         if (icon) icon.classList.remove('animate-spin');
       }
@@ -1019,33 +1061,66 @@
       } catch (e) {}
     }
 
-    function updateNotifBadge() {
-      const badge = document.getElementById('notif-badge');
-      if (!badge) return;
-      const pendingCount = editRequests.filter(r => r.status === 'รออนุมัติ').length;
-      if (pendingCount > 0) {
-        badge.textContent = pendingCount;
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+    async function fetchEvaluationSummary() {
+      if (!API_URL) return;
+      try {
+        const res = await fetch(`${API_URL}?action=getEvaluationSummary`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.status === 'success' && json.data) {
+          evalSummary = json.data;
+          if (currentView === 'summary') renderEvaluationAnalytics();
+        }
+      } catch (e) {}
+    }
+
+    // ==================== DAY & VIEW SWITCHERS ====================
+    function selectDay(dayKey, shouldRender = true) {
+      currentDay = dayKey;
+      ['day1', 'day2', 'day3'].forEach(k => {
+        const btn = document.getElementById(`tab-${k}`);
+        if (!btn) return;
+        btn.className = k === dayKey
+          ? 'day-tab px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-center bg-navy-700 text-white shadow-sm transition'
+          : 'day-tab px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 text-slate-600 transition';
+      });
+      document.querySelectorAll('.current-day-text').forEach(el => {
+        el.textContent = DAY_CONFIG[dayKey].label;
+      });
+      if (shouldRender) updateDashboard();
+    }
+
+    function setViewMode(mode) {
+      currentView = mode;
+      document.getElementById('split-view-container').classList.toggle('hidden', mode !== 'split');
+      document.getElementById('table-view-container').classList.toggle('hidden', mode !== 'table');
+      document.getElementById('summary-view-container').classList.toggle('hidden', mode !== 'summary');
+
+      ['split', 'table', 'summary'].forEach(m => {
+        const btn = document.getElementById(`view-btn-${m}`);
+        if (!btn) return;
+        btn.className = m === mode
+          ? 'inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition'
+          : 'inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 transition';
+      });
+      renderViews();
     }
 
     function populateUnitFilter() {
-      const select = document.getElementById('filter-unit');
-      if (!select) return;
-      const prev = select.value;
+      const sel = document.getElementById('filter-unit');
+      if (!sel) return;
+      const prev = sel.value;
       const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))].sort((a, b) => {
         const ia = UNIT_ORDER.indexOf(a);
         const ib = UNIT_ORDER.indexOf(b);
         return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
       });
-      select.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' +
+      sel.innerHTML = '<option value="all">หน่วยหลัก: ทั้งหมด</option>' +
         units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
-      if (units.includes(prev)) select.value = prev;
+      if (units.includes(prev)) sel.value = prev;
     }
 
-    // ==================== DASHBOARD KPI & VIEWS ====================
+    // ==================== KPI & RENDER VIEWS ====================
     function updateDashboard() {
       const total = participants.length;
       const checked = participants.filter(p => isCheckedIn(p)).length;
@@ -1056,9 +1131,9 @@
       const subCount = participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length;
       const stay30 = participants.filter(p => p.stay30 === 'พัก').length;
       const stay1 = participants.filter(p => p.stay1 === 'พัก').length;
-      const roomsCount = participants.filter(p => Boolean(p.roomNo)).length;
-      const halalCount = participants.filter(p => String(p.food).includes('ฮาลาล')).length;
-      const vegCount = participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length;
+      const roomsAssigned = participants.filter(p => Boolean(p.roomNo)).length;
+      const halal = participants.filter(p => p.food === 'อาหารฮาลาล').length;
+      const veg = participants.filter(p => p.food === 'มังสวิรัติ/อื่นๆ').length;
       const evalCount = participants.filter(p => p.evaluated).length;
 
       document.getElementById('kpi-total').textContent = total;
@@ -1070,307 +1145,173 @@
       document.getElementById('kpi-pending').textContent = pending;
       document.getElementById('kpi-stay30').textContent = stay30;
       document.getElementById('kpi-stay1').textContent = stay1;
-      document.getElementById('kpi-rooms').textContent = `จัดเลขห้องแล้ว ${roomsCount} ราย`;
-      document.getElementById('kpi-halal').textContent = halalCount;
-      document.getElementById('kpi-veg').textContent = vegCount;
+      document.getElementById('kpi-rooms').textContent = `จัดเลขห้องแล้ว ${roomsAssigned} ราย`;
+      document.getElementById('kpi-halal').textContent = halal;
+      document.getElementById('kpi-veg').textContent = veg;
       document.getElementById('kpi-eval').textContent = `ประเมินผลแล้ว ${evalCount} ราย`;
 
-      updateScannerLiveCount();
       renderViews();
     }
 
     function getFilteredParticipants() {
-      const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+      const q = String(document.getElementById('search-input')?.value || '').trim().toLowerCase();
       const unitFilter = document.getElementById('filter-unit')?.value || 'all';
       const rsvpFilter = document.getElementById('filter-rsvp')?.value || 'all';
 
       return participants.filter(p => {
         if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
         if (rsvpFilter !== 'all' && p.rsvp !== rsvpFilter) return false;
-        if (q) {
-          const hay = `${p.id} ${p.fullName} ${p.position} ${p.substituteName} ${p.substitutePosition} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.roommate}`.toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        return true;
+        if (!q) return true;
+        return `${p.id} ${p.fullName} ${p.substituteName} ${p.position} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.roommate}`.toLowerCase().includes(q);
       });
     }
 
     function renderViews() {
       const filtered = getFilteredParticipants();
-      if (currentView === 'split') {
-        renderSplitView(filtered);
-      } else if (currentView === 'table') {
-        renderTableView(filtered);
-      } else if (currentView === 'summary') {
-        renderSummaryView();
-      }
+      if (currentView === 'split') renderSplitView(filtered);
+      else if (currentView === 'table') renderTableView(filtered);
+      else renderSummaryView();
       if (window.lucide) lucide.createIcons();
     }
 
-    function setViewMode(mode) {
-      currentView = mode;
-      ['split', 'table', 'summary'].forEach(m => {
-        document.getElementById(`${m}-view-container`).classList.toggle('hidden', m !== mode);
-        const btn = document.getElementById(`view-btn-${m}`);
-        btn.className = m === mode
-          ? 'inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold bg-white dark:bg-slate-700 text-navy-700 dark:text-white shadow-sm transition'
-          : 'inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 transition';
-      });
-      renderViews();
-    }
-    function selectDay(dayKey, shouldRender = true) {
-      currentDay = dayKey;
-      document.querySelectorAll('.day-tab').forEach(btn => {
-        btn.className = 'day-tab px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-center transition bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300';
-      });
-      document.getElementById(`tab-${dayKey}`).className = 'day-tab px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center transition bg-navy-700 text-white shadow-sm';
-      document.querySelectorAll('.current-day-text').forEach(el => el.textContent = DAY_CONFIG[dayKey].label);
-      if (shouldRender) updateDashboard();
-    }
+    function renderSplitView(list) {
+      const checkedList = list.filter(p => isCheckedIn(p)).sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
+      const pendingList = list.filter(p => !isCheckedIn(p)).sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
 
-    function buildMetaBadges(p) {
-      const tags = [getRsvpBadge(p.rsvp)];
-      if (p.roomNo) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">ห้อง ${escapeHtml(p.roomNo)}</span>`);
-      else if (p.stay30 === 'พัก' || p.stay1 === 'พัก') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">พักโรงแรม</span>`);
-      if (p.roommate) tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300">พักคู่: ${escapeHtml(p.roommate)}</span>`);
-      if (p.food && p.food !== 'อาหารทั่วไป') tags.push(`<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">${escapeHtml(p.food)}</span>`);
-      if (p.letterUrl) tags.push(`<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200">📎 หนังสือส่งตัว</a>`);
-      return tags.join(' ');
-    }
+      document.getElementById('split-checked-badge').textContent = `${checkedList.length} คน`;
+      document.getElementById('split-pending-badge').textContent = `${pendingList.length} คน`;
 
-    function buildNameBlock(p) {
-      if (hasSubstitute(p)) {
+      const buildCard = (p, checked) => {
+        const isSub = hasSubstitute(p);
+        const name = isSub ? p.substituteName : p.fullName;
+        const pos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วม') : (p.position || p.role);
+        const metaBadges = [];
+        if (p.roomNo) metaBadges.push(`<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-semibold">ห้อง ${escapeHtml(p.roomNo)}</span>`);
+        if (p.roommate) metaBadges.push(`<span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">คู่พัก: ${escapeHtml(p.roommate)}</span>`);
+        if (p.food && p.food !== 'อาหารทั่วไป') metaBadges.push(`<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">${escapeHtml(p.food)}</span>`);
+        if (p.letterUrl) metaBadges.push(`<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:underline font-semibold">📎 หนังสือส่งตัว</a>`);
+
         return `
-          <h3 class="font-bold text-sm text-purple-900 dark:text-purple-200 truncate">${escapeHtml(p.substituteName)}</h3>
-          <p class="text-[11px] text-purple-700 dark:text-purple-300 truncate">ผู้แทน • ${escapeHtml(p.substitutePosition || 'ไม่ระบุตำแหน่ง')}</p>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">มาแทน: <span class="font-medium">${escapeHtml(p.fullName)}</span> (${escapeHtml(p.unitDetail || p.mainUnit)})</p>
+          <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border ${checked ? 'border-emerald-200 dark:border-emerald-800/70' : 'border-slate-200 dark:border-slate-700'} shadow-xs hover:shadow-md transition flex items-start gap-3">
+            <!-- Smart QR Code ขนาดย่อของแต่ละคน -->
+            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย / ดาวน์โหลด Smart QR Code" class="shrink-0 p-1 bg-white rounded-lg border border-slate-200 hover:border-navy-700 hover:scale-105 transition cursor-pointer">
+              <div class="mini-qr-slot w-[52px] h-[52px]" data-qr-id="${escapeHtml(p.id)}"></div>
+            </button>
+
+            <div class="min-w-0 flex-1 space-y-1">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-navy-800 dark:text-blue-200">${escapeHtml(p.id)}</span>
+                    ${getRsvpBadge(p.rsvp)}
+                    ${checked ? `<span class="font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ ${escapeHtml(p[currentDay])}</span>` : ''}
+                  </div>
+                  <h3 class="font-bold text-sm text-slate-900 dark:text-white leading-snug mt-1 break-words">${escapeHtml(name)}</h3>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(pos)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+                  ${isSub ? `<p class="text-[10px] text-purple-600 dark:text-purple-400 font-medium">ผู้แทนของ: ${escapeHtml(p.fullName)}</p>` : ''}
+                </div>
+              </div>
+
+              ${metaBadges.length ? `<div class="flex flex-wrap gap-1 text-[10px] pt-0.5">${metaBadges.join('')}</div>` : ''}
+
+              <div class="flex items-center justify-end gap-1.5 pt-1.5">
+                <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium transition">แก้ไข</button>
+                ${checked
+                  ? `<button type="button" onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition">ยกเลิก</button>`
+                  : `<button type="button" onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition">เช็กอิน</button>`
+                }
+              </div>
+            </div>
+          </div>
         `;
+      };
+
+      document.getElementById('checked-list').innerHTML = checkedList.length === 0
+        ? `<div class="py-16 text-center text-xs text-slate-400">ยังไม่มีผู้เช็กอินในวันนี้</div>`
+        : checkedList.map(p => buildCard(p, true)).join('');
+
+      document.getElementById('pending-list').innerHTML = pendingList.length === 0
+        ? `<div class="py-16 text-center text-xs text-emerald-600 font-semibold">เช็กอินครบทุกคนแล้ว!</div>`
+        : pendingList.map(p => buildCard(p, false)).join('');
+
+      renderMiniQrSlots();
+    }
+
+    function renderTableView(list) {
+      const tbody = document.getElementById('participants-tbody');
+      if (!tbody) return;
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center text-slate-400 text-sm">ไม่พบรายชื่อที่ค้นหา</td></tr>`;
+        return;
       }
-      return `
-        <h3 class="font-semibold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(p.fullName)}</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(p.position || p.role)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</p>
-      `;
+
+      tbody.innerHTML = list.map(p => {
+        const checked = isCheckedIn(p);
+        const isSub = hasSubstitute(p);
+        const nameHtml = isSub
+          ? `<div class="font-bold text-slate-900 dark:text-white">${escapeHtml(p.substituteName)}</div><div class="text-[11px] text-purple-600">ผู้แทน: ${escapeHtml(p.fullName)}</div>`
+          : `<div class="font-bold text-slate-900 dark:text-white">${escapeHtml(p.fullName)}</div><div class="text-[11px] text-slate-500">${escapeHtml(p.position || p.role)}</div>`;
+
+        const stayParts = [];
+        if (p.stay30 === 'พัก') stayParts.push('30พ.ย.');
+        if (p.stay1 === 'พัก') stayParts.push('1ธ.ค.');
+        const stayStr = stayParts.length ? stayParts.join('+') : '-';
+
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition">
+            <td class="py-2.5 px-3 font-mono font-bold text-xs text-navy-700 dark:text-blue-300 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-2 px-3 text-center">
+              <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกขยาย QR Code" class="inline-block p-1 bg-white rounded-lg border border-slate-200 hover:border-navy-700 transition">
+                <div class="mini-qr-slot w-[42px] h-[42px]" data-qr-id="${escapeHtml(p.id)}" data-qr-size="42"></div>
+              </button>
+            </td>
+            <td class="py-2.5 px-3">${nameHtml}</td>
+            <td class="py-2.5 px-3 text-xs">
+              <div class="font-semibold text-slate-700 dark:text-slate-200">${escapeHtml(p.mainUnit)}</div>
+              <div class="text-[11px] text-slate-400">${escapeHtml(p.unitDetail)}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center">${getRsvpBadge(p.rsvp)}</td>
+            <td class="py-2.5 px-3 text-center text-xs">
+              <div>${escapeHtml(stayStr)} ${p.roomNo ? `<strong class="text-indigo-600">(${escapeHtml(p.roomNo)})</strong>` : ''}</div>
+              ${p.roommate ? `<div class="text-[10px] text-sky-600 truncate max-w-[140px] mx-auto">คู่: ${escapeHtml(p.roommate)}</div>` : ''}
+            </td>
+            <td class="py-2.5 px-3 text-center text-xs">
+              <div>${escapeHtml(p.food || 'อาหารทั่วไป')}</div>
+              ${p.letterUrl ? `<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="text-[10px] font-bold text-emerald-600 hover:underline">📎 เปิดไฟล์</a>` : `<span class="text-[10px] text-slate-400">${escapeHtml(p.officialLetter || '-')}</span>`}
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              ${checked
+                ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-mono text-[11px] font-bold">✓ ${escapeHtml(p[currentDay])}</span>`
+                : `<span class="text-xs text-slate-400">ยังไม่มา</span>`
+              }
+            </td>
+            <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-xs font-medium">แก้ไข</button>
+              ${checked
+                ? `<button type="button" onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold">ยกเลิก</button>`
+                : `<button type="button" onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">เช็กอิน</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      renderMiniQrSlots();
     }
 
-    function renderSplitView(filtered) {
-      const checkedItems = filtered.filter(p => isCheckedIn(p)).sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
-      const pendingItems = filtered.filter(p => !isCheckedIn(p)).sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
-
-      document.getElementById('split-checked-badge').textContent = `${checkedItems.length} คน`;
-      document.getElementById('split-pending-badge').textContent = `${pendingItems.length} คน`;
-
-      document.getElementById('checked-list').innerHTML = checkedItems.length === 0
-        ? `<div class="py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้เช็กอินในวันนี้</div>`
-        : checkedItems.map(p => `
-          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 shadow-sm hover:shadow-md hover:border-emerald-400/80 transition flex items-center justify-between gap-3">
-            <!-- QR Code ประจำตัวขนาดย่อ (คลิกเพื่อขยาย/ดาวน์โหลด/คัดลอกลิงก์) -->
-            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="shrink-0 p-1.5 bg-white rounded-xl border border-emerald-200 shadow-xs hover:scale-105 hover:border-navy-700 transition flex flex-col items-center">
-              <div class="mini-qr-slot w-[52px] h-[52px]" data-qr-id="${escapeHtml(p.id)}"></div>
-              <span class="text-[9px] font-bold text-navy-700 mt-0.5">ขยาย QR</span>
-            </button>
-
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">${escapeHtml(p.id)}</span>
-                <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-mono text-[11px] font-semibold">${escapeHtml(p[currentDay])}</span>
-              </div>
-              ${buildNameBlock(p)}
-              <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
-            </div>
-
-            <div class="flex flex-col items-end gap-1.5 shrink-0">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="w-full px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition">แก้ไข</button>
-              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="w-full px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-rose-600 hover:bg-rose-50 border border-rose-200 transition">ยกเลิก</button>
-            </div>
-          </div>
-        `).join('');
-
-      document.getElementById('pending-list').innerHTML = pendingItems.length === 0
-        ? `<div class="py-16 text-center text-emerald-600 dark:text-emerald-400 text-sm font-semibold">เข้าร่วมครบทุกคนแล้ว!</div>`
-        : pendingItems.map(p => `
-          <div class="group bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-maroon-600/50 transition flex items-center justify-between gap-3">
-            <!-- QR Code ประจำตัวขนาดย่อ (คลิกเพื่อขยาย/ดาวน์โหลด/คัดลอกลิงก์) -->
-            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="shrink-0 p-1.5 bg-white rounded-xl border border-slate-200 shadow-xs hover:scale-105 hover:border-navy-700 transition flex flex-col items-center">
-              <div class="mini-qr-slot w-[52px] h-[52px]" data-qr-id="${escapeHtml(p.id)}"></div>
-              <span class="text-[9px] font-bold text-navy-700 mt-0.5">ขยาย QR</span>
-            </button>
-
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(p.id)}</span>
-              </div>
-              ${buildNameBlock(p)}
-              <div class="flex flex-wrap gap-1 mt-1.5">${buildMetaBadges(p)}</div>
-            </div>
-
-            <div class="flex flex-col items-end gap-1.5 shrink-0">
-              <button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="w-full px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition">เช็กอิน</button>
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="w-full px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition">แก้ไข</button>
-            </div>
-          </div>
-        `).join('');
-
-      renderAllMiniQrCodes();
-    }
-
-    // สร้าง Smart QR Code ขนาดย่อในการ์ดและตารางทั้งหมด
-    function renderAllMiniQrCodes() {
+    function renderMiniQrSlots() {
       if (typeof QRCode === 'undefined') return;
-      document.querySelectorAll('.mini-qr-slot').forEach(slot => {
-        const pid = slot.getAttribute('data-qr-id');
-        if (!pid) return;
-        slot.innerHTML = '';
-        const size = slot.classList.contains('table-qr') ? 44 : 52;
-        new QRCode(slot, {
+      document.querySelectorAll('.mini-qr-slot[data-qr-id]').forEach(el => {
+        const pid = el.getAttribute('data-qr-id');
+        const size = parseInt(el.getAttribute('data-qr-size') || '52', 10);
+        if (!pid || el.childElementCount > 0) return;
+        new QRCode(el, {
           text: getSmartQrUrl(pid),
           width: size,
           height: size,
           correctLevel: QRCode.CorrectLevel.L
         });
       });
-    }
-
-    function renderTableView(filtered) {
-      const tbody = document.getElementById('participants-tbody');
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center text-slate-400">ไม่พบรายชื่อที่ตรงกับเงื่อนไข</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(p => {
-        const checked = isCheckedIn(p);
-        const stayText = [p.stay30 === 'พัก' ? '30พ.ย.' : '', p.stay1 === 'พัก' ? '1ธ.ค.' : ''].filter(Boolean).join(', ') || '-';
-        const nameCell = hasSubstitute(p)
-          ? `<div class="font-bold text-purple-800 dark:text-purple-300">${escapeHtml(p.substituteName)} <span class="text-[10px] font-normal">(${escapeHtml(p.substitutePosition || 'ผู้แทน')})</span></div>
-             <div class="text-[11px] text-slate-500">มาแทน: ${escapeHtml(p.fullName)}</div>`
-          : `<div class="font-medium text-slate-900 dark:text-white">${escapeHtml(p.fullName)}</div>
-             <div class="text-[11px] text-slate-500">${escapeHtml(p.position || '-')}</div>`;
-
-        return `
-          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
-            <td class="py-3 px-3 font-mono text-xs font-semibold text-navy-700 dark:text-blue-400 whitespace-nowrap">${escapeHtml(p.id)}</td>
-            <td class="py-2 px-3 text-center">
-              <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="คลิกเพื่อขยาย QR Code ของ ${escapeHtml(p.id)}" class="inline-block p-1 bg-white rounded-lg border border-slate-200 hover:border-navy-700 hover:scale-105 transition shadow-xs">
-                <div class="mini-qr-slot table-qr w-[44px] h-[44px]" data-qr-id="${escapeHtml(p.id)}"></div>
-              </button>
-            </td>
-            <td class="py-3 px-3">${nameCell}</td>
-            <td class="py-3 px-3">
-              <div class="font-medium text-slate-700 dark:text-slate-200">${escapeHtml(p.mainUnit)}</div>
-              <div class="text-[11px] text-slate-500">${escapeHtml(p.unitDetail)}</div>
-            </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap">${getRsvpBadge(p.rsvp)}</td>
-            <td class="py-3 px-3 text-center whitespace-nowrap text-xs">
-              <div>${stayText}</div>
-              ${p.roomNo ? `<div class="font-mono font-bold text-indigo-600 dark:text-indigo-400">ห้อง ${escapeHtml(p.roomNo)}</div>` : ''}
-              ${p.roommate ? `<div class="text-[10px] text-sky-700 dark:text-sky-400">คู่กับ: ${escapeHtml(p.roommate)}</div>` : ''}
-            </td>
-            <td class="py-3 px-3 text-center text-xs">
-              <div>${escapeHtml(p.food)}</div>
-              <div class="mt-0.5">
-                ${p.letterUrl
-                  ? `<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="text-emerald-600 font-semibold hover:underline">📎 ดูหนังสือส่งตัว</a>`
-                  : `<span class="text-[11px] text-slate-400">${escapeHtml(p.officialLetter || '-')}</span>`}
-              </div>
-            </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap">
-              ${checked
-                ? `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">${escapeHtml(p[currentDay])}</span>`
-                : `<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700">ยังไม่มา</span>`}
-            </td>
-            <td class="py-3 px-3 text-right whitespace-nowrap space-x-1">
-              <button onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg text-xs border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700">แก้ไข</button>
-              ${checked
-                ? `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', true)" class="px-2.5 py-1 rounded-lg text-xs text-rose-600 border border-rose-200 hover:bg-rose-50">ยกเลิก</button>`
-                : `<button onclick="manualToggleCheckIn('${escapeHtml(p.id)}', false)" class="px-2.5 py-1 rounded-lg text-xs text-white bg-emerald-600 hover:bg-emerald-700">เช็กอิน</button>`}
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      renderAllMiniQrCodes();
-    }
-
-    // ==================== PERSON SMART QR MODAL (ขยาย / คัดลอก / ดาวน์โหลดรูป) ====================
-    function openPersonQrModal(id) {
-      const p = participants.find(x => x.id === id);
-      if (!p) return;
-      activeQrPerson = p;
-
-      const isSub = hasSubstitute(p);
-      const displayName = isSub ? p.substituteName : p.fullName;
-      const qrUrl = getSmartQrUrl(p.id);
-
-      document.getElementById('pqr-id').textContent = p.id;
-      document.getElementById('pqr-name').textContent = displayName;
-      document.getElementById('pqr-unit').textContent = isSub
-        ? `ผู้แทน: ${p.fullName} • ${p.unitDetail || p.mainUnit}`
-        : `${p.position || p.role || ''} • ${p.unitDetail || p.mainUnit}`.replace(/^\s*•\s*/, '');
-
-      const metaParts = [];
-      if (p.roomNo) metaParts.push(`ห้อง ${p.roomNo}`);
-      if (p.food && p.food !== 'อาหารทั่วไป') metaParts.push(p.food);
-      document.getElementById('pqr-meta').textContent = metaParts.join(' • ');
-      document.getElementById('pqr-open-portal').href = qrUrl;
-
-      const canvasBox = document.getElementById('person-qr-canvas');
-      canvasBox.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(canvasBox, {
-          text: qrUrl,
-          width: 210,
-          height: 210,
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-
-      document.getElementById('person-qr-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function closePersonQrModal() {
-      document.getElementById('person-qr-modal').classList.add('hidden');
-    }
-
-    function copyPersonPortalLink() {
-      if (!activeQrPerson) return;
-      const url = getSmartQrUrl(activeQrPerson.id);
-      const tempInput = document.createElement('textarea');
-      tempInput.value = url;
-      tempInput.style.position = 'fixed';
-      tempInput.style.opacity = '0';
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-        showToast(`คัดลอกลิงก์ Portal ของ ${activeQrPerson.id} แล้ว`, 'success');
-      } catch (e) {
-        showToast('ไม่สามารถคัดลอกลิงก์ได้', 'error');
-      }
-      document.body.removeChild(tempInput);
-    }
-
-    function downloadPersonQrImage() {
-      if (!activeQrPerson) return;
-      const box = document.getElementById('person-qr-canvas');
-      const canvas = box.querySelector('canvas');
-      const img = box.querySelector('img');
-      let dataUrl = '';
-
-      if (canvas) dataUrl = canvas.toDataURL('image/png');
-      else if (img && img.src) dataUrl = img.src;
-
-      if (!dataUrl) {
-        showToast('ยังไม่พบภาพ QR Code สำหรับดาวน์โหลด', 'error');
-        return;
-      }
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `SmartQR_${activeQrPerson.id}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast(`บันทึกรูป SmartQR_${activeQrPerson.id}.png แล้ว`, 'success');
     }
 
     function renderSummaryView() {
@@ -1383,23 +1324,28 @@
         if (isCheckedIn(p)) unitMap[u].checked++;
       });
 
-      const unitKeys = Object.keys(unitMap).sort((a, b) => (UNIT_ORDER.indexOf(a) === -1 ? 99 : UNIT_ORDER.indexOf(a)) - (UNIT_ORDER.indexOf(b) === -1 ? 99 : UNIT_ORDER.indexOf(b)));
-      const totalChecked = participants.filter(p => isCheckedIn(p)).length;
+      const unitKeys = Object.keys(unitMap).sort((a, b) => {
+        const ia = UNIT_ORDER.indexOf(a);
+        const ib = UNIT_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+      });
 
       document.getElementById('summary-units-tbody').innerHTML = unitKeys.map(u => {
-        const item = unitMap[u];
-        const sharePct = ((item.total / total) * 100).toFixed(1);
-        const checkPct = item.total > 0 ? Math.round((item.checked / item.total) * 100) : 0;
+        const row = unitMap[u];
+        const share = Math.round((row.total / total) * 100);
+        const pct = row.total > 0 ? Math.round((row.checked / row.total) * 100) : 0;
         return `
           <tr>
-            <td class="py-2.5 font-medium">${escapeHtml(u)}</td>
-            <td class="py-2.5 text-center font-semibold">${item.total}</td>
-            <td class="py-2.5 text-center text-xs text-slate-500">${sharePct}%</td>
-            <td class="py-2.5 text-center font-bold text-emerald-600">${item.checked}</td>
+            <td class="py-2.5 font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(u)}</td>
+            <td class="py-2.5 text-center font-mono">${row.total}</td>
+            <td class="py-2.5 text-center text-xs text-slate-400">${share}%</td>
+            <td class="py-2.5 text-center font-mono font-bold text-emerald-600">${row.checked}</td>
             <td class="py-2.5">
               <div class="flex items-center gap-2">
-                <div class="flex-1 bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full rounded-full" style="width: ${checkPct}%"></div></div>
-                <span class="text-[11px] font-mono text-slate-500 w-8 text-right">${checkPct}%</span>
+                <div class="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500 rounded-full" style="width:${pct}%"></div>
+                </div>
+                <span class="text-[11px] font-mono font-bold text-slate-500 w-8 text-right">${pct}%</span>
               </div>
             </td>
           </tr>
@@ -1407,15 +1353,14 @@
       }).join('');
 
       const metrics = [
-        { label: 'ยืนยันเข้าร่วมแล้ว (มาด้วยตนเอง)', val: participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length, color: 'text-blue-600' },
-        { label: 'ส่งผู้แทนเข้าร่วม', val: participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length, color: 'text-purple-600 font-bold' },
-        { label: 'รอการยืนยันทั้งหมด', val: participants.filter(p => p.rsvp === 'รอการยืนยัน').length, color: 'text-amber-600' },
-        { label: `เช็กอินหน้างานแล้ว (${DAY_CONFIG[currentDay].label})`, val: totalChecked, color: 'text-emerald-600 font-bold' },
-        { label: 'ยอดเข้าพักคืนวันที่ 30 พ.ย.', val: participants.filter(p => p.stay30 === 'พัก').length, color: 'text-indigo-600' },
-        { label: 'ยอดเข้าพักคืนวันที่ 1 ธ.ค.', val: participants.filter(p => p.stay1 === 'พัก').length, color: 'text-indigo-600' },
-        { label: 'แนบไฟล์หนังสือส่งตัวแล้ว', val: participants.filter(p => Boolean(p.letterUrl) || p.officialLetter === 'ส่งแล้ว').length, color: 'text-emerald-600' },
-        { label: 'ต้องการอาหารฮาลาล', val: participants.filter(p => String(p.food).includes('ฮาลาล')).length, color: 'text-orange-600' },
-        { label: 'ต้องการอาหารมังสวิรัติ/อื่นๆ', val: participants.filter(p => String(p.food).includes('มังสวิรัติ') || String(p.food).includes('อื่นๆ')).length, color: 'text-teal-600' }
+        { label: 'ยืนยันเข้าร่วม (มาด้วยตนเอง)', val: participants.filter(p => p.rsvp === 'ยืนยันเข้าร่วม').length, color: 'text-blue-600' },
+        { label: 'ส่งผู้แทนเข้าร่วม', val: participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length, color: 'text-purple-600' },
+        { label: 'รอการยืนยัน', val: participants.filter(p => p.rsvp === 'รอการยืนยัน').length, color: 'text-amber-600' },
+        { label: 'เช็กอินแล้ววันนี้', val: participants.filter(p => isCheckedIn(p)).length, color: 'text-emerald-600' },
+        { label: 'เข้าพักคืน 30 พ.ย. 69', val: participants.filter(p => p.stay30 === 'พัก').length, color: 'text-indigo-600' },
+        { label: 'เข้าพักคืน 1 ธ.ค. 69', val: participants.filter(p => p.stay1 === 'พัก').length, color: 'text-indigo-600' },
+        { label: 'อาหารฮาลาล / มังสวิรัติ', val: participants.filter(p => p.food && p.food !== 'อาหารทั่วไป').length, color: 'text-amber-700' },
+        { label: 'แนบหนังสือส่งตัวแล้ว', val: participants.filter(p => Boolean(p.letterUrl) || p.officialLetter === 'ส่งแล้ว').length, color: 'text-teal-600' }
       ];
 
       document.getElementById('summary-metrics-tbody').innerHTML = metrics.map(m => `
@@ -1424,86 +1369,112 @@
           <td class="py-2.5 text-right font-bold text-base ${m.color}">${m.val} <span class="text-xs font-normal text-slate-400">คน</span></td>
         </tr>
       `).join('');
+
+      renderEvaluationAnalytics();
     }
 
-    // ==================== REQUESTS APPROVAL MODAL ====================
-    function openRequestsModal() {
-      renderRequestsModal();
-      document.getElementById('requests-modal').classList.remove('hidden');
+    // ==================== PERSON SMART QR MODAL ====================
+    function openPersonQrModal(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      activeQrPerson = p;
+      const isSub = hasSubstitute(p);
+      const displayName = isSub ? `${p.substituteName} (ผู้แทน ${p.fullName})` : p.fullName;
+      const portalUrl = getSmartQrUrl(p.id);
+
+      document.getElementById('pqr-id').textContent = p.id;
+      document.getElementById('pqr-name').textContent = displayName;
+      document.getElementById('pqr-unit').textContent = `${p.position || p.role} • ${p.unitDetail || p.mainUnit}`;
+      document.getElementById('pqr-meta').textContent = [
+        p.roomNo ? `ห้อง ${p.roomNo}` : '',
+        p.roommate ? `พักคู่: ${p.roommate}` : '',
+        p.food && p.food !== 'อาหารทั่วไป' ? p.food : ''
+      ].filter(Boolean).join(' • ');
+      document.getElementById('pqr-open-portal').href = portalUrl;
+
+      const box = document.getElementById('person-qr-canvas');
+      box.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(box, {
+          text: portalUrl,
+          width: 210,
+          height: 210,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+      document.getElementById('person-qr-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
-    function closeRequestsModal() {
-      document.getElementById('requests-modal').classList.add('hidden');
+    function closePersonQrModal() {
+      document.getElementById('person-qr-modal').classList.add('hidden');
     }
 
-    function renderRequestsModal() {
-      const container = document.getElementById('requests-list-container');
-      if (editRequests.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-sm">ยังไม่มีคำขอแก้ไขข้อมูลจากผู้เข้าร่วมสัมมนา</div>`;
+    function copyPersonPortalLink() {
+      if (!activeQrPerson) return;
+      const url = getSmartQrUrl(activeQrPerson.id);
+      const temp = document.createElement('textarea');
+      temp.value = url;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showToast(`คัดลอกลิงก์ Portal ของ ${activeQrPerson.id} แล้ว`, 'success');
+      } catch (e) {
+        showToast('ไม่สามารถคัดลอกลิงก์ได้', 'error');
+      }
+      document.body.removeChild(temp);
+    }
+
+    function downloadPersonQrImage() {
+      if (!activeQrPerson) return;
+      const box = document.getElementById('person-qr-canvas');
+      const canvas = box.querySelector('canvas');
+      const img = box.querySelector('img');
+      const dataUrl = canvas ? canvas.toDataURL('image/png') : (img ? img.src : '');
+      if (!dataUrl) {
+        showToast('ไม่พบรูป QR Code สำหรับบันทึก', 'error');
         return;
       }
-
-      container.innerHTML = editRequests.map(req => {
-        const isPending = req.status === 'รออนุมัติ';
-        const c = req.changes || {};
-        const statusColor = isPending ? 'bg-amber-100 text-amber-800' : (req.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700');
-
-        return `
-          <div class="p-4 rounded-2xl border ${isPending ? 'border-amber-300 bg-amber-50/40 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/30'} space-y-2.5">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-navy-700 text-white">${escapeHtml(req.participantId)}</span>
-                  <span class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(req.originalName)}</span>
-                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusColor}">${escapeHtml(req.status)}</span>
-                </div>
-                <p class="text-[11px] text-slate-400 mt-0.5">ส่งเมื่อ ${escapeHtml(req.timestamp)} • ${escapeHtml(req.summaryText)}</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
-              <div><span class="text-slate-400">ตอบรับ:</span> <strong>${escapeHtml(c.rsvp || '-')}</strong></div>
-              <div><span class="text-slate-400">อาหาร:</span> <strong>${escapeHtml(c.food || '-')}</strong></div>
-              ${c.rsvp === 'ส่งผู้แทนเข้าร่วม' ? `
-                <div class="sm:col-span-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-900 dark:text-purple-200">
-                  <strong>ผู้แทน:</strong> ${escapeHtml(c.substituteName || '-')} (${escapeHtml(c.substitutePosition || '-')})
-                </div>` : ''}
-              <div><span class="text-slate-400">ที่พัก:</span> 30 พ.ย. (${escapeHtml(c.stay30 || '-')}) / 1 ธ.ค. (${escapeHtml(c.stay1 || '-')})</div>
-              <div><span class="text-slate-400">ห้องพัก / เบอร์:</span> ${escapeHtml(c.roomNo || '-')} / ${escapeHtml(c.phone || '-')}</div>
-              ${c.roommate ? `<div class="sm:col-span-2 text-sky-800 dark:text-sky-300"><strong>ผู้พักร่วม (Roommate):</strong> ${escapeHtml(c.roommate)}</div>` : ''}
-              ${req.note ? `<div class="sm:col-span-2 text-amber-800 dark:text-amber-300"><strong>หมายเหตุ:</strong> ${escapeHtml(req.note)}</div>` : ''}
-              ${req.letterUrl ? `<div class="sm:col-span-2 pt-1"><a href="${escapeHtml(req.letterUrl)}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 font-bold hover:underline">📎 เปิดดูไฟล์หนังสือส่งตัวที่แนบมา ↗</a></div>` : ''}
-            </div>
-
-            ${isPending ? `
-              <div class="flex justify-end gap-2 pt-1">
-                <button onclick="processRequest('${escapeHtml(req.requestId)}', 'reject', this)" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50">ปฏิเสธ</button>
-                <button onclick="processRequest('${escapeHtml(req.requestId)}', 'approve', this)" class="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">อนุมัติและอัปเดตทันที</button>
-              </div>` : ''}
-          </div>
-        `;
-      }).join('');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `QR_${activeQrPerson.id}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast(`บันทึกรูป QR_${activeQrPerson.id}.png แล้ว`, 'success');
     }
 
-    async function processRequest(requestId, decision, btnEl) {
-      btnEl.disabled = true;
-      btnEl.textContent = 'กำลังดำเนินการ...';
+    // ==================== MANUAL CHECK-IN ====================
+    async function manualToggleCheckIn(id, undo = false) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      const prevVal = p[currentDay];
+      const nowStr = new Date().toTimeString().split(' ')[0];
+      p[currentDay] = undo ? '' : nowStr;
+      updateDashboard();
+
       try {
-        const res = await postToApi({ action: 'processEditRequest', requestId, decision });
+        const res = await postToApi({ action: 'checkIn', id, day: currentDay, method: 'Manual Dashboard', undo });
         if (res.status === 'success') {
-          showToast(res.message, decision === 'approve' ? 'success' : 'info');
-          await refreshAllData(false);
-          renderRequestsModal();
+          p[currentDay] = res.time || '';
+          updateDashboard();
+          showToast(res.message, 'success');
         } else {
-          showToast(res.message, 'error');
+          p[currentDay] = prevVal;
+          updateDashboard();
+          showToast(res.message || 'อัปเดตสถานะไม่สำเร็จ', 'warning');
         }
       } catch (err) {
-        showToast('ดำเนินการไม่สำเร็จ: ' + err.message, 'error');
+        p[currentDay] = prevVal;
+        updateDashboard();
+        showToast('เช็กอินไม่สำเร็จ: ' + err.message, 'error');
       }
     }
 
-    // ==================== EDIT MODAL ====================
+    // ==================== EDIT PARTICIPANT MODAL + ROOMMATE AUTOCOMPLETE ====================
     function openEditModal(id) {
       const p = participants.find(x => x.id === id);
       if (!p) return;
@@ -1511,7 +1482,7 @@
       document.getElementById('ed-id-display').textContent = p.id;
       document.getElementById('ed-name').value = p.fullName || '';
       document.getElementById('ed-position').value = p.position || '';
-      document.getElementById('ed-main-unit').value = p.mainUnit || 'หน่วยงานภายนอก';
+      document.getElementById('ed-main-unit').value = p.mainUnit || 'บช.น.';
       document.getElementById('ed-unit-detail').value = p.unitDetail || '';
       document.getElementById('ed-role').value = p.role || '';
       document.getElementById('ed-rsvp').value = p.rsvp || 'รอการยืนยัน';
@@ -1528,12 +1499,17 @@
       document.getElementById('ed-letter-file').value = '';
 
       const linkEl = document.getElementById('ed-letter-link');
-      if (p.letterUrl) { linkEl.href = p.letterUrl; linkEl.classList.remove('hidden'); }
-      else { linkEl.classList.add('hidden'); }
+      if (p.letterUrl) {
+        linkEl.href = p.letterUrl;
+        linkEl.classList.remove('hidden');
+      } else {
+        linkEl.classList.add('hidden');
+      }
 
       toggleStaffSubstituteFields();
       document.getElementById('ed-roommate-suggestions').classList.add('hidden');
       document.getElementById('edit-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closeEditModal() {
@@ -1541,15 +1517,20 @@
       document.getElementById('edit-modal').classList.add('hidden');
     }
 
-    // ระบบค้นหาและเติมชื่อผู้พักร่วมอัตโนมัติ (Roommate Autocomplete)
+    function toggleStaffSubstituteFields() {
+      const isSub = document.getElementById('ed-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
+      document.getElementById('ed-sub-box').classList.toggle('hidden', !isSub);
+      document.getElementById('ed-sub-name').required = isSub;
+    }
+
     function showStaffRoommateSuggestions(query) {
       const box = document.getElementById('ed-roommate-suggestions');
       if (!box) return;
       const q = String(query || '').trim().toLowerCase();
-      const currentId = document.getElementById('ed-id').value;
+      const editingId = document.getElementById('ed-id').value;
 
       const matches = participants.filter(p => {
-        if (p.id === currentId) return false;
+        if (p.id === editingId) return false;
         const activeName = hasSubstitute(p) ? p.substituteName : p.fullName;
         if (!q) return true;
         return `${p.id} ${activeName} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
@@ -1562,14 +1543,13 @@
 
       box.innerHTML = matches.map(p => {
         const activeName = hasSubstitute(p) ? p.substituteName : p.fullName;
-        const unitLabel = p.unitDetail || p.mainUnit || '';
         return `
-          <button type="button" onclick="selectStaffRoommate('${escapeHtml(activeName).replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-2.5 hover:bg-blue-50 dark:hover:bg-slate-700 active:bg-blue-100 transition flex items-center justify-between gap-2">
+          <button type="button" onclick="selectStaffRoommate('${escapeHtml(activeName).replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-slate-700 transition flex items-center justify-between gap-2">
             <div class="min-w-0">
               <div class="text-xs font-semibold text-slate-800 dark:text-white truncate">${escapeHtml(activeName)}</div>
-              <div class="text-[10px] text-slate-400 truncate">${escapeHtml(p.id)} • ${escapeHtml(unitLabel)}</div>
+              <div class="text-[10px] text-slate-400 truncate">${escapeHtml(p.id)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</div>
             </div>
-            <span class="text-[10px] font-medium text-navy-700 dark:text-blue-300 shrink-0">เลือก</span>
+            <span class="text-[10px] font-bold text-navy-700 dark:text-blue-300 shrink-0">เลือก</span>
           </button>
         `;
       }).join('');
@@ -1581,16 +1561,14 @@
       document.getElementById('ed-roommate-suggestions').classList.add('hidden');
     }
 
-    function toggleStaffSubstituteFields() {
-      const isSub = document.getElementById('ed-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
-      document.getElementById('ed-sub-box').classList.toggle('hidden', !isSub);
-      document.getElementById('ed-sub-name').required = isSub;
-    }
-
     function readFileAsBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve({ name: file.name, mimeType: file.type || 'application/octet-stream', data: String(reader.result).split(',')[1] });
+        reader.onload = () => resolve({
+          name: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          data: String(reader.result).split(',')[1]
+        });
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
@@ -1629,7 +1607,7 @@
         roomNo: document.getElementById('ed-room').value.trim(),
         roommate: document.getElementById('ed-roommate').value.trim(),
         food: document.getElementById('ed-food').value,
-        officialLetter: fileData ? 'ส่งแล้ว' : document.getElementById('ed-letter').value,
+        officialLetter: document.getElementById('ed-letter').value,
         licensePlate: document.getElementById('ed-plate').value.trim(),
         phone: document.getElementById('ed-phone').value.trim(),
         fileData: fileData
@@ -1638,44 +1616,101 @@
       try {
         const res = await postToApi(payload);
         if (res.status === 'success') {
-          showToast(res.message, 'success');
+          showToast(res.message || 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
           closeEditModal();
           await fetchParticipants(false);
         } else {
-          showToast(res.message, 'error');
+          showToast(res.message || 'บันทึกข้อมูลไม่สำเร็จ', 'error');
         }
       } catch (err) {
-        showToast('บันทึกไม่สำเร็จ: ' + err.message, 'error');
+        showToast('บันทึกข้อมูลไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         btn.disabled = false;
         btn.textContent = 'บันทึกการแก้ไข';
       }
     }
 
-    // ==================== CHECK-IN, SCANNER, WALK-IN, PRINT ====================
-    async function manualToggleCheckIn(id, isUndo) {
-      const p = participants.find(x => x.id === id);
-      if (!p) return;
-      const oldVal = p[currentDay];
-      p[currentDay] = isUndo ? '' : new Date().toTimeString().split(' ')[0];
-      updateDashboard();
+    // ==================== EDIT REQUESTS APPROVAL ====================
+    function updateNotifBadge() {
+      const pending = editRequests.filter(r => r.status === 'รออนุมัติ');
+      const badge = document.getElementById('notif-badge');
+      if (!badge) return;
+      if (pending.length > 0) {
+        badge.textContent = pending.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
 
+    function openRequestsModal() {
+      const box = document.getElementById('requests-list-container');
+      if (!box) return;
+      if (editRequests.length === 0) {
+        box.innerHTML = `<div class="py-12 text-center text-sm text-slate-400">ยังไม่มีคำขอแก้ไขข้อมูลจากผู้เข้าร่วม</div>`;
+      } else {
+        box.innerHTML = editRequests.map(r => {
+          const isPending = r.status === 'รออนุมัติ';
+          const c = r.changes || {};
+          return `
+            <div class="p-4 rounded-2xl border ${isPending ? 'border-amber-300 bg-amber-50/50 dark:bg-amber-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30'} space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="font-mono text-xs font-bold text-navy-700 dark:text-blue-300">${escapeHtml(r.participantId)}</span>
+                  <span class="text-xs font-bold text-slate-800 dark:text-white ml-1">${escapeHtml(r.originalName)}</span>
+                  <p class="text-[11px] text-slate-500">${escapeHtml(r.timestamp)} • ${escapeHtml(r.summaryText)}</p>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isPending ? 'bg-amber-200 text-amber-900' : (r.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700')}">${escapeHtml(r.status)}</span>
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-700 space-y-0.5">
+                ${c.rsvp ? `<div><strong>การตอบรับ:</strong> ${escapeHtml(c.rsvp)} ${c.substituteName ? `(ผู้แทน: ${escapeHtml(c.substituteName)})` : ''}</div>` : ''}
+                ${c.stay30 || c.stay1 || c.roomNo || c.roommate ? `<div><strong>ที่พัก:</strong> 30พ.ย.(${escapeHtml(c.stay30 || '-')}) • 1ธ.ค.(${escapeHtml(c.stay1 || '-')}) ${c.roomNo ? `• ห้อง ${escapeHtml(c.roomNo)}` : ''} ${c.roommate ? `• คู่พัก: ${escapeHtml(c.roommate)}` : ''}</div>` : ''}
+                ${c.food ? `<div><strong>อาหาร:</strong> ${escapeHtml(c.food)}</div>` : ''}
+                ${r.note ? `<div><strong>หมายเหตุ:</strong> ${escapeHtml(r.note)}</div>` : ''}
+                ${r.letterUrl ? `<div><a href="${escapeHtml(r.letterUrl)}" target="_blank" class="text-emerald-600 font-bold hover:underline">📎 เปิดดูไฟล์หนังสือส่งตัว ↗</a></div>` : ''}
+              </div>
+              ${isPending ? `
+                <div class="flex justify-end gap-2 pt-1">
+                  <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'reject')" class="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold">ไม่อนุมัติ</button>
+                  <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'approve')" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs">อนุมัติและอัปเดตทันที</button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+      document.getElementById('requests-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeRequestsModal() {
+      document.getElementById('requests-modal').classList.add('hidden');
+    }
+
+    async function processEditRequest(requestId, decision) {
       try {
-        const res = await postToApi({ action: 'checkIn', id, day: currentDay, method: 'Manual Dashboard', undo: isUndo });
+        const res = await postToApi({ action: 'processEditRequest', requestId, decision });
         if (res.status === 'success') {
-          p[currentDay] = res.time || '';
-          updateDashboard();
-          showToast(res.message, isUndo ? 'info' : 'success');
+          showToast(res.message, 'success');
+          await refreshAllData(false);
+          openRequestsModal();
         } else {
-          p[currentDay] = oldVal;
-          updateDashboard();
-          showToast(res.message, 'warning');
+          showToast(res.message || 'ดำเนินการไม่สำเร็จ', 'error');
         }
       } catch (err) {
-        p[currentDay] = oldVal;
-        updateDashboard();
-        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+        showToast('ดำเนินการไม่สำเร็จ: ' + err.message, 'error');
       }
+    }
+
+    // ==================== MODERN KIOSK QR SCANNER ====================
+    async function openScannerModal() {
+      document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
+      document.getElementById('scan-result-box').classList.add('hidden');
+      updateScannerLiveCount();
+      document.getElementById('scanner-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+      await startQrReader();
+      setTimeout(() => document.getElementById('manual-qr-input')?.focus(), 200);
     }
 
     function updateScannerLiveCount() {
@@ -1685,132 +1720,206 @@
       el.textContent = `${checked} / ${participants.length}`;
     }
 
-    function openScannerModal() {
-      document.getElementById('scanner-day-label').textContent = DAY_CONFIG[currentDay].label;
-      updateScannerLiveCount();
-      document.getElementById('scan-result-box').classList.add('hidden');
-      document.getElementById('scanner-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-      startCameraScanner();
+    async function startQrReader() {
+      await stopQrReaderSafely();
+      if (typeof Html5Qrcode === 'undefined') {
+        showScanFeedback('error', 'ไม่พบไลบรารีสแกน QR Code (กรุณาพิมพ์รหัสหรือใช้เครื่องยิง USB)');
+        return;
+      }
+      html5QrCode = new Html5Qrcode('reader');
+      const config = { fps: 12, qrbox: { width: 220, height: 220 } };
+      try {
+        await html5QrCode.start({ facingMode: scannerFacingMode }, config, onScanSuccess);
+      } catch (err) {
+        try {
+          const cams = await Html5Qrcode.getCameras();
+          if (cams && cams.length > 0) {
+            await html5QrCode.start(cams[0].id, config, onScanSuccess);
+          } else {
+            showScanFeedback('warning', 'ไม่พบกล้องบนอุปกรณ์นี้ — สามารถพิมพ์รหัสหรือใช้เครื่องยิงบาร์โค้ด USB ด้านล่างได้ครับ');
+          }
+        } catch (e2) {
+          showScanFeedback('warning', 'ไม่สามารถเปิดกล้องได้ — กรุณาอนุญาตสิทธิ์กล้อง หรือใช้ช่องพิมพ์รหัสด้านล่าง');
+        }
+      }
     }
 
     async function stopQrReaderSafely() {
-      if (!html5QrCode) return;
-      try {
-        if (html5QrCode.isScanning) {
-          await html5QrCode.stop();
-        }
-        await html5QrCode.clear();
-      } catch (e) {}
-      html5QrCode = null;
-    }
-
-    async function startCameraScanner() {
-      if (typeof Html5Qrcode === 'undefined') {
-        showScanFeedback('error', 'ไม่สามารถโหลดตัวสแกนได้ กรุณาพิมพ์รหัสด้านล่างแทนครับ');
-        return;
-      }
-      await stopQrReaderSafely();
-      await initQrReader();
-    }
-
-    async function initQrReader() {
-      const readerEl = document.getElementById('reader');
-      if (readerEl) readerEl.innerHTML = '';
-      html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 12, qrbox: { width: 220, height: 220 } };
-
-      try {
-        await html5QrCode.start({ facingMode: scannerFacingMode }, config, onScanSuccess);
-      } catch (primaryErr) {
-        // กรณีเปิดบนคอมพิวเตอร์/โน้ตบุ๊กที่ไม่มีกล้องหลัง ให้สลับไปค้นหากล้องที่มีในเครื่องอัตโนมัติ
+      if (html5QrCode) {
         try {
-          const cameras = await Html5Qrcode.getCameras();
-          if (cameras && cameras.length > 0) {
-            await html5QrCode.start(cameras[0].id, config, onScanSuccess);
-            const label = document.getElementById('camera-mode-label');
-            if (label) label.textContent = 'กล้องหลัก';
-            return;
-          }
-        } catch (fallbackErr) {}
-        showScanFeedback('error', 'ไม่สามารถเปิดกล้องได้ (ต้องเปิดผ่าน HTTPS และอนุญาตสิทธิ์กล้อง) สามารถพิมพ์รหัสหรือใช้เครื่องยิง USB ด้านล่างแทนได้ครับ');
+          if (html5QrCode.isScanning) await html5QrCode.stop();
+          await html5QrCode.clear();
+        } catch (e) {}
+        html5QrCode = null;
       }
     }
 
-    function toggleScannerCamera() {
+    async function toggleScannerCamera() {
       scannerFacingMode = scannerFacingMode === 'environment' ? 'user' : 'environment';
-      const label = document.getElementById('camera-mode-label');
-      if (label) label.textContent = scannerFacingMode === 'environment' ? 'กล้องหลัง' : 'กล้องหน้า';
-      startCameraScanner();
+      const lbl = document.getElementById('camera-mode-label');
+      if (lbl) lbl.textContent = scannerFacingMode === 'environment' ? 'กล้องหลัง' : 'กล้องหน้า';
+      await startQrReader();
     }
 
     function toggleVoiceGreeting() {
       voiceGreetingEnabled = !voiceGreetingEnabled;
       const btn = document.getElementById('btn-voice-toggle');
-      const label = document.getElementById('voice-toggle-label');
-      if (voiceGreetingEnabled) {
-        btn.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-medium hover:bg-emerald-500/30 transition';
-        if (label) label.textContent = 'เสียงต้อนรับ';
-        speakThaiWelcome('เปิดระบบเสียงต้อนรับแล้ว');
-      } else {
-        btn.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-400 text-xs font-medium hover:bg-white/20 transition';
-        if (label) label.textContent = 'ปิดเสียง';
+      const lbl = document.getElementById('voice-toggle-label');
+      if (btn) {
+        btn.className = voiceGreetingEnabled
+          ? 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-medium hover:bg-emerald-500/30 transition'
+          : 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/10 border border-white/15 text-slate-400 text-xs font-medium hover:bg-white/20 transition';
       }
+      if (lbl) lbl.textContent = voiceGreetingEnabled ? 'เสียงต้อนรับ' : 'ปิดเสียง';
     }
 
     function toggleScannerFullscreen() {
-      const el = document.getElementById('scanner-dialog');
+      const dialog = document.getElementById('scanner-dialog');
       if (!document.fullscreenElement) {
-        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+        dialog?.requestFullscreen?.().catch(() => {});
       } else {
-        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        document.exitFullscreen?.().catch(() => {});
       }
-    }
-
-    // แปลงยศตำรวจย่อเป็นคำเต็มเพื่อให้เสียงต้อนรับภาษาไทยอ่านออกเสียงได้อย่างสง่างาม
-    function expandThaiPoliceRank(name) {
-      return String(name || '')
-        .replace(/พล\.ต\.อ\./g, 'พลตำรวจเอก ')
-        .replace(/พล\.ต\.ท\./g, 'พลตำรวจโท ')
-        .replace(/พล\.ต\.ต\./g, 'พลตำรวจตรี ')
-        .replace(/พ\.ต\.อ\./g, 'พันตำรวจเอก ')
-        .replace(/พ\.ต\.ท\./g, 'พันตำรวจโท ')
-        .replace(/พ\.ต\.ต\./g, 'พันตำรวจตรี ')
-        .replace(/ร\.ต\.อ\./g, 'ร้อยตำรวจเอก ')
-        .replace(/ร\.ต\.ท\./g, 'ร้อยตำรวจโท ')
-        .replace(/ร\.ต\.ต\./g, 'ร้อยตำรวจตรี ')
-        .replace(/ด\.ต\./g, 'ดาบตำรวจ ')
-        .replace(/ส\.ต\.อ\./g, 'สิบตำรวจเอก ')
-        .replace(/ส\.ต\.ท\./g, 'สิบตำรวจโท ')
-        .replace(/ส\.ต\.ต\./g, 'สิบตำรวจตรี ');
     }
 
     function speakThaiWelcome(text) {
       if (!voiceGreetingEnabled || !('speechSynthesis' in window)) return;
       try {
+        const spoken = String(text || '')
+          .replace(/พ\.ต\.อ\./g, 'พันตำรวจเอก ')
+          .replace(/พ\.ต\.ท\./g, 'พันตำรวจโท ')
+          .replace(/พ\.ต\.ต\./g, 'พันตำรวจตรี ')
+          .replace(/ร\.ต\.อ\./g, 'ร้อยตำรวจเอก ')
+          .replace(/ร\.ต\.ท\./g, 'ร้อยตำรวจโท ')
+          .replace(/ร\.ต\.ต\./g, 'ร้อยตำรวจตรี ')
+          .replace(/ด\.ต\./g, 'ดาบตำรวจ ')
+          .replace(/ส\.ต\.อ\./g, 'สิบตำรวจเอก ')
+          .replace(/ส\.ต\.ท\./g, 'สิบตำรวจโท ');
         window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(expandThaiPoliceRank(text));
+        const utter = new SpeechSynthesisUtterance(spoken);
         utter.lang = 'th-TH';
         utter.rate = 1.02;
         window.speechSynthesis.speak(utter);
       } catch (e) {}
     }
 
-    function addRecentScanLog(id, name, time, status) {
-      recentScans.unshift({ id, name, time, status });
-      if (recentScans.length > 5) recentScans.pop();
+    function addRecentScanLog(id, name, timeStr, status) {
+      recentScans.unshift({ id, name, timeStr, status });
+      recentScans = recentScans.slice(0, 5);
       const wrap = document.getElementById('recent-scans-wrapper');
       const list = document.getElementById('recent-scans-list');
+      if (!wrap || !list) return;
       wrap.classList.remove('hidden');
-      list.innerHTML = recentScans.map(s => `
-        <div class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/70 text-xs">
-          <div class="truncate">
-            <span class="font-mono font-bold text-emerald-400 mr-1.5">${escapeHtml(s.id)}</span>
-            <span class="text-slate-100">${escapeHtml(s.name)}</span>
+      list.innerHTML = recentScans.map(item => `
+        <div class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
+          <div class="min-w-0 truncate">
+            <span class="font-mono font-bold text-emerald-400 mr-1.5">${escapeHtml(item.id)}</span>
+            <span class="text-slate-100">${escapeHtml(item.name)}</span>
           </div>
-          <span class="font-mono text-[11px] text-slate-400 shrink-0">${escapeHtml(s.time)}</span>
+          <span class="font-mono text-[11px] text-slate-400 shrink-0">${escapeHtml(item.timeStr)}</span>
         </div>
       `).join('');
+    }
+
+    // ==================== EXECUTIVE EVALUATION ANALYTICS ====================
+    function renderEvaluationAnalytics() {
+      const count = evalSummary.count || 0;
+      const avg = evalSummary.averages || { content: 0, speaker: 0, venue: 0, overall: 0, total: 0 };
+      const comments = evalSummary.comments || [];
+
+      const countEl = document.getElementById('eval-summary-count');
+      const totalEl = document.getElementById('eval-avg-total');
+      const levelEl = document.getElementById('eval-satisfaction-level');
+      if (countEl) countEl.textContent = `ผู้ตอบแบบประเมิน ${count} ราย`;
+      if (totalEl) totalEl.textContent = Number(avg.total || 0).toFixed(2);
+      if (levelEl) {
+        if (count === 0) levelEl.textContent = 'ยังไม่มีข้อมูลการประเมินในระบบ';
+        else if (avg.total >= 4.5) levelEl.textContent = 'ระดับความพึงพอใจ: มากที่สุด (ดีเยี่ยม)';
+        else if (avg.total >= 3.5) levelEl.textContent = 'ระดับความพึงพอใจ: มาก (ดี)';
+        else if (avg.total >= 2.5) levelEl.textContent = 'ระดับความพึงพอใจ: ปานกลาง';
+        else levelEl.textContent = 'ระดับความพึงพอใจ: ควรปรับปรุง';
+      }
+
+      const dimensions = [
+        { label: '1. เนื้อหาและประโยชน์ของคลังความรู้งานจราจร', val: avg.content || 0, color: 'from-navy-700 to-blue-500' },
+        { label: '2. วิทยากรและการถ่ายทอดความรู้', val: avg.speaker || 0, color: 'from-indigo-600 to-sky-500' },
+        { label: '3. สถานที่ ที่พัก และอาหาร', val: avg.venue || 0, color: 'from-teal-600 to-emerald-500' },
+        { label: '4. ความพึงพอใจในภาพรวมของโครงการ', val: avg.overall || 0, color: 'from-maroon-700 to-amber-500' }
+      ];
+
+      const barsBox = document.getElementById('eval-bars-container');
+      if (barsBox) {
+        barsBox.innerHTML = dimensions.map(d => {
+          const pct = Math.min(100, Math.round((d.val / 5) * 100));
+          return `
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs sm:text-sm gap-2">
+                <span class="font-medium text-slate-700 dark:text-slate-200 truncate">${escapeHtml(d.label)}</span>
+                <span class="font-mono font-bold text-navy-700 dark:text-blue-300 shrink-0">${Number(d.val).toFixed(2)} / 5.00 <span class="text-[11px] text-slate-400">(${pct}%)</span></span>
+              </div>
+              <div class="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r ${d.color} transition-all duration-700" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const cCountEl = document.getElementById('eval-comments-count');
+      const cListEl = document.getElementById('eval-comments-list');
+      if (cCountEl) cCountEl.textContent = `${comments.length} ข้อความ`;
+      if (cListEl) {
+        cListEl.innerHTML = comments.length === 0
+          ? `<div class="py-10 text-center text-xs text-slate-400">ยังไม่มีข้อเสนอแนะเพิ่มเติม</div>`
+          : comments.map(c => `
+              <div class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-xs space-y-1">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span class="font-semibold text-amber-600">★ ภาพรวม ${escapeHtml(c.overall)}/5</span>
+                  <span>${escapeHtml(c.time)}</span>
+                </div>
+                <p class="text-slate-700 dark:text-slate-200 leading-relaxed">${escapeHtml(c.text)}</p>
+              </div>
+            `).join('');
+      }
+    }
+
+    // ==================== EXPORT EXCEL / CSV (ภาษาไทยไม่เพี้ยน รองรับเบิกจ่าย) ====================
+    function exportParticipantsCSV() {
+      if (!participants || participants.length === 0) {
+        showToast('ยังไม่มีข้อมูลรายชื่อสำหรับส่งออก', 'warning');
+        return;
+      }
+
+      const headers = [
+        'รหัส', 'ยศ ชื่อ - สกุล (ตัวจริง)', 'ตำแหน่ง', 'หน่วยหลัก', 'สังกัด', 'บทบาท',
+        'สถานะตอบรับ', 'ชื่อผู้แทน', 'ตำแหน่งผู้แทน',
+        'เช็กอิน 30 พ.ย.', 'เช็กอิน 1 ธ.ค.', 'เช็กอิน 2 ธ.ค.',
+        'พักคืน 30 พ.ย.', 'พักคืน 1 ธ.ค.', 'เลขห้องพัก', 'ผู้พักร่วม (Roommate)',
+        'ข้อจำกัดอาหาร', 'หนังสือส่งตัว', 'ลิงก์หนังสือส่งตัว', 'ทะเบียนรถ', 'เบอร์โทร', 'ประเมินแล้ว'
+      ];
+
+      const csvEscape = (v) => `"${String(v || '').replace(/"/g, '""')}"`;
+      const rows = participants.map(p => [
+        p.id, p.fullName, p.position, p.mainUnit, p.unitDetail, p.role,
+        p.rsvp, p.substituteName, p.substitutePosition,
+        p.day1, p.day2, p.day3,
+        p.stay30, p.stay1, p.roomNo, p.roommate,
+        p.food, p.officialLetter, p.letterUrl, p.licensePlate, p.phone, p.evaluated ? 'ประเมินแล้ว' : 'ยังไม่ประเมิน'
+      ].map(csvEscape).join(','));
+
+      // ใส่ UTF-8 BOM (\uFEFF) เพื่อให้เปิดใน Microsoft Excel แล้วภาษาไทยแสดงผลถูกต้อง 100%
+      const csvContent = '\uFEFF' + [headers.map(csvEscape).join(','), ...rows].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `รายงานสัมมนา_AI_คู่หูจราจร_${today}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`ส่งออกไฟล์ Excel/CSV เรียบร้อยแล้ว (${participants.length} ราย)`, 'success');
     }
 
     async function closeScannerModal() {
