@@ -16,6 +16,9 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- html2canvas & jsPDF สำหรับดาวน์โหลดเป็นไฟล์ .pdf โดยตรงในคลิกเดียว -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -140,8 +143,11 @@
           <button type="button" onclick="setMode('both')" id="btn-both" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
             หน้า-หลัง (PDF ชุดเดียว)
           </button>
-          <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#881337] hover:bg-[#6B0F2A] text-white shadow-sm transition">
-            <i data-lucide="file-down" class="w-4 h-4"></i> บันทึก PDF / สั่งพิมพ์
+          <button type="button" onclick="downloadPdfDirect()" id="btn-download-pdf" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#881337] hover:bg-[#6B0F2A] text-white shadow-sm transition">
+            <i data-lucide="file-down" class="w-4 h-4"></i> <span id="btn-pdf-label">ดาวน์โหลด PDF</span>
+          </button>
+          <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-white shadow-sm transition">
+            <i data-lucide="printer" class="w-4 h-4"></i> สั่งพิมพ์
           </button>
         </div>
       </div>
@@ -182,7 +188,7 @@
       <!-- แถบสถานะและคำแนะนำการพิมพ์ -->
       <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
         <span id="summary-text" class="text-slate-600 font-medium">กำลังเตรียมข้อมูล...</span>
-        <span class="text-amber-700 font-medium">* วิธีทำเป็น PDF: กดปุ่มบันทึก PDF → เลือกปลายทาง "บันทึกเป็น PDF (Save as PDF)" → Margins: None → ติ๊กเปิด Background graphics</span>
+        <span class="text-amber-700 font-medium">* กด "ดาวน์โหลด PDF" เพื่อบันทึกไฟล์ .pdf ลงเครื่องทันที หรือกด "สั่งพิมพ์" (Margins: None + Background graphics) เพื่อพิมพ์ตรงเข้าเครื่องพิมพ์</span>
       </div>
 
       <!-- กล่องแจ้งเตือนสถานะ / Error (แทน alert) -->
@@ -549,6 +555,71 @@
       return String(str || '').replace(/[&<>"']/g, m => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       })[m]);
+    }
+
+    // ==================== ดาวน์โหลดเป็นไฟล์ .PDF โดยตรง (1 แผ่น A4 = 1 หน้า PDF) ====================
+    async function downloadPdfDirect() {
+      const pages = Array.from(document.querySelectorAll('#pages-container .a4-page'));
+      if (pages.length === 0) {
+        showStatusAlert('ยังไม่มีหน้าป้ายชื่อสำหรับสร้างไฟล์ PDF', 'warning');
+        return;
+      }
+      if (typeof html2canvas === 'undefined' || !window.jspdf || !window.jspdf.jsPDF) {
+        showStatusAlert('ไม่สามารถโหลดไลบรารีสร้าง PDF ได้ กรุณากดปุ่ม "สั่งพิมพ์" แล้วเลือก Save as PDF แทนครับ', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-download-pdf');
+      const label = document.getElementById('btn-pdf-label');
+      btn.disabled = true;
+      btn.classList.add('opacity-70', 'cursor-wait');
+
+      try {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
+        for (let i = 0; i < pages.length; i++) {
+          const pageEl = pages[i];
+          label.textContent = `กำลังสร้าง PDF (${i + 1}/${pages.length})...`;
+          showStatusAlert(`กำลังสร้างไฟล์ PDF แผ่นที่ ${i + 1} จากทั้งหมด ${pages.length} แผ่น กรุณารอสักครู่...`, 'info');
+
+          const prevShadow = pageEl.style.boxShadow;
+          pageEl.style.boxShadow = 'none';
+
+          const canvas = await html2canvas(pageEl, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0
+          });
+
+          pageEl.style.boxShadow = prevShadow;
+
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          if (i > 0) pdf.addPage('a4', 'portrait');
+          pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+
+          // พักจังหวะสั้นๆ ให้หน้าจออัปเดตข้อความสถานะไม่ค้าง
+          await new Promise(r => setTimeout(r, 30));
+        }
+
+        const modeTag = currentMode === 'front' ? 'ด้านหน้า' : (currentMode === 'back' ? 'ด้านหลัง' : 'หน้าหลัง');
+        const fileName = `ป้ายคล้องคอ_AI_คู่หูจราจร_${modeTag}.pdf`;
+        pdf.save(fileName);
+        showStatusAlert(`✅ ดาวน์โหลดไฟล์ "${fileName}" (${pages.length} แผ่น A4) เรียบร้อยแล้ว!`, 'success');
+      } catch (err) {
+        showStatusAlert(`สร้างไฟล์ PDF ไม่สำเร็จ (${err.message}) — แนะนำให้กดปุ่ม "สั่งพิมพ์" แล้วเลือก Save as PDF แทนครับ`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-wait');
+        label.textContent = 'ดาวน์โหลด PDF';
+      }
     }
   </script>
 </body>
