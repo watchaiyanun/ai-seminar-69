@@ -8,7 +8,7 @@
   <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -59,6 +59,80 @@
       position: relative;
       box-sizing: border-box;
     }
+
+    /* โหมดมาร์กตัดมุมโรงพิมพ์ (Crop Marks) — ไม่มีเส้นประติดขอบบัตรหลังตัด */
+    .badge-card.crop-marks-mode {
+      border: 1px solid transparent;
+      border-radius: 0;
+      overflow: visible;
+    }
+    .badge-inner {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+    .badge-card.crop-marks-mode .badge-inner {
+      border-radius: 2px;
+    }
+    .crop-mark {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 25;
+    }
+    .crop-tl { top: -3px; left: -3px; border-top: 1.5px solid #64748b; border-left: 1.5px solid #64748b; }
+    .crop-tr { top: -3px; right: -3px; border-top: 1.5px solid #64748b; border-right: 1.5px solid #64748b; }
+    .crop-bl { bottom: -3px; left: -3px; border-bottom: 1.5px solid #64748b; border-left: 1.5px solid #64748b; }
+    .crop-br { bottom: -3px; right: -3px; border-bottom: 1.5px solid #64748b; border-right: 1.5px solid #64748b; }
+
+    /* เส้นคั่นสีทองเมทัลลิกบางเฉียบ (1.5px) */
+    .hairline-gold {
+      height: 1.5px;
+      width: 100%;
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.25) 0%, #F3D478 28%, #D4AF37 50%, #F3D478 72%, rgba(212, 175, 55, 0.25) 100%);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 6;
+    }
+
+    /* แถบสีมินิมอล 4px ชิดขอบซ้ายสำหรับแยกบทบาท */
+    .side-accent-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    /* กรอบ QR Code สไตล์มุมเล็งสแกน 4 มุม (Modern Viewfinder Frame) */
+    .qr-viewfinder {
+      position: relative;
+      padding: 8px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 8px 22px -6px rgba(15, 23, 42, 0.16), 0 2px 6px -2px rgba(30, 58, 138, 0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vf-corner {
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      pointer-events: none;
+    }
+    .vf-tl { top: -2px; left: -2px; border-top-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 6px; }
+    .vf-tr { top: -2px; right: -2px; border-top-width: 2.5px; border-right-width: 2.5px; border-top-right-radius: 6px; }
+    .vf-bl { bottom: -2px; left: -2px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 6px; }
+    .vf-br { bottom: -2px; right: -2px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 6px; }
 
     /* ไกด์ไลน์ช่องเจาะสายคล้องคอด้านบน */
     .lanyard-slot {
@@ -192,46 +266,55 @@
           <label class="block text-slate-500 mb-1">เพิ่มป้ายเปล่า (Walk-in):</label>
           <select id="blank-count" onchange="renderPages()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white">
             <option value="0">ไม่เพิ่ม (0 ใบ)</option>
-            <option value="4" selected>เพิ่ม 4 ใบ (1 แผ่น)</option>
+            <option value="2" selected>เพิ่ม 2 ใบ (พอดีแผ่น)</option>
+            <option value="4">เพิ่ม 4 ใบ (1 แผ่น)</option>
             <option value="8">เพิ่ม 8 ใบ (2 แผ่น)</option>
-            <option value="12">เพิ่ม 12 ใบ (3 แผ่น)</option>
           </select>
         </div>
       </div>
 
-      <!-- แถวฟีเจอร์เสริม: เลือกพิมพ์เฉพาะบุคคล (พิมพ์ซ่อม) + ธีมดีไซน์ 3 สไตล์ + อัปโหลดโลโก้หน่วยงาน -->
+      <!-- แถวฟีเจอร์เสริม: เลือกพิมพ์เฉพาะบุคคล (พิมพ์ซ่อม) + ธีมดีไซน์ 3 สไตล์ + ขอบตัดป้าย + อัปโหลดโลโก้หน่วยงาน -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 pt-2 border-t border-slate-100 text-xs items-end">
         <!-- 1. โหมดเลือกพิมพ์เฉพาะบุคคล / พิมพ์ซ่อม -->
-        <div class="md:col-span-4">
-          <label class="block text-slate-500 mb-1">โหมดเลือกพิมพ์เฉพาะบุคคล / พิมพ์ซ่อม:</label>
+        <div class="md:col-span-3">
+          <label class="block text-slate-500 mb-1">พิมพ์เฉพาะบุคคล / พิมพ์ซ่อม:</label>
           <div class="flex items-center gap-1.5">
-            <button type="button" onclick="openSelectiveModal()" id="btn-selective-mode" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold transition">
-              <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
-              <span id="selective-btn-label">เลือกเฉพาะบุคคล (ทั้งหมด)</span>
+            <button type="button" onclick="openSelectiveModal()" id="btn-selective-mode" class="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold transition">
+              <i data-lucide="check-square" class="w-3.5 h-3.5 shrink-0"></i>
+              <span id="selective-btn-label" class="truncate">เลือกเฉพาะบุคคล (ทั้งหมด)</span>
             </button>
-            <button type="button" onclick="clearSelectedParticipants()" id="btn-clear-selective" class="hidden px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-semibold transition" title="ล้างรายการที่เลือก">
+            <button type="button" onclick="clearSelectedParticipants()" id="btn-clear-selective" class="hidden px-2 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-semibold transition" title="ล้างรายการที่เลือก">
               ล้าง
             </button>
           </div>
         </div>
 
         <!-- 2. เลือกธีมดีไซน์ป้าย 3 สไตล์ -->
-        <div class="md:col-span-4">
-          <label class="block text-slate-500 mb-1">ธีมดีไซน์ป้าย (พรีวิวสดทันที):</label>
+        <div class="md:col-span-3">
+          <label class="block text-slate-500 mb-1">ธีมดีไซน์ป้าย (พรีวิวสด):</label>
           <select id="theme-select" onchange="onThemeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium">
-            <option value="classic">🏛️ Official Classic (ทางการ พื้นขาวคมชัด)</option>
-            <option value="modern">✨ Modern Gradient (ทันสมัย ไล่เฉดสีพรีเมียม)</option>
-            <option value="executive">👑 Executive Dark (หรูหรา กรมท่าเข้ม-ทอง)</option>
+            <option value="classic">🏛️ Official Classic (พื้นขาวคมชัด)</option>
+            <option value="modern">✨ Modern Gradient (ไล่เฉดพรีเมียม)</option>
+            <option value="executive">👑 Executive Dark (กรมท่าเข้ม-ทอง)</option>
           </select>
         </div>
 
-        <!-- 3. อัปโหลดโลโก้หน่วยงาน / โครงการ -->
-        <div class="md:col-span-4">
-          <label class="block text-slate-500 mb-1">โลโก้หน่วยงาน / โครงการบนหัวป้าย (PNG/JPG):</label>
+        <!-- 3. สลับเส้นประ vs มาร์กตัดมุมโรงพิมพ์ (Crop Marks) -->
+        <div class="md:col-span-3">
+          <label class="block text-slate-500 mb-1">เส้นขอบตัดกระดาษ:</label>
+          <select id="border-style-select" onchange="onBorderStyleChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium">
+            <option value="crop">✂️ มาร์กตัดมุมโรงพิมพ์ (Crop Marks)</option>
+            <option value="dashed">┈ เส้นประรอบบัตร (Dashed)</option>
+          </select>
+        </div>
+
+        <!-- 4. อัปโหลดโลโก้หน่วยงาน / โครงการ -->
+        <div class="md:col-span-3">
+          <label class="block text-slate-500 mb-1">โลโก้หน่วยงานบนหัวป้าย (PNG/JPG):</label>
           <div class="flex items-center gap-1.5">
-            <label for="logo-file-input" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold cursor-pointer transition">
-              <i data-lucide="image-plus" class="w-3.5 h-3.5 text-[#1E3A8A]"></i>
-              <span id="logo-upload-label">อัปโหลดโลโก้</span>
+            <label for="logo-file-input" class="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold cursor-pointer transition">
+              <i data-lucide="image-plus" class="w-3.5 h-3.5 text-[#1E3A8A] shrink-0"></i>
+              <span id="logo-upload-label" class="truncate">อัปโหลดโลโก้</span>
             </label>
             <input type="file" id="logo-file-input" accept="image/*" onchange="handleLogoUpload(event)" class="hidden" />
             <img id="logo-thumb-preview" src="" alt="Logo Preview" class="hidden w-7 h-7 rounded-md object-contain border border-slate-200 bg-white p-0.5 shrink-0" />
@@ -248,7 +331,7 @@
         <span class="text-amber-700 font-medium">* กดปุ่ม <strong>PNG</strong> มุมขวาบนของป้ายเพื่อเซฟรูปแยกใบส่งทาง LINE หรือกด <strong>ดาวน์โหลด PDF</strong> สำหรับพิมพ์ทั้งชุด</span>
       </div>
 
-      <!-- กล่องแจ้งเตือนสถานะ / Error (แทน alert) -->
+      <!-- กล่องแจ้งเตือนสถานะ / Error -->
       <div id="status-alert" class="hidden p-2.5 rounded-xl text-xs border"></div>
     </div>
   </header>
@@ -292,12 +375,10 @@
   </main>
 
   <script>
-    // ลิงก์ Google Apps Script, ลิงก์ Portal ค่าเริ่มต้น และลิงก์แชทบอทตำรวจคู่หูจราจร AI
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
     const FALLBACK_PORTAL_URL = "https://watchaiyanun.github.io/ai-seminar-69/portal.html";
     const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
 
-    // ข้อมูลตัวอย่างกรณีเชื่อมต่อ API ไม่ได้ (เช่น ทดสอบแบบออฟไลน์)
     const DEMO_DATA = [
       { id: 'KM69-01', fullName: 'พ.ต.อ.จักกฤศน์ โฉสูงเนิน', position: 'รอง ผบก.อก.รรท. รอง ผบก.น.5', mainUnit: 'บช.น.', unitDetail: 'บช.น. (บก.น.5)', role: 'ผู้เข้าร่วมสัมมนา', rsvp: 'ยืนยันเข้าร่วม', substituteName: '', substitutePosition: '' },
       { id: 'KM69-40', fullName: 'พ.ต.อ.อังกูร ทวีเกตุ', position: 'ผกก.กลุ่มงานวิจัยฯ 2', mainUnit: 'สยศ.ตร.', unitDetail: 'สยศ.ตร.(วจ.)', role: 'คณะทำงาน', rsvp: 'ยืนยันเข้าร่วม', substituteName: '', substitutePosition: '' },
@@ -305,15 +386,16 @@
       { id: 'KM69-02', fullName: 'พ.ต.อ.อาทิตย์ พรหมนอก', position: 'ผกก.สอบสวน บก.น.2', mainUnit: 'บช.น.', unitDetail: 'บช.น. (บก.น.2)', role: 'ผู้เข้าร่วมสัมมนา', rsvp: 'ส่งผู้แทนเข้าร่วม', substituteName: 'พ.ต.ท.สมหมาย ตัวอย่าง', substitutePosition: 'รอง ผกก.สอบสวน บก.น.2' }
     ];
 
-    let participants = [];
-    let currentMode = 'front'; // 'front' | 'back' | 'both'
-    let currentTheme = safeStorageGet('ai_seminar_badge_theme') || 'classic'; // 'classic' | 'modern' | 'executive'
-    let customLogoDataUrl = safeStorageGet('ai_seminar_badge_logo') || '';
-    let selectedIds = new Set();
-
     function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
     function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
     function safeStorageRemove(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+    let participants = [];
+    let currentMode = 'front'; // 'front' | 'back' | 'both'
+    let currentTheme = safeStorageGet('ai_seminar_badge_theme') || 'classic'; // 'classic' | 'modern' | 'executive'
+    let currentBorderStyle = safeStorageGet('ai_seminar_badge_border') || 'crop'; // 'crop' | 'dashed'
+    let customLogoDataUrl = safeStorageGet('ai_seminar_badge_logo') || '';
+    let selectedIds = new Set();
 
     function detectDefaultPortalUrl() {
       try {
@@ -326,6 +408,7 @@
 
     function showStatusAlert(msg, type = 'info') {
       const box = document.getElementById('status-alert');
+      if (!box) return;
       if (!msg) {
         box.classList.add('hidden');
         return;
@@ -341,7 +424,7 @@
       box.classList.remove('hidden');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initBadgesApp() {
       if (window.lucide) lucide.createIcons();
 
       const savedApi = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
@@ -350,6 +433,7 @@
       document.getElementById('api-url-input').value = savedApi;
       document.getElementById('portal-url-input').value = savedPortal;
       document.getElementById('theme-select').value = currentTheme;
+      document.getElementById('border-style-select').value = currentBorderStyle;
       updateLogoControlsUi();
       updateSelectiveButtonUi();
 
@@ -358,7 +442,13 @@
       });
 
       loadFromApi();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initBadgesApp);
+    } else {
+      initBadgesApp();
+    }
 
     async function loadFromApi() {
       showStatusAlert('');
@@ -416,8 +506,7 @@
 
     function setMode(mode) {
       currentMode = mode;
-      const modes = ['front', 'back', 'both'];
-      modes.forEach(m => {
+      ['front', 'back', 'both'].forEach(m => {
         const btn = document.getElementById(`btn-${m}`);
         if (!btn) return;
         btn.className = m === mode
@@ -427,27 +516,68 @@
       renderPages();
     }
 
-    // กำหนดโทนสีแถบป้ายตามบทบาท/สังกัด
+    // กำหนดโทนสีแถบป้ายและแถบสีมินิมอล 4px ด้านซ้ายตามบทบาท/สังกัด
     function getBadgeTheme(item) {
-      if (item.isBlank) {
-        return { bg: '#475569', grad: 'linear-gradient(135deg, #334155 0%, #64748b 100%)', pillBg: '#F1F5F9', pillText: '#334155', label: 'Walk-in / ลงทะเบียนหน้างาน' };
+      if (!item || item.isBlank) {
+        return {
+          bg: '#475569',
+          grad: 'linear-gradient(135deg, #334155 0%, #64748b 100%)',
+          pillBg: '#F1F5F9',
+          pillText: '#334155',
+          sideAccent: 'linear-gradient(180deg, #94A3B8 0%, #475569 100%)',
+          vfColor: '#475569',
+          label: 'Walk-in / ลงทะเบียนหน้างาน'
+        };
       }
       const role = String(item.role || '');
       const unit = String(item.mainUnit || '');
 
+      // คณะทำงาน: แถบสีเขียวมิ้นต์
       if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) {
-        return { bg: '#0F766E', grad: 'linear-gradient(135deg, #115E59 0%, #0D9488 100%)', pillBg: '#CCFBF1', pillText: '#0F766E', label: 'คณะทำงาน' };
+        return {
+          bg: '#0F766E',
+          grad: 'linear-gradient(135deg, #115E59 0%, #0D9488 100%)',
+          pillBg: '#CCFBF1',
+          pillText: '#0F766E',
+          sideAccent: 'linear-gradient(180deg, #34D399 0%, #10B981 55%, #0F766E 100%)',
+          vfColor: '#0F766E',
+          label: 'คณะทำงาน'
+        };
       }
+      // ผู้ทรงคุณวุฒิ / วิทยากร / หน่วยงานภายนอก: แถบสีทองเมทัลลิก
       if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || unit.includes('หน่วยงานภายนอก')) {
-        return { bg: '#881337', grad: 'linear-gradient(135deg, #6B0F2A 0%, #BE123C 100%)', pillBg: '#FFE4E6', pillText: '#881337', label: role || 'หน่วยงานภายนอก' };
+        return {
+          bg: '#881337',
+          grad: 'linear-gradient(135deg, #6B0F2A 0%, #BE123C 100%)',
+          pillBg: '#FFE4E6',
+          pillText: '#881337',
+          sideAccent: 'linear-gradient(180deg, #F3D478 0%, #D4AF37 55%, #B45309 100%)',
+          vfColor: '#B45309',
+          label: role || 'หน่วยงานภายนอก'
+        };
       }
-      return { bg: '#1E3A8A', grad: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 65%, #881337 100%)', pillBg: '#DBEAFE', pillText: '#1E3A8A', label: unit || 'ผู้เข้าร่วมสัมมนา' };
+      // ผู้เข้าร่วมสัมมนาทั่วไป: แถบสีกรมท่า
+      return {
+        bg: '#1E3A8A',
+        grad: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 65%, #881337 100%)',
+        pillBg: '#DBEAFE',
+        pillText: '#1E3A8A',
+        sideAccent: 'linear-gradient(180deg, #3B82F6 0%, #1E3A8A 60%, #172554 100%)',
+        vfColor: '#1E3A8A',
+        label: unit || 'ผู้เข้าร่วมสัมมนา'
+      };
     }
 
-    // ==================== ธีมดีไซน์ป้าย & อัปโหลดโลโก้หน่วยงาน ====================
+    // ==================== ธีมดีไซน์ป้าย, ขอบตัด & อัปโหลดโลโก้หน่วยงาน ====================
     function onThemeChange() {
       currentTheme = document.getElementById('theme-select').value || 'classic';
       safeStorageSet('ai_seminar_badge_theme', currentTheme);
+      renderPages();
+    }
+
+    function onBorderStyleChange() {
+      currentBorderStyle = document.getElementById('border-style-select').value || 'crop';
+      safeStorageSet('ai_seminar_badge_border', currentBorderStyle);
       renderPages();
     }
 
@@ -490,6 +620,39 @@
         if (removeBtn) removeBtn.classList.add('hidden');
         if (label) label.textContent = 'อัปโหลดโลโก้';
       }
+    }
+
+    // ลายน้ำวงจร AI & โล่ตำรวจบางๆ (ความเข้ม 4–7%) บนพื้นหลังช่วงกลางบัตร
+    function buildTechWatermarkSvg(isExec) {
+      const strokeCol = isExec ? '#F3D478' : '#1E3A8A';
+      const opacityVal = isExec ? '0.075' : '0.05';
+      return `
+        <svg class="pointer-events-none absolute inset-0 w-full h-full z-0" viewBox="0 0 320 380" preserveAspectRatio="xMidYMid slice" fill="none" style="opacity: ${opacityVal};">
+          <path d="M-10 85 H65 L92 112 H120" stroke="${strokeCol}" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="120" cy="112" r="3.5" fill="${strokeCol}"/>
+          <path d="M-10 280 H55 L85 250 H112" stroke="${strokeCol}" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="112" cy="250" r="3.5" fill="${strokeCol}"/>
+          <path d="M330 95 H255 L228 122 H200" stroke="${strokeCol}" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="200" cy="122" r="3.5" fill="${strokeCol}"/>
+          <path d="M330 270 H265 L235 240 H208" stroke="${strokeCol}" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="208" cy="240" r="3.5" fill="${strokeCol}"/>
+          <circle cx="160" cy="185" r="98" stroke="${strokeCol}" stroke-width="1.1" stroke-dasharray="4 6"/>
+          <path d="M160 105 L105 126 V174 C105 215 128 249 160 262 C192 249 215 215 215 174 V126 L160 105 Z" stroke="${strokeCol}" stroke-width="2.2"/>
+          <path d="M160 120 L118 136 V172 C118 204 136 231 160 242 C184 231 202 204 202 172 V136 L160 120 Z" stroke="${strokeCol}" stroke-width="1.1" stroke-dasharray="3 3"/>
+          <polygon points="160,152 166,166 181,168 170,178 173,193 160,185 147,193 150,178 139,168 154,166" stroke="${strokeCol}" stroke-width="1.5" fill="${strokeCol}" fill-opacity="0.35"/>
+        </svg>
+      `;
+    }
+
+    // มาร์กตัดมุมโรงพิมพ์ 4 มุม (Crop Marks)
+    function buildCropMarksHtml() {
+      if (currentBorderStyle !== 'crop') return '';
+      return `
+        <span class="crop-mark crop-tl" aria-hidden="true"></span>
+        <span class="crop-mark crop-tr" aria-hidden="true"></span>
+        <span class="crop-mark crop-bl" aria-hidden="true"></span>
+        <span class="crop-mark crop-br" aria-hidden="true"></span>
+      `;
     }
 
     // ==================== โหมดเลือกพิมพ์เฉพาะบุคคล / พิมพ์ซ่อม ====================
@@ -545,11 +708,11 @@
 
       if (selectedIds.size > 0) {
         if (label) label.textContent = `เลือกพิมพ์ซ่อม (${selectedIds.size} ราย)`;
-        if (btn) btn.className = 'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-600 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-xs transition';
+        if (btn) btn.className = 'flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-600 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-xs transition';
         if (clearBtn) clearBtn.classList.remove('hidden');
       } else {
         if (label) label.textContent = 'เลือกเฉพาะบุคคล (ทั้งหมด)';
-        if (btn) btn.className = 'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold transition';
+        if (btn) btn.className = 'flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-semibold transition';
         if (clearBtn) clearBtn.classList.add('hidden');
       }
     }
@@ -589,6 +752,7 @@
       }).join('');
     }
 
+    // ==================== RENDER A4 SHEETS (4 ใบ / A4) ====================
     function renderPages() {
       const container = document.getElementById('pages-container');
       container.innerHTML = '';
@@ -599,13 +763,11 @@
       const unitFilter = document.getElementById('filter-unit').value;
       const blankCount = parseInt(document.getElementById('blank-count').value, 10) || 0;
 
-      // หากมีการเลือกเฉพาะบุคคล (Selective Re-print) ให้แสดงเฉพาะรายชื่อที่เลือก
       const filtered = selectedIds.size > 0
         ? participants.filter(p => selectedIds.has(p.id))
         : participants.filter(p => unitFilter === 'all' || p.mainUnit === unitFilter);
 
       const allItems = [...filtered];
-
       for (let i = 0; i < blankCount; i++) {
         allItems.push({ id: '', fullName: '', position: '', mainUnit: '', unitDetail: '', role: 'Walk-in', isBlank: true });
       }
@@ -622,11 +784,10 @@
 
       const backQrIds = [];
 
-      // แบ่งจัดวาง 4 ใบต่อ 1 แผ่น A4
       for (let pageIdx = 0; pageIdx < sheetPairs; pageIdx++) {
         const chunk = allItems.slice(pageIdx * 4, pageIdx * 4 + 4);
 
-        // 1. สร้างหน้า "ด้านหน้า" (กรณีโหมด front หรือ both)
+        // 1. สร้างหน้า "ด้านหน้า"
         if (currentMode === 'front' || currentMode === 'both') {
           const frontPageEl = document.createElement('div');
           frontPageEl.className = 'a4-page';
@@ -635,8 +796,8 @@
             const cardId = `badge-front-card-${globalIdx}`;
             const card = document.createElement('div');
             card.id = cardId;
-            card.className = 'badge-card';
-            if (currentTheme === 'executive') {
+            card.className = currentBorderStyle === 'crop' ? 'badge-card crop-marks-mode' : 'badge-card';
+            if (currentTheme === 'executive' && currentBorderStyle !== 'crop') {
               card.style.borderColor = '#D4AF37';
             }
             card.innerHTML = buildFrontHtml(item, globalIdx, cardId);
@@ -645,12 +806,12 @@
           container.appendChild(frontPageEl);
         }
 
-        // 2. สร้างหน้า "ด้านหลัง" (กรณีโหมด back หรือ both)
+        // 2. สร้างหน้า "ด้านหลัง"
         if (currentMode === 'back' || currentMode === 'both') {
           const backPageEl = document.createElement('div');
           backPageEl.className = 'a4-page';
 
-          // จัดสลับซ้าย-ขวา (0↔1, 2↔3) เพื่อให้เวลาพิมพ์ 2 หน้าแบบพลิกด้านยาว (Flip on Long Edge) ด้านหลังตรงกับด้านหน้าพอดี
+          // สลับซ้าย-ขวา (0↔1, 2↔3) เพื่อให้พิมพ์ 2 หน้าแบบ Flip on Long Edge ตรงกับด้านหน้าพอดี
           const padded = [chunk[0] || null, chunk[1] || null, chunk[2] || null, chunk[3] || null];
           const backOrder = currentMode === 'both'
             ? [padded[1], padded[0], padded[3], padded[2]]
@@ -668,8 +829,8 @@
             backQrIds.push(backQrKey);
             const card = document.createElement('div');
             card.id = cardId;
-            card.className = 'badge-card';
-            if (currentTheme === 'executive') {
+            card.className = currentBorderStyle === 'crop' ? 'badge-card crop-marks-mode' : 'badge-card';
+            if (currentTheme === 'executive' && currentBorderStyle !== 'crop') {
               card.style.borderColor = '#D4AF37';
             }
             card.innerHTML = buildBackHtml(backQrKey, cardId, item);
@@ -679,7 +840,7 @@
         }
       }
 
-      // สร้าง QR Code หลังจากใส่ HTML ลง DOM แล้ว
+      // สร้าง QR Code
       if (typeof QRCode !== 'undefined') {
         if (currentMode === 'front' || currentMode === 'both') {
           allItems.forEach((item, idx) => {
@@ -690,8 +851,8 @@
                 const smartUrl = `${portalBase}${sep}id=${encodeURIComponent(item.id)}`;
                 new QRCode(el, {
                   text: smartUrl,
-                  width: 116,
-                  height: 116,
+                  width: 112,
+                  height: 112,
                   correctLevel: QRCode.CorrectLevel.L
                 });
               }
@@ -699,7 +860,6 @@
           });
         }
         if (currentMode === 'back' || currentMode === 'both') {
-          // ด้านหลังป้าย: สร้าง QR Code สำหรับเข้าแชทบอทตำรวจคู่หูจราจร AI
           backQrIds.forEach((qrKey) => {
             const elAi = document.getElementById(`qr-ai-${qrKey}`);
             if (elAi) {
@@ -716,7 +876,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ==================== ออกแบบด้านหน้าป้าย (ตัวอักษรขนาดใหญ่คมชัด + รองรับ 3 ธีม + โลโก้ + ปุ่ม PNG) ====================
+    // ==================== ออกแบบด้านหน้าป้าย (Executive Typography + ลายน้ำ AI + มุมเล็ง QR + เส้นทอง + แถบข้าง 4px) ====================
     function buildFrontHtml(item, idx, cardId) {
       const theme = getBadgeTheme(item);
       const isSub = !item.isBlank && item.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(item.substituteName);
@@ -728,7 +888,7 @@
       const isMod = currentTheme === 'modern';
 
       const headerStyle = isExec
-        ? 'background: linear-gradient(135deg, #090F24 0%, #172554 65%, #5B0B24 100%); border-bottom: 2px solid #D4AF37;'
+        ? 'background: linear-gradient(135deg, #090F24 0%, #172554 65%, #5B0B24 100%);'
         : (isMod ? `background: ${theme.grad};` : `background-color: ${theme.bg};`);
 
       const bodyStyle = isExec
@@ -743,15 +903,15 @@
         ? 'background-color: rgba(212, 175, 55, 0.2); color: #F3D478; border: 1px solid rgba(212, 175, 55, 0.6);'
         : `background-color: ${isSub ? '#F3E8FF' : theme.pillBg}; color: ${isSub ? '#6B21A8' : theme.pillText};`;
 
-      // ปรับขนาด ยศ ชื่อ - สกุล ให้ใหญ่คมชัดอ่านง่ายระยะไกล (ปรับสเกลอัตโนมัติตามความยาวชื่อไม่ให้ล้นป้าย)
       const nameLen = (displayName || '').length;
       const nameSizeClass = nameLen > 27 ? 'text-[20px]' : (nameLen > 20 ? 'text-[23px]' : 'text-[26px]');
       const nameColorClass = isExec ? 'text-white' : 'text-slate-900';
-      const posColorClass = isExec ? 'text-amber-200' : 'text-slate-700';
-      const unitColorClass = isExec ? 'text-blue-200' : 'text-slate-500';
+      const posColorClass = isExec ? 'text-amber-100/90' : 'text-slate-500';
+      const unitColorClass = isExec ? 'text-blue-200/80' : 'text-slate-400';
+      const dividerColor = isExec ? 'background: #D4AF37;' : `background: ${theme.vfColor}55;`;
       const idColorClass = isExec ? 'text-amber-300' : 'text-slate-900';
       const scanHintClass = isExec ? 'text-blue-200/85' : 'text-slate-500';
-      const qrBorderStyle = isExec ? 'border-color: #D4AF37;' : `border-color: ${theme.bg}33;`;
+      const vfBorderColor = isExec ? '#D4AF37' : theme.vfColor;
 
       const pngFileName = item.isBlank
         ? `ป้ายชื่อ_WalkIn_${idx + 1}_ด้านหน้า`
@@ -762,74 +922,100 @@
         : '';
 
       return `
-        <!-- ปุ่มส่งออก PNG แยกใบ (ไม่ติดลง PDF หรือกระดาษพิมพ์) -->
-        <button type="button" data-html2canvas-ignore="true" onclick="exportSingleBadgePng('${cardId}', '${escapeHtml(pngFileName)}')" title="บันทึกรูปป้ายใบนี้เป็นไฟล์ PNG เพื่อส่งทาง LINE" class="no-print badge-png-btn inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/95 hover:bg-amber-300 text-slate-900 text-[10px] font-bold shadow border border-slate-300">
-          <i data-lucide="download" class="w-3 h-3"></i> PNG
-        </button>
+        ${buildCropMarksHtml()}
 
-        <!-- แถบหัวป้าย -->
-        <div style="${headerStyle}" class="text-white px-3 pb-2.5 pt-0.5 text-center">
-          <div class="lanyard-slot"></div>
-          <div class="flex items-center justify-center gap-2">
-            ${logoHtml}
-            <div class="${customLogoDataUrl ? 'text-left' : 'text-center'} min-w-0">
-              <p class="text-[10.5px] tracking-wide ${isExec ? 'text-amber-200' : 'opacity-90'} leading-tight">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
-              <h2 class="text-[15px] font-bold leading-tight mt-0.5">แชทบอท AI คู่หูจราจร</h2>
-              <p class="text-[10px] opacity-85 mt-0.5 leading-none">30 พ.ย. – 2 ธ.ค. 2569</p>
+        <div class="badge-inner">
+          <!-- แถบสีมินิมอล 4px ชิดขอบซ้ายสำหรับแยกบทบาท -->
+          <div class="side-accent-bar" style="background: ${theme.sideAccent};"></div>
+
+          <!-- ปุ่มส่งออก PNG แยกใบ -->
+          <button type="button" data-html2canvas-ignore="true" onclick="exportSingleBadgePng('${cardId}', '${escapeHtml(pngFileName)}')" title="บันทึกรูปป้ายใบนี้เป็นไฟล์ PNG เพื่อส่งทาง LINE" class="no-print badge-png-btn inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/95 hover:bg-amber-300 text-slate-900 text-[10px] font-bold shadow border border-slate-300">
+            <i data-lucide="download" class="w-3 h-3"></i> PNG
+          </button>
+
+          <!-- แถบหัวป้าย -->
+          <div style="${headerStyle}" class="text-white px-3.5 pb-2.5 pt-0.5 text-center relative z-10">
+            <div class="lanyard-slot"></div>
+            <div class="flex items-center justify-center gap-2">
+              ${logoHtml}
+              <div class="${customLogoDataUrl ? 'text-left' : 'text-center'} min-w-0">
+                <p class="text-[10.5px] tracking-wide ${isExec ? 'text-amber-200' : 'opacity-90'} leading-tight">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
+                <h2 class="text-[15px] font-bold leading-tight mt-0.5">แชทบอท AI คู่หูจราจร</h2>
+                <p class="text-[10px] opacity-85 mt-0.5 leading-none">30 พ.ย. – 2 ธ.ค. 2569</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- เนื้อหาตรงกลาง (ตัวอักษรขนาดใหญ่คมชัด อ่านง่ายระยะไกล) -->
-        <div style="${bodyStyle}" class="flex-1 flex flex-col items-center justify-center gap-2 px-3.5 py-2 text-center">
-          <div class="w-full">
-            <span style="${pillStyle}" class="badge-pill inline-flex items-center justify-center px-3.5 py-1 rounded-full text-[12px] font-bold leading-normal">
-              ${escapeHtml(pillLabel)}
-            </span>
+          <!-- เส้นคั่นสีทองเมทัลลิกบางเฉียบ (1.5px) -->
+          <div class="hairline-gold"></div>
 
-            ${item.isBlank ? `
-              <div class="mt-3 space-y-3.5 px-2">
-                <div class="border-b-2 border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-6"></div>
-                <div class="border-b border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-5"></div>
-                <p class="text-[11px] ${isExec ? 'text-slate-300' : 'text-slate-400'}">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
-              </div>
-            ` : `
-              <div class="mt-2 space-y-1">
-                <h3 class="${nameSizeClass} font-extrabold ${nameColorClass} leading-tight tracking-tight break-words px-0.5">${escapeHtml(displayName)}</h3>
-                <p class="text-[13.5px] font-medium ${posColorClass} leading-snug break-words px-0.5">${escapeHtml(displayPos)}</p>
-                <p class="text-[12.5px] font-medium ${unitColorClass} leading-snug break-words">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
-                ${isSub ? `<p class="text-[11.5px] ${isExec ? 'text-purple-200' : 'text-purple-700'} font-semibold leading-snug">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
-              </div>
-            `}
+          <!-- เนื้อหาตรงกลาง + ลายน้ำวงจร AI & โล่ตำรวจบางๆ -->
+          <div style="${bodyStyle}" class="relative flex-1 flex flex-col items-center justify-center gap-2.5 px-4 py-2 text-center overflow-hidden">
+            ${buildTechWatermarkSvg(isExec)}
+
+            <div class="relative z-10 w-full">
+              <span style="${pillStyle}" class="badge-pill inline-flex items-center justify-center px-3.5 py-1 rounded-full text-[11.5px] font-bold leading-normal tracking-wide">
+                ${escapeHtml(pillLabel)}
+              </span>
+
+              ${item.isBlank ? `
+                <div class="mt-3 space-y-3.5 px-2">
+                  <div class="border-b-2 border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-6"></div>
+                  <div class="border-b border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-5"></div>
+                  <p class="text-[11px] ${isExec ? 'text-slate-300' : 'text-slate-400'}">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
+                </div>
+              ` : `
+                <div class="mt-2">
+                  <h3 class="${nameSizeClass} font-extrabold ${nameColorClass} leading-tight tracking-tight break-words px-0.5">${escapeHtml(displayName)}</h3>
+                  <div style="${dividerColor}" class="w-6 h-[2px] rounded-full mx-auto my-1.5"></div>
+                  <p class="text-[12.5px] font-normal ${posColorClass} leading-snug break-words px-1">${escapeHtml(displayPos)}</p>
+                  <p class="text-[11.5px] font-medium ${unitColorClass} leading-snug break-words mt-0.5">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
+                  ${isSub ? `<p class="text-[11px] ${isExec ? 'text-purple-200' : 'text-purple-700'} font-semibold leading-snug mt-0.5">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
+                </div>
+              `}
+            </div>
+
+            <!-- Smart QR Code ตรงกลางป้าย พร้อมกรอบมุมเล็งสแกน 4 มุม (Modern Viewfinder) -->
+            <div class="relative z-10 flex flex-col items-center">
+              ${item.isBlank ? `
+                <div class="qr-viewfinder">
+                  <span class="vf-corner vf-tl" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-tr" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-bl" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
+                  <div class="w-[112px] h-[112px] border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-sm font-bold text-slate-400">
+                    Walk-in
+                  </div>
+                </div>
+                <p class="text-[13px] font-mono font-bold ${isExec ? 'text-amber-200' : 'text-slate-400'} mt-1.5">WALK-IN</p>
+              ` : `
+                <div class="qr-viewfinder">
+                  <span class="vf-corner vf-tl" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-tr" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-bl" style="border-color: ${vfBorderColor};"></span>
+                  <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
+                  <div id="qr-front-${idx}" class="qr-box"></div>
+                </div>
+                <p class="text-[14px] font-mono font-bold ${idColorClass} mt-1.5 tracking-wider">${escapeHtml(item.id)}</p>
+                <p class="text-[10px] ${scanHintClass} leading-tight">สแกนเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
+              `}
+            </div>
           </div>
 
-          <!-- Smart QR Code ตรงกลางป้าย -->
-          <div class="flex flex-col items-center">
-            ${item.isBlank ? `
-              <div class="w-[116px] h-[116px] border-2 border-dashed ${isExec ? 'border-amber-300/60 text-amber-200' : 'border-slate-300 text-slate-400'} rounded-2xl flex items-center justify-center text-sm font-bold">
-                Walk-in
-              </div>
-              <p class="text-[13px] font-mono font-bold ${isExec ? 'text-amber-200' : 'text-slate-400'} mt-1.5">WALK-IN</p>
-            ` : `
-              <div id="qr-front-${idx}" style="${qrBorderStyle}" class="qr-box p-1.5 bg-white border-2 rounded-2xl shadow-sm"></div>
-              <p class="text-[14px] font-mono font-bold ${idColorClass} mt-1 tracking-wider">${escapeHtml(item.id)}</p>
-              <p class="text-[10px] ${scanHintClass} leading-tight">สแกนเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
-            `}
-          </div>
+          <!-- แถบสีด้านล่าง -->
+          <div style="${footerStyle}" class="h-2.5 w-full relative z-10"></div>
         </div>
-
-        <!-- แถบสีด้านล่าง -->
-        <div style="${footerStyle}" class="h-2.5 w-full"></div>
       `;
     }
 
-    // ==================== ออกแบบด้านหลังป้าย (QR Code คู่หูจราจร AI + ตัวอักษรใหญ่ขึ้น + รองรับ 3 ธีม) ====================
+    // ==================== ออกแบบด้านหลังป้าย (ลายน้ำ AI + มุมเล็ง QR + เส้นทอง + แถบข้าง 4px) ====================
     function buildBackHtml(idx, cardId, item) {
+      const theme = getBadgeTheme(item || { isBlank: true });
       const isExec = currentTheme === 'executive';
       const isMod = currentTheme === 'modern';
 
       const headerStyle = isExec
-        ? 'background: linear-gradient(135deg, #090F24 0%, #172554 65%, #5B0B24 100%); border-bottom: 2px solid #D4AF37;'
+        ? 'background: linear-gradient(135deg, #090F24 0%, #172554 65%, #5B0B24 100%);'
         : (isMod ? 'background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 65%, #881337 100%);' : 'background-color: #1E3A8A;');
 
       const bodyStyle = isExec
@@ -840,6 +1026,8 @@
         ? 'background: linear-gradient(90deg, #881337, #D4AF37, #1E3A8A);'
         : 'background-color: #881337;';
 
+      const vfBorderColor = isExec ? '#D4AF37' : '#1E3A8A';
+
       const pngFileName = item && !item.isBlank && item.id
         ? `ป้ายชื่อ_${item.id}_ด้านหลัง`
         : `ป้ายชื่อ_ด้านหลัง_${idx}`;
@@ -849,58 +1037,77 @@
         : '';
 
       return `
-        <!-- ปุ่มส่งออก PNG แยกใบด้านหลัง -->
-        <button type="button" data-html2canvas-ignore="true" onclick="exportSingleBadgePng('${cardId}', '${escapeHtml(pngFileName)}')" title="บันทึกรูปด้านหลังป้ายเป็นไฟล์ PNG" class="no-print badge-png-btn inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/95 hover:bg-amber-300 text-slate-900 text-[10px] font-bold shadow border border-slate-300">
-          <i data-lucide="download" class="w-3 h-3"></i> PNG
-        </button>
+        ${buildCropMarksHtml()}
 
-        <!-- แถบหัวป้ายด้านหลัง -->
-        <div style="${headerStyle}" class="text-white px-4 pb-2.5 pt-0.5 text-center">
-          <div class="lanyard-slot"></div>
-          <div class="flex items-center justify-center gap-2">
-            ${logoHtml}
-            <p class="text-[11px] font-bold tracking-widest uppercase ${isExec ? 'text-amber-200' : 'text-blue-100'}">AI TRAFFIC KM SEMINAR 2026</p>
+        <div class="badge-inner">
+          <!-- แถบสีมินิมอล 4px ชิดขอบซ้าย -->
+          <div class="side-accent-bar" style="background: ${theme.sideAccent};"></div>
+
+          <!-- ปุ่มส่งออก PNG แยกใบด้านหลัง -->
+          <button type="button" data-html2canvas-ignore="true" onclick="exportSingleBadgePng('${cardId}', '${escapeHtml(pngFileName)}')" title="บันทึกรูปด้านหลังป้ายเป็นไฟล์ PNG" class="no-print badge-png-btn inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/95 hover:bg-amber-300 text-slate-900 text-[10px] font-bold shadow border border-slate-300">
+            <i data-lucide="download" class="w-3 h-3"></i> PNG
+          </button>
+
+          <!-- แถบหัวป้ายด้านหลัง -->
+          <div style="${headerStyle}" class="text-white px-4 pb-2.5 pt-0.5 text-center relative z-10">
+            <div class="lanyard-slot"></div>
+            <div class="flex items-center justify-center gap-2">
+              ${logoHtml}
+              <p class="text-[11px] font-bold tracking-widest uppercase ${isExec ? 'text-amber-200' : 'text-blue-100'}">AI TRAFFIC KM SEMINAR 2026</p>
+            </div>
           </div>
+
+          <!-- เส้นคั่นสีทองเมทัลลิกบางเฉียบ (1.5px) -->
+          <div class="hairline-gold"></div>
+
+          <!-- เนื้อหาด้านหลัง: QR แชทบอทตำรวจคู่หูจราจร + ลายน้ำ AI -->
+          <div style="${bodyStyle}" class="relative flex-1 flex flex-col items-center justify-between px-4 py-3.5 text-center overflow-hidden">
+            ${buildTechWatermarkSvg(isExec)}
+
+            <div class="relative z-10 space-y-1">
+              <h2 class="text-[18px] font-bold ${isExec ? 'text-amber-300' : 'text-[#1E3A8A]'} leading-tight">👮‍♂️ คู่หูจราจร AI</h2>
+              <div style="background: ${isExec ? '#D4AF37' : '#1E3A8A44'};" class="w-6 h-[2px] rounded-full mx-auto my-1"></div>
+              <p class="text-[11.5px] ${isExec ? 'text-blue-100' : 'text-slate-600'} leading-relaxed px-0.5">
+                สอบถามข้อมูลและค้นหาแนวทางการปฏิบัติงานด้านการจราจร<br>ผ่านแชทบอทตำรวจคู่หูจราจร
+              </p>
+            </div>
+
+            <!-- QR Code เข้าสู่ AI Chatbot พร้อมกรอบมุมเล็ง 4 มุม -->
+            <div class="relative z-10 flex flex-col items-center my-1">
+              <div class="qr-viewfinder">
+                <span class="vf-corner vf-tl" style="border-color: ${vfBorderColor};"></span>
+                <span class="vf-corner vf-tr" style="border-color: ${vfBorderColor};"></span>
+                <span class="vf-corner vf-bl" style="border-color: ${vfBorderColor};"></span>
+                <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
+                <div id="qr-ai-${idx}" class="qr-box"></div>
+              </div>
+              <p class="text-[12px] font-bold ${isExec ? 'text-amber-200' : 'text-[#881337]'} mt-2">สแกนเพื่อเข้าใช้งานแชทบอท AI</p>
+              <p class="text-[11px] font-mono ${isExec ? 'text-blue-200' : 'text-slate-600'} font-semibold">pinai-fine.police.go.th</p>
+            </div>
+
+            <!-- ข้อมูลงานย่อ -->
+            <div class="relative z-10 w-full pt-2 border-t ${isExec ? 'border-white/15' : 'border-slate-200'} text-[10.5px] space-y-0.5">
+              <p class="font-bold ${isExec ? 'text-white' : 'text-slate-800'}">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</p>
+              <p class="text-[10px] ${isExec ? 'text-blue-200/80' : 'text-slate-500'}">สแกน QR ด้านหน้าป้ายเพื่อดูเอกสาร • ห้องพัก • แบบประเมิน</p>
+            </div>
+          </div>
+
+          <!-- แถบสีด้านล่าง -->
+          <div style="${footerStyle}" class="h-2.5 w-full relative z-10"></div>
         </div>
-
-        <!-- เนื้อหาด้านหลัง: QR แชทบอทตำรวจคู่หูจราจร -->
-        <div style="${bodyStyle}" class="flex-1 flex flex-col items-center justify-between px-4 py-3.5 text-center">
-          <div class="space-y-1">
-            <h2 class="text-[18px] font-bold ${isExec ? 'text-amber-300' : 'text-[#1E3A8A]'} leading-tight">👮‍♂️ คู่หูจราจร AI</h2>
-            <p class="text-[11.5px] ${isExec ? 'text-blue-100' : 'text-slate-600'} leading-relaxed px-0.5">
-              สอบถามข้อมูลและค้นหาแนวทางการปฏิบัติงานด้านการจราจร<br>ผ่านแชทบอทตำรวจคู่หูจราจร
-            </p>
-          </div>
-
-          <!-- QR Code เข้าสู่ AI Chatbot -->
-          <div class="flex flex-col items-center my-1">
-            <div id="qr-ai-${idx}" class="qr-box p-2 bg-white border-2 ${isExec ? 'border-[#D4AF37]' : 'border-[#1E3A8A]/25'} rounded-2xl shadow-sm"></div>
-            <p class="text-[12px] font-bold ${isExec ? 'text-amber-200' : 'text-[#881337]'} mt-1.5">สแกนเพื่อเข้าใช้งานแชทบอท AI</p>
-            <p class="text-[11px] font-mono ${isExec ? 'text-blue-200' : 'text-slate-600'} font-semibold">pinai-fine.police.go.th</p>
-          </div>
-
-          <!-- ข้อมูลงานย่อ -->
-          <div class="w-full pt-2 border-t ${isExec ? 'border-white/15' : 'border-slate-200'} text-[10.5px] space-y-0.5">
-            <p class="font-bold ${isExec ? 'text-white' : 'text-slate-800'}">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</p>
-            <p class="text-[10px] ${isExec ? 'text-blue-200/80' : 'text-slate-500'}">สแกน QR ด้านหน้าป้ายเพื่อดูเอกสาร • ห้องพัก • แบบประเมิน</p>
-          </div>
-        </div>
-
-        <!-- แถบสีด้านล่าง -->
-        <div style="${footerStyle}" class="h-2.5 w-full"></div>
       `;
     }
 
-    // ==================== ส่งออกเป็นไฟล์รูปภาพ PNG แยกทีละใบ (Export Individual Badge PNG) ====================
+    // ==================== ส่งออกรูปภาพป้ายแยกทีละใบเป็น PNG (Export Individual Badge PNG) ====================
     async function exportSingleBadgePng(cardId, fileNameBase) {
       const cardEl = document.getElementById(cardId);
       if (!cardEl) return;
       if (typeof html2canvas === 'undefined') {
-        showStatusAlert('ไม่สามารถโหลดไลบรารีสร้างรูปภาพ PNG ได้', 'error');
+        showStatusAlert('ไม่สามารถโหลดไลบรารีสร้างรูปภาพได้ กรุณารีเฟรชหน้าเว็บครับ', 'error');
         return;
       }
 
-      showStatusAlert(`กำลังสร้างรูปภาพ ${fileNameBase}.png ...`, 'info');
+      showStatusAlert(`กำลังสร้างรูปภาพ PNG (${fileNameBase}.png)...`, 'info');
       try {
         if (document.fonts && document.fonts.ready) {
           await document.fonts.ready;
@@ -908,13 +1115,16 @@
         const canvas = await html2canvas(cardEl, {
           scale: 3,
           useCORS: true,
-          backgroundColor: currentTheme === 'executive' ? '#0F172A' : '#ffffff',
+          backgroundColor: '#ffffff',
           logging: false,
           onclone: (clonedDoc) => {
             const clonedCard = clonedDoc.getElementById(cardId);
             if (clonedCard) {
+              clonedCard.classList.remove('crop-marks-mode');
               clonedCard.style.borderStyle = 'solid';
+              clonedCard.style.borderColor = currentTheme === 'executive' ? '#D4AF37' : '#e2e8f0';
             }
+            clonedDoc.querySelectorAll('.crop-mark').forEach(el => el.remove());
             clonedDoc.querySelectorAll('.badge-pill').forEach(el => {
               el.style.display = 'inline-block';
               el.style.lineHeight = '1.2';
@@ -932,12 +1142,6 @@
       } catch (err) {
         showStatusAlert(`บันทึกรูปภาพ PNG ไม่สำเร็จ (${err.message})`, 'error');
       }
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      })[m]);
     }
 
     // ==================== ดาวน์โหลดเป็นไฟล์ .PDF โดยตรง (1 แผ่น A4 = 1 หน้า PDF) ====================
@@ -981,7 +1185,6 @@
             scrollX: 0,
             scrollY: 0,
             onclone: (clonedDoc) => {
-              // ชดเชยบั๊ก baseline ของ html2canvas กับฟอนต์ภาษาไทย ให้ข้อความในป้ายสังกัดอยู่กึ่งกลางกรอบพอดี
               clonedDoc.querySelectorAll('.badge-pill').forEach(el => {
                 el.style.display = 'inline-block';
                 el.style.lineHeight = '1.2';
@@ -997,7 +1200,6 @@
           if (i > 0) pdf.addPage('a4', 'portrait');
           pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
 
-          // พักจังหวะสั้นๆ ให้หน้าจออัปเดตข้อความสถานะไม่ค้าง
           await new Promise(r => setTimeout(r, 30));
         }
 
@@ -1012,6 +1214,12 @@
         btn.classList.remove('opacity-70', 'cursor-wait');
         label.textContent = 'ดาวน์โหลด PDF';
       }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
     }
   </script>
 </body>
