@@ -137,8 +137,11 @@
           <button type="button" onclick="setMode('back')" id="btn-back" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
             ด้านหลัง (QR คู่หูจราจร AI)
           </button>
+          <button type="button" onclick="setMode('both')" id="btn-both" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            หน้า-หลัง (PDF ชุดเดียว)
+          </button>
           <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#881337] hover:bg-[#6B0F2A] text-white shadow-sm transition">
-            <i data-lucide="printer" class="w-4 h-4"></i> สั่งพิมพ์ / บันทึก PDF
+            <i data-lucide="file-down" class="w-4 h-4"></i> บันทึก PDF / สั่งพิมพ์
           </button>
         </div>
       </div>
@@ -179,7 +182,7 @@
       <!-- แถบสถานะและคำแนะนำการพิมพ์ -->
       <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
         <span id="summary-text" class="text-slate-600 font-medium">กำลังเตรียมข้อมูล...</span>
-        <span class="text-amber-700 font-medium">* ตอนกด Print ให้ตั้งค่า Margins = None และติ๊กเปิด Background graphics</span>
+        <span class="text-amber-700 font-medium">* วิธีทำเป็น PDF: กดปุ่มบันทึก PDF → เลือกปลายทาง "บันทึกเป็น PDF (Save as PDF)" → Margins: None → ติ๊กเปิด Background graphics</span>
       </div>
 
       <!-- กล่องแจ้งเตือนสถานะ / Error (แทน alert) -->
@@ -207,7 +210,7 @@
     ];
 
     let participants = [];
-    let currentMode = 'front'; // 'front' | 'back'
+    let currentMode = 'front'; // 'front' | 'back' | 'both'
 
     function safeStorageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
     function safeStorageSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -306,16 +309,14 @@
 
     function setMode(mode) {
       currentMode = mode;
-      const btnFront = document.getElementById('btn-front');
-      const btnBack = document.getElementById('btn-back');
-
-      if (mode === 'front') {
-        btnFront.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#1E3A8A] text-white shadow-sm transition';
-        btnBack.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
-      } else {
-        btnBack.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#1E3A8A] text-white shadow-sm transition';
-        btnFront.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
-      }
+      const modes = ['front', 'back', 'both'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`btn-${m}`);
+        if (!btn) return;
+        btn.className = m === mode
+          ? 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#1E3A8A] text-white shadow-sm transition'
+          : 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      });
       renderPages();
     }
 
@@ -353,30 +354,67 @@
         allItems.push({ id: '', fullName: '', position: '', mainUnit: '', unitDetail: '', role: 'Walk-in', isBlank: true });
       }
 
-      const totalPages = Math.ceil(allItems.length / 4) || 1;
+      const sheetPairs = Math.ceil(allItems.length / 4) || 1;
+      const totalPages = currentMode === 'both' ? sheetPairs * 2 : sheetPairs;
+      const modeLabel = currentMode === 'front'
+        ? 'ด้านหน้า'
+        : (currentMode === 'back' ? 'ด้านหลัง' : 'หน้า-หลังสลับแผ่น (พร้อมพิมพ์ 2 หน้า / PDF ชุดเดียว)');
+
       document.getElementById('summary-text').textContent =
-        `กำลังแสดง ${currentMode === 'front' ? 'ด้านหน้า' : 'ด้านหลัง'} • รายชื่อ ${filtered.length} คน + ป้ายเปล่า ${blankCount} ใบ = รวม ${allItems.length} ใบ (${totalPages} แผ่น A4)`;
+        `กำลังแสดง ${modeLabel} • รายชื่อ ${filtered.length} คน + ป้ายเปล่า ${blankCount} ใบ = รวม ${allItems.length} ใบ (${totalPages} แผ่น A4)`;
+
+      const backQrIds = [];
 
       // แบ่งจัดวาง 4 ใบต่อ 1 แผ่น A4
-      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-        const pageEl = document.createElement('div');
-        pageEl.className = 'a4-page';
+      for (let pageIdx = 0; pageIdx < sheetPairs; pageIdx++) {
         const chunk = allItems.slice(pageIdx * 4, pageIdx * 4 + 4);
 
-        chunk.forEach((item, idx) => {
-          const globalIdx = pageIdx * 4 + idx;
-          const card = document.createElement('div');
-          card.className = 'badge-card';
-          card.innerHTML = currentMode === 'front' ? buildFrontHtml(item, globalIdx) : buildBackHtml(globalIdx);
-          pageEl.appendChild(card);
-        });
+        // 1. สร้างหน้า "ด้านหน้า" (กรณีโหมด front หรือ both)
+        if (currentMode === 'front' || currentMode === 'both') {
+          const frontPageEl = document.createElement('div');
+          frontPageEl.className = 'a4-page';
+          chunk.forEach((item, idx) => {
+            const globalIdx = pageIdx * 4 + idx;
+            const card = document.createElement('div');
+            card.className = 'badge-card';
+            card.innerHTML = buildFrontHtml(item, globalIdx);
+            frontPageEl.appendChild(card);
+          });
+          container.appendChild(frontPageEl);
+        }
 
-        container.appendChild(pageEl);
+        // 2. สร้างหน้า "ด้านหลัง" (กรณีโหมด back หรือ both)
+        if (currentMode === 'back' || currentMode === 'both') {
+          const backPageEl = document.createElement('div');
+          backPageEl.className = 'a4-page';
+
+          // จัดสลับซ้าย-ขวา (0↔1, 2↔3) เพื่อให้เวลาพิมพ์ 2 หน้าแบบพลิกด้านยาว (Flip on Long Edge) ด้านหลังตรงกับด้านหน้าพอดี
+          const padded = [chunk[0] || null, chunk[1] || null, chunk[2] || null, chunk[3] || null];
+          const backOrder = currentMode === 'both'
+            ? [padded[1], padded[0], padded[3], padded[2]]
+            : padded;
+
+          backOrder.forEach((item, slotIdx) => {
+            if (!item) {
+              const emptySlot = document.createElement('div');
+              emptySlot.className = 'invisible';
+              backPageEl.appendChild(emptySlot);
+              return;
+            }
+            const backQrKey = `${pageIdx}-${slotIdx}`;
+            backQrIds.push(backQrKey);
+            const card = document.createElement('div');
+            card.className = 'badge-card';
+            card.innerHTML = buildBackHtml(backQrKey);
+            backPageEl.appendChild(card);
+          });
+          container.appendChild(backPageEl);
+        }
       }
 
       // สร้าง QR Code หลังจากใส่ HTML ลง DOM แล้ว
       if (typeof QRCode !== 'undefined') {
-        if (currentMode === 'front') {
+        if (currentMode === 'front' || currentMode === 'both') {
           allItems.forEach((item, idx) => {
             if (!item.isBlank && item.id) {
               const el = document.getElementById(`qr-front-${idx}`);
@@ -392,10 +430,11 @@
               }
             }
           });
-        } else {
+        }
+        if (currentMode === 'back' || currentMode === 'both') {
           // ด้านหลังป้าย: สร้าง QR Code สำหรับเข้าแชทบอทตำรวจคู่หูจราจร AI
-          allItems.forEach((_, idx) => {
-            const elAi = document.getElementById(`qr-ai-${idx}`);
+          backQrIds.forEach((qrKey) => {
+            const elAi = document.getElementById(`qr-ai-${qrKey}`);
             if (elAi) {
               new QRCode(elAi, {
                 text: AI_CHATBOT_URL,
