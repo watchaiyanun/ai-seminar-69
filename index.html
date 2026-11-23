@@ -1040,7 +1040,14 @@
     let API_URL = safeStorageGet('ai_seminar_api_url') || DEFAULT_API_URL;
     let participants = [];
     let editRequests = [];
-    let evalSummary = { count: 0, averages: { content: 0, speaker: 0, venue: 0, overall: 0, total: 0 }, comments: [] };
+    let evalSummary = {
+      count: 0,
+      averages: {
+        q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0, q8: 0, q9: 0, q10: 0,
+        dim1: 0, dim2: 0, overall: 0, total: 0
+      },
+      comments: []
+    };
     let currentDay = detectDefaultDay();
     let currentView = 'split';
     let activeCameraStream = null;
@@ -1559,7 +1566,7 @@
 
     function renderEvaluationSummary() {
       const count = evalSummary.count || 0;
-      const avg = evalSummary.averages || { content: 0, speaker: 0, venue: 0, overall: 0, total: 0 };
+      const avg = evalSummary.averages || {};
       const comments = evalSummary.comments || [];
 
       document.getElementById('eval-summary-count').textContent = `ผู้ตอบแบบประเมิน ${count} ราย`;
@@ -1574,26 +1581,62 @@
       }
       document.getElementById('eval-satisfaction-level').textContent = levelText;
 
-      const items = [
-        { label: '1. เนื้อหาและประโยชน์ของคลังความรู้งานจราจร', val: avg.content || 0 },
-        { label: '2. วิทยากรและการถ่ายทอดความรู้', val: avg.speaker || 0 },
-        { label: '3. สถานที่ ที่พัก และอาหาร', val: avg.venue || 0 },
-        { label: '4. ความพึงพอใจในภาพรวมของโครงการ', val: avg.overall || 0 }
+      const sections = [
+        {
+          title: 'มิติที่ 1: ด้านเนื้อหาสาระและประโยชน์ที่ได้รับ',
+          dimAvg: avg.dim1 || 0,
+          badgeClass: 'bg-blue-100 text-navy-800 dark:bg-blue-900/40 dark:text-blue-200',
+          items: [
+            { label: '1. ความชัดเจนและประโยชน์ของการบรรยายระบบ AI Chatbot (สพร./DGA)', val: avg.q1 || 0 },
+            { label: '2. ความครอบคลุมขององค์ความรู้ทั้ง 5 หมวดต่อปัญหาหน้างานจริง', val: avg.q2 || 0 },
+            { label: '3. ประสิทธิภาพกระบวนการกลุ่มย่อยและวิทยากร (ศวปถ.)', val: avg.q3 || 0 },
+            { label: '4. ประโยชน์ในการนำไปใช้จริงและลดข้อโต้แย้งหน้างาน', val: avg.q4 || 0 }
+          ]
+        },
+        {
+          title: 'มิติที่ 2: ด้านการบริหารจัดการและสิ่งอำนวยความสะดวก',
+          dimAvg: avg.dim2 || 0,
+          badgeClass: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200',
+          items: [
+            { label: '5. ความสะดวกรวดเร็วของการลงทะเบียนและการประสานงาน (กลุ่ม LINE)', val: avg.q5 || 0 },
+            { label: '6. ความเหมาะสมของอาคาร สถานที่ ห้องประชุม และพื้นที่กลุ่มย่อย', val: avg.q6 || 0 },
+            { label: '7. ความเหมาะสมของห้องพัก อาหาร และอาหารว่าง', val: avg.q7 || 0 },
+            { label: '8. ความพร้อมของอุปกรณ์ โสตทัศนูปกรณ์ ระบบภาพ เสียง และอินเทอร์เน็ต', val: avg.q8 || 0 },
+            { label: '9. การให้บริการ การต้อนรับ และอำนวยความสะดวกของเจ้าหน้าที่', val: avg.q9 || 0 }
+          ]
+        },
+        {
+          title: 'ภาพรวมโครงการ',
+          dimAvg: avg.q10 || avg.overall || 0,
+          badgeClass: 'bg-rose-100 text-maroon-800 dark:bg-rose-900/40 dark:text-rose-200',
+          items: [
+            { label: '10. ความพึงพอใจโดยรวมต่อการจัดสัมมนาครั้งนี้', val: avg.q10 || avg.overall || 0 }
+          ]
+        }
       ];
-      document.getElementById('eval-bars-container').innerHTML = items.map(it => {
-        const pct = Math.min(100, Math.round((Number(it.val) / 5) * 100));
-        return `
-          <div class="space-y-1">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-medium text-slate-700 dark:text-slate-300">${it.label}</span>
-              <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${Number(it.val).toFixed(2)} / 5.00</span>
-            </div>
-            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div class="h-full rounded-full bg-gradient-to-r from-navy-700 via-amber-500 to-emerald-500 transition-all duration-500" style="width:${pct}%"></div>
-            </div>
+
+      document.getElementById('eval-bars-container').innerHTML = sections.map(sec => `
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${sec.badgeClass}">${sec.title}</span>
+            <span class="font-mono text-xs font-bold text-slate-600 dark:text-slate-300">เฉลี่ย ${Number(sec.dimAvg).toFixed(2)}</span>
           </div>
-        `;
-      }).join('');
+          ${sec.items.map(it => {
+            const pct = Math.min(100, Math.round((Number(it.val) / 5) * 100));
+            return `
+              <div class="space-y-1 pl-1">
+                <div class="flex items-center justify-between gap-2 text-xs">
+                  <span class="font-medium text-slate-700 dark:text-slate-300">${it.label}</span>
+                  <span class="font-mono font-bold text-navy-700 dark:text-blue-300 shrink-0">${Number(it.val).toFixed(2)} / 5.00</span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-navy-700 via-amber-500 to-emerald-500 transition-all duration-500" style="width:${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `).join('');
 
       document.getElementById('eval-comments-count').textContent = `${comments.length} ข้อความ`;
       document.getElementById('eval-comments-list').innerHTML = comments.length
@@ -2572,6 +2615,22 @@
         updateZoomButtonsUi(level);
       } catch (e) {}
     }
+
+    function updateZoomButtonsUi(activeLevel) {
+      const map = [
+        { id: 'zoom-btn-1', val: 1 },
+        { id: 'zoom-btn-15', val: 1.5 },
+        { id: 'zoom-btn-2', val: 2 }
+      ];
+      map.forEach(item => {
+        const btn = document.getElementById(item.id);
+        if (!btn) return;
+        btn.className = Number(activeLevel) === item.val
+          ? 'px-2 py-0.5 rounded-lg bg-emerald-500 text-slate-950'
+          : 'px-2 py-0.5 rounded-lg text-white/80 hover:text-white';
+      });
+    }
+
     async function stopQrReader(incrementToken = true) {
       if (incrementToken) scanSessionToken++;
       if (scanLoopTimer) {
@@ -3008,11 +3067,18 @@
       document.getElementById('person-qr-modal').classList.add('hidden');
     }
 
-    async function copyPersonPortalLink() {
+    function copyPersonPortalLink() {
       if (!activeQrPerson) return;
       const url = getSmartQrUrl(activeQrPerson.id);
       try {
-        await navigator.clipboard.writeText(url);
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
         showToast('คัดลอกลิงก์บัตร E-Pass เรียบร้อยแล้ว', 'success');
       } catch (e) {
         showToast(url, 'info');
