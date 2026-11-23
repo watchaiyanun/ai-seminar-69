@@ -465,7 +465,7 @@
         </div>
       </div>
 
-      <!-- แถบปุ่มควบคุมบัตรด่วน (พลิกบัตร / ขยาย QR เช็กอิน) -->
+      <!-- แถบปุ่มควบคุมบัตรด่วน (พลิกบัตร / ขยาย QR เช็กอิน / ค้นหาบัตรอื่น) -->
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="flipCreditCard()" id="btn-flip-card" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-navy-800 text-xs font-bold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-maroon-700"></i>
@@ -515,6 +515,12 @@
             <p class="font-bold">อยู่ระหว่างรอเจ้าหน้าที่อนุมัติคำขอแก้ไข</p>
             <p id="pc-pending-req-detail" class="text-[11px] text-amber-700 mt-0.5 truncate"></p>
           </div>
+        </div>
+
+        <div class="pt-0.5 text-center">
+          <button type="button" onclick="showLookupSwitcher()" class="text-[11px] text-slate-400 hover:text-navy-700 underline transition">
+            เปลี่ยนรายชื่อ / ค้นหาบัตรประจำตัวอื่น
+          </button>
         </div>
       </div>
     </section>
@@ -630,6 +636,11 @@
       </div>
 
       <div id="eval-form-wrapper" class="space-y-4">
+        <div class="text-center space-y-1 pb-2 border-b border-slate-100">
+          <h2 class="text-base sm:text-lg font-extrabold text-navy-800 leading-snug">แบบประเมินความพึงพอใจโครงการสัมมนาจัดทำคลังความรู้งานจราจร</h2>
+          <p class="text-[11px] sm:text-xs text-slate-500">กรุณาเลือกระดับความพึงพอใจจาก <strong>น้อยที่สุด (1)</strong> ไป <strong>มากที่สุด (5)</strong></p>
+        </div>
+
         <div class="flex items-start gap-3 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
           <i data-lucide="shield-check" class="w-5 h-5 text-emerald-700 shrink-0 mt-0.5"></i>
           <div class="text-xs text-emerald-900 leading-relaxed">
@@ -637,12 +648,26 @@
           </div>
         </div>
 
-        <form id="eval-form" onsubmit="submitEvaluation(event)" class="space-y-4">
-          <div id="rating-questions" class="space-y-3.5"></div>
+        <!-- แถบอธิบายระดับคะแนน 1 - 5 -->
+        <div class="grid grid-cols-5 gap-1 p-2 rounded-2xl bg-slate-50 border border-slate-200 text-center text-[10px] text-slate-600">
+          <div><strong class="block text-navy-800 text-xs">1</strong>น้อยที่สุด</div>
+          <div><strong class="block text-navy-800 text-xs">2</strong>น้อย</div>
+          <div><strong class="block text-navy-800 text-xs">3</strong>ปานกลาง</div>
+          <div><strong class="block text-navy-800 text-xs">4</strong>มาก</div>
+          <div><strong class="block text-navy-800 text-xs">5</strong>มากที่สุด</div>
+        </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">ข้อเสนอแนะเพิ่มเติม (สำหรับการพัฒนาแชทบอท AI คู่หูจราจร)</label>
-            <textarea id="eval-comment" rows="3" placeholder="พิมพ์ข้อเสนอแนะ ปัญหาที่พบ หรือความต้องการเพิ่มเติม..." class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
+        <form id="eval-form" onsubmit="submitEvaluation(event)" class="space-y-5">
+          <div id="rating-questions" class="space-y-4"></div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <label class="block text-xs sm:text-sm font-bold text-slate-800 leading-snug">
+              ข้อเสนอแนะเพิ่มเติม
+            </label>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              ประเด็นหรือฟีเจอร์ที่อยากให้เพิ่มเติมในระบบ AI "คู่หูจราจร" และข้อเสนอแนะเพื่อปรับปรุงการจัดงานครั้งต่อไป (ไม่บังคับกรอก)
+            </p>
+            <textarea id="eval-comment" rows="3" placeholder="พิมพ์ประเด็น ฟีเจอร์ที่ต้องการเพิ่มเติม หรือข้อเสนอแนะ..." class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-navy-700"></textarea>
           </div>
 
           <button type="submit" id="eval-submit-btn" class="w-full py-3.5 px-4 rounded-2xl bg-maroon-700 hover:bg-maroon-800 active:scale-[0.99] text-white text-sm font-bold shadow-md transition">
@@ -798,6 +823,7 @@
     // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (พร้อม Deep Link สำหรับเด้งเข้าแอป LINE โดยตรงบนมือถือ)
     const LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const LINE_APP_DEEP_LINK = "line://ti/g/3tdXVYbf4r";
+
     const FIVE_TOPICS = [
       '(1) ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
       '(2) คู่มือแนวทางมาตรฐานการปฏิบัติงาน',
@@ -808,38 +834,63 @@
 
     const SCHEDULES = {
       d1: [
-        { time: '08.30 น.', title: 'ลงทะเบียน' },
-        { time: '09.30 น.', title: 'พิธีเปิด' },
-        { time: '10.00 - 12.00', title: 'บรรยาย “ระบบแชทบอทด้วยปัญญาประดิษฐ์ AI Chatbot”', speaker: 'สพร.(DGA)' },
-        { time: '12.00 น.', title: 'อาหารกลางวัน', isBreak: true },
-        { time: '13.30 - 16.30', title: 'สัมมนากลุ่ม: ปัญหาข้อขัดข้องในการปฏิบัติงานจราจร', speaker: 'คณะวิทยากร ศวปถ.' },
-        { time: '18.00 น.', title: 'อาหารเย็น', isBreak: true }
+        { time: '08.30', title: 'ลงทะเบียนผู้เข้าร่วมสัมมนา', isBreak: false },
+        { time: '09.30', title: 'พิธีเปิดโครงการสัมมนาจัดทำคลังความรู้งานจราจร', isBreak: false },
+        { time: '10.00-12.00', title: 'บรรยาย “ระบบแชทบอทด้วยปัญญาประดิษฐ์ AI Chatbot”', speaker: 'สพร.(DGA)', isBreak: false },
+        { time: '12.00', title: 'รับประทานอาหารกลางวัน', isBreak: true },
+        { time: '13.30-16.30', title: 'สัมมนากลุ่ม ปัญหาข้อขัดข้องในการปฏิบัติงานจราจร', speaker: 'คณะวิทยากร ศวปถ.', isBreak: false },
+        { time: '18.00', title: 'รับประทานอาหารเย็น', isBreak: true }
       ],
       d2: [
-        { time: '08.00 น.', title: 'ลงทะเบียน' },
-        { time: '09.00 - 12.00', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS },
-        { time: '12.00 น.', title: 'อาหารกลางวัน', isBreak: true },
-        { time: '13.30 - 16.30', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม (ต่อ) สรุปประเด็น คัดเลือกปัญหาสำคัญ และร่างแนวถาม-ตอบ', speaker: 'คณะวิทยากร ศวปถ.' },
-        { time: '18.00 น.', title: 'อาหารเย็น', isBreak: true }
+        { time: '08.00', title: 'ลงทะเบียน', isBreak: false },
+        { time: '09.00-12.00', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS, isBreak: false },
+        { time: '12.00', title: 'รับประทานอาหารกลางวัน', isBreak: true },
+        { time: '13.30-16.30', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม (ต่อ) สรุปประเด็น คัดเลือกปัญหาสำคัญ ร่างแนวถาม-ตอบ', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS, isBreak: false },
+        { time: '18.00', title: 'รับประทานอาหารเย็น', isBreak: true }
       ],
       d3: [
-        { time: '08.00 น.', title: 'ลงทะเบียน' },
-        { time: '09.00 - 12.00', title: 'จัดทำร่างคำถาม-คำตอบ 5 ประเด็น', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS },
-        { time: '12.00 - 13.00', title: 'อาหารกลางวัน', isBreak: true },
-        { time: '13.30 - 16.00', title: 'นำเสนอผล 5 ประเด็น และผู้เชี่ยวชาญสรุปรายการเอกสาร 5 หมวด', speaker: 'คณะวิทยากร ศวปถ.' }
+        { time: '08.00', title: 'ลงทะเบียน', isBreak: false },
+        { time: '09.00-12.00', title: 'จัดทำร่างคำถาม-คำตอบ 5 ประเด็น', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS, isBreak: false },
+        { time: '12.00-13.00', title: 'รับประทานอาหารกลางวัน', isBreak: true },
+        { time: '13.30-16.00', title: 'นำเสนอผล 5 ประเด็น และผู้เชี่ยวชาญสรุปรายการเอกสาร 5 หมวด', speaker: 'คณะวิทยากร ศวปถ.', isBreak: false }
       ]
     };
 
-    const RATING_ITEMS = [
-      { key: 'content', label: '1. เนื้อหาและประโยชน์ของคลังความรู้งานจราจร' },
-      { key: 'speaker', label: '2. วิทยากรและการถ่ายทอดความรู้' },
-      { key: 'venue',   label: '3. สถานที่ ที่พัก และอาหาร' },
-      { key: 'overall', label: '4. ความพึงพอใจในภาพรวมของโครงการ' }
+    const RATING_SECTIONS = [
+      {
+        title: 'มิติที่ 1: ด้านเนื้อหาสาระและประโยชน์ที่ได้รับ',
+        badgeClass: 'bg-navy-700 text-white',
+        items: [
+          { key: 'q1', num: 1, label: 'ความชัดเจนและประโยชน์ของการบรรยายเรื่องระบบ AI Chatbot "คู่หูจราจร" (สพร./DGA)' },
+          { key: 'q2', num: 2, label: 'ความครอบคลุมขององค์ความรู้ทั้ง 5 หมวดต่อปัญหาการปฏิบัติงานจราจรจริง' },
+          { key: 'q3', num: 3, label: 'ประสิทธิภาพของกระบวนการสัมมนากลุ่มย่อยและวิทยากร (ศวปถ.) ในการกลั่นกรองร่างคำถาม–คำตอบ' },
+          { key: 'q4', num: 4, label: 'ประโยชน์ในการนำไปใช้จริง (เชื่อมั่นว่าระบบ AI "คู่หูจราจร" จะช่วยให้ทำงานง่ายขึ้นและลดข้อโต้แย้งหน้างานได้)' }
+        ]
+      },
+      {
+        title: 'มิติที่ 2: ด้านการบริหารจัดการและสิ่งอำนวยความสะดวก',
+        badgeClass: 'bg-teal-700 text-white',
+        items: [
+          { key: 'q5', num: 5, label: 'ความสะดวก รวดเร็ว และเป็นระบบของการลงทะเบียนและการประสานงาน (กลุ่ม LINE)' },
+          { key: 'q6', num: 6, label: 'ความเหมาะสมของอาคาร สถานที่ ห้องประชุม และพื้นที่ทำกิจกรรมกลุ่มย่อย' },
+          { key: 'q7', num: 7, label: 'ความเหมาะสมของห้องพัก อาหาร และอาหารว่าง' },
+          { key: 'q8', num: 8, label: 'ความพร้อมของอุปกรณ์ โสตทัศนูปกรณ์ ระบบภาพ เสียง และอินเทอร์เน็ต' },
+          { key: 'q9', num: 9, label: 'การให้บริการ การต้อนรับ และการอำนวยความสะดวกของเจ้าหน้าที่ผู้จัดงาน' }
+        ]
+      },
+      {
+        title: 'ภาพรวมโครงการ',
+        badgeClass: 'bg-maroon-700 text-white',
+        items: [
+          { key: 'q10', num: 10, label: 'ความพึงพอใจโดยรวมต่อการจัดสัมมนาครั้งนี้' }
+        ]
+      }
     ];
+    const SCALE_LABELS = { 1: 'น้อยที่สุด', 2: 'น้อย', 3: 'ปานกลาง', 4: 'มาก', 5: 'มากที่สุด' };
 
     let allParticipants = [];
     let currentParticipant = null;
-    let ratings = { content: 5, speaker: 5, venue: 5, overall: 5 };
+    let ratings = { q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null, q9: null, q10: null };
     let liveSyncTimer = null;
     let lastKnownCheckIns = { day1: '', day2: '', day3: '' };
 
@@ -882,11 +933,9 @@
       const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
 
       if (isLineInApp) {
-        // กรณีเปิดผ่านแอป LINE อยู่แล้ว: เปิดในหน้าต่างเดิมเพื่อให้เด้งหน้าเข้าร่วมกลุ่มทันที
         e.preventDefault();
         window.location.href = LINE_GROUP_URL;
       } else if (isMobile) {
-        // กรณีเปิดผ่าน Safari / Chrome บนมือถือ: ยิง Deep Link เปิดแอป LINE โดยตรง และมีลิงก์สำรองอัตโนมัติ
         e.preventDefault();
         const startedAt = Date.now();
         window.location.href = LINE_APP_DEEP_LINK;
@@ -896,7 +945,6 @@
           }
         }, 800);
       } else {
-        // กรณีเปิดบนคอมพิวเตอร์ (Desktop): เปิดแท็บใหม่
         e.preventDefault();
         window.open(LINE_GROUP_URL, '_blank', 'noopener,noreferrer');
       }
@@ -991,6 +1039,14 @@
           <button onclick="location.reload()" class="mt-3 px-4 py-2 rounded-xl bg-navy-700 text-white text-xs font-bold">ลองใหม่อีกครั้ง</button>
         `;
       }
+    }
+
+    function showLookupSwitcher() {
+      document.getElementById('personal-card').classList.add('hidden');
+      document.getElementById('lookup-section').classList.remove('hidden');
+      document.getElementById('lookup-input').value = '';
+      filterLookupList('');
+      document.getElementById('lookup-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function filterLookupList(query) {
@@ -1381,20 +1437,34 @@
     function renderRatingQuestions() {
       const container = document.getElementById('rating-questions');
       if (!container) return;
-      container.innerHTML = RATING_ITEMS.map(item => `
-        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <p class="text-xs sm:text-sm font-semibold text-slate-800">${escapeHtml(item.label)}</p>
-          <div class="grid grid-cols-5 gap-1.5">
-            ${[1, 2, 3, 4, 5].map(score => {
-              const active = ratings[item.key] === score;
-              return `
-                <button type="button" onclick="setRating('${item.key}', ${score})" class="py-2 rounded-xl text-xs font-bold border transition ${
-                  active
-                    ? 'bg-amber-400 border-amber-500 text-navy-900 shadow-xs scale-[1.02]'
-                    : 'bg-white border-slate-200 text-slate-500 hover:bg-amber-50'
-                }">★ ${score}</button>
-              `;
-            }).join('')}
+      container.innerHTML = RATING_SECTIONS.map(sec => `
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 pt-1">
+            <span class="px-3 py-1 rounded-full text-xs font-bold shadow-xs ${sec.badgeClass}">${escapeHtml(sec.title)}</span>
+          </div>
+          <div class="space-y-3">
+            ${sec.items.map(item => `
+              <div id="question-box-${item.key}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 transition">
+                <p class="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                  <span class="font-bold text-navy-700">${item.num}.</span> ${escapeHtml(item.label)} <span class="text-rose-500">*</span>
+                </p>
+                <div class="grid grid-cols-5 gap-1.5">
+                  ${[1, 2, 3, 4, 5].map(score => {
+                    const active = ratings[item.key] === score;
+                    return `
+                      <button type="button" onclick="setRating('${item.key}', ${score})" class="py-2 px-1 rounded-xl border transition flex flex-col items-center justify-center gap-0.5 ${
+                        active
+                          ? 'bg-navy-700 border-navy-800 text-white shadow-sm scale-[1.03]'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-blue-50 hover:border-blue-300'
+                      }">
+                        <span class="text-xs sm:text-sm font-extrabold leading-none">${score}</span>
+                        <span class="text-[9px] sm:text-[10px] leading-tight ${active ? 'text-amber-300 font-bold' : 'text-slate-400'}">${SCALE_LABELS[score]}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
       `).join('');
@@ -1412,6 +1482,22 @@
         updateEvaluationUiState(true);
         return;
       }
+
+      // ตรวจสอบว่าให้คะแนนครบทั้ง 10 ข้อแล้วหรือยัง
+      const allKeys = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'];
+      const missingKey = allKeys.find(k => !ratings[k]);
+      if (missingKey) {
+        const num = missingKey.replace('q', '');
+        showToast(`กรุณาเลือกระดับคะแนนข้อที่ ${num} ให้ครบทั้ง 10 ข้อครับ`, 'warning');
+        const targetBox = document.getElementById(`question-box-${missingKey}`);
+        if (targetBox) {
+          targetBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetBox.classList.add('ring-2', 'ring-rose-500', 'bg-rose-50/40');
+          setTimeout(() => targetBox.classList.remove('ring-2', 'ring-rose-500', 'bg-rose-50/40'), 2200);
+        }
+        return;
+      }
+
       const btn = document.getElementById('eval-submit-btn');
       btn.disabled = true;
       btn.textContent = 'กำลังบันทึกแบบประเมิน...';
@@ -1420,10 +1506,16 @@
         const payload = {
           action: 'submitEvaluation',
           id: currentParticipant ? currentParticipant.id : '',
-          content: ratings.content,
-          speaker: ratings.speaker,
-          venue: ratings.venue,
-          overall: ratings.overall,
+          q1: ratings.q1,
+          q2: ratings.q2,
+          q3: ratings.q3,
+          q4: ratings.q4,
+          q5: ratings.q5,
+          q6: ratings.q6,
+          q7: ratings.q7,
+          q8: ratings.q8,
+          q9: ratings.q9,
+          q10: ratings.q10,
           comment: document.getElementById('eval-comment').value.trim()
         };
 
