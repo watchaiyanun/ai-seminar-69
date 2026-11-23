@@ -474,7 +474,7 @@
         <!-- เนื้อหาตรงกลาง (จัด QR Code ให้อยู่กึ่งกลางและขนาดใหญ่ชัดเจน) -->
         <div class="flex-1 flex flex-col items-center justify-center gap-2.5 px-4 py-2.5 text-center">
           <div class="w-full">
-            <span style="background-color: ${isSub ? '#F3E8FF' : theme.pillBg}; color: ${isSub ? '#6B21A8' : theme.pillText};" class="inline-block px-3 py-0.5 rounded-full text-[10px] font-semibold">
+            <span style="background-color: ${isSub ? '#F3E8FF' : theme.pillBg}; color: ${isSub ? '#6B21A8' : theme.pillText};" class="badge-pill inline-flex items-center justify-center px-3.5 py-1 rounded-full text-[10.5px] font-semibold leading-normal">
               ${escapeHtml(pillLabel)}
             </span>
 
@@ -485,11 +485,11 @@
                 <p class="text-[9.5px] text-slate-400">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
               </div>
             ` : `
-              <div class="mt-1.5">
-                <h3 class="text-[15.5px] font-bold text-slate-900 leading-snug break-words">${escapeHtml(displayName)}</h3>
-                <p class="text-[10.5px] font-medium text-slate-600 mt-0.5 line-clamp-1">${escapeHtml(displayPos)}</p>
-                <p class="text-[9.5px] text-slate-500">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
-                ${isSub ? `<p class="text-[9px] text-purple-700 font-medium">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
+              <div class="mt-1.5 space-y-0.5">
+                <h3 class="text-[15px] font-bold text-slate-900 leading-snug break-words">${escapeHtml(displayName)}</h3>
+                <p class="text-[10.5px] font-medium text-slate-600 leading-snug break-words px-1">${escapeHtml(displayPos)}</p>
+                <p class="text-[9.5px] text-slate-500 leading-snug break-words">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
+                ${isSub ? `<p class="text-[9px] text-purple-700 font-medium leading-snug">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
               </div>
             `}
           </div>
@@ -596,7 +596,16 @@
             backgroundColor: '#ffffff',
             logging: false,
             scrollX: 0,
-            scrollY: 0
+            scrollY: 0,
+            onclone: (clonedDoc) => {
+              // ชดเชยบั๊ก baseline ของ html2canvas กับฟอนต์ภาษาไทย ให้ข้อความในป้ายสังกัดอยู่กึ่งกลางกรอบพอดี
+              clonedDoc.querySelectorAll('.badge-pill').forEach(el => {
+                el.style.display = 'inline-block';
+                el.style.lineHeight = '1.2';
+                el.style.paddingTop = '2px';
+                el.style.paddingBottom = '8px';
+              });
+            }
           });
 
           pageEl.style.boxShadow = prevShadow;
