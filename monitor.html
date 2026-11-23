@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Hall Monitor - โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</title>
 
-  <!-- Google Fonts: Prompt & JetBrains Mono -->
+  <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,20 +16,15 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Prompt', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
           colors: {
             police: {
               maroon: '#881337',
-              maroonDark: '#6B0F2A',
-              maroonLight: '#9F1239',
+              maroonDark: '#5B0B24',
               navy: '#1E3A8A',
-              navyDark: '#172554',
+              navyDark: '#0F1F4B',
               gold: '#D4AF37',
-              goldLight: '#F3D478',
-              goldDark: '#9A7B1C'
+              goldLight: '#F3D478'
             }
           }
         }
@@ -39,68 +34,313 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- QRCode.js สำหรับโหมดโชว์ QR แชทบอท AI กลางจอใหญ่ -->
+  <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* พื้นหลังโทนขาวสะอาด กลมกลืนกับหน้า Dashboard และ Portal */
     body {
       font-family: 'Prompt', sans-serif;
-      background-color: #F8FAFC;
-      color: #0F172A;
     }
 
+    /* การ์ดแผงข้อมูลโทนขาวสะอาดตา */
     .official-panel {
-      background: #FFFFFF;
-      border: 1px solid #E2E8F0;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.06);
     }
 
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
-
-    /* แอนิเมชันป๊อปอัปต้อนรับ VIP โทนเลือดหมู-ทอง ตัดเด่นบนพื้นหลังขาว */
-    @keyframes welcomePop {
-      0% { opacity: 0; transform: translate(-50%, -24px) scale(0.92); }
-      12% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-      88% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -18px) scale(0.95); }
-    }
-    .welcome-animate {
-      animation: welcomePop 5.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes pulseRing {
-      0% { transform: scale(0.95); opacity: 0.75; }
-      70% { transform: scale(1.3); opacity: 0; }
-      100% { transform: scale(1.3); opacity: 0; }
+    /* จุดสีทองกะพริบสถานะถ่ายทอดสด */
+    @keyframes livePulseRing {
+      0% { transform: scale(0.9); opacity: 0.9; }
+      70% { transform: scale(2.1); opacity: 0; }
+      100% { transform: scale(2.1); opacity: 0; }
     }
     .live-ring::after {
       content: '';
       position: absolute;
-      inset: -3px;
+      inset: -2px;
       border-radius: 999px;
       border: 2px solid #F3D478;
-      animation: pulseRing 1.8s infinite;
+      animation: livePulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
     }
 
-    /* แถบข่าววิ่งประชาสัมพันธ์แบบสถานีข่าว */
-    @keyframes tickerMove {
-      0% { transform: translateX(0); }
+    /* แถบข่าววิ่งประชาสัมพันธ์ด้านล่าง */
+    @keyframes tickerScroll {
+      0% { transform: translateX(0%); }
       100% { transform: translateX(-50%); }
     }
     .ticker-track {
       display: inline-flex;
       white-space: nowrap;
-      animation: tickerMove 28s linear infinite;
+      will-change: transform;
+      animation: tickerScroll 36s linear infinite;
     }
     .ticker-track:hover {
       animation-play-state: paused;
     }
+
+    /* แอนิเมชันป้ายต้อนรับ VIP เมื่อมีการสแกนเช็กอินใหม่ */
+    @keyframes welcomeDrop {
+      0% { opacity: 0; transform: translate(-50%, -24px) scale(0.96); }
+      10% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      88% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -18px) scale(0.98); }
+    }
+    .welcome-animate {
+      animation: welcomeDrop 5.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* แอนิเมชันป๊อปอัปประกาศด่วนกลางจอ */
+    @keyframes flashPop {
+      0% { opacity: 0; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .flash-pop-animate {
+      animation: flashPop 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* จัดตำแหน่ง QR Code */
+    #always-on-ai-qr img, #always-on-ai-qr canvas,
+    #spotlight-ai-qr img, #spotlight-ai-qr canvas {
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* Scrollbar บางสวยงาม */
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-800 min-h-screen lg:h-screen lg:overflow-hidden flex flex-col">
+
+  <!-- ==================== TOP OFFICIAL POLICE HEADER (SLIM MODERN) ==================== -->
+  <header class="shrink-0 sticky top-0 z-30 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark border-b-[3px] border-police-gold shadow-md text-white">
+    <div class="max-w-[1800px] mx-auto px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- ตราสัญลักษณ์โล่ตำรวจ + ชื่อโครงการ -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-white/10 border border-police-gold/80 flex items-center justify-center shadow-sm shrink-0">
+          <svg class="w-6 h-6 text-police-goldLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(212,175,55,0.2)"/>
+            <polygon points="12 7 13.4 10 16.7 10.4 14.3 12.6 14.9 15.8 12 14.2 9.1 15.8 9.7 12.6 7.3 10.4 10.6 10 12 7" fill="#F3D478" stroke="#F3D478" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="relative live-ring w-2 h-2 rounded-full bg-police-goldLight shrink-0"></span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-police-goldLight">ROYAL THAI POLICE • LIVE MONITOR</span>
+          </div>
+          <h1 class="text-sm sm:text-lg lg:text-xl font-extrabold text-white tracking-tight truncate leading-tight">
+            โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)
+          </h1>
+        </div>
+      </div>
+
+      <!-- นาฬิกาเวลาไทย + ปุ่มควบคุมจอทีวี -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <!-- เลือกวันสัมมนา -->
+        <div class="hidden md:flex items-center bg-black/25 p-0.5 rounded-xl border border-white/15 text-xs">
+          <button type="button" onclick="selectDay('day1')" id="m-day1" class="px-2.5 py-1 rounded-lg font-semibold transition">30 พ.ย.</button>
+          <button type="button" onclick="selectDay('day2')" id="m-day2" class="px-2.5 py-1 rounded-lg font-semibold transition">1 ธ.ค.</button>
+          <button type="button" onclick="selectDay('day3')" id="m-day3" class="px-2.5 py-1 rounded-lg font-semibold transition">2 ธ.ค.</button>
+        </div>
+
+        <!-- นาฬิกา Real-time เวลาไทย -->
+        <div class="text-right px-3 py-1 rounded-xl bg-black/25 border border-police-gold/50">
+          <div id="live-clock" class="font-mono text-base sm:text-xl font-bold text-police-goldLight leading-none tracking-wider">00:00:00</div>
+          <div id="live-date" class="text-[10px] text-amber-100/90 mt-0.5">กำลังโหลดวันที่...</div>
+        </div>
+
+        <!-- ปุ่มควบคุม -->
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="openFlashAlertModal()" title="ยิงป๊อปอัปประกาศด่วนกลางจอพร้อมเสียงติ๊งต่อง" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 border border-police-gold/70 text-xs font-bold text-white shadow-sm transition">
+            <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-police-goldLight"></i>
+            <span class="hidden xl:inline">ประกาศด่วน</span>
+          </button>
+          <button type="button" onclick="openCountdownModal()" id="btn-countdown" title="ตั้งเวลานับถอยหลังเริ่มประชุม / พักเบรก" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
+            <i data-lucide="timer" class="w-3.5 h-3.5 text-police-goldLight"></i>
+            <span id="countdown-header-text" class="hidden xl:inline">นับถอยหลัง</span>
+          </button>
+          <button type="button" onclick="openTickerModal()" title="แก้ไขข้อความประกาศข่าววิ่งด้านล่าง" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
+            <i data-lucide="megaphone" class="w-3.5 h-3.5 text-amber-300"></i>
+            <span class="hidden 2xl:inline">ประกาศวิ่ง</span>
+          </button>
+          <button type="button" onclick="openAiQrSpotlight()" title="โชว์ QR Code แชทบอทตำรวจคู่หูจราจร AI เต็มจอ" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-police-navy hover:bg-blue-900 border border-blue-400/50 text-xs font-semibold text-white transition">
+            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-police-goldLight"></i>
+            <span class="hidden 2xl:inline">QR คู่หู AI</span>
+          </button>
+          <button type="button" onclick="toggleAutoScroll()" id="btn-autoscroll" title="เปิด/ปิด เลื่อนรายชื่ออัตโนมัติบนจอทีวี" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
+            <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i>
+            <span id="autoscroll-label" class="hidden xl:inline">เลื่อนอัตโนมัติ: ปิด</span>
+          </button>
+          <button type="button" onclick="toggleFullscreen()" title="เปิดเต็มจอทีวี / โปรเจกเตอร์" class="p-2 rounded-xl bg-police-gold/20 hover:bg-police-gold/30 border border-police-gold/60 text-police-goldLight transition">
+            <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+          </button>
+          <a href="index.html" title="กลับหน้า Dashboard สตาฟ" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== FLOATING COUNTDOWN BAR (แสดงเมื่อเปิดนับถอยหลัง) ==================== -->
+  <div id="countdown-banner" class="hidden shrink-0 bg-gradient-to-r from-police-navyDark via-police-navy to-police-maroonDark text-white border-b-2 border-police-gold px-4 py-1.5 shadow-md">
+    <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-0.5 rounded-full bg-police-gold text-police-maroonDark text-xs font-extrabold uppercase tracking-wider animate-pulse">Countdown</span>
+        <span id="countdown-title-display" class="text-sm sm:text-base font-bold">เริ่มการสัมมนาในอีก</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="countdown-clock-display" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-goldLight tracking-wider">10:00</span>
+        <button type="button" onclick="stopCountdown()" class="px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-semibold border border-white/20">หยุด / ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN BROADCAST BODY (MAXIMIZED LIST SPACE) ==================== -->
+  <main class="max-w-[1800px] w-full mx-auto px-3 sm:px-5 py-2.5 space-y-2.5 flex-1 min-h-0 flex flex-col lg:overflow-hidden">
+
+    <!-- UNIFIED COMPACT BENTO STRIP: สถิติ + ความคืบหน้า + สถานที่/อากาศ + QR คู่หู AI ในแถวเดียว -->
+    <section class="shrink-0 grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-stretch">
+
+      <!-- 1. แผงสถิติ + ความคืบหน้า + สรุปย่อรายหน่วย -->
+      <div class="lg:col-span-6 official-panel rounded-2xl px-3.5 py-2.5 border-l-4 border-l-police-navy flex flex-col justify-between gap-2">
+        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
+          <!-- ตัวเลข 3 สถานะเรียงแนวนอนกระชับ -->
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="flex items-baseline gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 self-center"></span>
+              <span class="text-[11px] font-semibold text-slate-500">เข้าร่วมแล้ว</span>
+              <span id="stat-checked" class="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-600 leading-none">0</span>
+            </div>
+            <span class="h-5 w-px bg-slate-200"></span>
+            <div class="flex items-baseline gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-police-maroon self-center"></span>
+              <span class="text-[11px] font-semibold text-slate-500">ยังไม่มา</span>
+              <span id="stat-pending" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-maroon leading-none">0</span>
+            </div>
+            <span class="h-5 w-px bg-slate-200"></span>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-[11px] font-semibold text-slate-500">เป้าหมาย</span>
+              <span id="stat-total" class="font-mono text-xl sm:text-2xl font-bold text-slate-800 leading-none">0</span>
+            </div>
+          </div>
+
+          <!-- เปอร์เซ็นต์ + วันที่ -->
+          <div class="flex items-center gap-2 ml-auto">
+            <span id="hero-day-label" class="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 text-[11px] font-bold text-police-navy">30 พ.ย. 69</span>
+            <span id="stat-percent" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-navy leading-none">0%</span>
+          </div>
+        </div>
+
+        <!-- แถบ Progress Bar เพรียวบาง -->
+        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div id="stat-progress-bar" class="h-full rounded-full bg-gradient-to-r from-police-navy via-police-gold to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- แถบสรุปย่อรายหน่วยหลัก -->
+        <div id="unit-pills" class="flex items-center gap-1 overflow-x-auto custom-scroll text-[10.5px] leading-none pb-0.5"></div>
+      </div>
+
+      <!-- 2. แผงข้อมูลสถานที่, Wi-Fi, ฮาลาล & สภาพอากาศ จ.ปทุมธานี -->
+      <div class="lg:col-span-4 official-panel rounded-2xl px-3.5 py-2.5 border-l-4 border-l-police-gold flex flex-col justify-between gap-1.5 text-xs">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-police-navy shrink-0"></i>
+            <strong id="venue-room-text" class="text-slate-900 truncate">ห้องแกรนด์บอลรูม ไพน์เฮิร์สท</strong>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-900">
+              <span id="weather-icon" class="text-sm leading-none">🌤️</span>
+              <span class="text-[11px] font-semibold">ปทุมธานี</span>
+              <span id="weather-temp" class="font-mono font-extrabold text-xs text-police-navy">--°C</span>
+              <span id="weather-desc" class="hidden xl:inline text-[10px] text-sky-700">กำลังโหลด...</span>
+            </div>
+            <button type="button" onclick="openVenueInfoModal()" title="แก้ไขชื่อห้องประชุม / รหัส Wi-Fi / จุดอาหารฮาลาล" class="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
+              <i data-lucide="pencil" class="w-3 h-3"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 border-t border-slate-100 text-[11px]">
+          <div class="flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-lg bg-indigo-50/70 border border-indigo-100">
+            <i data-lucide="wifi" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i>
+            <span id="venue-wifi-text" class="font-mono font-semibold text-indigo-900 truncate">Pinehurst_Guest (รหัส: 12345678)</span>
+          </div>
+          <div class="flex items-center gap-1.5 min-w-0 px-2 py-1 rounded-lg bg-amber-50/80 border border-amber-200/70">
+            <i data-lucide="utensils" class="w-3.5 h-3.5 text-amber-700 shrink-0"></i>
+            <span id="venue-halal-text" class="font-semibold text-amber-900 truncate">โซนโต๊ะรับรองด้านขวาห้องอาหาร</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. การ์ด QR Code แชทบอทตำรวจคู่หูจราจร AI (สแกนได้ตลอดเวลา คลิกขยายเต็มจอได้) -->
+      <div onclick="openAiQrSpotlight()" title="คลิกเพื่อขยาย QR Code เต็มจอ" class="lg:col-span-2 cursor-pointer group rounded-2xl px-3 py-2 bg-gradient-to-br from-police-navyDark via-police-navy to-police-maroonDark border-2 border-police-gold shadow-sm flex items-center gap-2.5 text-white hover:shadow-md transition">
+        <div class="bg-white p-1 rounded-xl shadow-inner shrink-0 group-hover:scale-105 transition">
+          <div id="always-on-ai-qr" class="w-[72px] h-[72px] flex items-center justify-center"></div>
+        </div>
+        <div class="min-w-0 flex-1 space-y-0.5">
+          <span class="inline-flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wider text-emerald-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Scan AI
+          </span>
+          <h3 class="text-xs sm:text-sm font-extrabold text-white leading-tight truncate">👮‍♂️ คู่หูจราจร AI</h3>
+          <p class="font-mono text-[9.5px] text-police-goldLight font-semibold truncate">pinai-fine.police.go.th</p>
+          <p class="text-[9.5px] text-blue-100/80 truncate">แตะเพื่อขยายเต็มจอ</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SPLIT BOARD: LEFT (เข้าร่วมแล้ว) vs RIGHT (ยังไม่เข้าร่วม) ==================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0">
+
+      <!-- ฝั่งซ้าย: เข้าร่วมสัมมนาแล้ว -->
+      <div class="bg-white rounded-2xl border border-emerald-200/90 shadow-sm overflow-hidden flex flex-col h-[58vh] lg:h-full min-h-0">
+        <div class="shrink-0 px-4 py-2 bg-gradient-to-r from-emerald-700 to-teal-700 text-white border-b-2 border-police-gold/70 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="user-check" class="w-4 h-4 text-emerald-200"></i>
+            <h2 class="font-bold text-sm sm:text-base leading-tight">รายงานตัว / เข้าร่วมสัมมนาแล้ว</h2>
+            <span class="hidden sm:inline text-[11px] text-emerald-100/85">• ล่าสุดอยู่ด้านบน</span>
+          </div>
+          <span id="left-count-badge" class="px-3 py-0.5 rounded-full bg-white text-emerald-800 font-mono font-extrabold text-xs sm:text-sm shadow-xs">0 ราย</span>
+        </div>
+
+        <div id="checked-scroll-box" class="flex-1 min-h-0 overflow-y-auto custom-scroll p-2.5 sm:p-3 bg-emerald-50/30">
+          <div id="checked-grid" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2"></div>
+        </div>
+      </div>
+
+      <!-- ฝั่งขวา: ยังไม่เข้าร่วม / รอลงทะเบียน -->
+      <div class="bg-white rounded-2xl border border-rose-200/90 shadow-sm overflow-hidden flex flex-col h-[58vh] lg:h-full min-h-0">
+        <div class="shrink-0 px-4 py-2 bg-gradient-to-r from-police-maroonDark to-police-maroon text-white border-b-2 border-police-gold/70 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="hourglass" class="w-4 h-4 text-police-goldLight"></i>
+            <h2 class="font-bold text-sm sm:text-base leading-tight">ยังไม่เข้าร่วม / รอลงทะเบียน</h2>
+            <span class="hidden sm:inline text-[11px] text-rose-100/85">• เรียงตามรหัส</span>
+          </div>
+          <span id="right-count-badge" class="px-3 py-0.5 rounded-full bg-white text-police-maroonDark font-mono font-extrabold text-xs sm:text-sm shadow-xs">0 ราย</span>
+        </div>
+
+        <div id="pending-scroll-box" class="flex-1 min-h-0 overflow-y-auto custom-scroll p-2.5 sm:p-3 bg-rose-50/25">
+          <div id="pending-grid" class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== LIVE NEWS TICKER + SYNC STATUS BAR ==================== -->
+  <div class="shrink-0 bg-police-navyDark text-white border-t-2 border-police-gold flex items-center overflow-hidden">
+    <div class="bg-police-maroon px-3.5 py-1.5 text-xs font-bold text-police-goldLight flex items-center gap-1.5 shrink-0 z-10 shadow-md">
+      <i data-lucide="radio" class="w-3.5 h-3.5 animate-pulse"></i> ประกาศหน้างาน
+    </div>
+    <div class="flex-1 overflow-hidden py-1.5">
+      <div id="live-ticker-track" class="ticker-track text-xs sm:text-sm font-medium text-blue-50"></div>
+    </div>
+    <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/90 border-l border-white/15 text-[11px] shrink-0 z-10">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span id="last-sync-text" class="font-mono font-semibold text-police-goldLight">กำลังเชื่อมต่อ...</span>
+    </div>
+  </div>
 
   <!-- ==================== VIP WELCOME BANNER (เด้งต้อนรับเมื่อมีคนสแกนเช็กอินใหม่) ==================== -->
   <div id="vip-welcome-banner" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-2xl pointer-events-none">
@@ -119,222 +359,30 @@
     </div>
   </div>
 
-  <!-- ==================== TOP OFFICIAL POLICE HEADER ==================== -->
-  <header class="sticky top-0 z-30 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark border-b-4 border-police-gold shadow-md text-white">
-    <div class="max-w-[1680px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- ตราสัญลักษณ์โล่ตำรวจ + ชื่อโครงการ -->
-      <div class="flex items-center gap-3.5 min-w-0">
-        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 border-2 border-police-gold/80 flex items-center justify-center shadow-md shrink-0">
-          <!-- ไอคอนโล่ตำรวจสีทอง -->
-          <svg class="w-7 h-7 sm:w-8 sm:h-8 text-police-goldLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(212,175,55,0.2)"/>
-            <polygon points="12 7 13.4 10 16.7 10.4 14.3 12.6 14.9 15.8 12 14.2 9.1 15.8 9.7 12.6 7.3 10.4 10.6 10 12 7" fill="#F3D478" stroke="#F3D478" stroke-width="1"/>
-          </svg>
-        </div>
-        <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <span class="relative live-ring w-2.5 h-2.5 rounded-full bg-police-goldLight shrink-0"></span>
-            <span class="text-[11px] font-bold uppercase tracking-widest text-police-goldLight">ROYAL THAI POLICE • LIVE ATTENDANCE MONITOR</span>
-          </div>
-          <h1 class="text-base sm:text-xl lg:text-2xl font-extrabold text-white tracking-tight truncate">
-            โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)
-          </h1>
-        </div>
-      </div>
-
-      <!-- นาฬิกาเวลาไทย + ปุ่มควบคุมจอทีวี -->
-      <div class="flex items-center gap-2.5 sm:gap-4 shrink-0">
-        <!-- เลือกวันสัมมนา -->
-        <div class="hidden md:flex items-center bg-black/25 p-1 rounded-xl border border-white/15 text-xs">
-          <button onclick="selectDay('day1')" id="m-day1" class="px-3 py-1.5 rounded-lg font-semibold transition">30 พ.ย.</button>
-          <button onclick="selectDay('day2')" id="m-day2" class="px-3 py-1.5 rounded-lg font-semibold transition">1 ธ.ค.</button>
-          <button onclick="selectDay('day3')" id="m-day3" class="px-3 py-1.5 rounded-lg font-semibold transition">2 ธ.ค.</button>
-        </div>
-
-        <!-- นาฬิกา Real-time เวลาไทย -->
-        <div class="text-right px-3.5 py-1.5 rounded-2xl bg-black/25 border border-police-gold/50">
-          <div id="live-clock" class="font-mono text-lg sm:text-2xl font-bold text-police-goldLight leading-none tracking-wider">00:00:00</div>
-          <div id="live-date" class="text-[11px] text-amber-100/90 mt-0.5">กำลังโหลดวันที่...</div>
-        </div>
-
-        <!-- ปุ่มควบคุม -->
-        <div class="flex items-center gap-1.5">
-          <button onclick="openCountdownModal()" id="btn-countdown" title="ตั้งเวลานับถอยหลังเริ่มประชุม / พักเบรก" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
-            <i data-lucide="timer" class="w-4 h-4 text-police-goldLight"></i>
-            <span id="countdown-header-text" class="hidden xl:inline">นับถอยหลัง</span>
-          </button>
-          <button onclick="openTickerModal()" title="แก้ไขข้อความประกาศข่าววิ่งด้านล่าง" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
-            <i data-lucide="megaphone" class="w-4 h-4 text-amber-300"></i>
-            <span class="hidden 2xl:inline">ประกาศวิ่ง</span>
-          </button>
-          <button onclick="openAiQrSpotlight()" title="โชว์ QR Code แชทบอทตำรวจคู่หูจราจร AI เต็มจอ" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-police-navy hover:bg-blue-900 border border-blue-400/50 text-xs font-semibold text-white transition">
-            <i data-lucide="qr-code" class="w-4 h-4 text-police-goldLight"></i>
-            <span class="hidden 2xl:inline">QR คู่หู AI</span>
-          </button>
-          <button onclick="toggleAutoScroll()" id="btn-autoscroll" title="เปิด/ปิด เลื่อนรายชื่ออัตโนมัติบนจอทีวี" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
-            <i data-lucide="scroll-text" class="w-4 h-4"></i>
-            <span id="autoscroll-label" class="hidden xl:inline">เลื่อนอัตโนมัติ: ปิด</span>
-          </button>
-          <button onclick="toggleFullscreen()" title="เปิดเต็มจอทีวี / โปรเจกเตอร์" class="p-2.5 rounded-xl bg-police-gold/20 hover:bg-police-gold/30 border border-police-gold/60 text-police-goldLight transition">
-            <i data-lucide="maximize" class="w-4 h-4"></i>
-          </button>
-          <a href="index.html" title="กลับหน้า Dashboard สตาฟ" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== FLOATING COUNTDOWN BAR (แสดงเมื่อเปิดนับถอยหลัง) ==================== -->
-  <div id="countdown-banner" class="hidden bg-gradient-to-r from-police-navyDark via-police-navy to-police-maroonDark text-white border-b-2 border-police-gold px-4 py-2.5 shadow-md">
-    <div class="max-w-[1680px] mx-auto flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="px-2.5 py-0.5 rounded-full bg-police-gold text-police-maroonDark text-xs font-extrabold uppercase tracking-wider animate-pulse">Countdown</span>
-        <span id="countdown-title-display" class="text-sm sm:text-base font-bold">เริ่มการสัมมนาในอีก</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <span id="countdown-clock-display" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-goldLight tracking-wider">10:00</span>
-        <button onclick="stopCountdown()" class="px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-semibold border border-white/20">หยุด / ปิด</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== MAIN BROADCAST BODY (WHITE THEME) ==================== -->
-  <main class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 flex-1 flex flex-col">
-
-    <!-- HERO STATS, PROGRESS BAR & ALWAYS-ON AI QR CODE -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4">
-      <!-- ตัวเลขใหญ่ 3 ช่อง -->
-      <div class="lg:col-span-5 grid grid-cols-3 gap-2.5 sm:gap-3">
-        <!-- เข้าร่วมแล้ว -->
-        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-emerald-600 flex flex-col justify-between">
-          <p class="text-[11px] sm:text-xs font-semibold text-emerald-700 flex items-center gap-1">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 shrink-0"></i> เข้าร่วมแล้ว
-          </p>
-          <div class="flex items-baseline gap-1.5 mt-1.5">
-            <span id="stat-checked" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-emerald-600">0</span>
-            <span class="text-[11px] text-slate-500">ราย</span>
-          </div>
-        </div>
-
-        <!-- ยังไม่เข้าร่วม -->
-        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-maroon flex flex-col justify-between">
-          <p class="text-[11px] sm:text-xs font-semibold text-police-maroon flex items-center gap-1">
-            <i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i> ยังไม่มา
-          </p>
-          <div class="flex items-baseline gap-1.5 mt-1.5">
-            <span id="stat-pending" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-police-maroon">0</span>
-            <span class="text-[11px] text-slate-500">ราย</span>
-          </div>
-        </div>
-
-        <!-- เป้าหมายทั้งหมด -->
-        <div class="official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-navy flex flex-col justify-between">
-          <p class="text-[11px] sm:text-xs font-semibold text-police-navy flex items-center gap-1">
-            <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i> เป้าหมาย
-          </p>
-          <div class="flex items-baseline gap-1.5 mt-1.5">
-            <span id="stat-total" class="font-mono text-3xl sm:text-4xl xl:text-5xl font-extrabold text-slate-900">0</span>
-            <span class="text-[11px] text-slate-500">ราย</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- แถบความคืบหน้าภาพรวม -->
-      <div class="lg:col-span-4 official-panel rounded-2xl p-3.5 sm:p-4 border-t-4 border-t-police-gold flex flex-col justify-between gap-2.5">
-        <div class="flex items-center justify-between gap-2">
-          <div class="min-w-0">
-            <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">อัตราการรายงานตัวเข้าร่วมสัมมนา</p>
-            <p class="text-[11px] text-slate-500 mt-0.5 truncate">วันที่ <span id="hero-day-label" class="text-police-navy font-semibold">30 พ.ย. 69</span> • อัปเดตทุก 8 วิ</p>
-          </div>
-          <span id="stat-percent" class="font-mono text-2xl sm:text-3xl xl:text-4xl font-extrabold text-police-navy shrink-0">0%</span>
-        </div>
-
-        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
-          <div id="stat-progress-bar" class="h-full rounded-full bg-gradient-to-r from-police-navy via-police-gold to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
-        </div>
-
-        <!-- สรุปย่อรายหน่วยหลัก (แถบเลื่อนแนวนอน) -->
-        <div id="unit-pills" class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px]"></div>
-      </div>
-
-      <!-- การ์ด QR Code แชทบอทตำรวจคู่หูจราจร AI (แสดงค้างบนจอตลอดเวลา สแกนได้ทันที) -->
-      <div onclick="openAiQrSpotlight()" title="คลิกเพื่อขยาย QR Code เต็มจอ" class="lg:col-span-3 cursor-pointer group rounded-2xl p-3 sm:p-3.5 bg-gradient-to-br from-police-navyDark via-police-navy to-police-maroonDark border-2 border-police-gold shadow-md flex items-center gap-3 text-white hover:shadow-lg transition">
-        <div class="bg-white p-1.5 rounded-xl shadow-inner shrink-0 group-hover:scale-105 transition">
-          <div id="always-on-ai-qr" class="w-[96px] h-[96px] flex items-center justify-center"></div>
-        </div>
-        <div class="min-w-0 flex-1 space-y-1">
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-police-gold/25 border border-police-gold/60 text-police-goldLight text-[10px] font-bold uppercase tracking-wider">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Scan Anytime
+  <!-- ==================== FLASH ALERT OVERLAY (ป๊อปอัปประกาศด่วนกลางจอ) ==================== -->
+  <div id="flash-alert-overlay" onclick="closeFlashAlert()" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
+    <div onclick="event.stopPropagation()" class="flash-pop-animate max-w-3xl w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-police-gold bg-white text-center">
+      <div class="px-6 py-4 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark text-white flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-9 h-9 rounded-xl bg-police-gold/20 border border-police-gold flex items-center justify-center text-police-goldLight animate-bounce">
+            <i data-lucide="bell-ring" class="w-5 h-5"></i>
           </span>
-          <h3 class="text-sm sm:text-base font-extrabold text-white leading-tight truncate">👮‍♂️ คู่หูจราจร AI</h3>
-          <p class="text-[11px] text-blue-100/90 leading-snug line-clamp-2">สแกนเข้าใช้งานแชทบอทตำรวจคู่หูจราจรได้ทันที</p>
-          <p class="font-mono text-[10px] text-police-goldLight font-semibold truncate">pinai-fine.police.go.th</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== SPLIT BOARD: LEFT (เข้าร่วมแล้ว) vs RIGHT (ยังไม่เข้าร่วม) ==================== -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 flex-1 min-h-0">
-
-      <!-- ฝั่งซ้าย: เข้าร่วมสัมมนาแล้ว -->
-      <div class="bg-white rounded-2xl border-2 border-emerald-200 shadow-sm overflow-hidden flex flex-col h-[58vh] lg:h-[62vh]">
-        <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-700 to-teal-700 text-white border-b-2 border-police-gold/70 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white">
-              <i data-lucide="user-check" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h2 class="font-bold text-base sm:text-lg leading-tight">รายงานตัว / เข้าร่วมสัมมนาแล้ว</h2>
-              <p class="text-xs text-emerald-100">เรียงตามเวลาที่เช็กอินล่าสุดอยู่ด้านบน</p>
-            </div>
+          <div class="text-left">
+            <p class="text-[10px] font-bold tracking-[0.2em] uppercase text-police-goldLight">URGENT ANNOUNCEMENT</p>
+            <h3 class="text-base sm:text-lg font-extrabold leading-tight">ประกาศด่วนจากกองอำนวยการสัมมนา</h3>
           </div>
-          <span id="left-count-badge" class="px-3.5 py-1 rounded-full bg-white text-emerald-800 font-mono font-extrabold text-sm sm:text-base shadow-sm">0 ราย</span>
         </div>
-
-        <div id="checked-scroll-box" class="flex-1 overflow-y-auto custom-scroll p-3.5 sm:p-4 bg-emerald-50/35">
-          <div id="checked-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-2.5"></div>
-        </div>
+        <span id="flash-alert-timer-badge" class="hidden px-3 py-1 rounded-full bg-black/30 border border-white/20 text-xs font-mono font-bold text-police-goldLight"></span>
       </div>
-
-      <!-- ฝั่งขวา: ยังไม่เข้าร่วม / รอลงทะเบียน -->
-      <div class="bg-white rounded-2xl border-2 border-rose-200 shadow-sm overflow-hidden flex flex-col h-[58vh] lg:h-[62vh]">
-        <div class="px-5 py-3.5 bg-gradient-to-r from-police-maroonDark to-police-maroon text-white border-b-2 border-police-gold/70 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-police-goldLight">
-              <i data-lucide="hourglass" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h2 class="font-bold text-base sm:text-lg leading-tight">ยังไม่เข้าร่วม / รอลงทะเบียน</h2>
-              <p class="text-xs text-rose-100">เรียงตามรหัสประจำตัวผู้เข้าร่วม</p>
-            </div>
-          </div>
-          <span id="right-count-badge" class="px-3.5 py-1 rounded-full bg-white text-police-maroonDark font-mono font-extrabold text-sm sm:text-base shadow-sm">0 ราย</span>
-        </div>
-
-        <div id="pending-scroll-box" class="flex-1 overflow-y-auto custom-scroll p-3.5 sm:p-4 bg-rose-50/25">
-          <div id="pending-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-2.5"></div>
-        </div>
+      <div class="px-6 sm:px-10 py-10 sm:py-12 bg-gradient-to-b from-white to-slate-50">
+        <p id="flash-alert-message" class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 leading-snug break-words"></p>
       </div>
-    </section>
-  </main>
-
-  <!-- ==================== LIVE NEWS TICKER (แถบประกาศข่าววิ่งประชาสัมพันธ์) ==================== -->
-  <div class="bg-police-navyDark text-white border-t-2 border-police-gold flex items-center overflow-hidden">
-    <div class="bg-police-maroon px-4 py-2 text-xs sm:text-sm font-bold text-police-goldLight flex items-center gap-1.5 shrink-0 z-10 shadow-md">
-      <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i> ประกาศหน้างาน
-    </div>
-    <div class="flex-1 overflow-hidden py-2">
-      <div id="live-ticker-track" class="ticker-track text-xs sm:text-sm font-medium text-blue-50"></div>
+      <div class="px-6 py-3.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <span>โครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</span>
+        <button type="button" onclick="closeFlashAlert()" class="px-4 py-1.5 rounded-xl bg-police-navy hover:bg-police-navyDark text-white font-bold transition">ปิดประกาศ (Esc)</button>
+      </div>
     </div>
   </div>
-
-  <!-- ==================== FOOTER STATUS BAR ==================== -->
-  <footer class="px-6 py-2 text-xs text-slate-500 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-white">
-    <span>สำนักงานตำรวจแห่งชาติ • ณ ไพน์เฮิร์สท กอล์ฟ คลับ รีสอร์ท แอนด์ โฮเทล จ.ปทุมธานี (30 พ.ย. – 2 ธ.ค. 2569)</span>
-    <span id="last-sync-text" class="font-mono font-semibold text-police-navy">กำลังเชื่อมต่อข้อมูล...</span>
-  </footer>
 
   <!-- ==================== MODAL: ตั้งเวลานับถอยหลัง ==================== -->
   <div id="countdown-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -344,7 +392,7 @@
           <i data-lucide="timer" class="w-5 h-5 text-police-goldLight"></i>
           <h3 class="font-bold text-base">ตั้งเวลานับถอยหลังบนจอใหญ่</h3>
         </div>
-        <button onclick="closeCountdownModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button type="button" onclick="closeCountdownModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="p-5 space-y-4">
         <div>
@@ -376,7 +424,7 @@
           <i data-lucide="megaphone" class="w-5 h-5 text-police-goldLight"></i>
           <h3 class="font-bold text-base">แก้ไขข้อความประกาศข่าววิ่งหน้างาน</h3>
         </div>
-        <button onclick="closeTickerModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button type="button" onclick="closeTickerModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="p-5 space-y-4">
         <p class="text-xs text-slate-500">คั่นแต่ละข้อความด้วยเครื่องหมาย <code class="px-1.5 py-0.5 rounded bg-slate-100 font-bold">•</code> ข้อความจะวิ่งแสดงผลด้านล่างจอทันที</p>
@@ -408,6 +456,80 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: สร้างป๊อปอัปประกาศด่วนกลางจอ (Flash Alert Composer) ==================== -->
+  <div id="flash-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="px-5 py-4 bg-gradient-to-r from-police-maroonDark to-police-maroon text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bell-ring" class="w-5 h-5 text-police-goldLight"></i>
+          <h3 class="font-bold text-base">ยิงประกาศด่วนขึ้นกลางจอ (Flash Alert)</h3>
+        </div>
+        <button type="button" onclick="closeFlashAlertModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-4 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">เลือกข้อความด่วนสำเร็จรูป:</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="applyFlashPreset('ขอเชิญทุกท่านถ่ายภาพหมู่ร่วมกันหน้าเวทีในอีก 5 นาที')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">📸 ถ่ายภาพหมู่</button>
+            <button type="button" onclick="applyFlashPreset('แจ้งเจ้าของรถยนต์ทะเบียน กข 1234 กรุณาขยับรถด่วน')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">🚗 แจ้งขยับรถ</button>
+            <button type="button" onclick="applyFlashPreset('ขอเชิญผู้เข้าร่วมทุกท่านกลับเข้าสู่ห้องประชุม เพื่อเริ่มการสัมมนาช่วงถัดไป')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">🔔 เข้าห้องประชุม</button>
+            <button type="button" onclick="applyFlashPreset('ขอเชิญทุกท่านรับประทานอาหารกลางวัน (จุดอาหารฮาลาลอยู่ด้านขวาห้องอาหาร)')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">🍽️ พักรับประทานอาหาร</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ข้อความประกาศด่วน *</label>
+          <textarea id="flash-msg-input" rows="3" placeholder="พิมพ์ข้อความที่ต้องการให้เด้งขึ้นกลางจอใหญ่..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-maroon focus:outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ระยะเวลาแสดงบนจอ</label>
+          <select id="flash-duration-select" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+            <option value="15">แสดง 15 วินาที แล้วปิดอัตโนมัติ</option>
+            <option value="30" selected>แสดง 30 วินาที แล้วปิดอัตโนมัติ</option>
+            <option value="60">แสดง 60 วินาที แล้วปิดอัตโนมัติ</option>
+            <option value="0">แสดงค้างไว้จนกว่าจะกดปิด</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeFlashAlertModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium">ยกเลิก</button>
+          <button type="button" onclick="triggerFlashAlert()" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-police-maroon hover:bg-police-maroonDark text-white text-sm font-bold shadow-sm">
+            <i data-lucide="send" class="w-4 h-4"></i> ยิงประกาศพร้อมเสียงติ๊งต่อง
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: แก้ไขข้อมูลสถานที่ & Wi-Fi ==================== -->
+  <div id="venue-info-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
+      <div class="px-5 py-4 bg-gradient-to-r from-police-navyDark to-police-navy text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-5 h-5 text-police-goldLight"></i>
+          <h3 class="font-bold text-base">แก้ไขข้อมูลสถานที่ & Wi-Fi บนจอ</h3>
+        </div>
+        <button type="button" onclick="closeVenueInfoModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-3.5 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อห้องประชุม</label>
+          <input type="text" id="vi-room-input" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-navy focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อ Wi-Fi และรหัสผ่าน</label>
+          <input type="text" id="vi-wifi-input" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-police-navy focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">จุดบริการอาหารฮาลาล</label>
+          <input type="text" id="vi-halal-input" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-navy focus:outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeVenueInfoModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-medium">ยกเลิก</button>
+          <button type="button" onclick="saveVenueInfo()" class="px-5 py-2 rounded-xl bg-police-navy hover:bg-police-navyDark text-white text-sm font-bold">บันทึกข้อมูล</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
     const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
@@ -431,6 +553,14 @@
     let autoScrollTimer = null;
     let countdownTimer = null;
     let countdownRemainingSec = 0;
+    let flashAlertTimer = null;
+    let flashAlertRemaining = 0;
+
+    const DEFAULT_VENUE_INFO = {
+      room: 'ห้องแกรนด์บอลรูม ไพน์เฮิร์สท',
+      wifi: 'Pinehurst_Guest (รหัส: 12345678)',
+      halal: 'โซนโต๊ะรับรองด้านขวาห้องอาหาร'
+    };
 
     function detectDefaultDay() {
       const now = new Date();
@@ -441,7 +571,7 @@
       return 'day1';
     }
 
-    // สถานะการเลื่อนแยกอิสระซ้าย-ขวา (แก้ปัญหาค้างที่ด้านล่างและรองรับหยุดเมื่อเอาเมาส์ชี้)
+    // สถานะการเลื่อนแยกอิสระซ้าย-ขวา (หยุดเมื่อเอาเมาส์ชี้ และวนกลับบนสุดอัตโนมัติ)
     const scrollState = {
       'checked-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false },
       'pending-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false }
@@ -453,13 +583,18 @@
       initScrollHoverPause();
       renderLiveTicker();
       renderAlwaysOnAiQr();
+      renderVenueInfo();
+      fetchPathumThaniWeather();
+      setInterval(fetchPathumThaniWeather, 900000);
       selectDay(currentDay, false);
       fetchLiveStatus();
       setInterval(fetchLiveStatus, 8000);
 
-      // กด Esc เพื่อปิดหน้าต่าง Modal
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          closeFlashAlert();
+          closeFlashAlertModal();
+          closeVenueInfoModal();
           closeAiQrSpotlight();
           closeCountdownModal();
           closeTickerModal();
@@ -498,8 +633,8 @@
         const btn = document.getElementById(`m-${k}`);
         if (!btn) return;
         btn.className = k === dayKey
-          ? 'px-3 py-1.5 rounded-lg font-bold bg-police-gold text-police-maroonDark shadow-sm transition'
-          : 'px-3 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white hover:bg-white/10 transition';
+          ? 'px-2.5 py-1 rounded-lg font-bold bg-police-gold text-police-maroonDark shadow-sm transition'
+          : 'px-2.5 py-1 rounded-lg font-semibold text-white/80 hover:text-white hover:bg-white/10 transition';
       });
 
       const heroDay = document.getElementById('hero-day-label');
@@ -555,7 +690,6 @@
           substitutePosition: String(p.substitutePosition || '').trim()
         }));
 
-        // ตรวจหาผู้เข้าร่วมที่เพิ่งเช็กอินใหม่เพื่อเด้งป้าย VIP ต้อนรับ
         const newlyChecked = [];
         participants.forEach(p => {
           if (isCheckedIn(p)) {
@@ -601,7 +735,6 @@
       document.getElementById('left-count-badge').textContent = `${checkedCount} ราย`;
       document.getElementById('right-count-badge').textContent = `${pendingCount} ราย`;
 
-      // สรุปย่อรายหน่วยหลัก
       const unitMap = {};
       participants.forEach(p => {
         const u = p.mainUnit || 'อื่นๆ';
@@ -624,7 +757,6 @@
         `;
       }).join('');
 
-      // ฝั่งซ้าย: เข้าร่วมแล้ว
       document.getElementById('checked-grid').innerHTML = checkedList.length === 0
         ? `<div class="col-span-full py-16 text-center text-slate-400 text-sm">ยังไม่มีผู้รายงานตัวในวันนี้</div>`
         : checkedList.map(p => {
@@ -632,23 +764,22 @@
             const name = isSub ? p.substituteName : p.fullName;
             const subInfo = isSub ? `ผู้แทน: ${p.fullName}` : (p.position || '');
             return `
-              <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-sm flex items-start justify-between gap-2">
+              <div class="bg-white px-3 py-2 rounded-xl border border-emerald-200/90 border-l-4 border-l-emerald-500 shadow-xs flex items-center justify-between gap-2">
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-1.5">
-                    <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">${escapeHtml(p.id)}</span>
-                    <span class="text-[11px] font-semibold text-police-navy truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                    <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 shrink-0">${escapeHtml(p.id)}</span>
+                    <span class="text-[10.5px] font-semibold text-police-navy truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
                   </div>
-                  <p class="font-bold text-sm text-slate-900 truncate mt-1">${escapeHtml(name)}</p>
-                  ${subInfo ? `<p class="text-[11px] text-slate-500 truncate">${escapeHtml(subInfo)}</p>` : ''}
+                  <p class="font-bold text-[13px] text-slate-900 truncate mt-0.5 leading-snug">${escapeHtml(name)}</p>
+                  ${subInfo ? `<p class="text-[10.5px] text-slate-500 truncate leading-tight">${escapeHtml(subInfo)}</p>` : ''}
                 </div>
-                <span class="shrink-0 px-2 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-[11px] font-bold text-emerald-700">
+                <span class="shrink-0 px-2 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-[10.5px] font-bold text-emerald-700">
                   ${escapeHtml(p[currentDay])}
                 </span>
               </div>
             `;
           }).join('');
 
-      // ฝั่งขวา: ยังไม่เข้าร่วม
       document.getElementById('pending-grid').innerHTML = pendingList.length === 0
         ? `<div class="col-span-full py-16 text-center text-emerald-600 font-bold text-base">ผู้เข้าร่วมรายงานตัวครบทุกคนแล้ว!</div>`
         : pendingList.map(p => {
@@ -656,16 +787,16 @@
             const name = isSub ? p.substituteName : p.fullName;
             const subInfo = isSub ? `ผู้แทน: ${p.fullName}` : (p.position || '');
             return `
-              <div class="bg-white p-3 rounded-xl border border-rose-200/80 shadow-sm flex items-start justify-between gap-2">
+              <div class="bg-white px-3 py-2 rounded-xl border border-rose-200/80 border-l-4 border-l-police-maroon/75 shadow-xs flex items-center justify-between gap-2">
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-1.5">
-                    <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-police-maroonDark">${escapeHtml(p.id)}</span>
-                    <span class="text-[11px] font-semibold text-slate-600 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                    <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-police-maroonDark shrink-0">${escapeHtml(p.id)}</span>
+                    <span class="text-[10.5px] font-semibold text-slate-600 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
                   </div>
-                  <p class="font-semibold text-sm text-slate-800 truncate mt-1">${escapeHtml(name)}</p>
-                  ${subInfo ? `<p class="text-[11px] text-slate-400 truncate">${escapeHtml(subInfo)}</p>` : ''}
+                  <p class="font-semibold text-[13px] text-slate-800 truncate mt-0.5 leading-snug">${escapeHtml(name)}</p>
+                  ${subInfo ? `<p class="text-[10.5px] text-slate-400 truncate leading-tight">${escapeHtml(subInfo)}</p>` : ''}
                 </div>
-                <span class="shrink-0 px-2 py-0.5 rounded-lg bg-slate-100 text-[10px] font-semibold text-slate-500">รอลงทะเบียน</span>
+                <span class="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 text-[10px] font-semibold text-slate-500">รอเช็กอิน</span>
               </div>
             `;
           }).join('');
@@ -683,7 +814,7 @@
       document.getElementById('vip-time').textContent = p[currentDay] || '';
 
       banner.classList.remove('hidden', 'welcome-animate');
-      void banner.offsetWidth; // trigger reflow
+      void banner.offsetWidth;
       banner.classList.add('welcome-animate');
       setTimeout(() => banner.classList.add('hidden'), 5300);
     }
@@ -705,7 +836,7 @@
 
       if (autoScrollEnabled) {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: เปิด';
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-xs font-bold text-white transition';
+        btn.className = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-xs font-bold text-white transition';
         const now = Date.now();
         Object.keys(scrollState).forEach(id => {
           scrollState[id].phase = 'scrolling';
@@ -716,7 +847,7 @@
         }
       } else {
         if (label) label.textContent = 'เลื่อนอัตโนมัติ: ปิด';
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition';
+        btn.className = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition';
         if (autoScrollTimer) {
           clearInterval(autoScrollTimer);
           autoScrollTimer = null;
@@ -738,14 +869,14 @@
           if (el.scrollTop + 1.5 >= maxScroll) {
             el.scrollTop = maxScroll;
             st.phase = 'returning';
-            st.pauseUntil = now + 2500; // หยุดพักอ่านท้ายสุด 2.5 วินาที
+            st.pauseUntil = now + 2500;
           } else {
             el.scrollTop += 1.2;
           }
         } else if (st.phase === 'returning') {
           el.scrollTo({ top: 0, behavior: 'smooth' });
           st.phase = 'scrolling';
-          st.pauseUntil = now + 2000; // พักด้านบน 2 วินาทีก่อนเริ่มรอบใหม่
+          st.pauseUntil = now + 2000;
         }
       });
     }
@@ -855,8 +986,8 @@
       box.innerHTML = '';
       new QRCode(box, {
         text: AI_CHATBOT_URL,
-        width: 96,
-        height: 96,
+        width: 72,
+        height: 72,
         correctLevel: QRCode.CorrectLevel.M
       });
     }
@@ -877,6 +1008,159 @@
 
     function closeAiQrSpotlight() {
       document.getElementById('ai-qr-modal').classList.add('hidden');
+    }
+
+    // ==================== FLASH ALERT OVERLAY (ป๊อปอัปประกาศด่วนกลางจอ + เสียงติ๊งต่อง) ====================
+    function openFlashAlertModal() {
+      document.getElementById('flash-alert-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('flash-msg-input')?.focus(), 100);
+    }
+
+    function closeFlashAlertModal() {
+      document.getElementById('flash-alert-modal').classList.add('hidden');
+    }
+
+    function applyFlashPreset(text) {
+      document.getElementById('flash-msg-input').value = text;
+    }
+
+    function triggerFlashAlert() {
+      const msg = document.getElementById('flash-msg-input').value.trim();
+      if (!msg) return;
+      const durationSec = parseInt(document.getElementById('flash-duration-select').value, 10) || 0;
+
+      closeFlashAlertModal();
+      document.getElementById('flash-alert-message').textContent = msg;
+      document.getElementById('flash-alert-overlay').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+
+      playDingDongChime();
+
+      if (flashAlertTimer) {
+        clearInterval(flashAlertTimer);
+        flashAlertTimer = null;
+      }
+
+      const timerBadge = document.getElementById('flash-alert-timer-badge');
+      if (durationSec > 0) {
+        flashAlertRemaining = durationSec;
+        timerBadge.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วินาที`;
+        timerBadge.classList.remove('hidden');
+        flashAlertTimer = setInterval(() => {
+          flashAlertRemaining--;
+          if (flashAlertRemaining <= 0) {
+            closeFlashAlert();
+          } else {
+            timerBadge.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วินาที`;
+          }
+        }, 1000);
+      } else {
+        timerBadge.classList.add('hidden');
+      }
+    }
+
+    function closeFlashAlert() {
+      if (flashAlertTimer) {
+        clearInterval(flashAlertTimer);
+        flashAlertTimer = null;
+      }
+      document.getElementById('flash-alert-overlay').classList.add('hidden');
+    }
+
+    function playDingDongChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [
+          { freq: 880, start: 0, dur: 0.45 },
+          { freq: 659.25, start: 0.28, dur: 0.75 }
+        ];
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(n.freq, ctx.currentTime + n.start);
+          gain.gain.setValueAtTime(0.001, ctx.currentTime + n.start);
+          gain.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime + n.start + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + n.start + n.dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + n.start);
+          osc.stop(ctx.currentTime + n.start + n.dur + 0.05);
+        });
+      } catch (e) {}
+    }
+
+    // ==================== VENUE INFO & PATHUM THANI LIVE WEATHER WIDGET ====================
+    function getVenueInfo() {
+      try {
+        const saved = JSON.parse(safeStorageGet('ai_seminar_venue_info') || 'null');
+        if (saved && typeof saved === 'object') return { ...DEFAULT_VENUE_INFO, ...saved };
+      } catch (e) {}
+      return { ...DEFAULT_VENUE_INFO };
+    }
+
+    function renderVenueInfo() {
+      const info = getVenueInfo();
+      const roomEl = document.getElementById('venue-room-text');
+      const wifiEl = document.getElementById('venue-wifi-text');
+      const halalEl = document.getElementById('venue-halal-text');
+      if (roomEl) roomEl.textContent = info.room;
+      if (wifiEl) wifiEl.textContent = info.wifi;
+      if (halalEl) halalEl.textContent = info.halal;
+    }
+
+    function openVenueInfoModal() {
+      const info = getVenueInfo();
+      document.getElementById('vi-room-input').value = info.room;
+      document.getElementById('vi-wifi-input').value = info.wifi;
+      document.getElementById('vi-halal-input').value = info.halal;
+      document.getElementById('venue-info-modal').classList.remove('hidden');
+    }
+
+    function closeVenueInfoModal() {
+      document.getElementById('venue-info-modal').classList.add('hidden');
+    }
+
+    function saveVenueInfo() {
+      const updated = {
+        room: document.getElementById('vi-room-input').value.trim() || DEFAULT_VENUE_INFO.room,
+        wifi: document.getElementById('vi-wifi-input').value.trim() || DEFAULT_VENUE_INFO.wifi,
+        halal: document.getElementById('vi-halal-input').value.trim() || DEFAULT_VENUE_INFO.halal
+      };
+      safeStorageSet('ai_seminar_venue_info', JSON.stringify(updated));
+      renderVenueInfo();
+      closeVenueInfoModal();
+    }
+
+    async function fetchPathumThaniWeather() {
+      const tempEl = document.getElementById('weather-temp');
+      const descEl = document.getElementById('weather-desc');
+      const iconEl = document.getElementById('weather-icon');
+      try {
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=14.0208&longitude=100.5250&current=temperature_2m,relative_humidity_2m,weather_code&timezone=Asia%2FBangkok';
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('weather fetch failed');
+        const json = await res.json();
+        const cur = json.current || {};
+        const temp = cur.temperature_2m !== undefined ? Math.round(cur.temperature_2m) : '--';
+        const wmo = mapWmoWeatherThai(cur.weather_code);
+        if (tempEl) tempEl.textContent = `${temp}°C`;
+        if (descEl) descEl.textContent = wmo.label;
+        if (iconEl) iconEl.textContent = wmo.icon;
+      } catch (e) {
+        if (descEl && descEl.textContent === 'กำลังโหลด...') descEl.textContent = 'อากาศแจ่มใส';
+      }
+    }
+
+    function mapWmoWeatherThai(code) {
+      const c = Number(code);
+      if (c === 0) return { icon: '☀️', label: 'ท้องฟ้าแจ่มใส' };
+      if (c === 1 || c === 2) return { icon: '🌤️', label: 'มีเมฆบางส่วน' };
+      if (c === 3) return { icon: '☁️', label: 'มีเมฆมาก' };
+      if (c === 45 || c === 48) return { icon: '🌫️', label: 'มีหมอก' };
+      if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82)) return { icon: '🌧️', label: 'มีฝนตก' };
+      if (c >= 95) return { icon: '⛈️', label: 'ฝนฟ้าคะนอง' };
+      return { icon: '🌤️', label: 'อากาศปกติ' };
     }
 
     function escapeHtml(str) {
