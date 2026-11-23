@@ -798,22 +798,35 @@
     // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (พร้อม Deep Link สำหรับเด้งเข้าแอป LINE โดยตรงบนมือถือ)
     const LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const LINE_APP_DEEP_LINK = "line://ti/g/3tdXVYbf4r";
+    const FIVE_TOPICS = [
+      '(1) ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
+      '(2) คู่มือแนวทางมาตรฐานการปฏิบัติงาน',
+      '(3) ระบบเทคโนโลยีสารสนเทศงานจราจร',
+      '(4) การปฏิบัติงานด้านการเงินและงบประมาณ',
+      '(5) ประเด็นข้อโต้แย้งจากประชาชน'
+    ];
+
     const SCHEDULES = {
       d1: [
-        { time: '08:30 - 09:00', title: 'ลงทะเบียนเข้าร่วมสัมมนา และรับเอกสาร' },
-        { time: '09:00 - 10:30', title: 'พิธีเปิด และบรรยายพิเศษแนวทางคลังความรู้งานจราจรด้วย AI' },
-        { time: '10:45 - 12:00', title: 'นำเสนอภาพรวมระบบแชทบอทตำรวจคู่หูจราจร' },
-        { time: '13:00 - 16:30', title: 'Workshop กลุ่มย่อย: รวบรวมและจัดหมวดหมู่คลังความรู้งานจราจร' }
+        { time: '08.30 น.', title: 'ลงทะเบียน' },
+        { time: '09.30 น.', title: 'พิธีเปิด' },
+        { time: '10.00 - 12.00', title: 'บรรยาย “ระบบแชทบอทด้วยปัญญาประดิษฐ์ AI Chatbot”', speaker: 'สพร.(DGA)' },
+        { time: '12.00 น.', title: 'อาหารกลางวัน', isBreak: true },
+        { time: '13.30 - 16.30', title: 'สัมมนากลุ่ม: ปัญหาข้อขัดข้องในการปฏิบัติงานจราจร', speaker: 'คณะวิทยากร ศวปถ.' },
+        { time: '18.00 น.', title: 'อาหารเย็น', isBreak: true }
       ],
       d2: [
-        { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 2' },
-        { time: '09:00 - 12:00', title: 'Workshop: ทดสอบและปรับปรุงชุดคำถาม-คำตอบ AI คู่หูจราจร' },
-        { time: '13:00 - 16:30', title: 'ตรวจสอบความถูกต้องทางกฎหมายและแนวทางปฏิบัติหน้างาน' }
+        { time: '08.00 น.', title: 'ลงทะเบียน' },
+        { time: '09.00 - 12.00', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS },
+        { time: '12.00 น.', title: 'อาหารกลางวัน', isBreak: true },
+        { time: '13.30 - 16.30', title: 'สัมมนากลุ่มย่อย จำนวน 5 กลุ่ม (ต่อ) สรุปประเด็น คัดเลือกปัญหาสำคัญ และร่างแนวถาม-ตอบ', speaker: 'คณะวิทยากร ศวปถ.' },
+        { time: '18.00 น.', title: 'อาหารเย็น', isBreak: true }
       ],
       d3: [
-        { time: '08:30 - 09:00', title: 'ลงทะเบียนวันที่ 3' },
-        { time: '09:00 - 12:00', title: 'นำเสนอผลการทดสอบและข้อเสนอแนะจากแต่ละกลุ่ม' },
-        { time: '13:00 - 15:30', title: 'สรุปแนวทางการต่อยอด ทำแบบประเมิน และพิธีปิดการสัมมนา' }
+        { time: '08.00 น.', title: 'ลงทะเบียน' },
+        { time: '09.00 - 12.00', title: 'จัดทำร่างคำถาม-คำตอบ 5 ประเด็น', speaker: 'คณะวิทยากร ศวปถ.', subItems: FIVE_TOPICS },
+        { time: '12.00 - 13.00', title: 'อาหารกลางวัน', isBreak: true },
+        { time: '13.30 - 16.00', title: 'นำเสนอผล 5 ประเด็น และผู้เชี่ยวชาญสรุปรายการเอกสาร 5 หมวด', speaker: 'คณะวิทยากร ศวปถ.' }
       ]
     };
 
@@ -1316,9 +1329,17 @@
 
       const items = SCHEDULES[dayKey] || [];
       document.getElementById('schedule-list').innerHTML = items.map(item => `
-        <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-          <span class="shrink-0 font-mono text-[11px] font-bold text-navy-700 bg-blue-50 px-2 py-0.5 rounded-lg">${escapeHtml(item.time)}</span>
-          <span class="text-slate-700 leading-snug">${escapeHtml(item.title)}</span>
+        <div class="flex items-start gap-2.5 p-2.5 rounded-xl border ${item.isBreak ? 'bg-amber-50/70 border-amber-200/70' : 'bg-slate-50 border-slate-100'}">
+          <span class="shrink-0 font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${item.isBreak ? 'text-amber-800 bg-amber-100' : 'text-navy-700 bg-blue-50'}">${escapeHtml(item.time)}</span>
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="${item.isBreak ? 'text-amber-900 font-semibold' : 'text-slate-800 font-medium'} leading-snug">${escapeHtml(item.title)}</div>
+            ${item.speaker ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-maroon-700/10 text-maroon-700 text-[10.5px] font-semibold">วิทยากร: ${escapeHtml(item.speaker)}</span>` : ''}
+            ${item.subItems && item.subItems.length ? `
+              <ul class="mt-1 pl-2.5 border-l-2 border-navy-700/20 space-y-0.5 text-[11px] text-slate-600">
+                ${item.subItems.map(sub => `<li>${escapeHtml(sub)}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
         </div>
       `).join('');
     }
