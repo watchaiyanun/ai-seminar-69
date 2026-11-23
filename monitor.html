@@ -101,7 +101,8 @@
 
     /* จัดตำแหน่ง QR Code */
     #always-on-ai-qr img, #always-on-ai-qr canvas,
-    #spotlight-ai-qr img, #spotlight-ai-qr canvas {
+    #spotlight-ai-qr img, #spotlight-ai-qr canvas,
+    #spotlight-line-qr img, #spotlight-line-qr canvas {
       margin: 0 auto;
       display: block;
     }
@@ -168,6 +169,10 @@
           <button type="button" onclick="openAiQrSpotlight()" title="โชว์ QR Code แชทบอทตำรวจคู่หูจราจร AI เต็มจอ" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-police-navy hover:bg-blue-900 border border-blue-400/50 text-xs font-semibold text-white transition">
             <i data-lucide="qr-code" class="w-3.5 h-3.5 text-police-goldLight"></i>
             <span class="hidden 2xl:inline">QR คู่หู AI</span>
+          </button>
+          <button type="button" onclick="openLineQrSpotlight()" title="โชว์ QR Code กลุ่ม LINE สัมมนาเต็มจอ" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] border border-emerald-300/60 text-xs font-bold text-white shadow-sm transition">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5 text-white"></i>
+            <span class="hidden 2xl:inline">QR กลุ่ม LINE</span>
           </button>
           <button type="button" onclick="toggleAutoScroll()" id="btn-autoscroll" title="เปิด/ปิด เลื่อนรายชื่ออัตโนมัติบนจอทีวี" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-white transition">
             <i data-lucide="scroll-text" class="w-3.5 h-3.5"></i>
@@ -456,6 +461,29 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: SPOTLIGHT QR กลุ่ม LINE สัมมนา ==================== -->
+  <div id="line-qr-modal" onclick="closeLineQrSpotlight()" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden border-4 border-[#06C755] text-center">
+      <div class="px-6 py-5 bg-gradient-to-r from-[#049940] via-[#06C755] to-[#059669] text-white">
+        <p class="text-xs font-bold tracking-widest uppercase text-emerald-100">OFFICIAL SEMINAR LINE GROUP</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold mt-1">💬 กลุ่ม LINE ผู้เข้าร่วมสัมมนา</h2>
+        <p class="text-sm text-emerald-50 mt-1">สแกน QR Code เพื่อเข้ากลุ่มรับข่าวสาร กำหนดการ และภาพบรรยากาศงาน</p>
+      </div>
+      <div class="p-6 sm:p-8 flex flex-col items-center space-y-4 bg-slate-50">
+        <div id="spotlight-line-qr" class="p-4 bg-white rounded-3xl border-2 border-[#06C755]/30 shadow-lg min-w-[260px] min-h-[260px] flex items-center justify-center"></div>
+        <p id="spotlight-line-url-label" class="font-mono text-xs sm:text-sm font-bold text-emerald-700 break-all px-2"></p>
+
+        <!-- ช่องวาง/แก้ไขลิงก์กลุ่ม LINE สดหน้างานได้ทันที -->
+        <div class="w-full pt-3 border-t border-slate-200 flex gap-2">
+          <input type="url" id="line-url-input" placeholder="วางลิงก์กลุ่ม LINE (https://line.me/...) ที่นี่" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono focus:ring-2 focus:ring-[#06C755] focus:outline-none" />
+          <button type="button" onclick="saveLineGroupUrl()" class="px-4 py-2 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-xs font-bold shrink-0 transition">อัปเดต QR</button>
+        </div>
+
+        <button type="button" onclick="closeLineQrSpotlight()" class="px-6 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-bold transition">ปิดหน้าต่าง (Esc)</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: สร้างป๊อปอัปประกาศด่วนกลางจอ (Flash Alert Composer) ==================== -->
   <div id="flash-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
@@ -533,6 +561,8 @@
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
     const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
+    // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (สามารถวาง/แก้ไขสดในหน้าต่าง QR บนจอทีวีได้ด้วย)
+    const DEFAULT_LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const DEFAULT_TICKER_MSG = "ยินดีต้อนรับผู้เข้าร่วมโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร) • สแกน QR Code บนป้ายคล้องคอเพื่อเปิดเอกสารสัมมนา ตรวจสอบห้องพัก และทำแบบประเมิน • ทดลองใช้งานแชทบอทตำรวจคู่หูจราจรได้ที่ https://pinai-fine.police.go.th/";
     const DAY_CONFIG = {
       day1: { label: '30 พ.ย. 69', full: 'วันจันทร์ที่ 30 พฤศจิกายน 2569' },
@@ -596,6 +626,7 @@
           closeFlashAlertModal();
           closeVenueInfoModal();
           closeAiQrSpotlight();
+          closeLineQrSpotlight();
           closeCountdownModal();
           closeTickerModal();
         }
@@ -1008,6 +1039,54 @@
 
     function closeAiQrSpotlight() {
       document.getElementById('ai-qr-modal').classList.add('hidden');
+    }
+
+    // ==================== LINE GROUP QR SPOTLIGHT ====================
+    function getLineGroupUrl() {
+      return safeStorageGet('ai_seminar_line_url') || DEFAULT_LINE_GROUP_URL;
+    }
+
+    function openLineQrSpotlight() {
+      const url = getLineGroupUrl();
+      const input = document.getElementById('line-url-input');
+      if (input) input.value = url.includes('YOUR_LINE_GROUP_LINK') ? '' : url;
+      renderLineSpotlightQr(url);
+      document.getElementById('line-qr-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderLineSpotlightQr(url) {
+      const box = document.getElementById('spotlight-line-qr');
+      const label = document.getElementById('spotlight-line-url-label');
+      if (!box) return;
+      box.innerHTML = '';
+
+      if (!url || url.includes('YOUR_LINE_GROUP_LINK')) {
+        box.innerHTML = `<div class="p-6 text-center text-xs text-slate-500 space-y-1"><p class="font-bold text-slate-700 text-sm">ยังไม่ได้ใส่ลิงก์กลุ่ม LINE</p><p>วางลิงก์เชิญเข้ากลุ่ม LINE ในช่องด้านล่างแล้วกด "อัปเดต QR" ได้เลยครับ</p></div>`;
+        if (label) label.textContent = '';
+        return;
+      }
+
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(box, {
+          text: url,
+          width: 240,
+          height: 240,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+      if (label) label.textContent = url;
+    }
+
+    function saveLineGroupUrl() {
+      const val = document.getElementById('line-url-input').value.trim();
+      if (!val) return;
+      safeStorageSet('ai_seminar_line_url', val);
+      renderLineSpotlightQr(val);
+    }
+
+    function closeLineQrSpotlight() {
+      document.getElementById('line-qr-modal').classList.add('hidden');
     }
 
     // ==================== FLASH ALERT OVERLAY (ป๊อปอัปประกาศด่วนกลางจอ + เสียงติ๊งต่อง) ====================
