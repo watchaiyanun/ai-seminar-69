@@ -468,15 +468,15 @@
 
   <!-- ==================== MODAL: ADMIN WORKSHOP 5-GROUP MANAGER ==================== -->
   <div id="workshop-manager-modal" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto flex flex-col max-h-[92vh]">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-6xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto flex flex-col max-h-[92vh]">
       <div class="px-5 py-4 bg-gradient-to-r from-indigo-800 via-navy-800 to-maroon-700 text-white flex items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-9 h-9 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center shrink-0">
             <i data-lucide="users" class="w-5 h-5 text-gold-400"></i>
           </div>
           <div class="min-w-0">
-            <h2 class="font-bold text-base truncate">จัดการกลุ่มสัมมนา 5 กลุ่ม (ผู้เชี่ยวชาญประจำกลุ่ม &amp; หมุนเวียนสมาชิก)</h2>
-            <p class="text-[11px] text-blue-100 truncate">เลือกชื่อผู้เชี่ยวชาญ 1–2 คนจากรายการได้เลยโดยไม่ต้องพิมพ์เอง — ซิงค์ขึ้นบัตรทุกคนทันที</p>
+            <h2 class="font-bold text-base truncate">จัดการกลุ่มสัมมนา 5 กลุ่ม (ผู้เชี่ยวชาญประจำกลุ่ม &amp; ระบุรายชื่อสมาชิกตามกลุ่ม)</h2>
+            <p class="text-[11px] text-blue-100 truncate">เลือกผู้เชี่ยวชาญและเพิ่มรายชื่อสมาชิกเข้ากลุ่ม 1–5 ได้ทันทีโดยไม่ต้องพิมพ์เอง — ซิงค์ขึ้นบัตรทุกคนอัตโนมัติ</p>
           </div>
         </div>
         <button type="button" onclick="closeWorkshopManagerModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
@@ -484,12 +484,13 @@
         </button>
       </div>
 
-      <div class="p-4 sm:p-5 space-y-5 overflow-y-auto custom-scroll flex-1 text-xs sm:text-sm">
-        <div class="p-4 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-2.5">
+      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scroll flex-1 text-xs sm:text-sm">
+        <!-- 1. เลือกรอบหมุนเวียน -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 class="font-bold text-indigo-950 dark:text-indigo-200 text-sm">1. เลือกรอบหมุนเวียนปัจจุบัน (Rotation Round)</h3>
-              <p class="text-[11px] text-indigo-700 dark:text-indigo-300">⭐ <strong>วิทยากร/ผู้เชี่ยวชาญประจำกลุ่ม</strong> จะอยู่ประจำกลุ่มเดิมทุกรอบ • 🔄 <strong>ผู้เข้าร่วมสัมมนา</strong> จะหมุนเวียนเปลี่ยนกลุ่มถัดไปอัตโนมัติ (+1 กลุ่มต่อรอบ)</p>
+              <p class="text-[11px] text-indigo-700 dark:text-indigo-300">⭐ <strong>วิทยากร/ผู้เชี่ยวชาญประจำกลุ่ม</strong> อยู่ประจำกลุ่มเดิมทุกรอบ • 🔄 <strong>สมาชิกผู้เข้าร่วม</strong> หมุนเวียนเปลี่ยนกลุ่มถัดไปอัตโนมัติ (+1 กลุ่มต่อรอบ)</p>
             </div>
             <span id="wm-round-indicator" class="px-3 py-1 rounded-full bg-indigo-700 text-white font-mono text-xs font-bold">รอบที่ 1 / 5</span>
           </div>
@@ -502,25 +503,37 @@
           </div>
         </div>
 
-        <div class="space-y-2.5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h3 class="font-bold text-slate-900 dark:text-white text-sm">2. เลือกผู้เชี่ยวชาญ / วิทยากรประจำกลุ่ม 1–2 คน (อยู่ประจำกลุ่มเดิมตลอดงาน)</h3>
-            <span class="text-[11px] text-emerald-700 font-semibold">✓ จิ้มเลือกจากรายชื่อด้านล่างได้เลย ระบบตั้งเป็นประจำฐานเดิมให้อัตโนมัติ</span>
-          </div>
-          <div id="wm-experts-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-        </div>
-
-        <div class="space-y-2.5 pt-2 border-t border-slate-200 dark:border-slate-700">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 class="font-bold text-slate-900 dark:text-white text-sm">3. จัดรายชื่อสมาชิกเข้ากลุ่มเริ่มต้น (กลุ่ม 1–5)</h3>
-              <p class="text-[11px] text-slate-500">กำหนดกลุ่มเริ่มต้นของแต่ละคน (เลือกได้ว่าจะให้หมุนเวียนเปลี่ยนกลุ่ม หรืออยู่ประจำกลุ่มเดิม)</p>
-            </div>
-            <button type="button" onclick="autoDistributeWorkshopMembers()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold transition">
-              ✨ กระจายผู้เข้าร่วมที่ยังไม่จัดกลุ่มเข้า 5 กลุ่มอัตโนมัติ
+        <!-- แถบสลับโหมดจัดรายชื่อ + ปุ่มช่วยจัดอัตโนมัติ -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+            <button type="button" onclick="switchWorkshopManagerTab('bygroup')" id="wm-tab-bygroup" class="px-3 py-1.5 rounded-lg font-bold bg-indigo-700 text-white shadow-xs transition">
+              📋 จัดรายชื่อตามกลุ่ม (กลุ่ม 1–5)
+            </button>
+            <button type="button" onclick="switchWorkshopManagerTab('all')" id="wm-tab-all" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">
+              👥 ดูรายชื่อรวมทั้งหมด
             </button>
           </div>
 
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span id="wm-unassigned-pill" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
+              ยังไม่จัดกลุ่ม: 0 ราย
+            </span>
+            <button type="button" onclick="autoDistributeWorkshopMembers()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold transition">
+              ✨ กระจายที่เหลืออัตโนมัติ
+            </button>
+            <button type="button" onclick="clearAllWorkshopMembers()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition">
+              ล้างสมาชิกทั้งหมด
+            </button>
+          </div>
+        </div>
+
+        <!-- โหมดที่ 1: จัดรายชื่อผู้เชี่ยวชาญและสมาชิกแยกตามแต่ละกลุ่ม (1–5) -->
+        <div id="wm-view-bygroup" class="space-y-3">
+          <div id="wm-groups-cards-container" class="grid grid-cols-1 lg:grid-cols-2 gap-3.5"></div>
+        </div>
+
+        <!-- โหมดที่ 2: ดูและแก้ไขจากรายชื่อรวมทั้งหมด -->
+        <div id="wm-view-all" class="hidden space-y-2.5">
           <div class="flex flex-wrap items-center gap-2">
             <input type="text" id="wm-member-search" oninput="renderWorkshopMemberRows()" placeholder="ค้นหาชื่อ, รหัส, สังกัด..." class="flex-1 min-w-[180px] px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600" />
             <select id="wm-member-filter" onchange="renderWorkshopMemberRows()" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs">
@@ -534,7 +547,7 @@
             </select>
           </div>
 
-          <div id="wm-members-list" class="max-h-72 overflow-y-auto custom-scroll divide-y divide-slate-100 dark:divide-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/40 dark:bg-slate-900/30"></div>
+          <div id="wm-members-list" class="max-h-80 overflow-y-auto custom-scroll divide-y divide-slate-100 dark:divide-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/40 dark:bg-slate-900/30"></div>
         </div>
       </div>
 
@@ -546,6 +559,38 @@
             <i data-lucide="save" class="w-4 h-4"></i> บันทึกและซิงค์ขึ้นบัตรทุกคน
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SUB-MODAL: เลือกสมาชิกหลายคนพร้อมกันเข้ากลุ่มที่ระบุ ==================== -->
+  <div id="wm-quickpick-modal" onclick="closeGroupQuickPickModal()" class="no-print fixed inset-0 z-[60] hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden border-2 border-indigo-500 flex flex-col max-h-[85vh]">
+      <div class="px-5 py-3.5 bg-gradient-to-r from-indigo-800 to-navy-800 text-white flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <h3 id="wm-qp-title" class="font-bold text-sm sm:text-base truncate">เลือกสมาชิกเข้ากลุ่มที่ 1</h3>
+          <p id="wm-qp-subtitle" class="text-[11px] text-blue-100 truncate">ติ๊กเลือกผู้เข้าร่วมที่ต้องการให้อยู่กลุ่มนี้ (สมาชิกในกลุ่มนี้: 0 ราย)</p>
+        </div>
+        <button type="button" onclick="closeGroupQuickPickModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap items-center gap-2">
+        <input type="text" id="wm-qp-search" oninput="renderGroupQuickPickList()" placeholder="ค้นหารหัส, ยศ-ชื่อ, สังกัด..." class="flex-1 min-w-[160px] px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+        <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+          <input type="checkbox" id="wm-qp-only-free" onchange="renderGroupQuickPickList()" class="w-4 h-4 rounded text-indigo-600" />
+          เฉพาะคนที่ยังไม่จัดกลุ่ม
+        </label>
+      </div>
+
+      <div id="wm-qp-list" class="p-3 space-y-1.5 overflow-y-auto custom-scroll flex-1"></div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between gap-2">
+        <span class="text-[11px] text-slate-500">ติ๊กเข้า/ออกได้ทันที ระบบจะอัปเดตเข้ากลุ่มให้อัตโนมัติ</span>
+        <button type="button" onclick="closeGroupQuickPickModal()" class="px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold shadow-xs transition">
+          เสร็จสิ้น
+        </button>
       </div>
     </div>
   </div>
@@ -798,6 +843,9 @@
     let wmDraftRound = 1;
     let wmDraftGroups = [];
     let wmDraftAssignments = {};
+    let wmActiveTab = 'bygroup';
+    let wmQuickPickGroupNo = 1;
+    const WM_GROUP_COLORS = ['#1E3A8A', '#0F766E', '#4338CA', '#D97706', '#9F1239'];
     let evalSummary = {
       count: 0,
       averages: { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0, q8: 0, q9: 0, q10: 0, dim1: 0, dim2: 0, overall: 0, total: 0 },
@@ -864,6 +912,11 @@
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          const qpModal = document.getElementById('wm-quickpick-modal');
+          if (qpModal && !qpModal.classList.contains('hidden')) {
+            closeGroupQuickPickModal();
+            return;
+          }
           closeEditModal();
           closeWorkshopManagerModal();
           closeRequestsModal();
@@ -1567,14 +1620,43 @@
       });
 
       setModalWorkshopRound(wmDraftRound);
-      renderWorkshopExpertSelectors();
-      renderWorkshopMemberRows();
+      switchWorkshopManagerTab(wmActiveTab || 'bygroup');
+      renderAllWorkshopManagerViews();
       document.getElementById('workshop-manager-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
     function closeWorkshopManagerModal() {
+      closeGroupQuickPickModal();
       document.getElementById('workshop-manager-modal').classList.add('hidden');
+    }
+
+    function switchWorkshopManagerTab(tab) {
+      wmActiveTab = tab;
+      const isByGroup = tab === 'bygroup';
+      document.getElementById('wm-view-bygroup')?.classList.toggle('hidden', !isByGroup);
+      document.getElementById('wm-view-all')?.classList.toggle('hidden', isByGroup);
+
+      const btnGroup = document.getElementById('wm-tab-bygroup');
+      const btnAll = document.getElementById('wm-tab-all');
+      if (btnGroup) {
+        btnGroup.className = isByGroup
+          ? 'px-3 py-1.5 rounded-lg font-bold bg-indigo-700 text-white shadow-xs transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition';
+      }
+      if (btnAll) {
+        btnAll.className = !isByGroup
+          ? 'px-3 py-1.5 rounded-lg font-bold bg-indigo-700 text-white shadow-xs transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition';
+      }
+      renderAllWorkshopManagerViews();
+    }
+
+    function renderAllWorkshopManagerViews() {
+      renderWorkshopGroupCardsManager();
+      renderWorkshopMemberRows();
+      updateWorkshopSummaryCounts();
+      if (window.lucide) lucide.createIcons();
     }
 
     function setModalWorkshopRound(r) {
@@ -1586,6 +1668,401 @@
         btn.className = i === r
           ? 'py-2 rounded-xl font-extrabold text-xs border bg-indigo-700 border-indigo-800 text-white shadow-xs transition'
           : 'py-2 rounded-xl font-bold text-xs border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition';
+      }
+    }
+
+    function getExpertDropdownOptions(selectedName) {
+      const sorted = [...participants].sort((a, b) => {
+        const aTop = (a.role.includes('ผู้ทรงคุณวุฒิ') || a.role.includes('วิทยากร') || a.role.includes('คณะทำงาน')) ? 0 : 1;
+        const bTop = (b.role.includes('ผู้ทรงคุณวุฒิ') || b.role.includes('วิทยากร') || b.role.includes('คณะทำงาน')) ? 0 : 1;
+        if (aTop !== bTop) return aTop - bTop;
+        return a.id.localeCompare(b.id, undefined, { numeric: true });
+      });
+
+      return '<option value="">-- เลือกผู้เชี่ยวชาญ / วิทยากร --</option>' + sorted.map(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        const tag = p.role && p.role !== 'ผู้เข้าร่วมสัมมนา' ? ` [${p.role}]` : ` (${p.mainUnit})`;
+        const sel = selectedName && (selectedName === name || selectedName === p.fullName) ? 'selected' : '';
+        return `<option value="${escapeHtml(name)}" data-pid="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.id)} • ${escapeHtml(name)}${escapeHtml(tag)}</option>`;
+      }).join('');
+    }
+
+    function getAddMemberDropdownOptions(targetGroupNo) {
+      const gStr = String(targetGroupNo);
+      const unassigned = [];
+      const fromOtherGroups = [];
+
+      participants.forEach(p => {
+        const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+        if (asg.workshopGroup === gStr) return; // อยู่ในกลุ่มนี้อยู่แล้ว
+        if (!asg.workshopGroup) unassigned.push(p);
+        else fromOtherGroups.push({ p, fromGroup: asg.workshopGroup });
+      });
+
+      let html = `<option value="">+ เพิ่มสมาชิกเข้ากลุ่มที่ ${targetGroupNo} (คลิกเลือกชื่อ)...</option>`;
+      if (unassigned.length > 0) {
+        html += `<optgroup label="ยังไม่จัดกลุ่ม (${unassigned.length} ราย)">` + unassigned.map(p => {
+          const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+          return `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})</option>`;
+        }).join('') + `</optgroup>`;
+      }
+      if (fromOtherGroups.length > 0) {
+        html += `<optgroup label="ย้ายมาจากกลุ่มอื่น (${fromOtherGroups.length} ราย)">` + fromOtherGroups.map(({ p, fromGroup }) => {
+          const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+          return `<option value="${escapeHtml(p.id)}">[อยู่กลุ่ม ${fromGroup}] ${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})</option>`;
+        }).join('') + `</optgroup>`;
+      }
+      return html;
+    }
+
+    function renderWorkshopGroupCardsManager() {
+      const container = document.getElementById('wm-groups-cards-container');
+      if (!container) return;
+
+      container.innerHTML = wmDraftGroups.map((g, idx) => {
+        const gNo = g.groupNo || (idx + 1);
+        const gStr = String(gNo);
+        const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
+        const parts = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+        const exp1 = parts[0] || '';
+        const exp2 = parts[1] || '';
+
+        const groupMembers = participants.filter(p => {
+          const asg = wmDraftAssignments[p.id];
+          return asg && asg.workshopGroup === gStr;
+        });
+        const expertMembers = groupMembers.filter(p => String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ'));
+        const regularMembers = groupMembers.filter(p => !String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ'));
+
+        return `
+          <div class="rounded-2xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-2xs" style="border-top: 4px solid ${color};">
+            <!-- หัวกลุ่ม -->
+            <div class="px-3.5 py-2.5 bg-white dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-6 h-6 rounded-lg text-white font-mono font-bold text-xs flex items-center justify-center shrink-0" style="background:${color}">${gNo}</span>
+                <span class="font-bold text-slate-900 dark:text-white text-xs leading-snug truncate">${escapeHtml(g.topic)}</span>
+              </div>
+              <span class="shrink-0 px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800 font-mono text-[10.5px] font-bold">
+                รวม ${groupMembers.length} ราย
+              </span>
+            </div>
+
+            <div class="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
+              <!-- ส่วนที่ 1: เลือกผู้เชี่ยวชาญประจำกลุ่ม (1-2 คน) -->
+              <div class="space-y-1.5">
+                <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300 flex items-center justify-between">
+                  <span>⭐ ผู้เชี่ยวชาญ / วิทยากรประจำกลุ่ม (อยู่ประจำฐานเดิม)</span>
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  <select onchange="onExpertSelectChange(${idx}, 1, this)" id="wm-exp-${idx}-1" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300/80 dark:border-amber-700 bg-white dark:bg-slate-800 text-[11.5px]">
+                    ${getExpertDropdownOptions(exp1)}
+                  </select>
+                  <select onchange="onExpertSelectChange(${idx}, 2, this)" id="wm-exp-${idx}-2" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300/80 dark:border-amber-700 bg-white dark:bg-slate-800 text-[11.5px]">
+                    ${getExpertDropdownOptions(exp2)}
+                  </select>
+                </div>
+              </div>
+
+              <!-- ส่วนที่ 2: รายชื่อสมาชิกในกลุ่มนี้ -->
+              <div class="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-700">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                    👥 สมาชิกกลุ่มเริ่มต้นที่ ${gNo} (${regularMembers.length} ผู้เข้าร่วม${expertMembers.length ? ` • ${expertMembers.length} ผู้เชี่ยวชาญ` : ''})
+                  </span>
+                  <button type="button" onclick="openGroupQuickPickModal(${gNo})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10.5px] font-bold shadow-2xs transition">
+                    ☑ เลือกหลายคนพร้อมกัน
+                  </button>
+                </div>
+
+                <!-- รายการชิป/แถวสมาชิก -->
+                <div class="max-h-40 overflow-y-auto custom-scroll space-y-1 pr-0.5">
+                  ${groupMembers.length === 0
+                    ? `<div class="py-3 px-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-center text-[11px] text-slate-400">ยังไม่มีสมาชิกในกลุ่มนี้ — เลือกชื่อด้านล่างหรือกด "เลือกหลายคนพร้อมกัน"</div>`
+                    : [...expertMembers, ...regularMembers].map(p => {
+                        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+                        const isExp = String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ');
+                        return `
+                          <div class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] ${isExp ? 'bg-amber-50/90 border-amber-300 dark:bg-amber-950/30 dark:border-amber-700' : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}">
+                            <div class="min-w-0 flex items-center gap-1.5">
+                              <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-navy-700 dark:text-blue-200 shrink-0">${escapeHtml(p.id)}</span>
+                              <span class="font-semibold text-slate-900 dark:text-white truncate">${escapeHtml(name)}</span>
+                              <span class="hidden sm:inline text-[10px] text-slate-400 shrink-0">(${escapeHtml(p.mainUnit)})</span>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                              <button type="button" onclick="toggleMemberFixedRole('${escapeHtml(p.id)}')" title="สลับระหว่าง หมุนเวียนตามรอบ / ประจำกลุ่มเดิม" class="px-1.5 py-0.5 rounded-md text-[10px] font-bold border transition ${isExp ? 'bg-amber-200/80 border-amber-400 text-amber-950' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-indigo-50'}">
+                                ${isExp ? '⭐ ประจำฐาน' : '🔄 หมุนเวียน'}
+                              </button>
+                              <button type="button" onclick="removeMemberFromWorkshopGroup('${escapeHtml(p.id)}')" title="นำออกจากกลุ่มนี้" class="w-5 h-5 rounded-md bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-600 font-bold flex items-center justify-center transition">
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        `;
+                      }).join('')
+                  }
+                </div>
+
+                <!-- เมนูเลือกเพิ่มสมาชิกทีละคนเข้ากลุ่มนี้ -->
+                <select onchange="addMemberToWorkshopGroup(${gNo}, this.value); this.value='';" class="w-full px-2.5 py-1.5 rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-900 dark:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                  ${getAddMemberDropdownOptions(gNo)}
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addMemberToWorkshopGroup(groupNo, pid) {
+      if (!pid) return;
+      if (!wmDraftAssignments[pid]) wmDraftAssignments[pid] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      wmDraftAssignments[pid].workshopGroup = String(groupNo);
+      if (!wmDraftAssignments[pid].workshopRole) wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
+      renderAllWorkshopManagerViews();
+    }
+
+    function removeMemberFromWorkshopGroup(pid) {
+      const p = participants.find(x => x.id === pid);
+      const name = p ? (hasSubstitute(p) ? p.substituteName : p.fullName) : '';
+      if (wmDraftAssignments[pid]) {
+        wmDraftAssignments[pid].workshopGroup = '';
+        wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
+      }
+      // หากชื่อนี้เคยถูกผูกในช่องผู้เชี่ยวชาญของกลุ่ม ให้เคลียร์ออกด้วยเพื่อไม่ให้ซ้ำซ้อน
+      if (name) {
+        wmDraftGroups.forEach(g => {
+          const list = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+          const filtered = list.filter(n => n !== name && (!p || n !== p.fullName));
+          g.experts = filtered.join(', ');
+        });
+      }
+      renderAllWorkshopManagerViews();
+    }
+
+    function toggleMemberFixedRole(pid) {
+      if (!wmDraftAssignments[pid]) return;
+      const isExp = String(wmDraftAssignments[pid].workshopRole || '').includes('ผู้เชี่ยวชาญ');
+      wmDraftAssignments[pid].workshopRole = isExp ? 'ผู้เข้าร่วม' : 'ผู้เชี่ยวชาญประจำกลุ่ม';
+      renderAllWorkshopManagerViews();
+    }
+
+    function clearAllWorkshopMembers() {
+      participants.forEach(p => {
+        wmDraftAssignments[p.id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      });
+      wmDraftGroups.forEach(g => { g.experts = ''; });
+      renderAllWorkshopManagerViews();
+      showToast('ล้างรายชื่อในแบบร่างทั้งหมดแล้ว (กดบันทึกเพื่อยืนยัน หรือกดยกเลิกเพื่อย้อนกลับ)', 'info');
+    }
+
+    // ==================== SUB-MODAL: เลือกสมาชิกหลายคนพร้อมกันเข้ากลุ่ม ====================
+    function openGroupQuickPickModal(groupNo) {
+      wmQuickPickGroupNo = groupNo;
+      const gObj = wmDraftGroups.find(g => Number(g.groupNo) === Number(groupNo));
+      document.getElementById('wm-qp-title').textContent = `เลือกสมาชิกเข้ากลุ่มที่ ${groupNo} — ${gObj ? gObj.topic : ''}`;
+      document.getElementById('wm-qp-search').value = '';
+      document.getElementById('wm-qp-only-free').checked = false;
+      renderGroupQuickPickList();
+      document.getElementById('wm-quickpick-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeGroupQuickPickModal() {
+      document.getElementById('wm-quickpick-modal')?.classList.add('hidden');
+    }
+
+    function renderGroupQuickPickList() {
+      const box = document.getElementById('wm-qp-list');
+      if (!box) return;
+      const gStr = String(wmQuickPickGroupNo);
+      const q = String(document.getElementById('wm-qp-search')?.value || '').trim().toLowerCase();
+      const onlyFree = Boolean(document.getElementById('wm-qp-only-free')?.checked);
+
+      const inThisGroupCount = participants.filter(p => wmDraftAssignments[p.id]?.workshopGroup === gStr).length;
+      document.getElementById('wm-qp-subtitle').textContent = `ติ๊กเลือกรายชื่อที่ต้องการให้อยู่กลุ่มที่ ${gStr} (เลือกไว้แล้ว ${inThisGroupCount} ราย)`;
+
+      const list = participants.filter(p => {
+        const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+        if (onlyFree && asg.workshopGroup && asg.workshopGroup !== gStr) return false;
+        if (!q) return true;
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `${p.id} ${name} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
+      });
+
+      if (list.length === 0) {
+        box.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">ไม่พบรายชื่อที่ค้นหา</div>`;
+        return;
+      }
+
+      box.innerHTML = list.map(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+        const isInThis = asg.workshopGroup === gStr;
+        const inOther = asg.workshopGroup && !isInThis ? asg.workshopGroup : '';
+        return `
+          <label class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl border cursor-pointer transition ${isInThis ? 'bg-indigo-50 border-indigo-400 dark:bg-indigo-950/40 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50'}">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <input type="checkbox" ${isInThis ? 'checked' : ''} onchange="toggleQuickPickMember('${escapeHtml(p.id)}')" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0" />
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-navy-700 dark:text-blue-200">${escapeHtml(p.id)}</span>
+                  <span class="font-bold text-xs text-slate-900 dark:text-white truncate">${escapeHtml(name)}</span>
+                </div>
+                <p class="text-[10.5px] text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              </div>
+            </div>
+            <div class="shrink-0">
+              ${isInThis
+                ? `<span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">อยู่กลุ่ม ${gStr}</span>`
+                : (inOther
+                  ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold">ย้ายจาก ก.${inOther}</span>`
+                  : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px]">ยังไม่จัดกลุ่ม</span>`)
+              }
+            </div>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function toggleQuickPickMember(pid) {
+      const gStr = String(wmQuickPickGroupNo);
+      if (!wmDraftAssignments[pid]) wmDraftAssignments[pid] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      if (wmDraftAssignments[pid].workshopGroup === gStr) {
+        removeMemberFromWorkshopGroup(pid);
+      } else {
+        wmDraftAssignments[pid].workshopGroup = gStr;
+        if (!wmDraftAssignments[pid].workshopRole) wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
+        renderAllWorkshopManagerViews();
+      }
+      renderGroupQuickPickList();
+    }
+
+    function onExpertSelectChange(groupIdx, slotNo, selectEl) {
+      const s1 = document.getElementById(`wm-exp-${groupIdx}-1`);
+      const s2 = document.getElementById(`wm-exp-${groupIdx}-2`);
+      const gNo = String(wmDraftGroups[groupIdx].groupNo);
+
+      const newNames = [s1?.value, s2?.value].filter(Boolean);
+      const oldNames = String(wmDraftGroups[groupIdx].experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+
+      // หากถอดชื่อผู้เชี่ยวชาญเดิมออก ให้ปลดสถานะผู้เชี่ยวชาญประจำกลุ่มของคนนั้นด้วย
+      oldNames.forEach(oldName => {
+        if (!newNames.includes(oldName)) {
+          const oldPerson = participants.find(p => p.fullName === oldName || p.substituteName === oldName);
+          if (oldPerson && wmDraftAssignments[oldPerson.id] && wmDraftAssignments[oldPerson.id].workshopGroup === gNo) {
+            wmDraftAssignments[oldPerson.id].workshopGroup = '';
+            wmDraftAssignments[oldPerson.id].workshopRole = 'ผู้เข้าร่วม';
+          }
+        }
+      });
+
+      [s1, s2].forEach(sel => {
+        if (!sel || !sel.value) return;
+        const opt = sel.options[sel.selectedIndex];
+        const pid = opt ? opt.getAttribute('data-pid') : '';
+        if (pid && wmDraftAssignments[pid]) {
+          wmDraftAssignments[pid].workshopGroup = gNo;
+          wmDraftAssignments[pid].workshopRole = 'ผู้เชี่ยวชาญประจำกลุ่ม';
+        }
+      });
+
+      wmDraftGroups[groupIdx].experts = newNames.join(', ');
+      renderAllWorkshopManagerViews();
+    }
+
+    function renderWorkshopMemberRows() {
+      const box = document.getElementById('wm-members-list');
+      if (!box) return;
+      const q = String(document.getElementById('wm-member-search')?.value || '').trim().toLowerCase();
+      const filter = document.getElementById('wm-member-filter')?.value || 'all';
+
+      const list = participants.filter(p => {
+        const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+        if (filter === 'unassigned' && asg.workshopGroup) return false;
+        if (['1', '2', '3', '4', '5'].includes(filter) && asg.workshopGroup !== filter) return false;
+        if (!q) return true;
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `${p.id} ${name} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
+      });
+
+      box.innerHTML = list.map(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+        const isExpert = String(asg.workshopRole).includes('ผู้เชี่ยวชาญ');
+        return `
+          <div class="p-2.5 flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-800/80">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-navy-700">${escapeHtml(p.id)}</span>
+                <span class="font-bold text-xs text-slate-900 dark:text-white truncate">${escapeHtml(name)}</span>
+              </div>
+              <p class="text-[10.5px] text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select onchange="updateDraftMemberGroup('${escapeHtml(p.id)}', this.value)" class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-semibold">
+                <option value="" ${!asg.workshopGroup ? 'selected' : ''}>ยังไม่จัดกลุ่ม</option>
+                <option value="1" ${asg.workshopGroup === '1' ? 'selected' : ''}>กลุ่ม 1</option>
+                <option value="2" ${asg.workshopGroup === '2' ? 'selected' : ''}>กลุ่ม 2</option>
+                <option value="3" ${asg.workshopGroup === '3' ? 'selected' : ''}>กลุ่ม 3</option>
+                <option value="4" ${asg.workshopGroup === '4' ? 'selected' : ''}>กลุ่ม 4</option>
+                <option value="5" ${asg.workshopGroup === '5' ? 'selected' : ''}>กลุ่ม 5</option>
+              </select>
+              <select onchange="updateDraftMemberRole('${escapeHtml(p.id)}', this.value)" class="px-2 py-1 rounded-lg border ${isExpert ? 'border-amber-400 bg-amber-50 text-amber-900 font-bold' : 'border-slate-300 bg-slate-50 text-slate-700'} text-xs">
+                <option value="ผู้เข้าร่วม" ${!isExpert ? 'selected' : ''}>🔄 หมุนเวียนตามรอบ</option>
+                <option value="ผู้เชี่ยวชาญประจำกลุ่ม" ${isExpert ? 'selected' : ''}>⭐ ประจำกลุ่มเดิม</option>
+              </select>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateWorkshopSummaryCounts();
+    }
+
+    function updateDraftMemberGroup(id, grp) {
+      if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      wmDraftAssignments[id].workshopGroup = grp;
+      renderAllWorkshopManagerViews();
+    }
+
+    function updateDraftMemberRole(id, role) {
+      if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      wmDraftAssignments[id].workshopRole = role;
+      renderAllWorkshopManagerViews();
+    }
+
+    function autoDistributeWorkshopMembers() {
+      let nextGroup = 1;
+      participants.forEach(p => {
+        const asg = wmDraftAssignments[p.id];
+        if (!asg || asg.workshopGroup) return;
+        asg.workshopGroup = String(nextGroup);
+        asg.workshopRole = 'ผู้เข้าร่วม';
+        nextGroup = (nextGroup % 5) + 1;
+      });
+      renderAllWorkshopManagerViews();
+      showToast('กระจายผู้เข้าร่วมเข้าทั้ง 5 กลุ่มเรียบร้อยแล้ว กดบันทึกเพื่อซิงค์ขึ้นบัตรทุกคน', 'info');
+    }
+
+    function updateWorkshopSummaryCounts() {
+      const counts = [0, 0, 0, 0, 0];
+      let unassigned = 0;
+      participants.forEach(p => {
+        const a = wmDraftAssignments[p.id];
+        const g = parseInt(a ? a.workshopGroup : '', 10);
+        if (g >= 1 && g <= 5) counts[g - 1]++;
+        else unassigned++;
+      });
+      const el = document.getElementById('wm-summary-counts');
+      if (el) {
+        el.textContent = `สรุปจำนวนสมาชิก: กลุ่ม 1 (${counts[0]}) • กลุ่ม 2 (${counts[1]}) • กลุ่ม 3 (${counts[2]}) • กลุ่ม 4 (${counts[3]}) • กลุ่ม 5 (${counts[4]})`;
+      }
+      const pill = document.getElementById('wm-unassigned-pill');
+      if (pill) {
+        pill.textContent = unassigned === 0 ? 'จัดกลุ่มครบทุกคนแล้ว ✓' : `ยังไม่จัดกลุ่ม: ${unassigned} ราย`;
+        pill.className = unassigned === 0
+          ? 'px-2.5 py-1 rounded-xl bg-emerald-100 border border-emerald-300 text-xs font-bold text-emerald-800'
+          : 'px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200';
       }
     }
 
