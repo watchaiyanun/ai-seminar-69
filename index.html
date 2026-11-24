@@ -843,6 +843,7 @@
     let wmDraftRound = 1;
     let wmDraftGroups = [];
     let wmDraftAssignments = {};
+    let wmDraftExpertSlots = { 1: ['', ''], 2: ['', ''], 3: ['', ''], 4: ['', ''], 5: ['', ''] };
     let wmActiveTab = 'bygroup';
     let wmQuickPickGroupNo = 1;
     const WM_GROUP_COLORS = ['#1E3A8A', '#0F766E', '#4338CA', '#D97706', '#9F1239'];
@@ -860,8 +861,9 @@
     let currentPersonQrUrl = '';
     let lastParticipantsSnapshot = '';
     let isMutatingData = false;
-
-    // Scanner state
+    let participantsFetchSeq = 0;
+    let workshopFetchSeq = 0;
+    let pauseAutoRefreshUntil = 0;
     let scanStream = null;
     let scanRafId = null;
     let barcodeDetector = null;
@@ -937,7 +939,7 @@
     function startAutoRefreshLoop() {
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       autoRefreshTimer = setInterval(() => {
-        if (!autoRefreshEnabled || document.hidden || isMutatingData) return;
+        if (!autoRefreshEnabled || document.hidden || isMutatingData || Date.now() < pauseAutoRefreshUntil) return;
         const anyModalOpen = ['edit-modal', 'workshop-manager-modal', 'requests-modal', 'walkin-modal']
           .some(id => !document.getElementById(id)?.classList.contains('hidden'));
         if (!anyModalOpen) {
@@ -1050,13 +1052,14 @@
     }
 
     async function fetchParticipants(showLoading = false) {
-      if (!showLoading && isMutatingData) return;
+      if (!showLoading && (isMutatingData || Date.now() < pauseAutoRefreshUntil)) return;
+      const reqSeq = ++participantsFetchSeq;
       try {
-        const res = await fetch(`${API_URL}?action=getParticipants`);
+        const res = await fetch(`${API_URL}?action=getParticipants&_t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดรายชื่อไม่สำเร็จ');
-        if (!showLoading && isMutatingData) return;
+        if (reqSeq !== participantsFetchSeq || (!showLoading && (isMutatingData || Date.now() < pauseAutoRefreshUntil))) return;
 
         const mapped = (json.data || []).map(p => ({
           ...p,
@@ -1102,7 +1105,7 @@
 
     async function fetchEditRequests() {
       try {
-        const res = await fetch(`${API_URL}?action=getRequests`);
+        const res = await fetch(`${API_URL}?action=getRequests&_t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const json = await res.json();
         if (json.status === 'success') {
@@ -1117,11 +1120,14 @@
       } catch (e) {}
     }
 
-    async function fetchWorkshopConfig() {
+    async function fetchWorkshopConfig(force = false) {
+      if (!force && (isMutatingData || Date.now() < pauseAutoRefreshUntil)) return;
+      const reqSeq = ++workshopFetchSeq;
       try {
-        const res = await fetch(`${API_URL}?action=getWorkshopConfig`);
+        const res = await fetch(`${API_URL}?action=getWorkshopConfig&_t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const json = await res.json();
+        if (reqSeq !== workshopFetchSeq || (!force && (isMutatingData || Date.now() < pauseAutoRefreshUntil))) return;
         if (json.status === 'success' && json.data) {
           workshopConfig = json.data;
         }
@@ -1613,35 +1619,65 @@
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
     }
 
-    // ซิงค์รายชื่อวิทยากร/ผู้เชี่ยวชาญใน wmDraftGroups ให้ตรงกับ wmDraftAssignments 100% เสมอ
-    function syncDraftExpertsFromAssignments() {
-      const knownParticipantNames = new Set();
-      participants.forEach(p => {
-        if (p.fullName) knownParticipantNames.add(p.fullName.trim());
-        if (p.substituteName) knownParticipantNames.add(p.substituteName.trim());
-      });
-
-      wmDraftGroups.forEach((g, idx) => {
-        const gNo = String(g.groupNo || (idx + 1));
-        const assignedExperts = participants
+    // จัดตำแหน่งช่องวิทยากร 1–2 ของแต่ละกลุ่มให้ตรงกับ wmDraftAssignments โดยคงลำดับเดิมไม่ให้ช่องเด้งสลับกัน
+    function syncExpertSlotsFromAssignments() {
+      for (let gNo = 1; gNo <= 5; gNo++) {
+        const gStr = String(gNo);
+        const validExpertIds = participants
           .filter(p => {
             const asg = wmDraftAssignments[p.id];
-            return asg && String(asg.workshopGroup) === gNo && isWorkshopExpertRole(asg.workshopRole);
+            return asg && String(asg.workshopGroup) === gStr && isWorkshopExpertRole(asg.workshopRole);
           })
-          .map(p => (hasSubstitute(p) ? p.substituteName : p.fullName).trim())
+          .map(p => p.id);
+
+        const prevSlots = Array.isArray(wmDraftExpertSlots[gNo]) ? wmDraftExpertSlots[gNo] : ['', ''];
+        const nextSlots = ['', ''];
+
+        // คงตำแหน่งคนเดิมที่ยังเป็นวิทยากรของกลุ่มนี้ไว้ในช่องเดิมก่อน
+        [0, 1].forEach(slotIdx => {
+          const pid = prevSlots[slotIdx];
+          if (pid && validExpertIds.includes(pid) && !nextSlots.includes(pid)) {
+            nextSlots[slotIdx] = pid;
+          }
+        });
+
+        // เติมวิทยากรคนอื่นของกลุ่มนี้ลงช่องที่ยังว่าง
+        validExpertIds.forEach(pid => {
+          if (nextSlots.includes(pid)) return;
+          const emptyIdx = nextSlots.indexOf('');
+          if (emptyIdx !== -1) nextSlots[emptyIdx] = pid;
+        });
+
+        wmDraftExpertSlots[gNo] = nextSlots;
+      }
+    }
+
+    // ซิงค์รายชื่อวิทยากร/ผู้เชี่ยวชาญใน wmDraftGroups ให้ตรงกับ wmDraftAssignments 100% เสมอ (ไม่เหลือชื่อค้างเก่า)
+    function syncDraftExpertsFromAssignments() {
+      wmDraftGroups.forEach((g, idx) => {
+        const gNo = Number(g.groupNo || (idx + 1));
+        const gStr = String(gNo);
+        const slotIds = (wmDraftExpertSlots[gNo] || []).filter(Boolean);
+        const allGroupExpertIds = participants
+          .filter(p => {
+            const asg = wmDraftAssignments[p.id];
+            return asg && String(asg.workshopGroup) === gStr && isWorkshopExpertRole(asg.workshopRole);
+          })
+          .map(p => p.id);
+
+        const orderedIds = [...slotIds];
+        allGroupExpertIds.forEach(pid => {
+          if (!orderedIds.includes(pid)) orderedIds.push(pid);
+        });
+
+        const expertNames = orderedIds
+          .map(pid => {
+            const p = participants.find(x => x.id === pid);
+            return p ? (hasSubstitute(p) ? p.substituteName : p.fullName).trim() : '';
+          })
           .filter(Boolean);
 
-        // เก็บเฉพาะชื่อวิทยากรภายนอกที่ไม่ได้อยู่ในรายชื่อ participants (กรณีพิมพ์เพิ่มเองในชีต)
-        const externalExperts = String(g.experts || '')
-          .split(/[\n,]+/)
-          .map(s => s.trim())
-          .filter(name => name && !knownParticipantNames.has(name));
-
-        const merged = [];
-        [...assignedExperts, ...externalExperts].forEach(name => {
-          if (!merged.includes(name)) merged.push(name);
-        });
-        g.experts = merged.join(', ');
+        g.experts = expertNames.join(', ');
       });
     }
 
@@ -1659,31 +1695,24 @@
         return {
           groupNo: num,
           topic: existing && existing.topic ? existing.topic : baseTopics[idx],
-          experts: existing && existing.experts ? String(existing.experts) : ''
+          experts: ''
         };
       });
 
+      // ยึดข้อมูลกลุ่มและบทบาทจาก Participants เป็นแหล่งข้อมูลเดียว (Single Source of Truth)
       wmDraftAssignments = {};
       participants.forEach(p => {
         const gVal = String(p.workshopGroup || '').trim();
         wmDraftAssignments[p.id] = {
-          workshopGroup: gVal,
-          workshopRole: (gVal && isWorkshopExpertRole(p.workshopRole)) ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม'
+          workshopGroup: ['1', '2', '3', '4', '5'].includes(gVal) ? gVal : '',
+          workshopRole: (['1', '2', '3', '4', '5'].includes(gVal) && isWorkshopExpertRole(p.workshopRole))
+            ? 'ผู้เชี่ยวชาญประจำกลุ่ม'
+            : 'ผู้เข้าร่วม'
         };
       });
 
-      // กรณีมีชื่อผู้เชี่ยวชาญบันทึกไว้ใน Workshop_Groups แต่ยังไม่ได้ตั้งใน Participants ให้ซิงค์เข้ามาเฉพาะคนที่ยังว่าง
-      wmDraftGroups.forEach(g => {
-        const names = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-        names.forEach(name => {
-          const matched = participants.find(p => p.fullName === name || p.substituteName === name);
-          if (matched && wmDraftAssignments[matched.id] && !wmDraftAssignments[matched.id].workshopGroup) {
-            wmDraftAssignments[matched.id].workshopGroup = String(g.groupNo);
-            wmDraftAssignments[matched.id].workshopRole = 'ผู้เชี่ยวชาญประจำกลุ่ม';
-          }
-        });
-      });
-
+      wmDraftExpertSlots = { 1: ['', ''], 2: ['', ''], 3: ['', ''], 4: ['', ''], 5: ['', ''] };
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       setModalWorkshopRound(wmDraftRound);
       switchWorkshopManagerTab(wmActiveTab || 'bygroup');
@@ -1727,17 +1756,19 @@
 
     function setModalWorkshopRound(r) {
       wmDraftRound = r;
-      document.getElementById('wm-round-indicator').textContent = `รอบที่ ${r} / 5`;
+      const ind = document.getElementById('wm-round-indicator');
+      if (ind) ind.textContent = `รอบที่ ${r} / 5`;
       for (let i = 1; i <= 5; i++) {
         const btn = document.getElementById(`wm-round-btn-${i}`);
         if (!btn) continue;
         btn.className = i === r
-          ? 'py-2 rounded-xl font-extrabold text-xs border bg-indigo-700 border-indigo-800 text-white shadow-xs transition'
-          : 'py-2 rounded-xl font-bold text-xs border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 transition';
+          ? 'py-2 rounded-xl font-bold text-xs border border-indigo-700 bg-indigo-700 text-white shadow-xs transition'
+          : 'py-2 rounded-xl font-bold text-xs border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-800 text-indigo-800 dark:text-indigo-200 hover:bg-indigo-100 transition';
       }
     }
 
-    function getExpertDropdownOptions(selectedName) {
+    function getExpertDropdownOptions(selectedPid, currentGroupNo) {
+      const curGStr = String(currentGroupNo);
       const sorted = [...participants].sort((a, b) => {
         const aTop = (a.role.includes('ผู้ทรงคุณวุฒิ') || a.role.includes('วิทยากร') || a.role.includes('คณะทำงาน')) ? 0 : 1;
         const bTop = (b.role.includes('ผู้ทรงคุณวุฒิ') || b.role.includes('วิทยากร') || b.role.includes('คณะทำงาน')) ? 0 : 1;
@@ -1747,9 +1778,15 @@
 
       return '<option value="">-- เลือกผู้เชี่ยวชาญ / วิทยากร --</option>' + sorted.map(p => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        const tag = p.role && p.role !== 'ผู้เข้าร่วมสัมมนา' ? ` [${p.role}]` : ` (${p.mainUnit})`;
-        const sel = selectedName && (selectedName === name || selectedName === p.fullName) ? 'selected' : '';
-        return `<option value="${escapeHtml(name)}" data-pid="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.id)} • ${escapeHtml(name)}${escapeHtml(tag)}</option>`;
+        const asg = wmDraftAssignments[p.id];
+        let statusTag = p.role && p.role !== 'ผู้เข้าร่วมสัมมนา' ? ` [${p.role}]` : ` (${p.mainUnit})`;
+        if (asg && asg.workshopGroup && asg.workshopGroup !== curGStr) {
+          statusTag = isWorkshopExpertRole(asg.workshopRole)
+            ? ` [⭐ วิทยากร ก.${asg.workshopGroup} - เลือกเพื่อย้าย]`
+            : ` [อยู่กลุ่ม ${asg.workshopGroup} - เลือกเพื่อย้าย]`;
+        }
+        const sel = selectedPid && selectedPid === p.id ? 'selected' : '';
+        return `<option value="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.id)} • ${escapeHtml(name)}${escapeHtml(statusTag)}</option>`;
       }).join('');
     }
 
@@ -1798,8 +1835,9 @@
         const expertMembers = groupMembers.filter(p => isWorkshopExpertRole(wmDraftAssignments[p.id]?.workshopRole));
         const regularMembers = groupMembers.filter(p => !isWorkshopExpertRole(wmDraftAssignments[p.id]?.workshopRole));
 
-        const exp1 = expertMembers[0] ? (hasSubstitute(expertMembers[0]) ? expertMembers[0].substituteName : expertMembers[0].fullName) : '';
-        const exp2 = expertMembers[1] ? (hasSubstitute(expertMembers[1]) ? expertMembers[1].substituteName : expertMembers[1].fullName) : '';
+        const slotIds = wmDraftExpertSlots[gNo] || ['', ''];
+        const expPid1 = slotIds[0] || '';
+        const expPid2 = slotIds[1] || '';
 
         return `
           <div class="rounded-2xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-2xs" style="border-top: 4px solid ${color};">
@@ -1822,10 +1860,10 @@
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   <select onchange="onExpertSelectChange(${idx}, 1, this)" id="wm-exp-${idx}-1" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300/80 dark:border-amber-700 bg-white dark:bg-slate-800 text-[11.5px]">
-                    ${getExpertDropdownOptions(exp1)}
+                    ${getExpertDropdownOptions(expPid1, gNo)}
                   </select>
                   <select onchange="onExpertSelectChange(${idx}, 2, this)" id="wm-exp-${idx}-2" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300/80 dark:border-amber-700 bg-white dark:bg-slate-800 text-[11.5px]">
-                    ${getExpertDropdownOptions(exp2)}
+                    ${getExpertDropdownOptions(expPid2, gNo)}
                   </select>
                 </div>
               </div>
@@ -1887,6 +1925,7 @@
         workshopGroup: String(groupNo),
         workshopRole: 'ผู้เข้าร่วม'
       };
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -1896,6 +1935,7 @@
         wmDraftAssignments[pid].workshopGroup = '';
         wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
       }
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -1904,6 +1944,7 @@
       if (!wmDraftAssignments[pid]) return;
       const isExp = isWorkshopExpertRole(wmDraftAssignments[pid].workshopRole);
       wmDraftAssignments[pid].workshopRole = isExp ? 'ผู้เข้าร่วม' : 'ผู้เชี่ยวชาญประจำกลุ่ม';
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -1912,6 +1953,7 @@
       participants.forEach(p => {
         wmDraftAssignments[p.id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
       });
+      wmDraftExpertSlots = { 1: ['', ''], 2: ['', ''], 3: ['', ''], 4: ['', ''], 5: ['', ''] };
       wmDraftGroups.forEach(g => { g.experts = ''; });
       renderAllWorkshopManagerViews();
       showToast('ล้างรายชื่อในแบบร่างทั้งหมดแล้ว (กดบันทึกเพื่อยืนยัน หรือกดยกเลิกเพื่อย้อนกลับ)', 'info');
@@ -2000,6 +2042,7 @@
         removeMemberFromWorkshopGroup(pid);
       } else {
         wmDraftAssignments[pid] = { workshopGroup: gStr, workshopRole: 'ผู้เข้าร่วม' };
+        syncExpertSlotsFromAssignments();
         syncDraftExpertsFromAssignments();
         renderAllWorkshopManagerViews();
       }
@@ -2007,35 +2050,37 @@
     }
 
     function onExpertSelectChange(groupIdx, slotNo, selectEl) {
-      const s1 = document.getElementById(`wm-exp-${groupIdx}-1`);
-      const s2 = document.getElementById(`wm-exp-${groupIdx}-2`);
-      const gNo = String(wmDraftGroups[groupIdx].groupNo || (groupIdx + 1));
+      const gNo = Number(wmDraftGroups[groupIdx].groupNo || (groupIdx + 1));
+      const gStr = String(gNo);
+      const slotIdx = slotNo - 1;
+      const otherSlotIdx = slotIdx === 0 ? 1 : 0;
+      const newPid = String(selectEl.value || '').trim();
+      const oldPid = (wmDraftExpertSlots[gNo] && wmDraftExpertSlots[gNo][slotIdx]) || '';
 
-      const selectedPids = new Set();
-      [s1, s2].forEach(sel => {
-        if (!sel || !sel.value) return;
-        const opt = sel.options[sel.selectedIndex];
-        const pid = opt ? opt.getAttribute('data-pid') : '';
-        if (pid) selectedPids.add(pid);
-      });
-
-      // ปลดผู้เชี่ยวชาญเดิมของกลุ่มนี้ที่ไม่ได้ถูกเลือกใน 2 ช่องนี้ออก
-      participants.forEach(p => {
-        const asg = wmDraftAssignments[p.id];
-        if (asg && asg.workshopGroup === gNo && isWorkshopExpertRole(asg.workshopRole) && !selectedPids.has(p.id)) {
-          asg.workshopGroup = '';
-          asg.workshopRole = 'ผู้เข้าร่วม';
+      // 1. หากมีการเปลี่ยนออกหรือล้างช่องเดิม ให้ปลดคนเดิมออก (ถ้าไม่ได้อยู่ในอีกช่องของกลุ่มเดียวกัน)
+      if (oldPid && oldPid !== newPid) {
+        const stillInOtherSlot = wmDraftExpertSlots[gNo] && wmDraftExpertSlots[gNo][otherSlotIdx] === oldPid;
+        if (!stillInOtherSlot && wmDraftAssignments[oldPid] && wmDraftAssignments[oldPid].workshopGroup === gStr) {
+          wmDraftAssignments[oldPid] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
         }
-      });
+      }
 
-      // กำหนดผู้ที่ถูกเลือกใน 2 ช่องนี้ให้เป็นผู้เชี่ยวชาญประจำกลุ่มนี้
-      selectedPids.forEach(pid => {
-        wmDraftAssignments[pid] = {
-          workshopGroup: gNo,
+      // 2. หากมีการเลือกวิทยากรใหม่ ให้ถอดออกจากช่องวิทยากรเดิม (ถ้าเคยอยู่กลุ่มอื่นหรืออีกช่อง) แล้วลงช่องนี้แทน
+      if (newPid) {
+        for (let k = 1; k <= 5; k++) {
+          if (!Array.isArray(wmDraftExpertSlots[k])) wmDraftExpertSlots[k] = ['', ''];
+          wmDraftExpertSlots[k] = wmDraftExpertSlots[k].map(id => (id === newPid ? '' : id));
+        }
+        wmDraftExpertSlots[gNo][slotIdx] = newPid;
+        wmDraftAssignments[newPid] = {
+          workshopGroup: gStr,
           workshopRole: 'ผู้เชี่ยวชาญประจำกลุ่ม'
         };
-      });
+      } else {
+        wmDraftExpertSlots[gNo][slotIdx] = '';
+      }
 
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -2093,6 +2138,7 @@
       if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
       wmDraftAssignments[id].workshopGroup = grp;
       if (!grp) wmDraftAssignments[id].workshopRole = 'ผู้เข้าร่วม';
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -2100,6 +2146,7 @@
     function updateDraftMemberRole(id, role) {
       if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
       wmDraftAssignments[id].workshopRole = role;
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
@@ -2113,6 +2160,7 @@
         asg.workshopRole = 'ผู้เข้าร่วม';
         nextGroup = (nextGroup % 5) + 1;
       });
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
       showToast('กระจายผู้เข้าร่วมเข้าทั้ง 5 กลุ่มเรียบร้อยแล้ว กดบันทึกเพื่อซิงค์ขึ้นบัตรทุกคน', 'info');
@@ -2145,8 +2193,12 @@
       btn.disabled = true;
       btn.textContent = 'กำลังบันทึกขึ้น Google Sheets...';
 
-      // บังคับซิงค์รายชื่อวิทยากรและสมาชิกให้ตรงกัน 100% ก่อนส่งบันทึก
+      // บังคับซิงค์รายชื่อวิทยากรและสมาชิกให้ตรงกัน 100% ก่อนส่งบันทึก และยกเลิกคำขอ GET เก่าที่อาจวิ่งค้างอยู่
+      syncExpertSlotsFromAssignments();
       syncDraftExpertsFromAssignments();
+      participantsFetchSeq++;
+      workshopFetchSeq++;
+      pauseAutoRefreshUntil = Date.now() + 8000;
 
       const assignments = Object.keys(wmDraftAssignments).map(id => ({
         id,
@@ -2175,6 +2227,7 @@
           }
         });
         lastParticipantsSnapshot = JSON.stringify(participants);
+        pauseAutoRefreshUntil = Date.now() + 5000;
         renderCurrentView();
         closeWorkshopManagerModal();
         showToast(`บันทึกการจัดกลุ่ม 5 กลุ่ม (รอบที่ ${wmDraftRound}) ขึ้น Google Sheets เรียบร้อยแล้ว`, 'success');
