@@ -134,15 +134,6 @@
     .vf-bl { bottom: -2px; left: -2px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-bottom-left-radius: 6px; }
     .vf-br { bottom: -2px; right: -2px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-bottom-right-radius: 6px; }
 
-    /* ไกด์ไลน์ช่องเจาะสายคล้องคอด้านบน */
-    .lanyard-slot {
-      width: 16mm;
-      height: 3.5mm;
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      border-radius: 999px;
-      margin: 3.5mm auto 1.5mm auto;
-    }
-
     .qr-box img,
     .qr-box canvas {
       margin: 0 auto;
@@ -851,8 +842,8 @@
                 const smartUrl = `${portalBase}${sep}id=${encodeURIComponent(item.id)}`;
                 new QRCode(el, {
                   text: smartUrl,
-                  width: 112,
-                  height: 112,
+                  width: 104,
+                  height: 104,
                   correctLevel: QRCode.CorrectLevel.L
                 });
               }
@@ -865,8 +856,8 @@
             if (elAi) {
               new QRCode(elAi, {
                 text: AI_CHATBOT_URL,
-                width: 116,
-                height: 116,
+                width: 110,
+                height: 110,
                 correctLevel: QRCode.CorrectLevel.M
               });
             }
@@ -876,13 +867,30 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ==================== ออกแบบด้านหน้าป้าย (Executive Typography + ลายน้ำ AI + มุมเล็ง QR + เส้นทอง + แถบข้าง 4px) ====================
+    // สรุปข้อความ "ประเภทผู้เข้าร่วมงาน" สำหรับแสดงบนตัวป้ายชื่อ
+    function getParticipantRoleLabel(item) {
+      if (!item || item.isBlank) return 'ผู้เข้าร่วมหน้างาน (Walk-in)';
+      const isSub = item.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(item.substituteName);
+      const rawRole = String(item.role || '').trim();
+      const normalizedRole = (!rawRole || rawRole === 'รอระบุรายชื่อ') ? 'ผู้เข้าร่วมสัมมนา' : rawRole;
+      if (isSub) {
+        return normalizedRole === 'ผู้เข้าร่วมสัมมนา'
+          ? 'ผู้แทนเข้าร่วมสัมมนา'
+          : `ผู้แทน • ${normalizedRole}`;
+      }
+      return normalizedRole;
+    }
+
+    // ==================== ออกแบบด้านหน้าป้าย (ไม่มีรูคล้องคอ + ประเภทผู้เข้าร่วมงาน + ฟอนต์ใหญ่คมชัด) ====================
     function buildFrontHtml(item, idx, cardId) {
       const theme = getBadgeTheme(item);
       const isSub = !item.isBlank && item.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(item.substituteName);
       const displayName = isSub ? item.substituteName : item.fullName;
       const displayPos = isSub ? (item.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (item.position || '');
-      const pillLabel = isSub ? `ผู้แทน • ${item.mainUnit || theme.label}` : theme.label;
+      const roleLabel = getParticipantRoleLabel(item);
+      const pillLabel = item.isBlank
+        ? 'WALK-IN'
+        : (isSub ? `ผู้แทน • ${item.mainUnit || theme.label}` : (item.mainUnit || theme.label));
 
       const isExec = currentTheme === 'executive';
       const isMod = currentTheme === 'modern';
@@ -896,21 +904,21 @@
         : (isMod ? 'background: linear-gradient(180deg, #ffffff 0%, #f8fafc 65%, #eff6ff 100%);' : 'background: #ffffff;');
 
       const footerStyle = isExec
-        ? 'background: linear-gradient(90deg, #881337, #D4AF37, #1E3A8A);'
-        : (isMod ? `background: ${theme.grad};` : `background-color: ${theme.bg};`);
+        ? 'background: linear-gradient(90deg, #5B0B24 0%, #172554 50%, #5B0B24 100%); color: #F3D478; border-top: 1.5px solid #D4AF37;'
+        : (isMod ? `background: ${theme.grad}; color: #FFFFFF;` : `background-color: ${theme.bg}; color: #FFFFFF;`);
 
       const pillStyle = isExec
-        ? 'background-color: rgba(212, 175, 55, 0.2); color: #F3D478; border: 1px solid rgba(212, 175, 55, 0.6);'
+        ? 'background-color: rgba(212, 175, 55, 0.22); color: #F3D478; border: 1px solid rgba(212, 175, 55, 0.65);'
         : `background-color: ${isSub ? '#F3E8FF' : theme.pillBg}; color: ${isSub ? '#6B21A8' : theme.pillText};`;
 
       const nameLen = (displayName || '').length;
-      const nameSizeClass = nameLen > 27 ? 'text-[20px]' : (nameLen > 20 ? 'text-[23px]' : 'text-[26px]');
+      const nameSizeClass = nameLen > 27 ? 'text-[22px]' : (nameLen > 20 ? 'text-[25px]' : 'text-[28px]');
       const nameColorClass = isExec ? 'text-white' : 'text-slate-900';
-      const posColorClass = isExec ? 'text-amber-100/90' : 'text-slate-500';
-      const unitColorClass = isExec ? 'text-blue-200/80' : 'text-slate-400';
-      const dividerColor = isExec ? 'background: #D4AF37;' : `background: ${theme.vfColor}55;`;
+      const posColorClass = isExec ? 'text-amber-100/95' : 'text-slate-600';
+      const unitColorClass = isExec ? 'text-blue-200/90' : 'text-slate-500';
+      const dividerColor = isExec ? 'background: #D4AF37;' : `background: ${theme.vfColor}66;`;
       const idColorClass = isExec ? 'text-amber-300' : 'text-slate-900';
-      const scanHintClass = isExec ? 'text-blue-200/85' : 'text-slate-500';
+      const scanHintClass = isExec ? 'text-blue-200/90' : 'text-slate-500';
       const vfBorderColor = isExec ? '#D4AF37' : theme.vfColor;
 
       const pngFileName = item.isBlank
@@ -918,7 +926,7 @@
         : `ป้ายชื่อ_${item.id || idx}_ด้านหน้า`;
 
       const logoHtml = customLogoDataUrl
-        ? `<img src="${customLogoDataUrl}" alt="Logo" class="w-9 h-9 rounded-lg object-contain bg-white/95 p-0.5 shadow-sm shrink-0" />`
+        ? `<img src="${customLogoDataUrl}" alt="Logo" class="w-10 h-10 rounded-lg object-contain bg-white/95 p-0.5 shadow-sm shrink-0" />`
         : '';
 
       return `
@@ -933,15 +941,14 @@
             <i data-lucide="download" class="w-3 h-3"></i> PNG
           </button>
 
-          <!-- แถบหัวป้าย -->
-          <div style="${headerStyle}" class="text-white px-3.5 pb-2.5 pt-0.5 text-center relative z-10">
-            <div class="lanyard-slot"></div>
-            <div class="flex items-center justify-center gap-2">
+          <!-- แถบหัวป้าย (ตัดรูคล้องคอออกแล้ว) -->
+          <div style="${headerStyle}" class="text-white px-3.5 py-2.5 text-center relative z-10">
+            <div class="flex items-center justify-center gap-2.5">
               ${logoHtml}
               <div class="${customLogoDataUrl ? 'text-left' : 'text-center'} min-w-0">
-                <p class="text-[10.5px] tracking-wide ${isExec ? 'text-amber-200' : 'opacity-90'} leading-tight">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
-                <h2 class="text-[15px] font-bold leading-tight mt-0.5">แชทบอท AI คู่หูจราจร</h2>
-                <p class="text-[10px] opacity-85 mt-0.5 leading-none">30 พ.ย. – 2 ธ.ค. 2569</p>
+                <p class="text-[12.5px] font-medium tracking-wide ${isExec ? 'text-amber-200' : 'opacity-95'} leading-tight">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
+                <h2 class="text-[18px] font-extrabold leading-tight mt-0.5">แชทบอท AI คู่หูจราจร</h2>
+                <p class="text-[12px] font-medium opacity-90 mt-0.5 leading-none">30 พ.ย. – 2 ธ.ค. 2569</p>
               </div>
             </div>
           </div>
@@ -950,27 +957,27 @@
           <div class="hairline-gold"></div>
 
           <!-- เนื้อหาตรงกลาง + ลายน้ำวงจร AI & โล่ตำรวจบางๆ -->
-          <div style="${bodyStyle}" class="relative flex-1 flex flex-col items-center justify-center gap-2.5 px-4 py-2 text-center overflow-hidden">
+          <div style="${bodyStyle}" class="relative flex-1 flex flex-col items-center justify-center gap-2 px-3.5 py-2 text-center overflow-hidden">
             ${buildTechWatermarkSvg(isExec)}
 
             <div class="relative z-10 w-full">
-              <span style="${pillStyle}" class="badge-pill inline-flex items-center justify-center px-3.5 py-1 rounded-full text-[11.5px] font-bold leading-normal tracking-wide">
+              <span style="${pillStyle}" class="badge-pill inline-flex items-center justify-center px-4 py-1 rounded-full text-[13.5px] font-bold leading-normal tracking-wide">
                 ${escapeHtml(pillLabel)}
               </span>
 
               ${item.isBlank ? `
                 <div class="mt-3 space-y-3.5 px-2">
-                  <div class="border-b-2 border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-6"></div>
+                  <div class="border-b-2 border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-7"></div>
                   <div class="border-b border-dashed ${isExec ? 'border-slate-500' : 'border-slate-400'} h-5"></div>
-                  <p class="text-[11px] ${isExec ? 'text-slate-300' : 'text-slate-400'}">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
+                  <p class="text-[13px] font-medium ${isExec ? 'text-slate-200' : 'text-slate-500'}">ยศ ชื่อ - สกุล / สังกัด (ลงทะเบียนหน้างาน)</p>
                 </div>
               ` : `
-                <div class="mt-2">
+                <div class="mt-1.5">
                   <h3 class="${nameSizeClass} font-extrabold ${nameColorClass} leading-tight tracking-tight break-words px-0.5">${escapeHtml(displayName)}</h3>
-                  <div style="${dividerColor}" class="w-6 h-[2px] rounded-full mx-auto my-1.5"></div>
-                  <p class="text-[12.5px] font-normal ${posColorClass} leading-snug break-words px-1">${escapeHtml(displayPos)}</p>
-                  <p class="text-[11.5px] font-medium ${unitColorClass} leading-snug break-words mt-0.5">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
-                  ${isSub ? `<p class="text-[11px] ${isExec ? 'text-purple-200' : 'text-purple-700'} font-semibold leading-snug mt-0.5">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
+                  <div style="${dividerColor}" class="w-8 h-[2px] rounded-full mx-auto my-1.5"></div>
+                  <p class="text-[14.5px] font-medium ${posColorClass} leading-snug break-words px-1">${escapeHtml(displayPos)}</p>
+                  <p class="text-[13.5px] font-semibold ${unitColorClass} leading-snug break-words mt-0.5">${escapeHtml(item.unitDetail || item.mainUnit || '')}</p>
+                  ${isSub ? `<p class="text-[12.5px] ${isExec ? 'text-purple-200' : 'text-purple-700'} font-semibold leading-snug mt-0.5">(ผู้แทน: ${escapeHtml(item.fullName)})</p>` : ''}
                 </div>
               `}
             </div>
@@ -983,11 +990,11 @@
                   <span class="vf-corner vf-tr" style="border-color: ${vfBorderColor};"></span>
                   <span class="vf-corner vf-bl" style="border-color: ${vfBorderColor};"></span>
                   <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
-                  <div class="w-[112px] h-[112px] border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-sm font-bold text-slate-400">
+                  <div class="w-[104px] h-[104px] border border-dashed border-slate-300 rounded-lg flex items-center justify-center text-base font-bold text-slate-400">
                     Walk-in
                   </div>
                 </div>
-                <p class="text-[13px] font-mono font-bold ${isExec ? 'text-amber-200' : 'text-slate-400'} mt-1.5">WALK-IN</p>
+                <p class="text-[16px] font-mono font-extrabold ${isExec ? 'text-amber-200' : 'text-slate-500'} mt-1.5">WALK-IN</p>
               ` : `
                 <div class="qr-viewfinder">
                   <span class="vf-corner vf-tl" style="border-color: ${vfBorderColor};"></span>
@@ -996,21 +1003,24 @@
                   <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
                   <div id="qr-front-${idx}" class="qr-box"></div>
                 </div>
-                <p class="text-[14px] font-mono font-bold ${idColorClass} mt-1.5 tracking-wider">${escapeHtml(item.id)}</p>
-                <p class="text-[10px] ${scanHintClass} leading-tight">สแกนเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
+                <p class="text-[16.5px] font-mono font-extrabold ${idColorClass} mt-1.5 tracking-wider leading-none">${escapeHtml(item.id)}</p>
+                <p class="text-[11.5px] font-medium ${scanHintClass} leading-tight mt-0.5">สแกนเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
               `}
             </div>
           </div>
 
-          <!-- แถบสีด้านล่าง -->
-          <div style="${footerStyle}" class="h-2.5 w-full relative z-10"></div>
+          <!-- แถบแสดงประเภทผู้เข้าร่วมงานด้านล่าง (เด่นชัด อ่านง่ายจากระยะไกล) -->
+          <div style="${footerStyle}" class="badge-role-banner w-full py-1.5 px-3 text-center relative z-10">
+            <span class="text-[14.5px] font-extrabold tracking-wide leading-normal">${escapeHtml(roleLabel)}</span>
+          </div>
         </div>
       `;
     }
 
-    // ==================== ออกแบบด้านหลังป้าย (ลายน้ำ AI + มุมเล็ง QR + เส้นทอง + แถบข้าง 4px) ====================
+    // ==================== ออกแบบด้านหลังป้าย (ไม่มีรูคล้องคอ + ประเภทผู้เข้าร่วมงาน + ฟอนต์ใหญ่คมชัด) ====================
     function buildBackHtml(idx, cardId, item) {
       const theme = getBadgeTheme(item || { isBlank: true });
+      const roleLabel = getParticipantRoleLabel(item || { isBlank: true });
       const isExec = currentTheme === 'executive';
       const isMod = currentTheme === 'modern';
 
@@ -1023,8 +1033,8 @@
         : 'background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);';
 
       const footerStyle = isExec
-        ? 'background: linear-gradient(90deg, #881337, #D4AF37, #1E3A8A);'
-        : 'background-color: #881337;';
+        ? 'background: linear-gradient(90deg, #5B0B24 0%, #172554 50%, #5B0B24 100%); color: #F3D478; border-top: 1.5px solid #D4AF37;'
+        : (isMod ? `background: ${theme.grad}; color: #FFFFFF;` : 'background-color: #881337; color: #FFFFFF;');
 
       const vfBorderColor = isExec ? '#D4AF37' : '#1E3A8A';
 
@@ -1033,7 +1043,7 @@
         : `ป้ายชื่อ_ด้านหลัง_${idx}`;
 
       const logoHtml = customLogoDataUrl
-        ? `<img src="${customLogoDataUrl}" alt="Logo" class="w-7 h-7 rounded-md object-contain bg-white/95 p-0.5 shadow-sm shrink-0" />`
+        ? `<img src="${customLogoDataUrl}" alt="Logo" class="w-8 h-8 rounded-md object-contain bg-white/95 p-0.5 shadow-sm shrink-0" />`
         : '';
 
       return `
@@ -1048,12 +1058,11 @@
             <i data-lucide="download" class="w-3 h-3"></i> PNG
           </button>
 
-          <!-- แถบหัวป้ายด้านหลัง -->
-          <div style="${headerStyle}" class="text-white px-4 pb-2.5 pt-0.5 text-center relative z-10">
-            <div class="lanyard-slot"></div>
+          <!-- แถบหัวป้ายด้านหลัง (ตัดรูคล้องคอออกแล้ว) -->
+          <div style="${headerStyle}" class="text-white px-4 py-3 text-center relative z-10">
             <div class="flex items-center justify-center gap-2">
               ${logoHtml}
-              <p class="text-[11px] font-bold tracking-widest uppercase ${isExec ? 'text-amber-200' : 'text-blue-100'}">AI TRAFFIC KM SEMINAR 2026</p>
+              <p class="text-[13px] font-extrabold tracking-widest uppercase ${isExec ? 'text-amber-200' : 'text-blue-100'}">AI TRAFFIC KM SEMINAR 2026</p>
             </div>
           </div>
 
@@ -1065,9 +1074,9 @@
             ${buildTechWatermarkSvg(isExec)}
 
             <div class="relative z-10 space-y-1">
-              <h2 class="text-[18px] font-bold ${isExec ? 'text-amber-300' : 'text-[#1E3A8A]'} leading-tight">👮‍♂️ คู่หูจราจร AI</h2>
-              <div style="background: ${isExec ? '#D4AF37' : '#1E3A8A44'};" class="w-6 h-[2px] rounded-full mx-auto my-1"></div>
-              <p class="text-[11.5px] ${isExec ? 'text-blue-100' : 'text-slate-600'} leading-relaxed px-0.5">
+              <h2 class="text-[22px] font-extrabold ${isExec ? 'text-amber-300' : 'text-[#1E3A8A]'} leading-tight">👮‍♂️ คู่หูจราจร AI</h2>
+              <div style="background: ${isExec ? '#D4AF37' : '#1E3A8A55'};" class="w-8 h-[2px] rounded-full mx-auto my-1"></div>
+              <p class="text-[13.5px] font-medium ${isExec ? 'text-blue-100' : 'text-slate-600'} leading-snug px-0.5">
                 สอบถามข้อมูลและค้นหาแนวทางการปฏิบัติงานด้านการจราจร<br>ผ่านแชทบอทตำรวจคู่หูจราจร
               </p>
             </div>
@@ -1081,19 +1090,21 @@
                 <span class="vf-corner vf-br" style="border-color: ${vfBorderColor};"></span>
                 <div id="qr-ai-${idx}" class="qr-box"></div>
               </div>
-              <p class="text-[12px] font-bold ${isExec ? 'text-amber-200' : 'text-[#881337]'} mt-2">สแกนเพื่อเข้าใช้งานแชทบอท AI</p>
-              <p class="text-[11px] font-mono ${isExec ? 'text-blue-200' : 'text-slate-600'} font-semibold">pinai-fine.police.go.th</p>
+              <p class="text-[14.5px] font-bold ${isExec ? 'text-amber-200' : 'text-[#881337]'} mt-2">สแกนเพื่อเข้าใช้งานแชทบอท AI</p>
+              <p class="text-[13.5px] font-mono ${isExec ? 'text-blue-200' : 'text-slate-700'} font-bold">pinai-fine.police.go.th</p>
             </div>
 
             <!-- ข้อมูลงานย่อ -->
-            <div class="relative z-10 w-full pt-2 border-t ${isExec ? 'border-white/15' : 'border-slate-200'} text-[10.5px] space-y-0.5">
-              <p class="font-bold ${isExec ? 'text-white' : 'text-slate-800'}">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</p>
-              <p class="text-[10px] ${isExec ? 'text-blue-200/80' : 'text-slate-500'}">สแกน QR ด้านหน้าป้ายเพื่อดูเอกสาร • ห้องพัก • แบบประเมิน</p>
+            <div class="relative z-10 w-full pt-2 border-t ${isExec ? 'border-white/15' : 'border-slate-200'} space-y-0.5">
+              <p class="text-[12.5px] font-bold ${isExec ? 'text-white' : 'text-slate-800'}">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</p>
+              <p class="text-[11.5px] font-medium ${isExec ? 'text-blue-200/85' : 'text-slate-500'}">สแกน QR ด้านหน้าป้ายเพื่อดูเอกสาร • ห้องพัก • แบบประเมิน</p>
             </div>
           </div>
 
-          <!-- แถบสีด้านล่าง -->
-          <div style="${footerStyle}" class="h-2.5 w-full relative z-10"></div>
+          <!-- แถบแสดงประเภทผู้เข้าร่วมงานด้านล่าง (สมมาตรกับด้านหน้า) -->
+          <div style="${footerStyle}" class="badge-role-banner w-full py-1.5 px-3 text-center relative z-10">
+            <span class="text-[14.5px] font-extrabold tracking-wide leading-normal">${escapeHtml(roleLabel)}</span>
+          </div>
         </div>
       `;
     }
@@ -1130,6 +1141,11 @@
               el.style.lineHeight = '1.2';
               el.style.paddingTop = '2px';
               el.style.paddingBottom = '8px';
+            });
+            clonedDoc.querySelectorAll('.badge-role-banner').forEach(el => {
+              el.style.paddingTop = '3px';
+              el.style.paddingBottom = '8px';
+              el.style.lineHeight = '1.25';
             });
           }
         });
@@ -1190,6 +1206,11 @@
                 el.style.lineHeight = '1.2';
                 el.style.paddingTop = '2px';
                 el.style.paddingBottom = '8px';
+              });
+              clonedDoc.querySelectorAll('.badge-role-banner').forEach(el => {
+                el.style.paddingTop = '3px';
+                el.style.paddingBottom = '8px';
+                el.style.lineHeight = '1.25';
               });
             }
           });
