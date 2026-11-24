@@ -75,12 +75,12 @@
     }
     /* ล็อกสัดส่วนบัตรเครดิตมาตรฐาน ISO (1.586 : 1) ให้ดูเพรียวสมส่วนทุกขนาดจอ */
     .cc-card-ratio {
-      min-height: 214px;
+      min-height: 218px;
     }
     @media (min-width: 640px) {
       .cc-card-ratio {
         aspect-ratio: 1.586 / 1;
-        min-height: 248px;
+        min-height: 252px;
       }
     }
     /* แก้บั๊ก iOS WebKit: แยกแกน Z + ซ่อน opacity/visibility ของด้านที่หันหลังในจังหวะพลิก 90° ไม่ให้ข้อมูลทะลุซ้อนกัน */
@@ -149,6 +149,14 @@
         rgba(243, 212, 120, 0.15) 72%,
         rgba(255, 255, 255, 0.09) 100%
       );
+    }
+
+    /* กรอบโลโก้มาสคอตขอบทองเมทัลลิกแทนแผ่นชิป */
+    .cc-logo-medallion {
+      background: linear-gradient(135deg, #FEF08A 0%, #D4AF37 50%, #92400E 100%);
+      box-shadow:
+        0 6px 16px -4px rgba(0, 0, 0, 0.55),
+        0 0 14px -2px rgba(243, 212, 120, 0.45);
     }
 
     /* ลายน้ำเส้นละเอียดและจุดนิรภัยบนพื้นบัตร */
@@ -351,21 +359,24 @@
               </div>
             </div>
 
-            <!-- แถวกลาง: ชิปทอง EMV + รหัสประจำตัวสไตล์เลขบัตรเครดิต + ป้ายสถานะสด -->
-            <div class="relative z-10 flex items-center justify-between gap-2 my-2">
-              <!-- Gold EMV Smart Chip SVG -->
-              <div class="w-10 h-7 sm:w-11 sm:h-8 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-yellow-600 p-[1px] shadow-md shrink-0">
-                <svg class="w-full h-full rounded-[5px]" viewBox="0 0 48 36" fill="none">
-                  <rect width="48" height="36" rx="6" fill="url(#chipGrad)"/>
-                  <path d="M16 0v36M32 0v36M0 12h16M32 12h16M0 24h16M32 24h16M16 18h16" stroke="#78350F" stroke-opacity="0.45" stroke-width="1.3"/>
-                  <defs>
-                    <linearGradient id="chipGrad" x1="0" y1="0" x2="48" y2="36" gradientUnits="userSpaceOnUse">
-                      <stop stop-color="#FDE68A"/>
-                      <stop offset="0.5" stop-color="#F59E0B"/>
-                      <stop offset="1" stop-color="#B45309"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
+            <!-- แถวกลาง: กรอบโลโก้มาสคอตคู่หูจราจร AI ขอบทอง (แทนแผ่นชิป) + รหัสประจำตัว + ป้ายสถานะสด -->
+            <div class="relative z-10 flex items-center justify-between gap-2 my-1.5">
+              <!-- Custom Mascot Logo Medallion (ดึงจากไฟล์ logo.jpg / logo.png บน GitHub อัตโนมัติสำหรับทุกคน) -->
+              <div class="cc-logo-medallion w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-[2px] shrink-0 relative">
+                <div class="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center p-0.5">
+                  <img
+                    id="card-mascot-logo"
+                    src="logo.jpg"
+                    alt="โลโก้คู่หูจราจร AI"
+                    class="w-full h-full object-contain"
+                    onerror="handleLogoFallback(this, 'card-mascot-fallback')"
+                  />
+                  <!-- แผนสำรองอัตโนมัติกรณีบน GitHub ยังไม่ได้อัปโหลดไฟล์ logo.jpg / logo.png -->
+                  <div id="card-mascot-fallback" class="hidden w-full h-full rounded-[12px] bg-gradient-to-br from-navy-800 to-maroon-700 flex flex-col items-center justify-center text-amber-200">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                    <span class="text-[8px] font-extrabold tracking-wider mt-0.5">AI KM</span>
+                  </div>
+                </div>
               </div>
 
               <div class="text-right min-w-0 flex flex-col items-end">
@@ -538,11 +549,17 @@
     <!-- ==================== TAB 1: AI CHATBOT + DOCUMENTS + SCHEDULE ==================== -->
     <section id="tab-info" class="space-y-4">
 
-      <!-- การ์ด 👮‍♂️ คู่หูจราจร AI -->
+      <!-- การ์ด 👮‍♂️ คู่หูจราจร AI (แสดงมาสคอตตำรวจจราจร AI คู่กับปุ่มเข้าแชทบอท) -->
       <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 rounded-3xl p-5 text-white shadow-md border border-amber-400/40 space-y-3">
         <div class="flex items-start gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-white/15 border border-amber-300/40 flex items-center justify-center text-xl shrink-0">
-            👮‍♂️
+          <div class="w-13 h-13 w-12 h-12 rounded-2xl bg-white border-2 border-amber-300/80 flex items-center justify-center overflow-hidden p-0.5 shadow-md shrink-0">
+            <img
+              src="logo.jpg"
+              alt="มาสคอตคู่หูจราจร AI"
+              class="w-full h-full object-contain"
+              onerror="handleLogoFallback(this, 'bot-card-fallback')"
+            />
+            <span id="bot-card-fallback" class="hidden text-xl">👮‍♂️</span>
           </div>
           <div class="min-w-0 flex-1">
             <h3 class="font-bold text-base leading-tight text-amber-200">คู่หูจราจร AI</h3>
@@ -823,6 +840,18 @@
     // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (พร้อม Deep Link สำหรับเด้งเข้าแอป LINE โดยตรงบนมือถือ)
     const LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const LINE_APP_DEEP_LINK = "line://ti/g/3tdXVYbf4r";
+
+    // ระบบโหลดโลโก้มาสคอตอัตโนมัติ (รองรับทั้ง logo.jpg และ logo.png หากยังไม่ได้อัปโหลดจะแสดงไอคอนสำรองไม่ให้รูปแตก)
+    function handleLogoFallback(imgEl, fallbackId) {
+      if (!imgEl.dataset.triedPng) {
+        imgEl.dataset.triedPng = '1';
+        imgEl.src = 'logo.png';
+        return;
+      }
+      imgEl.classList.add('hidden');
+      const fb = document.getElementById(fallbackId);
+      if (fb) fb.classList.remove('hidden');
+    }
 
     const FIVE_TOPICS = [
       '(1) ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
