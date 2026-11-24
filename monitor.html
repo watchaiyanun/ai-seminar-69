@@ -711,8 +711,8 @@
     let countdownRemainingSec = 0;
     let flashAlertTimer = null;
     let flashAlertRemaining = 0;
-
-    // ==================== ข้อมูลและสถานะหน้าจอจับเวลาแบ่งกลุ่ม 5 กลุ่ม ====================
+    let monitorFetchSeq = 0;
+    let isUpdatingRound = false;
     const DEFAULT_WORKSHOP_GROUPS = [
       { num: 1, title: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง', color: '#2563EB', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
       { num: 2, title: 'คู่มือแนวทางมาตรฐานการปฏิบัติงาน', color: '#0D9488', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
@@ -845,15 +845,19 @@
     }
 
     async function fetchLiveStatus() {
+      if (isUpdatingRound) return;
+      const reqSeq = ++monitorFetchSeq;
       const syncEl = document.getElementById('last-sync-text');
+      const ts = Date.now();
       try {
         const [res, wRes] = await Promise.all([
-          fetch(`${API_URL}?action=getParticipants`),
-          fetch(`${API_URL}?action=getWorkshopConfig`).catch(() => null)
+          fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }),
+          fetch(`${API_URL}?action=getWorkshopConfig&_t=${ts}`, { cache: 'no-store' }).catch(() => null)
         ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
+        if (reqSeq !== monitorFetchSeq || isUpdatingRound) return;
 
         if (wRes && wRes.ok) {
           try {
@@ -1489,16 +1493,12 @@
 
         const expertNamesSet = new Set(fixedExpertItems.map(x => x.name));
 
-        // ตรวจสอบรายชื่อเพิ่มเติมจากแท็บ Workshop_Groups (เพิ่มเฉพาะกรณีเป็นวิทยากรภายนอกที่ไม่ได้ถูกจัดเป็นผู้เข้าร่วมหรืออยู่กลุ่มอื่น)
+        // ตรวจสอบรายชื่อเพิ่มเติมจากแท็บ Workshop_Groups เฉพาะวิทยากรภายนอกที่ไม่มีรายชื่อในระบบ Participants เท่านั้น
         if (apiG.experts) {
           String(apiG.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(extName => {
             if (expertNamesSet.has(extName)) return;
             const matchedPerson = participants.find(p => p.fullName.trim() === extName || p.substituteName.trim() === extName);
-            if (matchedPerson) {
-              // หากเป็นคนที่มีรายชื่อในระบบอยู่แล้ว แต่ไม่ได้ถูกกำหนดให้เป็นผู้เชี่ยวชาญของกลุ่มนี้ ให้ข้ามเพื่อไม่ให้ชื่อสลับกัน
-              const assignedG = parseInt(matchedPerson.workshopGroup, 10);
-              if (assignedG && (!isFixedExp(matchedPerson) || assignedG !== gNum)) return;
-            }
+            if (matchedPerson) return;
             expertNamesSet.add(extName);
             fixedExpertItems.push({ name: extName, unit: '' });
           });
@@ -1590,6 +1590,8 @@
     async function shiftWorkshopRound(delta, isAuto = false) {
       const cur = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
       const next = ((cur - 1 + delta + 5) % 5) + 1;
+      monitorFetchSeq++;
+      isUpdatingRound = true;
       liveWorkshopConfig.currentRound = next;
       renderWorkshopGroupCards(getSavedWorkshopNotes());
       if (!isAuto) playDingDongChime();
@@ -1599,7 +1601,9 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'setWorkshopRound', currentRound: next })
         });
-      } catch (e) {}
+      } catch (e) {} finally {
+        isUpdatingRound = false;
+      }
     }
 
     // ==================== LIVE NEWS TICKER ====================
@@ -1607,126 +1611,109 @@
       const msg = safeStorageGet('ai_seminar_ticker_msg') || DEFAULT_TICKER_MSG;
       const track = document.getElementById('live-ticker-track');
       if (!track) return;
-      const chunk = `<span class="px-8">${escapeHtml(msg)}</span>`;
-      track.innerHTML = chunk + chunk;
+      const segment = `<span class="mx-6">${escapeHtml(msg)}</span>`;
+      track.innerHTML = segment + segment;
     }
 
     function openTickerModal() {
-      document.getElementById('ticker-input').value = safeStorageGet('ai_seminar_ticker_msg') || DEFAULT_TICKER_MSG;
-      document.getElementById('ticker-modal').classList.remove('hidden');
+      const msg = safeStorageGet('ai_seminar_ticker_msg') || DEFAULT_TICKER_MSG;
+      const inp = document.getElementById('ticker-input');
+      if (inp) inp.value = msg;
+      document.getElementById('ticker-modal')?.classList.remove('hidden');
     }
+
     function closeTickerModal() {
-      document.getElementById('ticker-modal').classList.add('hidden');
+      document.getElementById('ticker-modal')?.classList.add('hidden');
     }
+
     function saveTickerMessage() {
-      const val = document.getElementById('ticker-input').value.trim() || DEFAULT_TICKER_MSG;
+      const val = (document.getElementById('ticker-input')?.value || '').trim() || DEFAULT_TICKER_MSG;
       safeStorageSet('ai_seminar_ticker_msg', val);
       renderLiveTicker();
       closeTickerModal();
     }
 
-    // ==================== AI CHATBOT QR SPOTLIGHT & LINE QR SPOTLIGHT ====================
+    // ==================== AI & LINE QR SPOTLIGHT ====================
     function renderAlwaysOnAiQr() {
-      const box = document.getElementById('always-on-ai-qr');
-      if (!box || typeof QRCode === 'undefined') return;
-      box.innerHTML = '';
-      new QRCode(box, {
-        text: AI_CHATBOT_URL,
-        width: 72,
-        height: 72,
-        correctLevel: QRCode.CorrectLevel.M
-      });
+      const el = document.getElementById('always-on-ai-qr');
+      if (!el || typeof QRCode === 'undefined') return;
+      el.innerHTML = '';
+      new QRCode(el, { text: AI_CHATBOT_URL, width: 70, height: 70, correctLevel: QRCode.CorrectLevel.L });
     }
 
     function openAiQrSpotlight() {
-      const box = document.getElementById('spotlight-ai-qr');
-      if (box && typeof QRCode !== 'undefined') {
-        box.innerHTML = '';
-        new QRCode(box, {
-          text: AI_CHATBOT_URL,
-          width: 240,
-          height: 240,
-          correctLevel: QRCode.CorrectLevel.M
-        });
+      const el = document.getElementById('spotlight-ai-qr');
+      if (el && typeof QRCode !== 'undefined') {
+        el.innerHTML = '';
+        new QRCode(el, { text: AI_CHATBOT_URL, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.M });
       }
-      document.getElementById('ai-qr-modal').classList.remove('hidden');
+      document.getElementById('ai-qr-modal')?.classList.remove('hidden');
     }
 
     function closeAiQrSpotlight() {
-      document.getElementById('ai-qr-modal').classList.add('hidden');
+      document.getElementById('ai-qr-modal')?.classList.add('hidden');
     }
 
     function getLineGroupUrl() {
-      return safeStorageGet('ai_seminar_line_url') || DEFAULT_LINE_GROUP_URL;
+      return safeStorageGet('ai_seminar_line_group_url') || DEFAULT_LINE_GROUP_URL;
     }
 
     function openLineQrSpotlight() {
       const url = getLineGroupUrl();
-      const input = document.getElementById('line-url-input');
-      if (input) input.value = url.includes('YOUR_LINE_GROUP_LINK') ? '' : url;
-      renderLineSpotlightQr(url);
-      document.getElementById('line-qr-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function renderLineSpotlightQr(url) {
-      const box = document.getElementById('spotlight-line-qr');
-      const label = document.getElementById('spotlight-line-url-label');
-      if (!box) return;
-      box.innerHTML = '';
-
-      if (!url || url.includes('YOUR_LINE_GROUP_LINK')) {
-        box.innerHTML = `<div class="p-6 text-center text-xs text-slate-500 space-y-1"><p class="font-bold text-slate-700 text-sm">ยังไม่ได้ใส่ลิงก์กลุ่ม LINE</p><p>วางลิงก์เชิญเข้ากลุ่ม LINE ในช่องด้านล่างแล้วกด "อัปเดต QR" ได้เลยครับ</p></div>`;
-        if (label) label.textContent = '';
-        return;
-      }
-
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(box, {
-          text: url,
-          width: 240,
-          height: 240,
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-      if (label) label.textContent = url;
-    }
-
-    function saveLineGroupUrl() {
-      const val = document.getElementById('line-url-input').value.trim();
-      if (!val) return;
-      safeStorageSet('ai_seminar_line_url', val);
-      renderLineSpotlightQr(val);
+      const inp = document.getElementById('line-url-input');
+      if (inp) inp.value = url;
+      renderSpotlightLineQr(url);
+      document.getElementById('line-qr-modal')?.classList.remove('hidden');
     }
 
     function closeLineQrSpotlight() {
-      document.getElementById('line-qr-modal').classList.add('hidden');
+      document.getElementById('line-qr-modal')?.classList.add('hidden');
+    }
+
+    function renderSpotlightLineQr(url) {
+      const el = document.getElementById('spotlight-line-qr');
+      const lbl = document.getElementById('spotlight-line-url-label');
+      if (lbl) lbl.textContent = url || '';
+      if (el && typeof QRCode !== 'undefined') {
+        el.innerHTML = '';
+        if (url) {
+          new QRCode(el, { text: url, width: 245, height: 245, correctLevel: QRCode.CorrectLevel.M });
+        }
+      }
+    }
+
+    function saveLineGroupUrl() {
+      const val = (document.getElementById('line-url-input')?.value || '').trim() || DEFAULT_LINE_GROUP_URL;
+      safeStorageSet('ai_seminar_line_group_url', val);
+      renderSpotlightLineQr(val);
     }
 
     // ==================== FLASH ALERT OVERLAY ====================
     function openFlashAlertModal() {
-      document.getElementById('flash-alert-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('flash-msg-input')?.focus(), 100);
+      document.getElementById('flash-alert-modal')?.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function closeFlashAlertModal() {
-      document.getElementById('flash-alert-modal').classList.add('hidden');
+      document.getElementById('flash-alert-modal')?.classList.add('hidden');
     }
 
     function applyFlashPreset(text) {
-      document.getElementById('flash-msg-input').value = text;
+      const inp = document.getElementById('flash-msg-input');
+      if (inp) inp.value = text;
     }
 
     function triggerFlashAlert() {
-      const msg = document.getElementById('flash-msg-input').value.trim();
+      const msg = (document.getElementById('flash-msg-input')?.value || '').trim();
       if (!msg) return;
-      const durationSec = parseInt(document.getElementById('flash-duration-select').value, 10) || 0;
+      const durSec = parseInt(document.getElementById('flash-duration-select')?.value, 10) || 0;
 
       closeFlashAlertModal();
-      document.getElementById('flash-alert-message').textContent = msg;
-      document.getElementById('flash-alert-overlay').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-
+      const msgEl = document.getElementById('flash-alert-message');
+      const badgeEl = document.getElementById('flash-alert-timer-badge');
+      const overlay = document.getElementById('flash-alert-overlay');
+      if (msgEl) msgEl.textContent = msg;
+      if (overlay) overlay.classList.remove('hidden');
       playDingDongChime();
 
       if (flashAlertTimer) {
@@ -1734,21 +1721,22 @@
         flashAlertTimer = null;
       }
 
-      const timerBadge = document.getElementById('flash-alert-timer-badge');
-      if (durationSec > 0) {
-        flashAlertRemaining = durationSec;
-        timerBadge.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วินาที`;
-        timerBadge.classList.remove('hidden');
+      if (durSec > 0) {
+        flashAlertRemaining = durSec;
+        if (badgeEl) {
+          badgeEl.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วิ`;
+          badgeEl.classList.remove('hidden');
+        }
         flashAlertTimer = setInterval(() => {
           flashAlertRemaining--;
           if (flashAlertRemaining <= 0) {
             closeFlashAlert();
-          } else {
-            timerBadge.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วินาที`;
+          } else if (badgeEl) {
+            badgeEl.textContent = `ปิดอัตโนมัติใน ${flashAlertRemaining} วิ`;
           }
         }, 1000);
-      } else {
-        timerBadge.classList.add('hidden');
+      } else if (badgeEl) {
+        badgeEl.classList.add('hidden');
       }
     }
 
