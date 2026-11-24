@@ -138,6 +138,10 @@
           <i data-lucide="id-card" class="w-3.5 h-3.5 shrink-0"></i> ป้ายชื่อ
         </a>
 
+        <a href="portal.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white shadow-xs transition">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 shrink-0"></i> หน้า Portal
+        </a>
+
         <a href="monitor.html" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-maroon-700 hover:bg-maroon-800 text-white shadow-xs transition">
           <i data-lucide="tv" class="w-3.5 h-3.5 shrink-0"></i> จอ Live TV
         </a>
@@ -1188,6 +1192,9 @@
                 เช็กอิน
               </button>
             `}
+            <a href="portal.html?id=${encodeURIComponent(p.id)}" target="_blank" title="เปิดหน้าบัตร E-Pass รายนี้" class="p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition">
+              <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+            </a>
             <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="แสดง QR บัตร" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
             </button>
@@ -1230,8 +1237,9 @@
               }
             </td>
             <td class="py-2.5 px-3 text-right space-x-1">
-              <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"><i data-lucide="qr-code" class="w-3.5 h-3.5"></i></button>
-              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+              <a href="portal.html?id=${encodeURIComponent(p.id)}" target="_blank" title="เปิดหน้าบัตร E-Pass รายนี้" class="inline-flex items-center justify-center p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i></a>
+              <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="แสดง QR บัตร" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"><i data-lucide="qr-code" class="w-3.5 h-3.5"></i></button>
+              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" title="แก้ไขข้อมูล" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
             </td>
           </tr>
         `;
