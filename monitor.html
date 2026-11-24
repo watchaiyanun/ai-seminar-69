@@ -42,14 +42,12 @@
       font-family: 'Prompt', sans-serif;
     }
 
-    /* การ์ดแผงข้อมูลโทนขาวสะอาดตา */
     .official-panel {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.06);
     }
 
-    /* จุดสีทองกะพริบสถานะถ่ายทอดสด */
     @keyframes livePulseRing {
       0% { transform: scale(0.9); opacity: 0.9; }
       70% { transform: scale(2.1); opacity: 0; }
@@ -64,7 +62,6 @@
       animation: livePulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
     }
 
-    /* แถบข่าววิ่งประชาสัมพันธ์ด้านล่าง */
     @keyframes tickerScroll {
       0% { transform: translateX(0%); }
       100% { transform: translateX(-50%); }
@@ -79,7 +76,6 @@
       animation-play-state: paused;
     }
 
-    /* แอนิเมชันป้ายต้อนรับ VIP เมื่อมีการสแกนเช็กอินใหม่ */
     @keyframes welcomeDrop {
       0% { opacity: 0; transform: translate(-50%, -24px) scale(0.96); }
       10% { opacity: 1; transform: translate(-50%, 0) scale(1); }
@@ -90,7 +86,6 @@
       animation: welcomeDrop 5.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    /* แอนิเมชันป๊อปอัปประกาศด่วนกลางจอ */
     @keyframes flashPop {
       0% { opacity: 0; transform: scale(0.92); }
       100% { opacity: 1; transform: scale(1); }
@@ -99,7 +94,6 @@
       animation: flashPop 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    /* จัดตำแหน่ง QR Code */
     #always-on-ai-qr img, #always-on-ai-qr canvas,
     #spotlight-ai-qr img, #spotlight-ai-qr canvas,
     #spotlight-line-qr img, #spotlight-line-qr canvas {
@@ -107,7 +101,6 @@
       display: block;
     }
 
-    /* Scrollbar บางสวยงาม */
     .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
@@ -115,10 +108,9 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen lg:h-screen lg:overflow-hidden flex flex-col">
 
-  <!-- ==================== TOP OFFICIAL POLICE HEADER (SLIM MODERN) ==================== -->
+  <!-- ==================== TOP OFFICIAL POLICE HEADER ==================== -->
   <header class="shrink-0 sticky top-0 z-30 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark border-b-[3px] border-police-gold shadow-md text-white">
     <div class="max-w-[1800px] mx-auto px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2.5">
-      <!-- ตราสัญลักษณ์โล่ตำรวจ + ชื่อโครงการ -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-white/10 border border-police-gold/80 flex items-center justify-center shadow-sm shrink-0">
           <svg class="w-6 h-6 text-police-goldLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -137,23 +129,23 @@
         </div>
       </div>
 
-      <!-- นาฬิกาเวลาไทย + ปุ่มควบคุมจอทีวี -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <!-- เลือกวันสัมมนา -->
         <div class="hidden md:flex items-center bg-black/25 p-0.5 rounded-xl border border-white/15 text-xs">
           <button type="button" onclick="selectDay('day1')" id="m-day1" class="px-2.5 py-1 rounded-lg font-semibold transition">30 พ.ย.</button>
           <button type="button" onclick="selectDay('day2')" id="m-day2" class="px-2.5 py-1 rounded-lg font-semibold transition">1 ธ.ค.</button>
           <button type="button" onclick="selectDay('day3')" id="m-day3" class="px-2.5 py-1 rounded-lg font-semibold transition">2 ธ.ค.</button>
         </div>
 
-        <!-- นาฬิกา Real-time เวลาไทย -->
         <div class="text-right px-3 py-1 rounded-xl bg-black/25 border border-police-gold/50">
           <div id="live-clock" class="font-mono text-base sm:text-xl font-bold text-police-goldLight leading-none tracking-wider">00:00:00</div>
           <div id="live-date" class="text-[10px] text-amber-100/90 mt-0.5">กำลังโหลดวันที่...</div>
         </div>
 
-        <!-- ปุ่มควบคุม -->
         <div class="flex items-center gap-1">
+          <button type="button" onclick="openWorkshopTimerModal()" title="เปิดหน้าจอแบ่งกลุ่ม 5 กลุ่ม พร้อมนาฬิกานับถอยหลังขนาดใหญ่" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-police-gold/70 text-xs font-bold text-white shadow-sm transition">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-police-goldLight"></i>
+            <span class="hidden lg:inline">จับเวลากลุ่ม 5 กลุ่ม</span>
+          </button>
           <button type="button" onclick="openFlashAlertModal()" title="ยิงป๊อปอัปประกาศด่วนกลางจอพร้อมเสียงติ๊งต่อง" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 border border-police-gold/70 text-xs font-bold text-white shadow-sm transition">
             <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-police-goldLight"></i>
             <span class="hidden xl:inline">ประกาศด่วน</span>
@@ -189,7 +181,7 @@
     </div>
   </header>
 
-  <!-- ==================== FLOATING COUNTDOWN BAR (แสดงเมื่อเปิดนับถอยหลัง) ==================== -->
+  <!-- ==================== FLOATING COUNTDOWN BAR ==================== -->
   <div id="countdown-banner" class="hidden shrink-0 bg-gradient-to-r from-police-navyDark via-police-navy to-police-maroonDark text-white border-b-2 border-police-gold px-4 py-1.5 shadow-md">
     <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -203,16 +195,15 @@
     </div>
   </div>
 
-  <!-- ==================== MAIN BROADCAST BODY (MAXIMIZED LIST SPACE) ==================== -->
+  <!-- ==================== MAIN BROADCAST BODY ==================== -->
   <main class="max-w-[1800px] w-full mx-auto px-3 sm:px-5 py-2.5 space-y-2.5 flex-1 min-h-0 flex flex-col lg:overflow-hidden">
 
-    <!-- UNIFIED COMPACT BENTO STRIP: สถิติ + ความคืบหน้า + สถานที่/อากาศ + QR คู่หู AI ในแถวเดียว -->
+    <!-- UNIFIED COMPACT BENTO STRIP -->
     <section class="shrink-0 grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-stretch">
 
       <!-- 1. แผงสถิติ + ความคืบหน้า + สรุปย่อรายหน่วย -->
       <div class="lg:col-span-6 official-panel rounded-2xl px-3.5 py-2.5 border-l-4 border-l-police-navy flex flex-col justify-between gap-2">
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
-          <!-- ตัวเลข 3 สถานะเรียงแนวนอนกระชับ -->
           <div class="flex items-center gap-3 sm:gap-4">
             <div class="flex items-baseline gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-500 self-center"></span>
@@ -232,19 +223,16 @@
             </div>
           </div>
 
-          <!-- เปอร์เซ็นต์ + วันที่ -->
           <div class="flex items-center gap-2 ml-auto">
             <span id="hero-day-label" class="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 text-[11px] font-bold text-police-navy">30 พ.ย. 69</span>
             <span id="stat-percent" class="font-mono text-2xl sm:text-3xl font-extrabold text-police-navy leading-none">0%</span>
           </div>
         </div>
 
-        <!-- แถบ Progress Bar เพรียวบาง -->
         <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
           <div id="stat-progress-bar" class="h-full rounded-full bg-gradient-to-r from-police-navy via-police-gold to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
         </div>
 
-        <!-- แถบสรุปย่อรายหน่วยหลัก -->
         <div id="unit-pills" class="flex items-center gap-1 overflow-x-auto custom-scroll text-[10.5px] leading-none pb-0.5"></div>
       </div>
 
@@ -280,7 +268,7 @@
         </div>
       </div>
 
-      <!-- 3. การ์ด QR Code แชทบอทตำรวจคู่หูจราจร AI (สแกนได้ตลอดเวลา คลิกขยายเต็มจอได้) -->
+      <!-- 3. การ์ด QR Code แชทบอทตำรวจคู่หูจราจร AI -->
       <div onclick="openAiQrSpotlight()" title="คลิกเพื่อขยาย QR Code เต็มจอ" class="lg:col-span-2 cursor-pointer group rounded-2xl px-3 py-2 bg-gradient-to-br from-police-navyDark via-police-navy to-police-maroonDark border-2 border-police-gold shadow-sm flex items-center gap-2.5 text-white hover:shadow-md transition">
         <div class="bg-white p-1 rounded-xl shadow-inner shrink-0 group-hover:scale-105 transition">
           <div id="always-on-ai-qr" class="w-[72px] h-[72px] flex items-center justify-center"></div>
@@ -296,7 +284,7 @@
       </div>
     </section>
 
-    <!-- ==================== SPLIT BOARD: LEFT (เข้าร่วมแล้ว) vs RIGHT (ยังไม่เข้าร่วม) ==================== -->
+    <!-- ==================== SPLIT BOARD ==================== -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0">
 
       <!-- ฝั่งซ้าย: เข้าร่วมสัมมนาแล้ว -->
@@ -333,7 +321,7 @@
     </section>
   </main>
 
-  <!-- ==================== LIVE NEWS TICKER + SYNC STATUS BAR ==================== -->
+  <!-- ==================== LIVE NEWS TICKER ==================== -->
   <div class="shrink-0 bg-police-navyDark text-white border-t-2 border-police-gold flex items-center overflow-hidden">
     <div class="bg-police-maroon px-3.5 py-1.5 text-xs font-bold text-police-goldLight flex items-center gap-1.5 shrink-0 z-10 shadow-md">
       <i data-lucide="radio" class="w-3.5 h-3.5 animate-pulse"></i> ประกาศหน้างาน
@@ -347,7 +335,7 @@
     </div>
   </div>
 
-  <!-- ==================== VIP WELCOME BANNER (เด้งต้อนรับเมื่อมีคนสแกนเช็กอินใหม่) ==================== -->
+  <!-- ==================== VIP WELCOME BANNER ==================== -->
   <div id="vip-welcome-banner" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-2xl pointer-events-none">
     <div class="rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark border-2 border-police-gold shadow-2xl flex items-center gap-4 text-white">
       <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-police-gold/20 border border-police-gold/70 flex items-center justify-center text-police-goldLight shrink-0">
@@ -364,7 +352,7 @@
     </div>
   </div>
 
-  <!-- ==================== FLASH ALERT OVERLAY (ป๊อปอัปประกาศด่วนกลางจอ) ==================== -->
+  <!-- ==================== FLASH ALERT OVERLAY ==================== -->
   <div id="flash-alert-overlay" onclick="closeFlashAlert()" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
     <div onclick="event.stopPropagation()" class="flash-pop-animate max-w-3xl w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-police-gold bg-white text-center">
       <div class="px-6 py-4 bg-gradient-to-r from-police-maroonDark via-police-maroon to-police-navyDark text-white flex items-center justify-between gap-3">
@@ -421,6 +409,116 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: ตั้งค่าหน้าจอจับเวลากิจกรรมแบ่งกลุ่ม 5 กลุ่ม ==================== -->
+  <div id="workshop-timer-modal" class="hidden fixed inset-0 z-[55] bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 my-auto">
+      <div class="px-5 py-4 bg-gradient-to-r from-indigo-900 via-police-navy to-police-maroonDark text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="users" class="w-5 h-5 text-police-goldLight"></i>
+          <div>
+            <h3 class="font-bold text-base">ตั้งค่าหน้าจอแบ่งกลุ่ม 5 กลุ่ม + นับถอยหลัง</h3>
+            <p class="text-[11px] text-blue-100">แสดงนาฬิกานับถอยหลังขนาดใหญ่บนจอโปรเจกเตอร์พร้อมหัวข้อและรายชื่อทั้ง 5 กลุ่ม</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeWorkshopTimerModal()" class="p-1.5 rounded-lg hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scroll text-sm">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700">หัวข้อกิจกรรมแบ่งกลุ่ม</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="applyWorkshopPreset('สัมมนากลุ่มย่อย 5 กลุ่ม — ระดมสมองปัญหาการปฏิบัติงานจราจร', 90)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">สัมมนากลุ่มย่อย (90 น.)</button>
+            <button type="button" onclick="applyWorkshopPreset('สรุปประเด็น คัดเลือกปัญหาสำคัญ & ร่างแนวคำถาม–คำตอบ', 60)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">สรุปประเด็น/ร่าง Q&amp;A (60 น.)</button>
+            <button type="button" onclick="applyWorkshopPreset('นำเสนอผลงานกลุ่มย่อย 5 ประเด็น (กลุ่มละ 15 นาที)', 15)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">นำเสนอผล (15 น.)</button>
+            <button type="button" onclick="applyWorkshopPreset('จัดทำร่างคำถาม–คำตอบ 5 ประเด็น (ช่วงเช้า)', 180)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-police-navy hover:text-white text-xs font-medium transition">Workshop 3 ชม. (180 น.)</button>
+          </div>
+          <input type="text" id="ws-title-input" value="สัมมนากลุ่มย่อย 5 กลุ่ม — จัดทำคลังความรู้งานจราจร" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-police-navy focus:outline-none" />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-700">กำหนดเวลานับถอยหลัง (นาที)</label>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+            <button type="button" onclick="setWorkshopMinutesInput(15)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">15 นาที</button>
+            <button type="button" onclick="setWorkshopMinutesInput(30)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">30 นาที</button>
+            <button type="button" onclick="setWorkshopMinutesInput(45)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">45 นาที</button>
+            <button type="button" onclick="setWorkshopMinutesInput(60)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">60 นาที</button>
+            <button type="button" onclick="setWorkshopMinutesInput(90)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">90 นาที</button>
+            <button type="button" onclick="setWorkshopMinutesInput(120)" class="py-2 rounded-xl bg-slate-100 hover:bg-police-navy hover:text-white font-bold text-xs transition">120 นาที</button>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <span class="text-xs text-slate-500">กำหนดเวลาเอง:</span>
+            <input type="number" id="ws-minutes-input" min="1" max="360" value="45" class="w-24 px-3 py-2 rounded-xl border border-slate-300 text-sm text-center font-mono font-bold focus:ring-2 focus:ring-police-navy focus:outline-none" />
+            <span class="text-xs font-semibold text-slate-600">นาที</span>
+            <span class="text-[11px] text-amber-700 ml-auto hidden sm:inline">🔔 มีเสียงเตือนตอนเหลือ 5 นาที และเมื่อหมดเวลา</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-200">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-slate-700">ข้อความสำรองแต่ละกลุ่ม (ระบบจะดึงรายชื่อผู้เชี่ยวชาญและสมาชิกจาก Google Sheets ให้อัตโนมัติ)</label>
+            <button type="button" onclick="resetWorkshopGroupNotes()" class="text-[11px] font-semibold text-rose-600 hover:underline">รีเซ็ตค่าเริ่มต้น</button>
+          </div>
+          <div id="ws-group-inputs-container" class="space-y-2"></div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeWorkshopTimerModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold text-slate-600">ยกเลิก</button>
+          <button type="button" onclick="startWorkshopTimerScreen()" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-700 to-police-maroon text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition">
+            <i data-lucide="play" class="w-4 h-4"></i> เปิดหน้าจอแบ่งกลุ่ม &amp; เริ่มนับถอยหลัง
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FULLSCREEN OVERLAY: หน้าจอแบ่งกลุ่ม 5 กลุ่ม + นับถอยหลังขนาดใหญ่ ==================== -->
+  <div id="workshop-timer-overlay" class="hidden fixed inset-0 z-50 bg-gradient-to-br from-[#070E24] via-[#0F1F4B] to-[#3B081B] text-white flex flex-col overflow-hidden">
+    <div class="shrink-0 px-4 sm:px-6 py-3 bg-black/30 border-b-2 border-police-gold/80 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <span id="ws-round-pill" class="px-3 py-1 rounded-full bg-police-gold text-police-maroonDark text-xs font-extrabold uppercase tracking-wider shrink-0">รอบที่ 1 / 5</span>
+        <h2 id="ws-screen-title" class="text-base sm:text-xl lg:text-2xl font-extrabold text-white truncate">สัมมนากลุ่มย่อย 5 กลุ่ม</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+        <button type="button" onclick="shiftWorkshopRound(-1)" title="ย้อนกลับรอบก่อนหน้า" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/30 hover:bg-indigo-500/50 border border-indigo-300/40 text-xs font-bold transition">◀ รอบก่อน</button>
+        <button type="button" onclick="shiftWorkshopRound(1)" title="สลับผู้เข้าร่วมไปยังกลุ่มถัดไป (ซิงค์ขึ้นบัตรทุกคนทันที)" class="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 border border-indigo-300/60 text-white text-xs font-extrabold shadow transition">สลับรอบถัดไป ▶</button>
+        <button type="button" onclick="toggleWorkshopPause()" id="ws-btn-pause" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition">
+          <i data-lucide="pause" class="w-3.5 h-3.5"></i> <span id="ws-pause-label">พักเวลา</span>
+        </button>
+        <button type="button" onclick="addWorkshopMinutes(5)" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold transition">+5 นาที</button>
+        <button type="button" onclick="openWorkshopTimerModal()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold transition">⚙️ ตั้งค่า</button>
+        <button type="button" onclick="toggleFullscreen()" class="p-2 rounded-xl bg-police-gold/20 hover:bg-police-gold/35 border border-police-gold/60 text-police-goldLight transition" title="เต็มจอ">
+          <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="closeWorkshopTimerScreen()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition">ปิด (Esc)</button>
+      </div>
+    </div>
+
+    <div class="flex-1 min-h-0 flex flex-col justify-between px-4 sm:px-8 py-4 sm:py-6 gap-4 overflow-y-auto custom-scroll">
+      <div class="flex flex-col items-center justify-center text-center space-y-3 my-auto">
+        <div id="ws-status-pill" class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="ws-status-text">กำลังดำเนินกิจกรรมกลุ่มย่อย</span>
+        </div>
+
+        <div id="ws-big-clock" class="font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]">
+          45:00
+        </div>
+
+        <div class="w-full max-w-3xl space-y-1.5">
+          <div class="w-full h-3.5 sm:h-4 bg-white/10 rounded-full overflow-hidden border border-white/15 p-0.5">
+            <div id="ws-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-police-goldLight to-amber-400 transition-all duration-700" style="width: 100%"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] sm:text-xs text-blue-200/90 font-medium px-1">
+            <span>⭐ ผู้เชี่ยวชาญอยู่ประจำฐานเดิม • 🔄 ผู้เข้าร่วมสัมมนาหมุนเวียนเปลี่ยนกลุ่มตามรอบ</span>
+            <span id="ws-total-label" class="font-mono">เวลารวม 45 นาที</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="ws-groups-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 shrink-0"></div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: แก้ไขข้อความประกาศข่าววิ่ง ==================== -->
   <div id="ticker-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
@@ -473,7 +571,6 @@
         <div id="spotlight-line-qr" class="p-4 bg-white rounded-3xl border-2 border-[#06C755]/30 shadow-lg min-w-[260px] min-h-[260px] flex items-center justify-center"></div>
         <p id="spotlight-line-url-label" class="font-mono text-xs sm:text-sm font-bold text-emerald-700 break-all px-2"></p>
 
-        <!-- ช่องวาง/แก้ไขลิงก์กลุ่ม LINE สดหน้างานได้ทันที -->
         <div class="w-full pt-3 border-t border-slate-200 flex gap-2">
           <input type="url" id="line-url-input" placeholder="วางลิงก์กลุ่ม LINE (https://line.me/...) ที่นี่" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono focus:ring-2 focus:ring-[#06C755] focus:outline-none" />
           <button type="button" onclick="saveLineGroupUrl()" class="px-4 py-2 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white text-xs font-bold shrink-0 transition">อัปเดต QR</button>
@@ -484,7 +581,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: สร้างป๊อปอัปประกาศด่วนกลางจอ (Flash Alert Composer) ==================== -->
+  <!-- ==================== MODAL: สร้างป๊อปอัปประกาศด่วนกลางจอ ==================== -->
   <div id="flash-alert-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
       <div class="px-5 py-4 bg-gradient-to-r from-police-maroonDark to-police-maroon text-white flex items-center justify-between">
@@ -561,7 +658,6 @@
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
     const AI_CHATBOT_URL = "https://pinai-fine.police.go.th/";
-    // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (สามารถวาง/แก้ไขสดในหน้าต่าง QR บนจอทีวีได้ด้วย)
     const DEFAULT_LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const DEFAULT_TICKER_MSG = "ยินดีต้อนรับผู้เข้าร่วมโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร) • สแกน QR Code บนป้ายคล้องคอเพื่อเปิดเอกสารสัมมนา ตรวจสอบห้องพัก และทำแบบประเมิน • ทดลองใช้งานแชทบอทตำรวจคู่หูจราจรได้ที่ https://pinai-fine.police.go.th/";
     const DAY_CONFIG = {
@@ -586,6 +682,24 @@
     let flashAlertTimer = null;
     let flashAlertRemaining = 0;
 
+    // ==================== ข้อมูลและสถานะหน้าจอจับเวลาแบ่งกลุ่ม 5 กลุ่ม ====================
+    const DEFAULT_WORKSHOP_GROUPS = [
+      { num: 1, title: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง', color: '#2563EB', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
+      { num: 2, title: 'คู่มือแนวทางมาตรฐานการปฏิบัติงาน', color: '#0D9488', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
+      { num: 3, title: 'ระบบเทคโนโลยีสารสนเทศงานจราจร', color: '#4F46E5', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
+      { num: 4, title: 'การปฏิบัติงานด้านการเงินและงบประมาณ', color: '#D97706', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' },
+      { num: 5, title: 'ประเด็นข้อโต้แย้งจากประชาชน', color: '#BE123C', note: 'ผู้เชี่ยวชาญ 1–2 คน + ผู้เข้าร่วมสัมมนา (จะระบุรายชื่อเมื่อทราบชื่อ)' }
+    ];
+    let workshopTimer = null;
+    let workshopTotalSec = 45 * 60;
+    let workshopRemainingSec = 45 * 60;
+    let workshopPaused = false;
+    let workshopFiveMinWarned = false;
+    let liveWorkshopConfig = {
+      currentRound: 1,
+      groups: DEFAULT_WORKSHOP_GROUPS.map(g => ({ groupNo: g.num, topic: g.title, experts: '' }))
+    };
+
     const DEFAULT_VENUE_INFO = {
       room: 'ห้องแกรนด์บอลรูม ไพน์เฮิร์สท',
       wifi: 'Pinehurst_Guest (รหัส: 12345678)',
@@ -601,7 +715,6 @@
       return 'day1';
     }
 
-    // สถานะการเลื่อนแยกอิสระซ้าย-ขวา (หยุดเมื่อเอาเมาส์ชี้ และวนกลับบนสุดอัตโนมัติ)
     const scrollState = {
       'checked-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false },
       'pending-scroll-box': { phase: 'scrolling', pauseUntil: 0, hovered: false }
@@ -622,6 +735,8 @@
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          closeWorkshopTimerModal();
+          closeWorkshopTimerScreen();
           closeFlashAlert();
           closeFlashAlertModal();
           closeVenueInfoModal();
@@ -639,7 +754,6 @@
       initMonitorApp();
     }
 
-    // ==================== นาฬิกาเวลาไทย REAL-TIME ====================
     function startThaiClock() {
       const updateClock = () => {
         const now = new Date();
@@ -654,7 +768,6 @@
       setInterval(updateClock, 1000);
     }
 
-    // ==================== เลือกวันสัมมนา ====================
     function selectDay(dayKey, shouldRender = true) {
       currentDay = dayKey;
       isFirstLoad = true;
@@ -673,7 +786,6 @@
       if (shouldRender) renderBoard();
     }
 
-    // ==================== ดึงข้อมูลสดจาก GOOGLE SHEETS ====================
     function formatThaiTime(val) {
       const s = String(val || '').trim();
       if (!s || s === 'ยังไม่มา' || s === '-') return '';
@@ -701,10 +813,22 @@
     async function fetchLiveStatus() {
       const syncEl = document.getElementById('last-sync-text');
       try {
-        const res = await fetch(`${API_URL}?action=getParticipants`);
+        const [res, wRes] = await Promise.all([
+          fetch(`${API_URL}?action=getParticipants`),
+          fetch(`${API_URL}?action=getWorkshopConfig`).catch(() => null)
+        ]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
+
+        if (wRes && wRes.ok) {
+          try {
+            const wJson = await wRes.json();
+            if (wJson.status === 'success' && wJson.data) {
+              liveWorkshopConfig = wJson.data;
+            }
+          } catch (e) {}
+        }
 
         participants = (json.data || []).map(p => ({
           ...p,
@@ -718,7 +842,9 @@
           day2: formatThaiTime(p.day2),
           day3: formatThaiTime(p.day3),
           substituteName: String(p.substituteName || '').trim(),
-          substitutePosition: String(p.substitutePosition || '').trim()
+          substitutePosition: String(p.substitutePosition || '').trim(),
+          workshopGroup: String(p.workshopGroup || '').trim(),
+          workshopRole: String(p.workshopRole || 'ผู้เข้าร่วม').trim()
         }));
 
         const newlyChecked = [];
@@ -737,6 +863,9 @@
         }
 
         renderBoard();
+        if (!document.getElementById('workshop-timer-overlay')?.classList.contains('hidden')) {
+          renderWorkshopGroupCards(getSavedWorkshopNotes());
+        }
         const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
         if (syncEl) syncEl.textContent = `อัปเดตล่าสุด: ${nowStr} น.`;
       } catch (err) {
@@ -744,7 +873,6 @@
       }
     }
 
-    // ==================== แสดงผลกระดานซ้าย-ขวา และสถิติ ====================
     function renderBoard() {
       const total = participants.length;
       const checkedList = participants
@@ -833,7 +961,6 @@
           }).join('');
     }
 
-    // ==================== VIP WELCOME BANNER ====================
     function showVipWelcome(p) {
       const banner = document.getElementById('vip-welcome-banner');
       if (!banner) return;
@@ -850,7 +977,6 @@
       setTimeout(() => banner.classList.add('hidden'), 5300);
     }
 
-    // ==================== AUTO-SCROLL วนลูปนุ่มนวลไม่ค้าง ====================
     function initScrollHoverPause() {
       Object.keys(scrollState).forEach(id => {
         const el = document.getElementById(id);
@@ -943,7 +1069,7 @@
         if (countdownRemainingSec <= 0) {
           clearInterval(countdownTimer);
           countdownTimer = null;
-          playChime();
+          playDingDongChime();
           document.getElementById('countdown-clock-display').textContent = '00:00';
           document.getElementById('countdown-title-display').textContent = `${title} — ได้เวลาแล้ว!`;
         }
@@ -969,20 +1095,239 @@
       if (headerTxt) headerTxt.textContent = 'นับถอยหลัง';
     }
 
-    function playChime() {
+    // ==================== WORKSHOP 5-GROUP COUNTDOWN SCREEN ====================
+    function getSavedWorkshopNotes() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [523.25, 659.25, 783.99].forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.18, ctx.currentTime + idx * 0.2);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.2 + 0.6);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + idx * 0.2);
-          osc.stop(ctx.currentTime + idx * 0.2 + 0.65);
+        const saved = JSON.parse(safeStorageGet('ai_seminar_ws_group_notes') || 'null');
+        if (Array.isArray(saved) && saved.length === 5) return saved;
+      } catch (e) {}
+      return DEFAULT_WORKSHOP_GROUPS.map(g => g.note);
+    }
+
+    function openWorkshopTimerModal() {
+      const notes = getSavedWorkshopNotes();
+      const box = document.getElementById('ws-group-inputs-container');
+      if (box) {
+        box.innerHTML = DEFAULT_WORKSHOP_GROUPS.map((g, idx) => `
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-md text-white font-mono font-bold text-[11px] flex items-center justify-center shrink-0" style="background:${g.color}">${g.num}</span>
+              <span class="text-xs font-bold text-slate-800 truncate">${escapeHtml(g.title)}</span>
+            </div>
+            <input type="text" id="ws-group-note-${idx}" value="${escapeHtml(notes[idx] || g.note)}" placeholder="ข้อความสำรองกลุ่ม ${g.num}..." class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs focus:ring-1 focus:ring-police-navy focus:outline-none" />
+          </div>
+        `).join('');
+      }
+      document.getElementById('workshop-timer-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeWorkshopTimerModal() {
+      document.getElementById('workshop-timer-modal').classList.add('hidden');
+    }
+
+    function applyWorkshopPreset(title, minutes) {
+      document.getElementById('ws-title-input').value = title;
+      document.getElementById('ws-minutes-input').value = minutes;
+    }
+
+    function setWorkshopMinutesInput(minutes) {
+      document.getElementById('ws-minutes-input').value = minutes;
+    }
+
+    function resetWorkshopGroupNotes() {
+      DEFAULT_WORKSHOP_GROUPS.forEach((g, idx) => {
+        const inp = document.getElementById(`ws-group-note-${idx}`);
+        if (inp) inp.value = g.note;
+      });
+    }
+
+    function formatWorkshopClock(totalSec) {
+      const sec = Math.max(0, totalSec);
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      if (h > 0) {
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startWorkshopTimerScreen() {
+      const title = document.getElementById('ws-title-input').value.trim() || 'สัมมนากลุ่มย่อย 5 กลุ่ม';
+      const mins = Math.max(1, Math.min(360, parseInt(document.getElementById('ws-minutes-input').value, 10) || 45));
+
+      const notes = [];
+      for (let i = 0; i < 5; i++) {
+        const inp = document.getElementById(`ws-group-note-${i}`);
+        notes.push(inp ? inp.value.trim() : DEFAULT_WORKSHOP_GROUPS[i].note);
+      }
+      safeStorageSet('ai_seminar_ws_group_notes', JSON.stringify(notes));
+
+      workshopTotalSec = mins * 60;
+      workshopRemainingSec = workshopTotalSec;
+      workshopPaused = false;
+      workshopFiveMinWarned = false;
+
+      document.getElementById('ws-screen-title').textContent = title;
+      document.getElementById('ws-total-label').textContent = `เวลารวม ${mins} นาที`;
+      document.getElementById('ws-pause-label').textContent = 'พักเวลา';
+
+      renderWorkshopGroupCards(notes);
+      closeWorkshopTimerModal();
+      document.getElementById('workshop-timer-overlay').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+
+      runWorkshopInterval();
+    }
+
+    function runWorkshopInterval() {
+      if (workshopTimer) clearInterval(workshopTimer);
+      updateWorkshopTimerDisplay();
+      workshopTimer = setInterval(() => {
+        if (workshopPaused) return;
+        workshopRemainingSec--;
+        updateWorkshopTimerDisplay();
+
+        if (workshopRemainingSec === 300 && !workshopFiveMinWarned) {
+          workshopFiveMinWarned = true;
+          playDingDongChime();
+        }
+
+        if (workshopRemainingSec <= 0) {
+          clearInterval(workshopTimer);
+          workshopTimer = null;
+          playDingDongChime();
+        }
+      }, 1000);
+    }
+
+    function updateWorkshopTimerDisplay() {
+      const clockEl = document.getElementById('ws-big-clock');
+      const barEl = document.getElementById('ws-progress-bar');
+      const pillEl = document.getElementById('ws-status-pill');
+      const statusTxtEl = document.getElementById('ws-status-text');
+      if (!clockEl || !barEl) return;
+
+      clockEl.textContent = formatWorkshopClock(workshopRemainingSec);
+      const pct = workshopTotalSec > 0 ? Math.max(0, Math.min(100, (workshopRemainingSec / workshopTotalSec) * 100)) : 0;
+      barEl.style.width = `${pct}%`;
+
+      if (workshopRemainingSec <= 0) {
+        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-rose-400 leading-none animate-pulse';
+        barEl.className = 'h-full rounded-full bg-rose-500 transition-all duration-700';
+        pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-rose-500/25 border border-rose-400 text-rose-200 text-xs sm:text-sm font-bold';
+        statusTxtEl.textContent = 'หมดเวลากิจกรรมช่วงนี้แล้ว!';
+      } else if (workshopRemainingSec <= 300) {
+        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-amber-300 leading-none';
+        barEl.className = 'h-full rounded-full bg-amber-400 transition-all duration-700';
+        pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-500/25 border border-amber-400 text-amber-200 text-xs sm:text-sm font-bold';
+        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'เหลือเวลาอีกไม่ถึง 5 นาที — เตรียมสรุปประเด็น';
+      } else {
+        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]';
+        barEl.className = 'h-full rounded-full bg-gradient-to-r from-emerald-400 via-police-goldLight to-amber-400 transition-all duration-700';
+        pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-bold';
+        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'กำลังดำเนินกิจกรรมกลุ่มย่อย';
+      }
+    }
+
+    function toggleWorkshopPause() {
+      workshopPaused = !workshopPaused;
+      document.getElementById('ws-pause-label').textContent = workshopPaused ? 'เดินเวลาต่อ' : 'พักเวลา';
+      updateWorkshopTimerDisplay();
+    }
+
+    function addWorkshopMinutes(extraMins) {
+      const addSec = extraMins * 60;
+      workshopRemainingSec = Math.max(0, workshopRemainingSec) + addSec;
+      workshopTotalSec += addSec;
+      if (workshopRemainingSec > 300) workshopFiveMinWarned = false;
+      workshopPaused = false;
+      document.getElementById('ws-pause-label').textContent = 'พักเวลา';
+      document.getElementById('ws-total-label').textContent = `เวลารวม ${Math.round(workshopTotalSec / 60)} นาที`;
+      if (!workshopTimer) {
+        runWorkshopInterval();
+      } else {
+        updateWorkshopTimerDisplay();
+      }
+    }
+
+    function closeWorkshopTimerScreen() {
+      if (workshopTimer) {
+        clearInterval(workshopTimer);
+        workshopTimer = null;
+      }
+      document.getElementById('workshop-timer-overlay').classList.add('hidden');
+    }
+
+    function renderWorkshopGroupCards(notes) {
+      const grid = document.getElementById('ws-groups-grid');
+      const roundPill = document.getElementById('ws-round-pill');
+      if (!grid) return;
+
+      const round = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
+      if (roundPill) roundPill.textContent = `รอบที่ ${round} / 5`;
+
+      const apiGroups = liveWorkshopConfig.groups || [];
+      grid.innerHTML = DEFAULT_WORKSHOP_GROUPS.map((g, idx) => {
+        const gNum = g.num;
+        const apiG = apiGroups.find(x => Number(x.groupNo) === gNum) || {};
+
+        const isFixedExp = (p) => String(p.workshopRole || '').includes('ผู้เชี่ยวชาญ') || String(p.workshopRole || '').includes('วิทยากร');
+        const fixedExperts = participants
+          .filter(p => parseInt(p.workshopGroup, 10) === gNum && isFixedExp(p))
+          .map(p => hasSubstitute(p) ? p.substituteName : p.fullName);
+
+        const expertNames = [];
+        if (apiG.experts) {
+          apiG.experts.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(n => expertNames.push(n));
+        }
+        fixedExperts.forEach(n => {
+          if (!expertNames.some(ex => ex.includes(n) || n.includes(ex))) expertNames.push(n);
+        });
+
+        const members = participants
+          .filter(p => {
+            if (isFixedExp(p)) return false;
+            const base = parseInt(p.workshopGroup, 10);
+            if (!base || base < 1 || base > 5) return false;
+            return (((base - 1 + (round - 1)) % 5) + 1) === gNum;
+          })
+          .map(p => hasSubstitute(p) ? p.substituteName : p.fullName);
+
+        const hasLiveData = expertNames.length > 0 || members.length > 0;
+
+        return `
+          <div class="rounded-2xl p-3.5 bg-white/10 backdrop-blur-md border border-white/15 flex flex-col justify-between gap-2 shadow-lg" style="border-top: 4px solid ${g.color};">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded-lg text-[11px] font-extrabold text-white font-mono" style="background:${g.color}">กลุ่มที่ ${gNum}</span>
+                <span class="text-[10px] text-amber-200/90 font-semibold">${members.length ? `สมาชิก ${members.length} ราย` : 'ผู้เชี่ยวชาญ 1–2 คน'}</span>
+              </div>
+              <h3 class="text-xs sm:text-sm font-bold text-white leading-snug">${escapeHtml(apiG.topic || g.title)}</h3>
+            </div>
+            <div class="pt-2 border-t border-white/15 text-[11px] text-blue-100/90 leading-relaxed break-words space-y-1">
+              ${hasLiveData ? `
+                <div><span class="text-amber-300 font-bold">⭐ ผู้เชี่ยวชาญ:</span> ${escapeHtml(expertNames.join(', ') || 'รอระบุ')}</div>
+                <div><span class="text-emerald-300 font-bold">👥 รอบที่ ${round}:</span> ${escapeHtml(members.slice(0, 8).join(', '))}${members.length > 8 ? ` (+${members.length - 8})` : (members.length === 0 ? 'รอจัดสมาชิก' : '')}</div>
+              ` : escapeHtml(notes[idx] || g.note)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function shiftWorkshopRound(delta) {
+      const cur = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
+      const next = ((cur - 1 + delta + 5) % 5) + 1;
+      liveWorkshopConfig.currentRound = next;
+      renderWorkshopGroupCards(getSavedWorkshopNotes());
+      playDingDongChime();
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'setWorkshopRound', currentRound: next })
         });
       } catch (e) {}
     }
@@ -1010,7 +1355,7 @@
       closeTickerModal();
     }
 
-    // ==================== AI CHATBOT QR SPOTLIGHT & ALWAYS-ON QR ====================
+    // ==================== AI CHATBOT QR SPOTLIGHT & LINE QR SPOTLIGHT ====================
     function renderAlwaysOnAiQr() {
       const box = document.getElementById('always-on-ai-qr');
       if (!box || typeof QRCode === 'undefined') return;
@@ -1041,7 +1386,6 @@
       document.getElementById('ai-qr-modal').classList.add('hidden');
     }
 
-    // ==================== LINE GROUP QR SPOTLIGHT ====================
     function getLineGroupUrl() {
       return safeStorageGet('ai_seminar_line_url') || DEFAULT_LINE_GROUP_URL;
     }
@@ -1089,7 +1433,7 @@
       document.getElementById('line-qr-modal').classList.add('hidden');
     }
 
-    // ==================== FLASH ALERT OVERLAY (ป๊อปอัปประกาศด่วนกลางจอ + เสียงติ๊งต่อง) ====================
+    // ==================== FLASH ALERT OVERLAY ====================
     function openFlashAlertModal() {
       document.getElementById('flash-alert-modal').classList.remove('hidden');
       setTimeout(() => document.getElementById('flash-msg-input')?.focus(), 100);
@@ -1169,7 +1513,7 @@
       } catch (e) {}
     }
 
-    // ==================== VENUE INFO & PATHUM THANI LIVE WEATHER WIDGET ====================
+    // ==================== VENUE INFO & WEATHER ====================
     function getVenueInfo() {
       try {
         const saved = JSON.parse(safeStorageGet('ai_seminar_venue_info') || 'null');
