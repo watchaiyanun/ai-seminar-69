@@ -500,6 +500,7 @@
         <h2 id="ws-screen-title" class="text-base sm:text-xl lg:text-2xl font-extrabold text-white truncate">สัมมนากลุ่มย่อย 5 กลุ่ม</h2>
       </div>
       <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+        <button type="button" onclick="fetchLiveStatus()" title="ดึงรายชื่อกลุ่มล่าสุดจาก Google Sheets ทันที" class="px-2.5 py-1.5 rounded-xl bg-sky-500/25 hover:bg-sky-500/40 border border-sky-300/50 text-sky-100 text-xs font-bold transition">🔄 รีเฟรชรายชื่อ</button>
         <button type="button" onclick="toggleWorkshopAutoRotateLive()" id="ws-btn-autorotate" title="เปิด/ปิด การสลับกลุ่มอัตโนมัติเมื่อหมดเวลา" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-300/60 text-emerald-200 text-xs font-bold transition">🔄 สลับรอบอัตโนมัติ: เปิด</button>
         <button type="button" onclick="restartCurrentWorkshopRound()" id="ws-btn-restart-round" class="hidden px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-md animate-pulse transition">▶ เริ่มจับเวลารอบนี้</button>
         <button type="button" onclick="shiftWorkshopRound(-1)" title="ย้อนกลับรอบก่อนหน้า" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/30 hover:bg-indigo-500/50 border border-indigo-300/40 text-xs font-bold transition">◀ รอบก่อน</button>
@@ -516,8 +517,8 @@
       </div>
     </div>
 
-    <div class="flex-1 min-h-0 flex flex-col justify-between px-4 sm:px-8 py-4 sm:py-6 gap-4 overflow-y-auto custom-scroll">
-      <div class="flex flex-col items-center justify-center text-center space-y-3 my-auto">
+    <div class="flex-1 min-h-0 flex flex-col px-4 sm:px-6 py-4 gap-5 overflow-y-auto custom-scroll">
+      <div class="flex flex-col items-center justify-center text-center space-y-2.5 shrink-0">
         <!-- แถบแจ้งเตือนเมื่อระบบสลับรอบอัตโนมัติ -->
         <div id="ws-rotate-banner" class="hidden w-full max-w-3xl px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600/90 via-police-navy/95 to-police-maroon/90 border-2 border-police-goldLight shadow-xl flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-white">
           <span id="ws-rotate-banner-text">🔄 หมดเวลา! สลับกลุ่มขึ้นรอบถัดไปแล้ว — สมาชิกเลื่อนไปกลุ่มถัดไป (1 → 2 → 3 → 4 → 5)</span>
@@ -528,22 +529,23 @@
           <span id="ws-status-text">กำลังดำเนินกิจกรรมกลุ่มย่อย</span>
         </div>
 
-        <div id="ws-big-clock" class="font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]">
+        <div id="ws-big-clock" class="font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]">
           45:00
         </div>
 
-        <div class="w-full max-w-3xl space-y-1.5">
-          <div class="w-full h-3.5 sm:h-4 bg-white/10 rounded-full overflow-hidden border border-white/15 p-0.5">
+        <div class="w-full max-w-3xl space-y-1">
+          <div class="w-full h-3 sm:h-3.5 bg-white/10 rounded-full overflow-hidden border border-white/15 p-0.5">
             <div id="ws-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-police-goldLight to-amber-400 transition-all duration-700" style="width: 100%"></div>
           </div>
           <div class="flex items-center justify-between text-[11px] sm:text-xs text-blue-200/90 font-medium px-1">
-            <span>⭐ ผู้เชี่ยวชาญอยู่ประจำฐานเดิม • 🔄 ผู้เข้าร่วมสัมมนาหมุนเวียนเปลี่ยนกลุ่มตามรอบ</span>
+            <span>⭐ วิทยากร/ผู้เชี่ยวชาญอยู่ประจำฐานเดิม • 🔄 ผู้เข้าร่วมสัมมนาหมุนเวียนเปลี่ยนกลุ่มตามรอบ</span>
             <span id="ws-total-label" class="font-mono">เวลารวม 45 นาที</span>
           </div>
         </div>
       </div>
 
-      <div id="ws-groups-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 shrink-0"></div>
+      <!-- การ์ดทั้ง 5 กลุ่ม: ขยายความสูงอัตโนมัติตามจำนวนรายชื่อของแต่ละกลุ่ม -->
+      <div id="ws-groups-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-start pb-6"></div>
     </div>
   </div>
 
@@ -1137,6 +1139,7 @@
     }
 
     function openWorkshopTimerModal() {
+      fetchLiveStatus();
       const notes = getSavedWorkshopNotes();
       const autoCb = document.getElementById('ws-auto-rotate');
       const afterSel = document.getElementById('ws-after-rotate-mode');
@@ -1233,6 +1236,8 @@
       document.getElementById('workshop-timer-overlay').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
 
+      // ดึงข้อมูลกลุ่มล่าสุดจาก Google Sheets ทันทีเพื่อให้ตรงกับหน้า index.html 100%
+      fetchLiveStatus();
       runWorkshopInterval();
     }
 
@@ -1389,31 +1394,31 @@
       barEl.style.width = `${pct}%`;
 
       if (workshopPhase === 'completed') {
-        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-emerald-400 leading-none';
+        clockEl.className = 'font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-emerald-400 leading-none';
         barEl.className = 'h-full rounded-full bg-emerald-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/25 border border-emerald-400 text-emerald-200 text-xs sm:text-sm font-bold';
         statusTxtEl.textContent = '🎉 ครบกิจกรรมกลุ่มย่อยทั้ง 5 รอบแล้ว!';
       } else if (workshopPhase === 'break') {
-        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-sky-300 leading-none';
+        clockEl.className = 'font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-sky-300 leading-none';
         barEl.className = 'h-full rounded-full bg-gradient-to-r from-sky-400 to-indigo-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-sky-500/25 border border-sky-400 text-sky-200 text-xs sm:text-sm font-bold';
         statusTxtEl.textContent = workshopPaused
           ? `พักเดินเปลี่ยนโต๊ะ (หยุดชั่วคราว) — เตรียมเริ่มรอบที่ ${curRound}`
           : `🚶 พักเดินเปลี่ยนโต๊ะ — กำลังจะเริ่มรอบที่ ${curRound} อัตโนมัติ`;
       } else if (workshopRemainingSec <= 0) {
-        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-rose-400 leading-none animate-pulse';
+        clockEl.className = 'font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-rose-400 leading-none animate-pulse';
         barEl.className = 'h-full rounded-full bg-rose-500 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-rose-500/25 border border-rose-400 text-rose-200 text-xs sm:text-sm font-bold';
         statusTxtEl.textContent = workshopAutoRotate
           ? `สลับขึ้นรอบที่ ${curRound} แล้ว — กดปุ่ม "เริ่มจับเวลารอบที่ ${curRound}" เมื่อพร้อม`
           : 'หมดเวลากิจกรรมช่วงนี้แล้ว!';
       } else if (workshopRemainingSec <= 300) {
-        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-amber-300 leading-none';
+        clockEl.className = 'font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-amber-300 leading-none';
         barEl.className = 'h-full rounded-full bg-amber-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-500/25 border border-amber-400 text-amber-200 text-xs sm:text-sm font-bold';
         statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'เหลือเวลาอีกไม่ถึง 5 นาที — เตรียมสรุปประเด็นและสลับกลุ่ม';
       } else {
-        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]';
+        clockEl.className = 'font-mono text-6xl sm:text-7xl lg:text-[6.25rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]';
         barEl.className = 'h-full rounded-full bg-gradient-to-r from-emerald-400 via-police-goldLight to-amber-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-bold';
         statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : `กำลังดำเนินกิจกรรมกลุ่มย่อย (รอบที่ ${curRound} / 5)`;
@@ -1462,49 +1467,121 @@
       if (roundPill) roundPill.textContent = `รอบที่ ${round} / 5`;
 
       const apiGroups = liveWorkshopConfig.groups || [];
+      const isFixedExp = (p) => {
+        const wr = String(p.workshopRole || '').trim();
+        return wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร');
+      };
+
       grid.innerHTML = DEFAULT_WORKSHOP_GROUPS.map((g, idx) => {
         const gNum = g.num;
         const apiG = apiGroups.find(x => Number(x.groupNo) === gNum) || {};
+        // คำนวณว่ากลุ่มสมาชิกในรอบนี้มาจากกลุ่มเริ่มต้นหมายเลขใด
+        const sourceBaseGroup = ((gNum - 1 - (round - 1) + 5) % 5) + 1;
 
-        const isFixedExp = (p) => String(p.workshopRole || '').includes('ผู้เชี่ยวชาญ') || String(p.workshopRole || '').includes('วิทยากร');
-        const fixedExperts = participants
+        // 1. วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (ยึดข้อมูลจาก Participants ที่บันทึกจากหน้า index.html เป็นหลัก)
+        const fixedExpertItems = participants
           .filter(p => parseInt(p.workshopGroup, 10) === gNum && isFixedExp(p))
-          .map(p => hasSubstitute(p) ? p.substituteName : p.fullName);
+          .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }))
+          .map(p => ({
+            name: (hasSubstitute(p) ? p.substituteName : p.fullName).trim(),
+            unit: p.mainUnit || ''
+          }));
 
-        const expertNames = [];
+        const expertNamesSet = new Set(fixedExpertItems.map(x => x.name));
+
+        // ตรวจสอบรายชื่อเพิ่มเติมจากแท็บ Workshop_Groups (เพิ่มเฉพาะกรณีเป็นวิทยากรภายนอกที่ไม่ได้ถูกจัดเป็นผู้เข้าร่วมหรืออยู่กลุ่มอื่น)
         if (apiG.experts) {
-          apiG.experts.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(n => expertNames.push(n));
+          String(apiG.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(extName => {
+            if (expertNamesSet.has(extName)) return;
+            const matchedPerson = participants.find(p => p.fullName.trim() === extName || p.substituteName.trim() === extName);
+            if (matchedPerson) {
+              // หากเป็นคนที่มีรายชื่อในระบบอยู่แล้ว แต่ไม่ได้ถูกกำหนดให้เป็นผู้เชี่ยวชาญของกลุ่มนี้ ให้ข้ามเพื่อไม่ให้ชื่อสลับกัน
+              const assignedG = parseInt(matchedPerson.workshopGroup, 10);
+              if (assignedG && (!isFixedExp(matchedPerson) || assignedG !== gNum)) return;
+            }
+            expertNamesSet.add(extName);
+            fixedExpertItems.push({ name: extName, unit: '' });
+          });
         }
-        fixedExperts.forEach(n => {
-          if (!expertNames.some(ex => ex.includes(n) || n.includes(ex))) expertNames.push(n);
-        });
 
-        const members = participants
+        // 2. รายชื่อผู้เข้าร่วมสัมมนาในรอบปัจจุบัน (หมุนเวียน 1 → 2 → 3 → 4 → 5 ไม่ซ้ำกับวิทยากร)
+        const memberItems = participants
           .filter(p => {
             if (isFixedExp(p)) return false;
             const base = parseInt(p.workshopGroup, 10);
             if (!base || base < 1 || base > 5) return false;
-            return (((base - 1 + (round - 1)) % 5) + 1) === gNum;
+            const effectiveGroup = (((base - 1 + (round - 1)) % 5) + 1);
+            return effectiveGroup === gNum;
           })
-          .map(p => hasSubstitute(p) ? p.substituteName : p.fullName);
+          .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }))
+          .map(p => ({
+            id: p.id,
+            name: (hasSubstitute(p) ? p.substituteName : p.fullName).trim(),
+            unit: p.mainUnit || ''
+          }))
+          .filter(m => !expertNamesSet.has(m.name));
 
-        const hasLiveData = expertNames.length > 0 || members.length > 0;
+        const hasLiveData = fixedExpertItems.length > 0 || memberItems.length > 0;
+        const totalInCard = fixedExpertItems.length + memberItems.length;
 
         return `
-          <div class="rounded-2xl p-3.5 bg-white/10 backdrop-blur-md border border-white/15 flex flex-col justify-between gap-2 shadow-lg" style="border-top: 4px solid ${g.color};">
-            <div class="space-y-1">
+          <div class="rounded-2xl p-3.5 bg-white/10 backdrop-blur-md border border-white/15 flex flex-col gap-3 shadow-xl h-auto" style="border-top: 4px solid ${g.color};">
+            <!-- หัวการ์ดกลุ่ม -->
+            <div class="space-y-1.5">
               <div class="flex items-center justify-between gap-2">
-                <span class="px-2 py-0.5 rounded-lg text-[11px] font-extrabold text-white font-mono" style="background:${g.color}">กลุ่มที่ ${gNum}</span>
-                <span class="text-[10px] text-amber-200/90 font-semibold">${members.length ? `สมาชิก ${members.length} ราย` : 'ผู้เชี่ยวชาญ 1–2 คน'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg text-xs font-extrabold text-white font-mono shadow-xs" style="background:${g.color}">กลุ่มที่ ${gNum}</span>
+                <span class="px-2 py-0.5 rounded-full bg-black/30 border border-white/15 text-[10.5px] text-amber-200 font-bold">
+                  ${hasLiveData ? `รวม ${totalInCard} ราย` : 'รอจัดกลุ่ม'}
+                </span>
               </div>
               <h3 class="text-xs sm:text-sm font-bold text-white leading-snug">${escapeHtml(apiG.topic || g.title)}</h3>
             </div>
-            <div class="pt-2 border-t border-white/15 text-[11px] text-blue-100/90 leading-relaxed break-words space-y-1">
-              ${hasLiveData ? `
-                <div><span class="text-amber-300 font-bold">⭐ ผู้เชี่ยวชาญ:</span> ${escapeHtml(expertNames.join(', ') || 'รอระบุ')}</div>
-                <div><span class="text-emerald-300 font-bold">👥 รอบที่ ${round}:</span> ${escapeHtml(members.slice(0, 8).join(', '))}${members.length > 8 ? ` (+${members.length - 8})` : (members.length === 0 ? 'รอจัดสมาชิก' : '')}</div>
-              ` : escapeHtml(notes[idx] || g.note)}
-            </div>
+
+            ${hasLiveData ? `
+              <!-- ส่วนที่ 1: วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (เรียงแยกบรรทัด) -->
+              <div class="rounded-xl p-2.5 bg-amber-400/15 border border-amber-300/40 space-y-1.5">
+                <div class="flex items-center justify-between gap-1 text-[11px] font-extrabold text-amber-300">
+                  <span>⭐ วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม</span>
+                  <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-amber-400/20">${fixedExpertItems.length}</span>
+                </div>
+                ${fixedExpertItems.length > 0 ? `
+                  <ol class="space-y-1 text-xs text-white">
+                    ${fixedExpertItems.map((exp, i) => `
+                      <li class="flex items-start gap-1.5 px-2 py-1 rounded-lg bg-black/25 border border-amber-200/20 leading-snug">
+                        <span class="font-mono text-[10.5px] font-bold text-amber-300 shrink-0 mt-0.5">${i + 1}.</span>
+                        <span class="font-semibold break-words flex-1">${escapeHtml(exp.name)}</span>
+                      </li>
+                    `).join('')}
+                  </ol>
+                ` : `<p class="text-[11px] text-amber-100/60 italic px-1">ยังไม่ได้ระบุวิทยากรประจำกลุ่ม</p>`}
+              </div>
+
+              <!-- ส่วนที่ 2: ผู้เข้าร่วมสัมมนาในรอบนี้ (เรียงแยกบรรทัดครบทุกคน ไม่ตัดชื่อ) -->
+              <div class="rounded-xl p-2.5 bg-slate-950/35 border border-white/15 space-y-1.5">
+                <div class="flex items-center justify-between gap-1 text-[11px] font-extrabold text-emerald-300">
+                  <span>👥 ผู้เข้าร่วมสัมมนา (รอบที่ ${round})</span>
+                  <span class="font-mono text-[10px] px-1.5 py-0.2 rounded bg-emerald-400/20">${memberItems.length} ราย</span>
+                </div>
+                ${round > 1 ? `<p class="text-[10px] text-sky-200/90 font-medium">🔄 หมุนเวียนมาจากกลุ่มเริ่มต้นที่ ${sourceBaseGroup}</p>` : ''}
+                ${memberItems.length > 0 ? `
+                  <ol class="space-y-1 text-xs text-blue-50">
+                    ${memberItems.map((m, i) => `
+                      <li class="flex items-start justify-between gap-1.5 px-2 py-1 rounded-lg bg-white/10 border border-white/10 leading-snug">
+                        <div class="flex items-start gap-1.5 min-w-0 flex-1">
+                          <span class="font-mono text-[10.5px] font-bold text-emerald-300 shrink-0 mt-0.5">${i + 1}.</span>
+                          <span class="font-medium break-words">${escapeHtml(m.name)}</span>
+                        </div>
+                        ${m.unit ? `<span class="shrink-0 text-[9.5px] text-blue-200/80 font-semibold mt-0.5">${escapeHtml(m.unit)}</span>` : ''}
+                      </li>
+                    `).join('')}
+                  </ol>
+                ` : `<p class="text-[11px] text-slate-300/70 italic px-1">ยังไม่มีรายชื่อผู้เข้าร่วมในกลุ่มนี้</p>`}
+              </div>
+            ` : `
+              <div class="pt-2 border-t border-white/15 text-[11px] text-blue-100/85 leading-relaxed">
+                ${escapeHtml(notes[idx] || g.note)}
+              </div>
+            `}
           </div>
         `;
       }).join('');
