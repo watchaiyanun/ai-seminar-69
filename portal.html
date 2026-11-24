@@ -73,17 +73,15 @@
         0 8px 18px -8px rgba(30, 58, 138, 0.28),
         0 0 0 1px rgba(212, 175, 55, 0.48);
     }
-    /* ล็อกสัดส่วนบัตรเครดิตมาตรฐาน ISO (1.586 : 1) ให้ดูเพรียวสมส่วนทุกขนาดจอ */
     .cc-card-ratio {
-      min-height: 218px;
+      min-height: 228px;
     }
     @media (min-width: 640px) {
       .cc-card-ratio {
         aspect-ratio: 1.586 / 1;
-        min-height: 252px;
+        min-height: 262px;
       }
     }
-    /* แก้บั๊ก iOS WebKit: แยกแกน Z + ซ่อน opacity/visibility ของด้านที่หันหลังในจังหวะพลิก 90° ไม่ให้ข้อมูลทะลุซ้อนกัน */
     .cc-front {
       transform: rotateY(0deg) translateZ(1px);
       -webkit-transform: rotateY(0deg) translateZ(1px);
@@ -116,7 +114,6 @@
       z-index: 2;
       transition: opacity 0.12s ease 0.14s, visibility 0s linear 0.14s;
     }
-    /* หยุดแอนิเมชันแสงเงาและจุดชีพจรของด้านที่ถูกซ่อน เพื่อไม่ให้ GPU ของ iOS วาดทะลุขึ้นมา */
     .cc-flipper.is-flipped .cc-front .cc-gloss-sweep,
     .cc-flipper.is-flipped .cc-front .emerald-pulse-dot::after,
     .cc-flipper:not(.is-flipped) .cc-back .cc-gloss-sweep {
@@ -151,7 +148,6 @@
       );
     }
 
-    /* กรอบโลโก้มาสคอตขอบทองเมทัลลิกแทนแผ่นชิป */
     .cc-logo-medallion {
       background: linear-gradient(135deg, #FEF08A 0%, #D4AF37 50%, #92400E 100%);
       box-shadow:
@@ -159,7 +155,6 @@
         0 0 14px -2px rgba(243, 212, 120, 0.45);
     }
 
-    /* ลายน้ำเส้นละเอียดและจุดนิรภัยบนพื้นบัตร */
     .cc-watermark-pattern {
       background-image:
         repeating-linear-gradient(
@@ -173,7 +168,6 @@
       background-size: auto, 18px 18px;
     }
 
-    /* แสงเงาเมทัลลิกวิ่งสะท้อนผ่านหน้าบัตรอัตโนมัติ */
     @keyframes cardGlossSweep {
       0% { transform: translateX(-140%) skewX(-24deg); opacity: 0; }
       18% { opacity: 0.75; }
@@ -196,7 +190,6 @@
       pointer-events: none;
     }
 
-    /* ตราโฮโลแกรมสีรุ้งเมทัลลิกมุมบัตร */
     @keyframes holoShimmer {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -214,7 +207,6 @@
       border: 1px solid rgba(255, 255, 255, 0.16);
     }
 
-    /* เอฟเฟกต์ตราประทับสด Live Check-in Stamp & Pulse (แยก 3 วัน) */
     @keyframes emeraldPulseRing {
       0% { transform: scale(0.85); opacity: 0.9; }
       70% { transform: scale(1.9); opacity: 0; }
@@ -288,7 +280,7 @@
       <p class="text-xs sm:text-sm text-slate-500 font-medium">กำลังโหลดข้อมูลบัตรประจำตัว...</p>
     </div>
 
-    <!-- กล่องค้นหาชื่อ (แสดงกรณีเปิดหน้า portal.html ตรงๆ โดยไม่ได้สแกน QR ประจำตัว) -->
+    <!-- กล่องค้นหาชื่อ -->
     <section id="lookup-section" class="hidden bg-white rounded-3xl p-5 shadow-md border border-slate-200 space-y-3">
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-navy-700/10 text-navy-700 flex items-center justify-center shrink-0">
@@ -359,9 +351,8 @@
               </div>
             </div>
 
-            <!-- แถวกลาง: กรอบโลโก้มาสคอตคู่หูจราจร AI ขอบทอง (แทนแผ่นชิป) + รหัสประจำตัว + ป้ายสถานะสด -->
-            <div class="relative z-10 flex items-center justify-between gap-2 my-1.5">
-              <!-- Custom Mascot Logo Medallion (ดึงจากไฟล์ logo.jpg / logo.png บน GitHub อัตโนมัติสำหรับทุกคน) -->
+            <!-- แถวกลาง: กรอบโลโก้มาสคอตคู่หูจราจร AI ขอบทอง + รหัสประจำตัว + ป้ายกลุ่มปัจจุบัน -->
+            <div class="relative z-10 flex items-center justify-between gap-2.5 my-1.5">
               <div class="cc-logo-medallion w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-[2px] shrink-0 relative">
                 <div class="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center p-0.5">
                   <img
@@ -371,7 +362,6 @@
                     class="w-full h-full object-contain"
                     onerror="handleLogoFallback(this, 'card-mascot-fallback')"
                   />
-                  <!-- แผนสำรองอัตโนมัติกรณีบน GitHub ยังไม่ได้อัปโหลดไฟล์ logo.jpg / logo.png -->
                   <div id="card-mascot-fallback" class="hidden w-full h-full rounded-[12px] bg-gradient-to-br from-navy-800 to-maroon-700 flex flex-col items-center justify-center text-amber-200">
                     <i data-lucide="bot" class="w-5 h-5"></i>
                     <span class="text-[8px] font-extrabold tracking-wider mt-0.5">AI KM</span>
@@ -379,20 +369,30 @@
                 </div>
               </div>
 
-              <div class="text-right min-w-0 flex flex-col items-end">
-                <div class="flex items-center gap-1.5">
+              <div class="text-right min-w-0 flex-1 flex flex-col items-end">
+                <div class="flex items-center gap-1.5 flex-wrap justify-end">
                   <span id="pc-unit" class="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-blue-50 text-[9.5px] font-semibold max-w-[130px] truncate"></span>
                   <span id="pc-id" class="font-mono text-base sm:text-lg font-extrabold tracking-[0.14em] text-amber-200 drop-shadow-sm">KM69-00</span>
                 </div>
-                <!-- ป้ายสถานะสดด้านบน (แสดงทันทีเมื่อเช็กอินวันนี้หรือเช็กอินแล้ว) -->
+
+                <!-- ป้ายสถานะสดด้านบน -->
                 <div id="pc-live-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/70 text-[9px] font-bold text-emerald-200 shadow-sm">
                   <span class="emerald-pulse-dot"></span>
                   <span id="pc-live-status-text">VERIFIED • CHECKED-IN</span>
                 </div>
+
+                <!-- ป้ายกลุ่ม Workshop ปัจจุบันบนหน้าบัตร (แสดงเลขกลุ่ม + รอบ + ชื่อหัวข้อประเด็นชัดเจน) -->
+                <div id="pc-workshop-front-pill" class="hidden mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/80 text-left shadow-sm">
+                  <div class="flex items-center justify-between gap-1 text-[10px] font-extrabold text-amber-200 leading-tight">
+                    <span id="pc-workshop-front-text" class="truncate">🎯 กลุ่มที่ 1 (รอบที่ 1)</span>
+                    <span id="pc-workshop-front-mode" class="shrink-0 px-1.5 py-0.2 rounded bg-black/30 text-[8.5px] text-white font-semibold">หมุนเวียน</span>
+                  </div>
+                  <p id="pc-workshop-front-topic" class="text-[9.5px] text-white/95 font-medium truncate mt-0.5 leading-tight"></p>
+                </div>
               </div>
             </div>
 
-            <!-- แถวล่าง: ชื่อ-ยศเต็มความกว้าง + ตำแหน่ง + แถบตราประทับสดแยก 3 วันแบบเพรียวกระชับ -->
+            <!-- แถวล่าง: ชื่อ-ยศเต็มความกว้าง + ตำแหน่ง + แถบตราประทับสดแยก 3 วัน -->
             <div class="relative z-10 space-y-1.5 pt-1.5 border-t border-white/15">
               <div class="flex items-baseline justify-between gap-2">
                 <div class="min-w-0 flex-1">
@@ -407,7 +407,7 @@
                 </div>
               </div>
 
-              <!-- ตราประทับสถานะสดแยก 3 วัน (กะทัดรัด คงสัดส่วนบัตรเครดิต) -->
+              <!-- ตราประทับสถานะสดแยก 3 วัน -->
               <div class="grid grid-cols-3 gap-1.5 pt-0.5">
                 <div id="stamp-day1" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
                 <div id="stamp-day2" class="stamp-day-pending rounded-lg px-1.5 py-1 text-center transition-all duration-300"></div>
@@ -416,7 +416,7 @@
             </div>
           </div>
 
-          <!-- ========== ด้านหลังบัตร (BACK - แถบแม่เหล็ก + QR เช็กอิน + ที่พัก/คู่พัก/อาหาร) ========== -->
+          <!-- ========== ด้านหลังบัตร (BACK - แถบแม่เหล็ก + QR เช็กอิน + กลุ่มปัจจุบัน + ที่พัก/อาหาร) ========== -->
           <div class="cc-face cc-back cc-back-bg cc-card-ratio text-white relative flex flex-col justify-between">
             <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
@@ -430,18 +430,16 @@
               </div>
             </div>
 
-            <!-- เนื้อหาด้านหลัง: QR Code + ที่พัก + อาหาร -->
-            <div class="relative z-10 px-4 py-3 sm:px-5 sm:py-3.5 flex-1 flex flex-col justify-between gap-2">
+            <!-- เนื้อหาด้านหลัง: QR Code + ที่พัก + อาหาร + กลุ่มปัจจุบัน -->
+            <div class="relative z-10 px-4 py-2.5 sm:px-5 sm:py-3 flex-1 flex flex-col justify-between gap-2">
               <div class="flex items-center gap-3">
-                <!-- กล่อง QR Code เช็กอิน (แตะตรงไหนของกรอบขาวก็ขยายทันที ไม่มีพลาดจุด) -->
                 <button type="button" data-no-flip="true" onclick="event.stopPropagation(); openQrZoomModal();" title="แตะเพื่อขยาย QR Code เต็มจอ" class="qr-tap-target touch-manipulation shrink-0 bg-white p-2 rounded-xl shadow-lg border-2 border-amber-300/70 flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer">
-                  <div id="pc-qr-box" class="qr-inline w-[74px] h-[74px]"></div>
+                  <div id="pc-qr-box" class="qr-inline w-[72px] h-[72px]"></div>
                   <span class="text-[9px] font-bold text-navy-800 mt-1 px-1.5 py-0.5 rounded-full bg-blue-50 flex items-center gap-0.5">
                     <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i> ขยาย QR
                   </span>
                 </button>
 
-                <!-- ข้อมูลที่พัก / ผู้พักร่วม / อาหาร / การตอบรับ -->
                 <div class="flex-1 min-w-0 space-y-1.5">
                   <div class="cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5">
                     <p class="text-[9.5px] text-amber-200/90 font-semibold flex items-center gap-1">
@@ -456,19 +454,30 @@
                       <i data-lucide="utensils" class="w-3 h-3"></i> อาหาร / การตอบรับ
                     </p>
                     <p id="pc-food-rsvp" class="text-[11px] font-bold text-white break-words leading-snug">อาหารทั่วไป • รอการยืนยัน</p>
-                    <a id="pc-letter-link" data-no-flip="true" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="hidden inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 hover:underline">
-                      <i data-lucide="paperclip" class="w-2.5 h-2.5"></i> เปิดหนังสือส่งตัว ↗
+                    <a id="pc-letter-link" data-no-flip="true" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="hidden inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:underline pt-0.5">
+                      📎 เปิดหนังสือส่งตัวที่แนบไว้ ↗
                     </a>
                   </div>
                 </div>
               </div>
 
-              <!-- แถบท้ายด้านหลังบัตร -->
-              <div class="flex items-center justify-between pt-1.5 border-t border-white/15 text-[9.5px] text-blue-200/85">
-                <span class="truncate">ไพน์เฮิร์สท จ.ปทุมธานี • 30 พ.ย. – 2 ธ.ค. 69</span>
-                <span class="inline-flex items-center gap-1 font-semibold text-amber-200 shrink-0">
-                  <i data-lucide="rotate-ccw" class="w-2.5 h-2.5"></i> แตะพลิกกลับ
-                </span>
+              <!-- กล่องแสดงกลุ่มสัมมนา Workshop & เส้นทางหมุนเวียน ด้านหลังบัตร -->
+              <div id="pc-workshop-back-box" class="hidden cc-glass-box rounded-xl px-2.5 py-1.5 space-y-0.5 border-amber-300/40">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[9.5px] text-amber-200 font-bold flex items-center gap-1">
+                    <i data-lucide="users" class="w-3 h-3"></i>
+                    <span id="pc-workshop-back-title">กลุ่มสัมมนาปัจจุบัน</span>
+                  </span>
+                  <span id="pc-workshop-back-round" class="px-1.5 py-0.5 rounded bg-amber-400/25 border border-amber-300/60 text-amber-100 text-[8.5px] font-extrabold">รอบที่ 1</span>
+                </div>
+                <p id="pc-workshop-back-topic" class="text-[10.5px] font-bold text-white leading-snug"></p>
+                <p id="pc-workshop-back-experts" class="text-[9.5px] text-blue-100/90 leading-snug"></p>
+                <p id="pc-workshop-back-route" class="text-[9px] text-emerald-200/95 font-mono leading-snug"></p>
+              </div>
+
+              <div class="flex items-center justify-between text-[9.5px] text-blue-200/80 pt-1 border-t border-white/10">
+                <span>แตะกรอบ QR เพื่อขยายเต็มจอให้สตาฟสแกน</span>
+                <span class="font-semibold text-amber-200">แตะบัตรเพื่อพลิกกลับ</span>
               </div>
             </div>
           </div>
@@ -476,125 +485,100 @@
         </div>
       </div>
 
-      <!-- แถบปุ่มควบคุมบัตรด่วน (พลิกบัตร / ขยาย QR เช็กอิน / ค้นหาบัตรอื่น) -->
-      <div class="grid grid-cols-2 gap-2">
-        <button type="button" onclick="flipCreditCard()" id="btn-flip-card" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-navy-800 text-xs font-bold flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-maroon-700"></i>
-          <span id="flip-btn-label">พลิกดูหลังบัตร (QR & ที่พัก)</span>
+      <!-- ปุ่มควบคุมใต้บัตร -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-700 shrink-0"></i>
+          <span id="flip-btn-label" class="truncate">พลิกดูหลังบัตร (QR &amp; ที่พัก)</span>
         </button>
-        <button type="button" onclick="openQrZoomModal()" class="py-2.5 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.98] text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="qr-code" class="w-3.5 h-3.5 text-amber-300"></i>
-          <span>ขยาย QR เช็กอินเต็มจอ</span>
+        <button type="button" onclick="openEditRequestModal()" class="py-2.5 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.98] text-white shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
+          <span class="truncate">ขอแก้ไข / แจ้งผู้แทน</span>
+        </button>
+        <button type="button" onclick="showLookupSwitcher()" class="col-span-2 sm:col-span-1 py-2.5 px-3 rounded-2xl bg-slate-200/80 hover:bg-slate-200 active:scale-[0.98] text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>
+          <span>เปลี่ยนชื่อ / สลับบัตร</span>
         </button>
       </div>
 
-      <!-- การ์ดความคืบหน้าการเข้าร่วมกิจกรรม (แท่งเดียว 0% - 100%) + ปุ่มขอแก้ไข -->
-      <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3.5">
-        <div class="space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <i data-lucide="award" class="w-4 h-4 text-navy-700 shrink-0"></i>
-              <span class="text-xs sm:text-sm font-bold text-slate-800 truncate">ความคืบหน้าการเข้าร่วมกิจกรรม</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span id="pc-progress-count" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">0/4 กิจกรรม</span>
-              <span id="pc-progress-pct" class="text-base sm:text-lg font-extrabold text-navy-700 font-mono">0%</span>
-            </div>
-          </div>
-
-          <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
-            <div id="pc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-blue-600 to-emerald-500 transition-all duration-700 ease-out" style="width: 0%"></div>
-          </div>
-
-          <div class="grid grid-cols-4 gap-1.5 text-center">
-            <div id="pill-day1" class="py-1.5 px-1 rounded-xl border text-[11px] font-semibold transition">30 พ.ย.</div>
-            <div id="pill-day2" class="py-1.5 px-1 rounded-xl border text-[11px] font-semibold transition">1 ธ.ค.</div>
-            <div id="pill-day3" class="py-1.5 px-1 rounded-xl border text-[11px] font-semibold transition">2 ธ.ค.</div>
-            <div id="pill-eval" class="py-1.5 px-1 rounded-xl border text-[11px] font-semibold transition">ประเมิน</div>
-          </div>
+      <!-- แถบแจ้งเตือนกรณีมีคำขอแก้ไขข้อมูลที่รออนุมัติ -->
+      <div id="pc-pending-req-banner" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-2.5 text-xs text-amber-900 shadow-xs">
+        <i data-lucide="clock" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+        <div class="space-y-0.5 min-w-0">
+          <p class="font-bold">อยู่ระหว่างรอเจ้าหน้าที่ตรวจสอบคำขอแก้ไขข้อมูล</p>
+          <p id="pc-pending-req-detail" class="text-[11px] text-amber-800 leading-snug"></p>
         </div>
+      </div>
 
-        <button type="button" onclick="openEditRequestModal()" class="w-full py-3 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 active:scale-[0.99] border border-amber-300/80 text-amber-900 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition">
-          <i data-lucide="pencil-line" class="w-4 h-4 shrink-0"></i>
-          <span>ขอแก้ไขข้อมูล / ผู้แทน / คู่พัก / หนังสือส่งตัว</span>
-        </button>
-
-        <!-- แถบสีเหลืองแจ้งสถานะเมื่อมีคำขอแก้ไขที่อยู่ระหว่างรอเจ้าหน้าที่อนุมัติ -->
-        <div id="pc-pending-req-banner" class="hidden p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-2.5">
-          <i data-lucide="clock" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5 animate-pulse"></i>
-          <div class="text-xs leading-snug min-w-0">
-            <p class="font-bold">อยู่ระหว่างรอเจ้าหน้าที่อนุมัติคำขอแก้ไข</p>
-            <p id="pc-pending-req-detail" class="text-[11px] text-amber-700 mt-0.5 truncate"></p>
+      <!-- แถบความคืบหน้าการเข้าร่วมสัมมนา 4 กิจกรรม -->
+      <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-800">ความคืบหน้าการเข้าร่วมกิจกรรม</span>
+            <span id="pc-progress-count" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">0/4 กิจกรรม</span>
           </div>
+          <span id="pc-progress-pct" class="font-mono text-sm font-extrabold text-navy-700">0%</span>
         </div>
-
-        <div class="pt-0.5 text-center">
-          <button type="button" onclick="showLookupSwitcher()" class="text-[11px] text-slate-400 hover:text-navy-700 underline transition">
-            เปลี่ยนรายชื่อ / ค้นหาบัตรประจำตัวอื่น
-          </button>
+        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div id="pc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-teal-500 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 text-center">
+          <div id="pill-day1" class="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium">30 พ.ย.</div>
+          <div id="pill-day2" class="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium">1 ธ.ค.</div>
+          <div id="pill-day3" class="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium">2 ธ.ค.</div>
+          <div id="pill-eval" class="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 text-[11px] font-medium">ประเมิน</div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== TAB SWITCHER ==================== -->
+    <!-- ==================== TAB SWITCHER: ข้อมูลงาน vs แบบประเมินผล ==================== -->
     <div class="grid grid-cols-2 gap-1.5 p-1.5 bg-white rounded-2xl shadow-sm border border-slate-200">
-      <button type="button" onclick="switchPortalTab('info')" id="btn-tab-info" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition">
-        <i data-lucide="folder-open" class="w-4 h-4"></i> เอกสาร & กำหนดการ
+      <button type="button" id="btn-tab-info" onclick="switchPortalTab('info')" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition">
+        <i data-lucide="book-open" class="w-4 h-4"></i> ข้อมูล &amp; เอกสารงาน
       </button>
-      <button type="button" onclick="switchPortalTab('eval')" id="btn-tab-eval" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition">
+      <button type="button" id="btn-tab-eval" onclick="switchPortalTab('eval')" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition">
         <i data-lucide="star" class="w-4 h-4"></i> แบบประเมินผล
       </button>
     </div>
 
-    <!-- ==================== TAB 1: AI CHATBOT + DOCUMENTS + SCHEDULE ==================== -->
+    <!-- ==================== TAB 1: SEMINAR INFO, DOCUMENTS, DRESS CODE, 5 GROUPS & SCHEDULE ==================== -->
     <section id="tab-info" class="space-y-4">
 
-      <!-- การ์ด 👮‍♂️ คู่หูจราจร AI (แสดงมาสคอตตำรวจจราจร AI คู่กับปุ่มเข้าแชทบอท) -->
-      <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 rounded-3xl p-5 text-white shadow-md border border-amber-400/40 space-y-3">
-        <div class="flex items-start gap-3">
-          <div class="w-13 h-13 w-12 h-12 rounded-2xl bg-white border-2 border-amber-300/80 flex items-center justify-center overflow-hidden p-0.5 shadow-md shrink-0">
-            <img
-              src="logo.jpg"
-              alt="มาสคอตคู่หูจราจร AI"
-              class="w-full h-full object-contain"
-              onerror="handleLogoFallback(this, 'bot-card-fallback')"
-            />
-            <span id="bot-card-fallback" class="hidden text-xl">👮‍♂️</span>
+      <!-- การ์ดเข้าใช้งานแชทบอท คู่หูจราจร AI & กลุ่ม LINE สัมมนา -->
+      <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 rounded-3xl p-5 text-white shadow-md border border-amber-400/40 space-y-3.5">
+        <div class="flex items-center gap-3.5">
+          <div class="cc-logo-medallion w-14 h-14 rounded-2xl p-[2px] shrink-0">
+            <div class="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center p-0.5">
+              <img
+                src="logo.jpg"
+                alt="คู่หูจราจร AI"
+                class="w-full h-full object-contain"
+                onerror="handleLogoFallback(this, 'ai-card-mascot-fallback')"
+              />
+              <div id="ai-card-mascot-fallback" class="hidden w-full h-full rounded-[12px] bg-navy-800 flex items-center justify-center text-amber-300">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+              </div>
+            </div>
           </div>
           <div class="min-w-0 flex-1">
-            <h3 class="font-bold text-base leading-tight text-amber-200">คู่หูจราจร AI</h3>
-            <p class="text-xs text-blue-100/90 mt-1 leading-relaxed">
-              สำหรับเจ้าหน้าที่ที่ต้องการสอบถามข้อมูล หรือค้นหาแนวทางการปฏิบัติงานด้านการจราจร สามารถเข้าใช้งานแชทบอทตำรวจคู่หูจราจรได้ที่ลิงก์ด้านล่าง
-            </p>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300">AI TRAFFIC ASSISTANT</span>
+            <h3 class="font-extrabold text-base sm:text-lg leading-tight">👮‍♂️ แชทบอท “คู่หูจราจร AI”</h3>
+            <p class="text-[11px] sm:text-xs text-blue-100/90 mt-0.5">ทดลองใช้งานระบบผู้ช่วยอัจฉริยะด้านกฎหมายและงานจราจร</p>
           </div>
         </div>
-        <a href="https://pinai-fine.police.go.th/" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 active:scale-[0.99] text-navy-900 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-sm transition">
-          <i data-lucide="bot" class="w-4 h-4 shrink-0"></i>
-          <span>🔗 เข้าสู่แชทบอทตำรวจคู่หูจราจร</span>
-        </a>
-      </div>
 
-      <!-- การ์ดกลุ่ม LINE สัมมนา (กดเข้าร่วมจากมือถือได้ทันที) -->
-      <div class="bg-gradient-to-br from-[#06C755] to-[#049940] rounded-3xl p-5 text-white shadow-md border border-emerald-300/50 space-y-3">
-        <div class="flex items-start gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
-            <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
-          </div>
-          <div class="min-w-0 flex-1">
-            <h3 class="font-bold text-base leading-tight text-white">กลุ่ม LINE ผู้เข้าร่วมสัมมนา</h3>
-            <p class="text-xs text-emerald-50/95 mt-1 leading-relaxed">
-              รับข่าวสาร แจ้งเตือนกำหนดการ ภาพบรรยากาศงาน และประสานงานกับเจ้าหน้าที่ตลอดการสัมมนา
-            </p>
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <a href="https://pinai-fine.police.go.th/" target="_blank" rel="noopener noreferrer" class="py-2.5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-sm transition">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> เปิดใช้งานคู่หูจราจร AI ↗
+          </a>
+          <a id="portal-line-group-btn" href="https://line.me/R/ti/g/3tdXVYbf4r" onclick="handlePortalLineClick(event)" class="py-2.5 px-4 rounded-2xl bg-[#06C755] hover:bg-[#05b34c] active:scale-[0.98] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-sm transition">
+            <i data-lucide="message-circle" class="w-4 h-4"></i> เข้ากลุ่ม LINE สัมมนา
+          </a>
         </div>
-        <a id="portal-line-group-btn" href="https://line.me/R/ti/g/3tdXVYbf4r" onclick="handlePortalLineClick(event)" class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-emerald-50 active:scale-[0.99] text-[#059640] text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-sm transition">
-          <i data-lucide="user-plus" class="w-4 h-4 shrink-0"></i>
-          <span>เข้าร่วมกลุ่ม LINE สัมมนา</span>
-        </a>
       </div>
 
-      <!-- การ์ดคลังเอกสารประกอบการสัมมนา (Google Drive) -->
-      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3">
+      <!-- การ์ดคลังเอกสารประกอบการสัมมนา (Google Drive แยกโฟลเดอร์ตามวัน) -->
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3.5">
         <div class="flex items-start gap-3">
           <div class="w-11 h-11 rounded-2xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
             <i data-lucide="hard-drive" class="w-5 h-5"></i>
@@ -602,13 +586,106 @@
           <div>
             <h3 class="font-bold text-sm sm:text-base text-slate-900">คลังเอกสารประกอบการสัมมนา</h3>
             <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">
-              ดาวน์โหลดสไลด์วิทยากร คู่มือ โจทย์ Workshop และภาพบรรยากาศงานผ่าน Google Drive
+              เลือกเปิดโฟลเดอร์ Google Drive แยกตามวันสัมมนา เพื่อดาวน์โหลดสไลด์ คู่มือ โจทย์ Workshop และภาพบรรยากาศงาน
             </p>
           </div>
         </div>
-        <a href="https://drive.google.com/drive/folders/1fXN5gSGo3ZWG7QgToPEMYY7rv_BPGD_I" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
-          <i data-lucide="external-link" class="w-4 h-4"></i> เปิดคลังเอกสาร (Google Drive)
-        </a>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <a href="https://drive.google.com/drive/folders/1S8Y8-i3HMvbBmOwGqGuhTiGN3VxQHpdP?usp=drive_link" target="_blank" rel="noopener noreferrer" class="py-3 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.98] text-white text-xs font-bold flex sm:flex-col items-center justify-between sm:justify-center gap-1.5 shadow-sm transition">
+            <span class="inline-flex items-center gap-1.5">
+              <i data-lucide="folder-open" class="w-4 h-4 text-amber-300 shrink-0"></i>
+              <span>วันที่ 30 พ.ย. 69</span>
+            </span>
+            <span class="text-[10px] font-medium text-blue-100/90">วันเปิดงาน • บรรยาย AI ↗</span>
+          </a>
+
+          <a href="https://drive.google.com/drive/folders/1JYnvXG5KniIY57pqQ9BKYd91oyun50fn?usp=drive_link" target="_blank" rel="noopener noreferrer" class="py-3 px-3 rounded-2xl bg-teal-700 hover:bg-teal-800 active:scale-[0.98] text-white text-xs font-bold flex sm:flex-col items-center justify-between sm:justify-center gap-1.5 shadow-sm transition">
+            <span class="inline-flex items-center gap-1.5">
+              <i data-lucide="folder-open" class="w-4 h-4 text-amber-300 shrink-0"></i>
+              <span>วันที่ 1 ธ.ค. 69</span>
+            </span>
+            <span class="text-[10px] font-medium text-teal-100/90">สัมมนากลุ่มย่อย 5 กลุ่ม ↗</span>
+          </a>
+
+          <a href="https://drive.google.com/drive/folders/1910gRazuLZuS5ikF37_kpVprOaDxNC6W?usp=drive_link" target="_blank" rel="noopener noreferrer" class="py-3 px-3 rounded-2xl bg-maroon-700 hover:bg-maroon-800 active:scale-[0.98] text-white text-xs font-bold flex sm:flex-col items-center justify-between sm:justify-center gap-1.5 shadow-sm transition">
+            <span class="inline-flex items-center gap-1.5">
+              <i data-lucide="folder-open" class="w-4 h-4 text-amber-300 shrink-0"></i>
+              <span>วันที่ 2 ธ.ค. 69</span>
+            </span>
+            <span class="text-[10px] font-medium text-rose-100/90">ร่าง Q&amp;A • นำเสนอผล ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- การ์ดการแต่งกาย -->
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/80 flex items-center justify-center shrink-0">
+            <i data-lucide="shirt" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-900">การแต่งกายผู้เข้าร่วมสัมมนา</h3>
+            <p class="text-[11px] text-slate-500">แนวทางการแต่งกายตลอดระยะเวลาสัมมนา 3 วัน</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div class="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-navy-800">วันจันทร์ที่ 30 พ.ย. 69</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950 text-[10px] font-bold">เช้า / บ่าย ต่างชุด</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white border border-amber-200">
+                <span class="px-1.5 py-0.5 rounded-md bg-amber-700 text-white text-[10px] font-bold shrink-0">เช้า</span>
+                <span class="font-semibold text-slate-800">ชุดปกติเสื้อเชิ้ตคอพับกากี</span>
+              </div>
+              <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200">
+                <span class="px-1.5 py-0.5 rounded-md bg-navy-700 text-white text-[10px] font-bold shrink-0">บ่าย</span>
+                <span class="font-semibold text-slate-800">ชุดสุภาพ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-800">อังคารที่ 1 ธ.ค. 69</span>
+              <span class="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-navy-800 font-bold text-[11px]">ชุดสุภาพ</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-800">พุธที่ 2 ธ.ค. 69</span>
+              <span class="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-navy-800 font-bold text-[11px]">ชุดสุภาพ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- การ์ดการจัดแบ่งกลุ่มสัมมนา 5 กลุ่ม (Workshop) -->
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200/80 flex items-center justify-center shrink-0">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm sm:text-base text-slate-900">การจัดแบ่งกลุ่มสัมมนา (5 กลุ่มย่อย)</h3>
+              <p class="text-[11px] text-slate-500">ผู้เชี่ยวชาญอยู่ประจำกลุ่มเดิม • ผู้เข้าร่วมสัมมนาหมุนเวียนกลุ่มตามรอบ</p>
+            </div>
+          </div>
+          <span id="portal-workshop-round-badge" class="shrink-0 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-[10.5px] font-extrabold">รอบที่ 1 / 5</span>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 text-xs text-indigo-950 leading-relaxed space-y-1">
+          <p class="font-semibold">
+            แบ่งกลุ่มจำนวน <strong class="text-navy-800">5 กลุ่ม</strong> โดย <strong class="text-maroon-700">ผู้เชี่ยวชาญ/วิทยากรประจำกลุ่ม (1–2 คน) จะอยู่ประจำฐานเดิม</strong> ส่วน <strong class="text-navy-800">ผู้เข้าร่วมสัมมนาจะหมุนเวียนเปลี่ยนกลุ่มไปเรื่อยๆ</strong> ตามรอบกิจกรรม
+          </p>
+          <p id="portal-workshop-my-status" class="text-[11px] text-indigo-700 font-medium">
+            * เมื่อเจ้าหน้าที่ระบุรายชื่อกลุ่มเสร็จ ระบบจะไฮไลต์กลุ่มปัจจุบันของท่านและแสดงบนหน้าบัตรอัตโนมัติ
+          </p>
+        </div>
+
+        <div id="portal-workshop-groups-list" class="space-y-2 text-xs"></div>
       </div>
 
       <!-- การ์ดกำหนดการสัมมนา 3 วัน -->
@@ -641,7 +718,6 @@
 
     <!-- ==================== TAB 2: ANONYMOUS EVALUATION FORM ==================== -->
     <section id="tab-eval" class="hidden bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-4">
-      <!-- ป้ายแจ้งเตือนเมื่อทำแบบประเมินเรียบร้อยแล้ว (ป้องกันการกดส่งซ้ำ) -->
       <div id="eval-done-banner" class="hidden p-6 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-center space-y-2.5">
         <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-sm">
           <i data-lucide="check-circle-2" class="w-7 h-7"></i>
@@ -665,7 +741,6 @@
           </div>
         </div>
 
-        <!-- แถบอธิบายระดับคะแนน 1 - 5 -->
         <div class="grid grid-cols-5 gap-1 p-2 rounded-2xl bg-slate-50 border border-slate-200 text-center text-[10px] text-slate-600">
           <div><strong class="block text-navy-800 text-xs">1</strong>น้อยที่สุด</div>
           <div><strong class="block text-navy-800 text-xs">2</strong>น้อย</div>
@@ -695,7 +770,7 @@
     </section>
   </main>
 
-  <!-- ==================== MODAL: QR CODE ZOOM (ขยายเต็มจอให้สตาฟสแกน) ==================== -->
+  <!-- ==================== MODAL: QR CODE ZOOM ==================== -->
   <div id="qr-zoom-modal" onclick="closeQrZoomModal()" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-amber-400">
       <div class="space-y-0.5">
@@ -712,7 +787,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDIT REQUEST (ขอแก้ไขข้อมูล / ส่งผู้แทน / คู่พัก / หนังสือส่งตัว) ==================== -->
+  <!-- ==================== MODAL: EDIT REQUEST ==================== -->
   <div id="edit-req-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200 my-auto">
       <div class="px-5 py-4 bg-gradient-to-r from-navy-800 to-maroon-700 text-white flex items-center justify-between">
@@ -757,7 +832,6 @@
           </div>
         </div>
 
-        <!-- กล่องข้อมูลผู้แทน -->
         <div id="req-sub-box" class="hidden p-3.5 rounded-2xl bg-purple-50 border border-purple-200 space-y-2.5">
           <p class="text-xs font-bold text-purple-900">ระบุข้อมูลผู้แทนที่เข้าร่วมแทนท่าน</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -837,11 +911,9 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
-    // ลิงก์เชิญเข้ากลุ่ม LINE สัมมนา (พร้อม Deep Link สำหรับเด้งเข้าแอป LINE โดยตรงบนมือถือ)
     const LINE_GROUP_URL = "https://line.me/R/ti/g/3tdXVYbf4r";
     const LINE_APP_DEEP_LINK = "line://ti/g/3tdXVYbf4r";
 
-    // ระบบโหลดโลโก้มาสคอตอัตโนมัติ (รองรับทั้ง logo.jpg และ logo.png หากยังไม่ได้อัปโหลดจะแสดงไอคอนสำรองไม่ให้รูปแตก)
     function handleLogoFallback(imgEl, fallbackId) {
       if (!imgEl.dataset.triedPng) {
         imgEl.dataset.triedPng = '1';
@@ -919,6 +991,17 @@
 
     let allParticipants = [];
     let currentParticipant = null;
+    let workshopConfig = {
+      currentRound: 1,
+      groups: [
+        { groupNo: 1, topic: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง', experts: '' },
+        { groupNo: 2, topic: 'คู่มือแนวทางมาตรฐานการปฏิบัติงาน', experts: '' },
+        { groupNo: 3, topic: 'ระบบเทคโนโลยีสารสนเทศงานจราจร', experts: '' },
+        { groupNo: 4, topic: 'การปฏิบัติงานด้านการเงินและงบประมาณ', experts: '' },
+        { groupNo: 5, topic: 'ประเด็นข้อโต้แย้งจากประชาชน', experts: '' }
+      ]
+    };
+    const WORKSHOP_GROUP_COLORS = ['#1E3A8A', '#0F766E', '#4338CA', '#D97706', '#9F1239'];
     let ratings = { q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null, q9: null, q10: null };
     let liveSyncTimer = null;
     let lastKnownCheckIns = { day1: '', day2: '', day3: '' };
@@ -933,7 +1016,6 @@
       selectScheduleDay(detectDefaultScheduleDay());
       loadParticipantsAndInit();
 
-      // ปิดกล่องแนะนำชื่อผู้พักร่วมเมื่อคลิกพื้นที่อื่น
       document.addEventListener('click', (e) => {
         const input = document.getElementById('req-roommate');
         const box = document.getElementById('req-roommate-suggestions');
@@ -1033,21 +1115,144 @@
         substituteName: String(p.substituteName || '').trim(),
         substitutePosition: String(p.substitutePosition || '').trim(),
         letterUrl: String(p.letterUrl || '').trim(),
+        workshopGroup: String(p.workshopGroup || '').trim(),
+        workshopRole: String(p.workshopRole || 'ผู้เข้าร่วม').trim(),
         hasPendingRequest: Boolean(p.hasPendingRequest),
         pendingRequestSummary: String(p.pendingRequestSummary || '').trim()
       };
     }
 
+    function isPersonFixedExpert(p) {
+      const r = String(p.workshopRole || '');
+      return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
+    }
+
+    function getPersonWorkshopInfo(p, cfg = workshopConfig) {
+      const round = Math.max(1, Math.min(5, Number(cfg.currentRound) || 1));
+      const groups = cfg.groups || [];
+      if (!p) return { assigned: false, baseGroup: 0, currentGroup: 0, isFixed: false, round };
+
+      const base = parseInt(p.workshopGroup, 10);
+      if (base >= 1 && base <= 5) {
+        const isFixed = isPersonFixedExpert(p);
+        const currentGroup = isFixed ? base : (((base - 1 + (round - 1)) % 5) + 1);
+        return { assigned: true, baseGroup: base, currentGroup, isFixed, round };
+      }
+
+      const activeName = (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName;
+      if (activeName && !activeName.includes('รอระบุ')) {
+        const matched = groups.find(g => g.experts && (g.experts.includes(activeName) || (p.fullName && g.experts.includes(p.fullName))));
+        if (matched) {
+          return { assigned: true, baseGroup: matched.groupNo, currentGroup: matched.groupNo, isFixed: true, round };
+        }
+      }
+      return { assigned: false, baseGroup: 0, currentGroup: 0, isFixed: false, round };
+    }
+
+    function renderPortalWorkshopGroups() {
+      const listEl = document.getElementById('portal-workshop-groups-list');
+      const roundBadge = document.getElementById('portal-workshop-round-badge');
+      const myStatusEl = document.getElementById('portal-workshop-my-status');
+      if (!listEl) return;
+
+      const round = Math.max(1, Math.min(5, Number(workshopConfig.currentRound) || 1));
+      const groups = workshopConfig.groups || [];
+      const myInfo = getPersonWorkshopInfo(currentParticipant, workshopConfig);
+
+      if (roundBadge) roundBadge.textContent = `รอบที่ ${round} / 5`;
+      if (myStatusEl) {
+        if (myInfo.assigned) {
+          const myGroupObj = groups.find(g => g.groupNo === myInfo.currentGroup);
+          myStatusEl.innerHTML = myInfo.isFixed
+            ? `⭐ <strong>ตำแหน่งของท่าน:</strong> ผู้เชี่ยวชาญประจำ<strong>กลุ่มที่ ${myInfo.currentGroup}</strong> (${escapeHtml(myGroupObj ? myGroupObj.topic : '')}) — อยู่ประจำกลุ่มเดิมทุกรอบ`
+            : `🎯 <strong>รอบที่ ${round} ท่านอยู่กลุ่มที่ ${myInfo.currentGroup}:</strong> ${escapeHtml(myGroupObj ? myGroupObj.topic : '')} (กลุ่มเริ่มต้น: กลุ่ม ${myInfo.baseGroup})`;
+        } else {
+          myStatusEl.textContent = '* ระบบจะระบุรายชื่อผู้เชี่ยวชาญและสมาชิกประจำแต่ละกลุ่มอีกครั้งเมื่อเจ้าหน้าที่บันทึกเรียบร้อยแล้ว';
+        }
+      }
+
+      listEl.innerHTML = groups.map((g, idx) => {
+        const gNum = g.groupNo || (idx + 1);
+        const color = WORKSHOP_GROUP_COLORS[idx % WORKSHOP_GROUP_COLORS.length];
+        const isMyGroup = myInfo.assigned && myInfo.currentGroup === gNum;
+
+        const fixedExpertsFromList = allParticipants
+          .filter(p => parseInt(p.workshopGroup, 10) === gNum && isPersonFixedExpert(p))
+          .map(p => (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName);
+
+        const expertNames = [];
+        if (g.experts) {
+          g.experts.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(n => {
+            if (!expertNames.includes(n)) expertNames.push(n);
+          });
+        }
+        fixedExpertsFromList.forEach(n => {
+          if (!expertNames.some(ex => ex.includes(n) || n.includes(ex))) expertNames.push(n);
+        });
+
+        const membersInThisRound = allParticipants.filter(p => {
+          if (isPersonFixedExpert(p)) return false;
+          const base = parseInt(p.workshopGroup, 10);
+          if (!base || base < 1 || base > 5) return false;
+          const eff = (((base - 1 + (round - 1)) % 5) + 1);
+          return eff === gNum;
+        });
+
+        return `
+          <div class="p-3 rounded-2xl border transition ${isMyGroup ? 'bg-indigo-50/80 border-indigo-400 ring-2 ring-indigo-300/60 shadow-xs' : 'bg-slate-50 border-slate-200/80'} space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-6 h-6 rounded-lg text-white font-mono font-bold text-[11px] flex items-center justify-center shrink-0" style="background:${color}">${gNum}</span>
+                <p class="font-bold text-slate-900 leading-snug">${escapeHtml(g.topic)}</p>
+              </div>
+              ${isMyGroup ? `<span class="shrink-0 px-2 py-0.5 rounded-full bg-indigo-700 text-white text-[10px] font-extrabold">${myInfo.isFixed ? '⭐ กลุ่มประจำของคุณ' : '📍 คุณอยู่กลุ่มนี้'}</span>` : ''}
+            </div>
+
+            <div class="pl-8 space-y-1 text-[11px]">
+              <div class="text-maroon-800">
+                <span class="font-bold">⭐ ผู้เชี่ยวชาญ (ประจำฐานเดิม):</span>
+                <span class="text-slate-700">${expertNames.length ? escapeHtml(expertNames.join(' • ')) : '<span class="text-slate-400">รอระบุรายชื่อ (1–2 คน)</span>'}</span>
+              </div>
+              <div class="text-navy-800">
+                <span class="font-bold">👥 สมาชิกรอบที่ ${round} (${membersInThisRound.length} ราย):</span>
+                ${membersInThisRound.length
+                  ? `<div class="flex flex-wrap gap-1 mt-1">${membersInThisRound.map(m => {
+                      const mName = (m.rsvp === 'ส่งผู้แทนเข้าร่วม' && m.substituteName) ? m.substituteName : m.fullName;
+                      const isMe = currentParticipant && m.id === currentParticipant.id;
+                      return `<span class="px-2 py-0.5 rounded-lg text-[10.5px] ${isMe ? 'bg-indigo-700 text-white font-bold' : 'bg-white border border-slate-200 text-slate-700'}">${escapeHtml(mName)}</span>`;
+                    }).join('')}</div>`
+                  : `<span class="text-slate-400">รอจัดรายชื่อสมาชิก</span>`
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     async function loadParticipantsAndInit() {
       const urlId = new URLSearchParams(window.location.search).get('id');
       try {
-        const res = await fetch(`${API_URL}?action=getParticipants`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
+        const [pRes, wRes] = await Promise.all([
+          fetch(`${API_URL}?action=getParticipants`),
+          fetch(`${API_URL}?action=getWorkshopConfig`).catch(() => null)
+        ]);
+        if (!pRes.ok) throw new Error(`HTTP ${pRes.status}`);
+        const json = await pRes.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
 
         allParticipants = (json.data || []).map(normalizeParticipant);
 
+        if (wRes && wRes.ok) {
+          try {
+            const wJson = await wRes.json();
+            if (wJson.status === 'success' && wJson.data) {
+              workshopConfig = wJson.data;
+            }
+          } catch (e) {}
+        }
+
+        renderPortalWorkshopGroups();
         document.getElementById('loading-card').classList.add('hidden');
 
         if (urlId) {
@@ -1123,20 +1328,38 @@
       lastKnownCheckIns = { day1: p.day1 || '', day2: p.day2 || '', day3: p.day3 || '' };
       document.getElementById('personal-card').classList.remove('hidden');
       renderPersonalCard(p, []);
+      renderPortalWorkshopGroups();
       startLiveCheckInPolling();
       if (window.lucide) lucide.createIcons();
     }
 
-    // ระบบซิงค์สถานะเช็กอินแบบ Real-time ทุก 7 วินาที (ทันทีที่สตาฟยิงสแกน บัตรจะประทับตรา VERIFIED อัตโนมัติ)
     function startLiveCheckInPolling() {
       if (liveSyncTimer) clearInterval(liveSyncTimer);
       liveSyncTimer = setInterval(async () => {
         if (!currentParticipant || document.hidden) return;
         try {
-          const res = await fetch(`${API_URL}?action=getParticipants`);
+          const [res, wRes] = await Promise.all([
+            fetch(`${API_URL}?action=getParticipants`),
+            fetch(`${API_URL}?action=getWorkshopConfig`).catch(() => null)
+          ]);
           if (!res.ok) return;
           const json = await res.json();
           if (json.status !== 'success' || !Array.isArray(json.data)) return;
+
+          let workshopChanged = false;
+          if (wRes && wRes.ok) {
+            try {
+              const wJson = await wRes.json();
+              if (wJson.status === 'success' && wJson.data) {
+                const prevStr = JSON.stringify(workshopConfig);
+                const nextStr = JSON.stringify(wJson.data);
+                if (prevStr !== nextStr) {
+                  workshopConfig = wJson.data;
+                  workshopChanged = true;
+                }
+              }
+            } catch (e) {}
+          }
 
           allParticipants = json.data.map(normalizeParticipant);
           const updated = allParticipants.find(x => x.id.toUpperCase() === currentParticipant.id.toUpperCase());
@@ -1151,11 +1374,14 @@
           });
 
           const hasChanged =
+            workshopChanged ||
             updated.day1 !== lastKnownCheckIns.day1 ||
             updated.day2 !== lastKnownCheckIns.day2 ||
             updated.day3 !== lastKnownCheckIns.day3 ||
             updated.roomNo !== currentParticipant.roomNo ||
             updated.roommate !== currentParticipant.roommate ||
+            updated.workshopGroup !== currentParticipant.workshopGroup ||
+            updated.workshopRole !== currentParticipant.workshopRole ||
             updated.evaluated !== currentParticipant.evaluated ||
             updated.hasPendingRequest !== currentParticipant.hasPendingRequest;
 
@@ -1163,6 +1389,7 @@
             currentParticipant = updated;
             lastKnownCheckIns = { day1: updated.day1 || '', day2: updated.day2 || '', day3: updated.day3 || '' };
             renderPersonalCard(updated, newlyVerifiedDays);
+            renderPortalWorkshopGroups();
 
             if (newlyVerifiedDays.length > 0) {
               const latestKey = newlyVerifiedDays[newlyVerifiedDays.length - 1];
@@ -1173,7 +1400,6 @@
       }, 7000);
     }
 
-    // ==================== RENDER 3D FLIPPABLE CREDIT CARD E-PASS ====================
     function flipCreditCard(event) {
       if (event && event.target && event.target.closest('[data-no-flip="true"]')) return;
       const flipper = document.getElementById('cc-flipper');
@@ -1205,7 +1431,6 @@
       document.getElementById('pc-unit').textContent = p.unitDetail || p.mainUnit || 'ผู้เข้าร่วมสัมมนา';
       document.getElementById('pc-sub-badge').classList.toggle('hidden', !isSub);
 
-      // ปรับขนาดตัวอักษรชื่ออัตโนมัติหากชื่อยาวมากเพื่อให้แสดงครบถ้วน
       const nameEl = document.getElementById('pc-name');
       nameEl.textContent = displayName || '-';
       nameEl.className = displayName.length > 28
@@ -1214,13 +1439,23 @@
 
       document.getElementById('pc-position').textContent = displayPos;
 
-      // แสดงชื่อเจ้าของสิทธิ์ตัวจริงกรณีส่งผู้แทนเข้าร่วม
       const origBox = document.getElementById('pc-orig-box');
       if (isSub) {
         document.getElementById('pc-orig-name').textContent = p.fullName;
         origBox.classList.remove('hidden');
       } else {
         origBox.classList.add('hidden');
+      }
+
+      // แสดงแถบแจ้งเตือนคำขอแก้ไขที่รออนุมัติ
+      const pendingBanner = document.getElementById('pc-pending-req-banner');
+      if (pendingBanner) {
+        if (p.hasPendingRequest) {
+          document.getElementById('pc-pending-req-detail').textContent = p.pendingRequestSummary || 'เจ้าหน้าที่กำลังตรวจสอบข้อมูลของท่าน';
+          pendingBanner.classList.remove('hidden');
+        } else {
+          pendingBanner.classList.add('hidden');
+        }
       }
 
       // ข้อมูลที่พัก / เลขห้อง / ผู้พักร่วม ด้านหลังบัตร
@@ -1241,7 +1476,6 @@
         roommateEl.classList.add('hidden');
       }
 
-      // อาหาร / การตอบรับ / ลิงก์หนังสือส่งตัว ด้านหลังบัตร
       document.getElementById('pc-food-rsvp').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
       const letterLinkEl = document.getElementById('pc-letter-link');
       if (letterLinkEl) {
@@ -1253,38 +1487,79 @@
         }
       }
 
-      // สร้าง QR Code เช็กอินด้านหลังบัตร
       const qrBox = document.getElementById('pc-qr-box');
       if (qrBox && typeof QRCode !== 'undefined') {
         qrBox.innerHTML = '';
         new QRCode(qrBox, {
           text: getPersonalQrText(p.id),
-          width: 74,
-          height: 74,
+          width: 72,
+          height: 72,
           correctLevel: QRCode.CorrectLevel.L
         });
       }
 
-      // แถบสีเหลืองแจ้งสถานะคำขอแก้ไขที่รออนุมัติ
-      const pendingBanner = document.getElementById('pc-pending-req-banner');
-      const pendingDetail = document.getElementById('pc-pending-req-detail');
-      if (pendingBanner) {
-        if (p.hasPendingRequest) {
-          if (pendingDetail) {
-            pendingDetail.textContent = p.pendingRequestSummary
-              ? `รายการที่ส่ง: ${p.pendingRequestSummary} (ข้อมูลบนบัตรจะอัปเดตอัตโนมัติหลังอนุมัติ)`
-              : 'กรุณารอเจ้าหน้าที่ตรวจสอบและอนุมัติ ข้อมูลบนบัตรจะอัปเดตอัตโนมัติครับ';
+      // แสดงกลุ่มสัมมนา Workshop ปัจจุบันบนด้านหน้าและด้านหลังบัตร
+      const wsInfo = getPersonWorkshopInfo(p, workshopConfig);
+      const frontPill = document.getElementById('pc-workshop-front-pill');
+      const frontText = document.getElementById('pc-workshop-front-text');
+      const frontMode = document.getElementById('pc-workshop-front-mode');
+      const frontTopic = document.getElementById('pc-workshop-front-topic');
+      const backBox = document.getElementById('pc-workshop-back-box');
+      if (frontPill && frontText && backBox) {
+        if (wsInfo.assigned) {
+          const gObj = (workshopConfig.groups || []).find(g => g.groupNo === wsInfo.currentGroup) || {};
+          const fixedExpertsFromList = allParticipants
+            .filter(x => parseInt(x.workshopGroup, 10) === wsInfo.currentGroup && isPersonFixedExpert(x))
+            .map(x => (x.rsvp === 'ส่งผู้แทนเข้าร่วม' && x.substituteName) ? x.substituteName : x.fullName);
+          const expertNames = [];
+          if (gObj.experts) gObj.experts.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(n => expertNames.push(n));
+          fixedExpertsFromList.forEach(n => { if (!expertNames.some(ex => ex.includes(n) || n.includes(ex))) expertNames.push(n); });
+
+          if (wsInfo.isFixed) {
+            frontPill.className = 'mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/85 text-left shadow-sm';
+            frontText.textContent = `⭐ ผู้เชี่ยวชาญกลุ่มที่ ${wsInfo.currentGroup}`;
+            if (frontMode) {
+              frontMode.textContent = 'ประจำฐานเดิม';
+              frontMode.className = 'shrink-0 px-1.5 py-0.2 rounded bg-amber-300 text-slate-950 text-[8.5px] font-extrabold';
+            }
+            if (frontTopic) frontTopic.textContent = gObj.topic || '';
+
+            document.getElementById('pc-workshop-back-title').textContent = `⭐ ผู้เชี่ยวชาญประจำกลุ่ม ${wsInfo.currentGroup}`;
+            document.getElementById('pc-workshop-back-round').textContent = 'ประจำกลุ่มเดิม';
+            document.getElementById('pc-workshop-back-topic').textContent = gObj.topic || '';
+            document.getElementById('pc-workshop-back-experts').textContent = 'วิทยากร/ผู้เชี่ยวชาญจะอยู่ประจำฐานนี้ตลอดทุกรอบ';
+            document.getElementById('pc-workshop-back-route').textContent = `รอบปัจจุบัน: รอบที่ ${wsInfo.round} / 5`;
+          } else {
+            frontPill.className = 'mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-sky-400/25 border border-sky-300/85 text-left shadow-sm';
+            frontText.textContent = `🎯 กลุ่มที่ ${wsInfo.currentGroup} (รอบที่ ${wsInfo.round}/5)`;
+            if (frontMode) {
+              frontMode.textContent = 'เปลี่ยนกลุ่มตามรอบ';
+              frontMode.className = 'shrink-0 px-1.5 py-0.2 rounded bg-sky-300 text-slate-950 text-[8.5px] font-extrabold';
+            }
+            if (frontTopic) frontTopic.textContent = gObj.topic || '';
+
+            document.getElementById('pc-workshop-back-title').textContent = `กลุ่มปัจจุบัน: กลุ่มที่ ${wsInfo.currentGroup}`;
+            document.getElementById('pc-workshop-back-round').textContent = `รอบที่ ${wsInfo.round} / 5`;
+            document.getElementById('pc-workshop-back-topic').textContent = gObj.topic || '';
+            document.getElementById('pc-workshop-back-experts').textContent = expertNames.length
+              ? `ผู้เชี่ยวชาญกลุ่มนี้: ${expertNames.join(', ')}`
+              : 'ผู้เชี่ยวชาญประจำกลุ่ม (1–2 คน)';
+            const routeSteps = [1, 2, 3, 4, 5].map(r => {
+              const gAtR = (((wsInfo.baseGroup - 1 + (r - 1)) % 5) + 1);
+              return r === wsInfo.round ? `[ร${r}:ก${gAtR}]` : `ร${r}:ก${gAtR}`;
+            });
+            document.getElementById('pc-workshop-back-route').textContent = `หมุนเวียน: ${routeSteps.join(' → ')}`;
           }
-          pendingBanner.classList.remove('hidden');
+          frontPill.classList.remove('hidden');
+          backBox.classList.remove('hidden');
         } else {
-          pendingBanner.classList.add('hidden');
+          frontPill.classList.add('hidden');
+          backBox.classList.add('hidden');
         }
       }
 
-      // อัปเดตสถานะแบบประเมิน (ป้องกันการกดส่งซ้ำเมื่อประเมินแล้ว)
       updateEvaluationUiState(Boolean(p.evaluated));
 
-      // ตราประทับสถานะสดแยก 3 วันบนหน้าบัตร (Live 3-Day Check-in Stamp & Pulse)
       const dayConfigs = [
         { key: 'day1', elId: 'stamp-day1', date: '30 พ.ย.', time: p.day1, done: Boolean(p.day1) },
         { key: 'day2', elId: 'stamp-day2', date: '1 ธ.ค.',  time: p.day2, done: Boolean(p.day2) },
@@ -1313,7 +1588,6 @@
         }
       });
 
-      // ป้ายสถานะสดด้านบนใต้รหัสบัตร (VERIFIED • เวลาล่าสุด)
       const livePill = document.getElementById('pc-live-status-pill');
       const liveText = document.getElementById('pc-live-status-text');
       const verifiedDays = dayConfigs.filter(d => d.done);
@@ -1325,7 +1599,6 @@
         livePill.classList.add('hidden');
       }
 
-      // กราฟแท่งเดียวความคืบหน้าการเข้าร่วมกิจกรรม (4 กิจกรรม = 100%)
       const activities = [
         { id: 'pill-day1', label: '30 พ.ย.', done: Boolean(p.day1) },
         { id: 'pill-day2', label: '1 ธ.ค.',  done: Boolean(p.day2) },
@@ -1362,7 +1635,6 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ==================== QR ZOOM MODAL ====================
     function openQrZoomModal() {
       if (!currentParticipant) return;
       const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(currentParticipant.substituteName);
@@ -1386,7 +1658,6 @@
       document.getElementById('qr-zoom-modal').classList.add('hidden');
     }
 
-    // ==================== TABS & SCHEDULE ====================
     function switchPortalTab(tab) {
       const isInfo = tab === 'info';
       document.getElementById('tab-info').classList.toggle('hidden', !isInfo);
@@ -1429,7 +1700,6 @@
       `).join('');
     }
 
-    // ==================== ANONYMOUS EVALUATION ====================
     function updateEvaluationUiState(isEvaluated) {
       const doneBanner = document.getElementById('eval-done-banner');
       const formWrapper = document.getElementById('eval-form-wrapper');
@@ -1512,7 +1782,6 @@
         return;
       }
 
-      // ตรวจสอบว่าให้คะแนนครบทั้ง 10 ข้อแล้วหรือยัง
       const allKeys = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'];
       const missingKey = allKeys.find(k => !ratings[k]);
       if (missingKey) {
@@ -1576,7 +1845,6 @@
       }
     }
 
-    // ==================== EDIT REQUEST MODAL + ROOMMATE AUTOCOMPLETE ====================
     function openEditRequestModal() {
       if (!currentParticipant) return;
       const p = currentParticipant;
@@ -1734,7 +2002,6 @@
       }
     }
 
-    // ==================== TOAST & ESCAPE ====================
     function showToast(message, type = 'info') {
       const box = document.getElementById('toast-box');
       if (!box) return;
