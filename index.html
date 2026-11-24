@@ -1608,17 +1608,83 @@
     }
 
     // ==================== ADMIN WORKSHOP 5-GROUP MANAGER ====================
+    function isWorkshopExpertRole(role) {
+      const r = String(role || '').trim();
+      return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
+    }
+
+    // ซิงค์รายชื่อวิทยากร/ผู้เชี่ยวชาญใน wmDraftGroups ให้ตรงกับ wmDraftAssignments 100% เสมอ
+    function syncDraftExpertsFromAssignments() {
+      const knownParticipantNames = new Set();
+      participants.forEach(p => {
+        if (p.fullName) knownParticipantNames.add(p.fullName.trim());
+        if (p.substituteName) knownParticipantNames.add(p.substituteName.trim());
+      });
+
+      wmDraftGroups.forEach((g, idx) => {
+        const gNo = String(g.groupNo || (idx + 1));
+        const assignedExperts = participants
+          .filter(p => {
+            const asg = wmDraftAssignments[p.id];
+            return asg && String(asg.workshopGroup) === gNo && isWorkshopExpertRole(asg.workshopRole);
+          })
+          .map(p => (hasSubstitute(p) ? p.substituteName : p.fullName).trim())
+          .filter(Boolean);
+
+        // เก็บเฉพาะชื่อวิทยากรภายนอกที่ไม่ได้อยู่ในรายชื่อ participants (กรณีพิมพ์เพิ่มเองในชีต)
+        const externalExperts = String(g.experts || '')
+          .split(/[\n,]+/)
+          .map(s => s.trim())
+          .filter(name => name && !knownParticipantNames.has(name));
+
+        const merged = [];
+        [...assignedExperts, ...externalExperts].forEach(name => {
+          if (!merged.includes(name)) merged.push(name);
+        });
+        g.experts = merged.join(', ');
+      });
+    }
+
     function openWorkshopManagerModal() {
       wmDraftRound = Math.max(1, Math.min(5, Number(workshopConfig.currentRound) || 1));
-      wmDraftGroups = (workshopConfig.groups || []).map(g => ({ ...g }));
-      wmDraftAssignments = {};
-      participants.forEach(p => {
-        wmDraftAssignments[p.id] = {
-          workshopGroup: p.workshopGroup || '',
-          workshopRole: p.workshopRole || 'ผู้เข้าร่วม'
+      const baseTopics = [
+        'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
+        'คู่มือแนวทางมาตรฐานการปฏิบัติงาน',
+        'ระบบเทคโนโลยีสารสนเทศงานจราจร',
+        'การปฏิบัติงานด้านการเงินและงบประมาณ',
+        'ประเด็นข้อโต้แย้งจากประชาชน'
+      ];
+      wmDraftGroups = [1, 2, 3, 4, 5].map((num, idx) => {
+        const existing = (workshopConfig.groups || []).find(g => Number(g.groupNo) === num);
+        return {
+          groupNo: num,
+          topic: existing && existing.topic ? existing.topic : baseTopics[idx],
+          experts: existing && existing.experts ? String(existing.experts) : ''
         };
       });
 
+      wmDraftAssignments = {};
+      participants.forEach(p => {
+        const gVal = String(p.workshopGroup || '').trim();
+        wmDraftAssignments[p.id] = {
+          workshopGroup: gVal,
+          workshopRole: (gVal && isWorkshopExpertRole(p.workshopRole)) ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม'
+        };
+      });
+
+      // กรณีมีชื่อผู้เชี่ยวชาญบันทึกไว้ใน Workshop_Groups แต่ยังไม่ได้ตั้งใน Participants ให้ซิงค์เข้ามาเฉพาะคนที่ยังว่าง
+      wmDraftGroups.forEach(g => {
+        const names = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+        names.forEach(name => {
+          const matched = participants.find(p => p.fullName === name || p.substituteName === name);
+          if (matched && wmDraftAssignments[matched.id] && !wmDraftAssignments[matched.id].workshopGroup) {
+            wmDraftAssignments[matched.id].workshopGroup = String(g.groupNo);
+            wmDraftAssignments[matched.id].workshopRole = 'ผู้เชี่ยวชาญประจำกลุ่ม';
+          }
+        });
+      });
+
+      syncDraftExpertsFromAssignments();
       setModalWorkshopRound(wmDraftRound);
       switchWorkshopManagerTab(wmActiveTab || 'bygroup');
       renderAllWorkshopManagerViews();
@@ -1694,12 +1760,12 @@
 
       participants.forEach(p => {
         const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
-        if (asg.workshopGroup === gStr) return; // อยู่ในกลุ่มนี้อยู่แล้ว
+        if (asg.workshopGroup === gStr && !isWorkshopExpertRole(asg.workshopRole)) return;
         if (!asg.workshopGroup) unassigned.push(p);
-        else fromOtherGroups.push({ p, fromGroup: asg.workshopGroup });
+        else fromOtherGroups.push({ p, fromGroup: asg.workshopGroup, wasExp: isWorkshopExpertRole(asg.workshopRole) });
       });
 
-      let html = `<option value="">+ เพิ่มสมาชิกเข้ากลุ่มที่ ${targetGroupNo} (คลิกเลือกชื่อ)...</option>`;
+      let html = `<option value="">+ เพิ่มสมาชิกผู้เข้าร่วมเข้ากลุ่มที่ ${targetGroupNo} (คลิกเลือกชื่อ)...</option>`;
       if (unassigned.length > 0) {
         html += `<optgroup label="ยังไม่จัดกลุ่ม (${unassigned.length} ราย)">` + unassigned.map(p => {
           const name = hasSubstitute(p) ? p.substituteName : p.fullName;
@@ -1707,9 +1773,10 @@
         }).join('') + `</optgroup>`;
       }
       if (fromOtherGroups.length > 0) {
-        html += `<optgroup label="ย้ายมาจากกลุ่มอื่น (${fromOtherGroups.length} ราย)">` + fromOtherGroups.map(({ p, fromGroup }) => {
+        html += `<optgroup label="ย้ายมาจากกลุ่มอื่น / เปลี่ยนสถานะ (${fromOtherGroups.length} ราย)">` + fromOtherGroups.map(({ p, fromGroup, wasExp }) => {
           const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-          return `<option value="${escapeHtml(p.id)}">[อยู่กลุ่ม ${fromGroup}] ${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})</option>`;
+          const prefixTag = wasExp ? `⭐ผู้เชี่ยวชาญ ก.${fromGroup}` : `อยู่กลุ่ม ${fromGroup}`;
+          return `<option value="${escapeHtml(p.id)}">[${prefixTag}] ${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})</option>`;
         }).join('') + `</optgroup>`;
       }
       return html;
@@ -1723,16 +1790,16 @@
         const gNo = g.groupNo || (idx + 1);
         const gStr = String(gNo);
         const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
-        const parts = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-        const exp1 = parts[0] || '';
-        const exp2 = parts[1] || '';
 
         const groupMembers = participants.filter(p => {
           const asg = wmDraftAssignments[p.id];
           return asg && asg.workshopGroup === gStr;
         });
-        const expertMembers = groupMembers.filter(p => String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ'));
-        const regularMembers = groupMembers.filter(p => !String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ'));
+        const expertMembers = groupMembers.filter(p => isWorkshopExpertRole(wmDraftAssignments[p.id]?.workshopRole));
+        const regularMembers = groupMembers.filter(p => !isWorkshopExpertRole(wmDraftAssignments[p.id]?.workshopRole));
+
+        const exp1 = expertMembers[0] ? (hasSubstitute(expertMembers[0]) ? expertMembers[0].substituteName : expertMembers[0].fullName) : '';
+        const exp2 = expertMembers[1] ? (hasSubstitute(expertMembers[1]) ? expertMembers[1].substituteName : expertMembers[1].fullName) : '';
 
         return `
           <div class="rounded-2xl bg-slate-50/90 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col shadow-2xs" style="border-top: 4px solid ${color};">
@@ -1767,7 +1834,7 @@
               <div class="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-700">
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                    👥 สมาชิกกลุ่มเริ่มต้นที่ ${gNo} (${regularMembers.length} ผู้เข้าร่วม${expertMembers.length ? ` • ${expertMembers.length} ผู้เชี่ยวชาญ` : ''})
+                    👥 สมาชิกกลุ่มเริ่มต้นที่ ${gNo} (${regularMembers.length} ผู้เข้าร่วม${expertMembers.length ? ` • ${expertMembers.length} วิทยากร/ผู้เชี่ยวชาญ` : ''})
                   </span>
                   <button type="button" onclick="openGroupQuickPickModal(${gNo})" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10.5px] font-bold shadow-2xs transition">
                     ☑ เลือกหลายคนพร้อมกัน
@@ -1775,12 +1842,12 @@
                 </div>
 
                 <!-- รายการชิป/แถวสมาชิก -->
-                <div class="max-h-40 overflow-y-auto custom-scroll space-y-1 pr-0.5">
+                <div class="max-h-44 overflow-y-auto custom-scroll space-y-1 pr-0.5">
                   ${groupMembers.length === 0
                     ? `<div class="py-3 px-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 text-center text-[11px] text-slate-400">ยังไม่มีสมาชิกในกลุ่มนี้ — เลือกชื่อด้านล่างหรือกด "เลือกหลายคนพร้อมกัน"</div>`
                     : [...expertMembers, ...regularMembers].map(p => {
                         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-                        const isExp = String(wmDraftAssignments[p.id]?.workshopRole || '').includes('ผู้เชี่ยวชาญ');
+                        const isExp = isWorkshopExpertRole(wmDraftAssignments[p.id]?.workshopRole);
                         return `
                           <div class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] ${isExp ? 'bg-amber-50/90 border-amber-300 dark:bg-amber-950/30 dark:border-amber-700' : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}">
                             <div class="min-w-0 flex items-center gap-1.5">
@@ -1789,8 +1856,8 @@
                               <span class="hidden sm:inline text-[10px] text-slate-400 shrink-0">(${escapeHtml(p.mainUnit)})</span>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
-                              <button type="button" onclick="toggleMemberFixedRole('${escapeHtml(p.id)}')" title="สลับระหว่าง หมุนเวียนตามรอบ / ประจำกลุ่มเดิม" class="px-1.5 py-0.5 rounded-md text-[10px] font-bold border transition ${isExp ? 'bg-amber-200/80 border-amber-400 text-amber-950' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-indigo-50'}">
-                                ${isExp ? '⭐ ประจำฐาน' : '🔄 หมุนเวียน'}
+                              <button type="button" onclick="toggleMemberFixedRole('${escapeHtml(p.id)}')" title="สลับระหว่าง ผู้เข้าร่วมหมุนเวียน / วิทยากรประจำกลุ่มเดิม" class="px-1.5 py-0.5 rounded-md text-[10px] font-bold border transition ${isExp ? 'bg-amber-200/80 border-amber-400 text-amber-950' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-indigo-50'}">
+                                ${isExp ? '⭐ วิทยากรประจำฐาน' : '🔄 ผู้เข้าร่วม'}
                               </button>
                               <button type="button" onclick="removeMemberFromWorkshopGroup('${escapeHtml(p.id)}')" title="นำออกจากกลุ่มนี้" class="w-5 h-5 rounded-md bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-600 font-bold flex items-center justify-center transition">
                                 ✕
@@ -1815,34 +1882,29 @@
 
     function addMemberToWorkshopGroup(groupNo, pid) {
       if (!pid) return;
-      if (!wmDraftAssignments[pid]) wmDraftAssignments[pid] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
-      wmDraftAssignments[pid].workshopGroup = String(groupNo);
-      if (!wmDraftAssignments[pid].workshopRole) wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
+      // การเพิ่มผ่านช่อง "เพิ่มสมาชิกผู้เข้าร่วม" จะตั้งสถานะเป็นผู้เข้าร่วมหมุนเวียนเสมอ เพื่อไม่ให้สับสนกับวิทยากร
+      wmDraftAssignments[pid] = {
+        workshopGroup: String(groupNo),
+        workshopRole: 'ผู้เข้าร่วม'
+      };
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
     function removeMemberFromWorkshopGroup(pid) {
-      const p = participants.find(x => x.id === pid);
-      const name = p ? (hasSubstitute(p) ? p.substituteName : p.fullName) : '';
       if (wmDraftAssignments[pid]) {
         wmDraftAssignments[pid].workshopGroup = '';
         wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
       }
-      // หากชื่อนี้เคยถูกผูกในช่องผู้เชี่ยวชาญของกลุ่ม ให้เคลียร์ออกด้วยเพื่อไม่ให้ซ้ำซ้อน
-      if (name) {
-        wmDraftGroups.forEach(g => {
-          const list = String(g.experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-          const filtered = list.filter(n => n !== name && (!p || n !== p.fullName));
-          g.experts = filtered.join(', ');
-        });
-      }
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
     function toggleMemberFixedRole(pid) {
       if (!wmDraftAssignments[pid]) return;
-      const isExp = String(wmDraftAssignments[pid].workshopRole || '').includes('ผู้เชี่ยวชาญ');
+      const isExp = isWorkshopExpertRole(wmDraftAssignments[pid].workshopRole);
       wmDraftAssignments[pid].workshopRole = isExp ? 'ผู้เข้าร่วม' : 'ผู้เชี่ยวชาญประจำกลุ่ม';
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
@@ -1859,7 +1921,7 @@
     function openGroupQuickPickModal(groupNo) {
       wmQuickPickGroupNo = groupNo;
       const gObj = wmDraftGroups.find(g => Number(g.groupNo) === Number(groupNo));
-      document.getElementById('wm-qp-title').textContent = `เลือกสมาชิกเข้ากลุ่มที่ ${groupNo} — ${gObj ? gObj.topic : ''}`;
+      document.getElementById('wm-qp-title').textContent = `เลือกสมาชิกผู้เข้าร่วมเข้ากลุ่มที่ ${groupNo} — ${gObj ? gObj.topic : ''}`;
       document.getElementById('wm-qp-search').value = '';
       document.getElementById('wm-qp-only-free').checked = false;
       renderGroupQuickPickList();
@@ -1878,8 +1940,11 @@
       const q = String(document.getElementById('wm-qp-search')?.value || '').trim().toLowerCase();
       const onlyFree = Boolean(document.getElementById('wm-qp-only-free')?.checked);
 
-      const inThisGroupCount = participants.filter(p => wmDraftAssignments[p.id]?.workshopGroup === gStr).length;
-      document.getElementById('wm-qp-subtitle').textContent = `ติ๊กเลือกรายชื่อที่ต้องการให้อยู่กลุ่มที่ ${gStr} (เลือกไว้แล้ว ${inThisGroupCount} ราย)`;
+      const inThisGroupCount = participants.filter(p => {
+        const a = wmDraftAssignments[p.id];
+        return a && a.workshopGroup === gStr && !isWorkshopExpertRole(a.workshopRole);
+      }).length;
+      document.getElementById('wm-qp-subtitle').textContent = `ติ๊กเลือกรายชื่อผู้เข้าร่วมที่ต้องการให้อยู่กลุ่มที่ ${gStr} (ผู้เข้าร่วมที่เลือกไว้ ${inThisGroupCount} ราย)`;
 
       const list = participants.filter(p => {
         const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
@@ -1897,7 +1962,8 @@
       box.innerHTML = list.map(p => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
         const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
-        const isInThis = asg.workshopGroup === gStr;
+        const isExp = isWorkshopExpertRole(asg.workshopRole);
+        const isInThis = asg.workshopGroup === gStr && !isExp;
         const inOther = asg.workshopGroup && !isInThis ? asg.workshopGroup : '';
         return `
           <label class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl border cursor-pointer transition ${isInThis ? 'bg-indigo-50 border-indigo-400 dark:bg-indigo-950/40 dark:border-indigo-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50'}">
@@ -1913,10 +1979,12 @@
             </div>
             <div class="shrink-0">
               ${isInThis
-                ? `<span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">อยู่กลุ่ม ${gStr}</span>`
-                : (inOther
-                  ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold">ย้ายจาก ก.${inOther}</span>`
-                  : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px]">ยังไม่จัดกลุ่ม</span>`)
+                ? `<span class="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">ผู้เข้าร่วม ก.${gStr}</span>`
+                : (isExp && asg.workshopGroup
+                  ? `<span class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-bold">⭐ วิทยากร ก.${asg.workshopGroup}</span>`
+                  : (inOther
+                    ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold">ย้ายจาก ก.${inOther}</span>`
+                    : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px]">ยังไม่จัดกลุ่ม</span>`))
               }
             </div>
           </label>
@@ -1926,12 +1994,13 @@
 
     function toggleQuickPickMember(pid) {
       const gStr = String(wmQuickPickGroupNo);
-      if (!wmDraftAssignments[pid]) wmDraftAssignments[pid] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
-      if (wmDraftAssignments[pid].workshopGroup === gStr) {
+      const cur = wmDraftAssignments[pid] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
+      const isCurrentlyRegularInThis = cur.workshopGroup === gStr && !isWorkshopExpertRole(cur.workshopRole);
+      if (isCurrentlyRegularInThis) {
         removeMemberFromWorkshopGroup(pid);
       } else {
-        wmDraftAssignments[pid].workshopGroup = gStr;
-        if (!wmDraftAssignments[pid].workshopRole) wmDraftAssignments[pid].workshopRole = 'ผู้เข้าร่วม';
+        wmDraftAssignments[pid] = { workshopGroup: gStr, workshopRole: 'ผู้เข้าร่วม' };
+        syncDraftExpertsFromAssignments();
         renderAllWorkshopManagerViews();
       }
       renderGroupQuickPickList();
@@ -1940,33 +2009,34 @@
     function onExpertSelectChange(groupIdx, slotNo, selectEl) {
       const s1 = document.getElementById(`wm-exp-${groupIdx}-1`);
       const s2 = document.getElementById(`wm-exp-${groupIdx}-2`);
-      const gNo = String(wmDraftGroups[groupIdx].groupNo);
+      const gNo = String(wmDraftGroups[groupIdx].groupNo || (groupIdx + 1));
 
-      const newNames = [s1?.value, s2?.value].filter(Boolean);
-      const oldNames = String(wmDraftGroups[groupIdx].experts || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-
-      // หากถอดชื่อผู้เชี่ยวชาญเดิมออก ให้ปลดสถานะผู้เชี่ยวชาญประจำกลุ่มของคนนั้นด้วย
-      oldNames.forEach(oldName => {
-        if (!newNames.includes(oldName)) {
-          const oldPerson = participants.find(p => p.fullName === oldName || p.substituteName === oldName);
-          if (oldPerson && wmDraftAssignments[oldPerson.id] && wmDraftAssignments[oldPerson.id].workshopGroup === gNo) {
-            wmDraftAssignments[oldPerson.id].workshopGroup = '';
-            wmDraftAssignments[oldPerson.id].workshopRole = 'ผู้เข้าร่วม';
-          }
-        }
-      });
-
+      const selectedPids = new Set();
       [s1, s2].forEach(sel => {
         if (!sel || !sel.value) return;
         const opt = sel.options[sel.selectedIndex];
         const pid = opt ? opt.getAttribute('data-pid') : '';
-        if (pid && wmDraftAssignments[pid]) {
-          wmDraftAssignments[pid].workshopGroup = gNo;
-          wmDraftAssignments[pid].workshopRole = 'ผู้เชี่ยวชาญประจำกลุ่ม';
+        if (pid) selectedPids.add(pid);
+      });
+
+      // ปลดผู้เชี่ยวชาญเดิมของกลุ่มนี้ที่ไม่ได้ถูกเลือกใน 2 ช่องนี้ออก
+      participants.forEach(p => {
+        const asg = wmDraftAssignments[p.id];
+        if (asg && asg.workshopGroup === gNo && isWorkshopExpertRole(asg.workshopRole) && !selectedPids.has(p.id)) {
+          asg.workshopGroup = '';
+          asg.workshopRole = 'ผู้เข้าร่วม';
         }
       });
 
-      wmDraftGroups[groupIdx].experts = newNames.join(', ');
+      // กำหนดผู้ที่ถูกเลือกใน 2 ช่องนี้ให้เป็นผู้เชี่ยวชาญประจำกลุ่มนี้
+      selectedPids.forEach(pid => {
+        wmDraftAssignments[pid] = {
+          workshopGroup: gNo,
+          workshopRole: 'ผู้เชี่ยวชาญประจำกลุ่ม'
+        };
+      });
+
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
@@ -1988,7 +2058,7 @@
       box.innerHTML = list.map(p => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
         const asg = wmDraftAssignments[p.id] || { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
-        const isExpert = String(asg.workshopRole).includes('ผู้เชี่ยวชาญ');
+        const isExpert = isWorkshopExpertRole(asg.workshopRole);
         return `
           <div class="p-2.5 flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-slate-800/80">
             <div class="min-w-0 flex-1">
@@ -2008,8 +2078,8 @@
                 <option value="5" ${asg.workshopGroup === '5' ? 'selected' : ''}>กลุ่ม 5</option>
               </select>
               <select onchange="updateDraftMemberRole('${escapeHtml(p.id)}', this.value)" class="px-2 py-1 rounded-lg border ${isExpert ? 'border-amber-400 bg-amber-50 text-amber-900 font-bold' : 'border-slate-300 bg-slate-50 text-slate-700'} text-xs">
-                <option value="ผู้เข้าร่วม" ${!isExpert ? 'selected' : ''}>🔄 หมุนเวียนตามรอบ</option>
-                <option value="ผู้เชี่ยวชาญประจำกลุ่ม" ${isExpert ? 'selected' : ''}>⭐ ประจำกลุ่มเดิม</option>
+                <option value="ผู้เข้าร่วม" ${!isExpert ? 'selected' : ''}>🔄 ผู้เข้าร่วม (หมุนเวียน)</option>
+                <option value="ผู้เชี่ยวชาญประจำกลุ่ม" ${isExpert ? 'selected' : ''}>⭐ วิทยากร (ประจำฐานเดิม)</option>
               </select>
             </div>
           </div>
@@ -2022,12 +2092,15 @@
     function updateDraftMemberGroup(id, grp) {
       if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
       wmDraftAssignments[id].workshopGroup = grp;
+      if (!grp) wmDraftAssignments[id].workshopRole = 'ผู้เข้าร่วม';
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
     function updateDraftMemberRole(id, role) {
       if (!wmDraftAssignments[id]) wmDraftAssignments[id] = { workshopGroup: '', workshopRole: 'ผู้เข้าร่วม' };
       wmDraftAssignments[id].workshopRole = role;
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
     }
 
@@ -2040,6 +2113,7 @@
         asg.workshopRole = 'ผู้เข้าร่วม';
         nextGroup = (nextGroup % 5) + 1;
       });
+      syncDraftExpertsFromAssignments();
       renderAllWorkshopManagerViews();
       showToast('กระจายผู้เข้าร่วมเข้าทั้ง 5 กลุ่มเรียบร้อยแล้ว กดบันทึกเพื่อซิงค์ขึ้นบัตรทุกคน', 'info');
     }
@@ -2069,7 +2143,10 @@
     async function saveWorkshopManagerConfig() {
       const btn = document.getElementById('wm-save-btn');
       btn.disabled = true;
-      btn.textContent = 'กำลังบันทึก...';
+      btn.textContent = 'กำลังบันทึกขึ้น Google Sheets...';
+
+      // บังคับซิงค์รายชื่อวิทยากรและสมาชิกให้ตรงกัน 100% ก่อนส่งบันทึก
+      syncDraftExpertsFromAssignments();
 
       const assignments = Object.keys(wmDraftAssignments).map(id => ({
         id,
@@ -2077,29 +2154,32 @@
         workshopRole: wmDraftAssignments[id].workshopRole
       }));
 
-      workshopConfig = { currentRound: wmDraftRound, groups: wmDraftGroups.map(g => ({ ...g })) };
-      assignments.forEach(a => {
-        const p = participants.find(x => x.id === a.id);
-        if (p) {
-          p.workshopGroup = a.workshopGroup;
-          p.workshopRole = a.workshopRole;
-        }
-      });
-      lastParticipantsSnapshot = JSON.stringify(participants);
-      renderCurrentView();
-      closeWorkshopManagerModal();
-      showToast(`บันทึกการจัดกลุ่ม 5 กลุ่ม (รอบที่ ${wmDraftRound}) เรียบร้อยแล้ว`, 'success');
-
       isMutatingData = true;
       try {
-        await postToApi({
+        const res = await postToApi({
           action: 'saveWorkshopConfig',
           currentRound: wmDraftRound,
           groups: wmDraftGroups,
           assignments
         });
+        if (!res || res.status !== 'success') {
+          throw new Error((res && res.message) || 'Google Sheets ตอบกลับผิดพลาด');
+        }
+
+        workshopConfig = { currentRound: wmDraftRound, groups: wmDraftGroups.map(g => ({ ...g })) };
+        assignments.forEach(a => {
+          const p = participants.find(x => x.id === a.id);
+          if (p) {
+            p.workshopGroup = a.workshopGroup;
+            p.workshopRole = a.workshopRole;
+          }
+        });
+        lastParticipantsSnapshot = JSON.stringify(participants);
+        renderCurrentView();
+        closeWorkshopManagerModal();
+        showToast(`บันทึกการจัดกลุ่ม 5 กลุ่ม (รอบที่ ${wmDraftRound}) ขึ้น Google Sheets เรียบร้อยแล้ว`, 'success');
       } catch (err) {
-        showToast('ซิงค์ขึ้น Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
+        showToast('บันทึกขึ้น Google Sheets ไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         isMutatingData = false;
         btn.disabled = false;
