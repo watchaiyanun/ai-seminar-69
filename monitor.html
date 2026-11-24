@@ -453,6 +453,27 @@
           </div>
         </div>
 
+        <!-- ตั้งค่าสลับกลุ่มอัตโนมัติเมื่อหมดเวลา -->
+        <div class="p-3.5 rounded-2xl bg-indigo-50/90 border border-indigo-200 space-y-2.5">
+          <label class="flex items-start gap-2.5 cursor-pointer select-none">
+            <input type="checkbox" id="ws-auto-rotate" checked onchange="toggleWorkshopAfterRotateSelect()" class="mt-0.5 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 shrink-0" />
+            <div class="space-y-0.5">
+              <span class="block text-xs font-bold text-indigo-950">🔄 สลับกลุ่มขึ้นรอบถัดไปอัตโนมัติทันทีเมื่อหมดเวลา (กลุ่ม 1 → 2 → 3 → 4 → 5)</span>
+              <span class="block text-[11px] text-indigo-700 leading-snug">เมื่อนับถอยหลังถึง 00:00 ระบบจะเลื่อนรอบและซิงค์ขึ้นบัตร E-Pass ของผู้เข้าร่วมทุกคนทันที (ผู้เชี่ยวชาญอยู่ประจำฐานเดิม ส่วนสมาชิกขยับไปกลุ่มถัดไป และหยุดเมื่อครบ 5 รอบ)</span>
+            </div>
+          </label>
+
+          <div id="ws-after-rotate-wrap" class="pl-6 space-y-1">
+            <label class="block text-[11px] font-bold text-indigo-900">การทำงานหลังสลับกลุ่มขึ้นรอบถัดไปแล้ว:</label>
+            <select id="ws-after-rotate-mode" class="w-full px-3 py-2 rounded-xl border border-indigo-300 bg-white text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-600 focus:outline-none">
+              <option value="break120" selected>⏱️ พักเดินเปลี่ยนโต๊ะ 2 นาที แล้วเริ่มจับเวลารอบใหม่อัตโนมัติ (แนะนำ)</option>
+              <option value="break60">⏱️ พักเดินเปลี่ยนโต๊ะ 1 นาที แล้วเริ่มจับเวลารอบใหม่อัตโนมัติ</option>
+              <option value="wait">✋ สลับกลุ่มทันที แล้วหยุดรอเจ้าหน้าที่กดปุ่มเริ่มจับเวลารอบถัดไป</option>
+              <option value="instant">⚡ สลับกลุ่มและเริ่มจับเวลารอบใหม่อัตโนมัติทันที</option>
+            </select>
+          </div>
+        </div>
+
         <div class="space-y-2 pt-2 border-t border-slate-200">
           <div class="flex items-center justify-between gap-2">
             <label class="text-xs font-bold text-slate-700">ข้อความสำรองแต่ละกลุ่ม (ระบบจะดึงรายชื่อผู้เชี่ยวชาญและสมาชิกจาก Google Sheets ให้อัตโนมัติ)</label>
@@ -479,6 +500,8 @@
         <h2 id="ws-screen-title" class="text-base sm:text-xl lg:text-2xl font-extrabold text-white truncate">สัมมนากลุ่มย่อย 5 กลุ่ม</h2>
       </div>
       <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+        <button type="button" onclick="toggleWorkshopAutoRotateLive()" id="ws-btn-autorotate" title="เปิด/ปิด การสลับกลุ่มอัตโนมัติเมื่อหมดเวลา" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-300/60 text-emerald-200 text-xs font-bold transition">🔄 สลับรอบอัตโนมัติ: เปิด</button>
+        <button type="button" onclick="restartCurrentWorkshopRound()" id="ws-btn-restart-round" class="hidden px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-md animate-pulse transition">▶ เริ่มจับเวลารอบนี้</button>
         <button type="button" onclick="shiftWorkshopRound(-1)" title="ย้อนกลับรอบก่อนหน้า" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/30 hover:bg-indigo-500/50 border border-indigo-300/40 text-xs font-bold transition">◀ รอบก่อน</button>
         <button type="button" onclick="shiftWorkshopRound(1)" title="สลับผู้เข้าร่วมไปยังกลุ่มถัดไป (ซิงค์ขึ้นบัตรทุกคนทันที)" class="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 border border-indigo-300/60 text-white text-xs font-extrabold shadow transition">สลับรอบถัดไป ▶</button>
         <button type="button" onclick="toggleWorkshopPause()" id="ws-btn-pause" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition">
@@ -495,6 +518,11 @@
 
     <div class="flex-1 min-h-0 flex flex-col justify-between px-4 sm:px-8 py-4 sm:py-6 gap-4 overflow-y-auto custom-scroll">
       <div class="flex flex-col items-center justify-center text-center space-y-3 my-auto">
+        <!-- แถบแจ้งเตือนเมื่อระบบสลับรอบอัตโนมัติ -->
+        <div id="ws-rotate-banner" class="hidden w-full max-w-3xl px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600/90 via-police-navy/95 to-police-maroon/90 border-2 border-police-goldLight shadow-xl flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-white">
+          <span id="ws-rotate-banner-text">🔄 หมดเวลา! สลับกลุ่มขึ้นรอบถัดไปแล้ว — สมาชิกเลื่อนไปกลุ่มถัดไป (1 → 2 → 3 → 4 → 5)</span>
+        </div>
+
         <div id="ws-status-pill" class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-bold">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span id="ws-status-text">กำลังดำเนินกิจกรรมกลุ่มย่อย</span>
@@ -693,8 +721,12 @@
     let workshopTimer = null;
     let workshopTotalSec = 45 * 60;
     let workshopRemainingSec = 45 * 60;
+    let workshopConfiguredMins = 45;
     let workshopPaused = false;
     let workshopFiveMinWarned = false;
+    let workshopAutoRotate = safeStorageGet('ai_seminar_ws_autorotate') !== 'false';
+    let workshopAfterRotateMode = safeStorageGet('ai_seminar_ws_after_mode') || 'break120';
+    let workshopPhase = 'active'; // 'active' | 'break' | 'waiting' | 'completed'
     let liveWorkshopConfig = {
       currentRound: 1,
       groups: DEFAULT_WORKSHOP_GROUPS.map(g => ({ groupNo: g.num, topic: g.title, experts: '' }))
@@ -1106,6 +1138,12 @@
 
     function openWorkshopTimerModal() {
       const notes = getSavedWorkshopNotes();
+      const autoCb = document.getElementById('ws-auto-rotate');
+      const afterSel = document.getElementById('ws-after-rotate-mode');
+      if (autoCb) autoCb.checked = workshopAutoRotate;
+      if (afterSel) afterSel.value = workshopAfterRotateMode;
+      toggleWorkshopAfterRotateSelect();
+
       const box = document.getElementById('ws-group-inputs-container');
       if (box) {
         box.innerHTML = DEFAULT_WORKSHOP_GROUPS.map((g, idx) => `
@@ -1120,6 +1158,13 @@
       }
       document.getElementById('workshop-timer-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleWorkshopAfterRotateSelect() {
+      const checked = Boolean(document.getElementById('ws-auto-rotate')?.checked);
+      document.getElementById('ws-after-rotate-wrap')?.classList.toggle('opacity-50', !checked);
+      const sel = document.getElementById('ws-after-rotate-mode');
+      if (sel) sel.disabled = !checked;
     }
 
     function closeWorkshopTimerModal() {
@@ -1157,6 +1202,11 @@
       const title = document.getElementById('ws-title-input').value.trim() || 'สัมมนากลุ่มย่อย 5 กลุ่ม';
       const mins = Math.max(1, Math.min(360, parseInt(document.getElementById('ws-minutes-input').value, 10) || 45));
 
+      workshopAutoRotate = Boolean(document.getElementById('ws-auto-rotate')?.checked);
+      workshopAfterRotateMode = document.getElementById('ws-after-rotate-mode')?.value || 'break120';
+      safeStorageSet('ai_seminar_ws_autorotate', String(workshopAutoRotate));
+      safeStorageSet('ai_seminar_ws_after_mode', workshopAfterRotateMode);
+
       const notes = [];
       for (let i = 0; i < 5; i++) {
         const inp = document.getElementById(`ws-group-note-${i}`);
@@ -1164,20 +1214,57 @@
       }
       safeStorageSet('ai_seminar_ws_group_notes', JSON.stringify(notes));
 
+      workshopConfiguredMins = mins;
       workshopTotalSec = mins * 60;
       workshopRemainingSec = workshopTotalSec;
       workshopPaused = false;
       workshopFiveMinWarned = false;
+      workshopPhase = 'active';
 
       document.getElementById('ws-screen-title').textContent = title;
-      document.getElementById('ws-total-label').textContent = `เวลารวม ${mins} นาที`;
+      document.getElementById('ws-total-label').textContent = `เวลารวม ${mins} นาที / รอบ`;
       document.getElementById('ws-pause-label').textContent = 'พักเวลา';
+      document.getElementById('ws-rotate-banner')?.classList.add('hidden');
+      document.getElementById('ws-btn-restart-round')?.classList.add('hidden');
+      updateWorkshopAutoRotateBtn();
 
       renderWorkshopGroupCards(notes);
       closeWorkshopTimerModal();
       document.getElementById('workshop-timer-overlay').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
 
+      runWorkshopInterval();
+    }
+
+    function updateWorkshopAutoRotateBtn() {
+      const btn = document.getElementById('ws-btn-autorotate');
+      if (!btn) return;
+      if (workshopAutoRotate) {
+        btn.textContent = '🔄 สลับรอบอัตโนมัติ: เปิด';
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-300/60 text-emerald-200 text-xs font-bold transition';
+      } else {
+        btn.textContent = '🔄 สลับรอบอัตโนมัติ: ปิด';
+        btn.className = 'px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-slate-300 text-xs font-semibold transition';
+      }
+    }
+
+    function toggleWorkshopAutoRotateLive() {
+      workshopAutoRotate = !workshopAutoRotate;
+      safeStorageSet('ai_seminar_ws_autorotate', String(workshopAutoRotate));
+      updateWorkshopAutoRotateBtn();
+    }
+
+    function restartCurrentWorkshopRound() {
+      workshopPhase = 'active';
+      workshopTotalSec = workshopConfiguredMins * 60;
+      workshopRemainingSec = workshopTotalSec;
+      workshopPaused = false;
+      workshopFiveMinWarned = false;
+      document.getElementById('ws-total-label').textContent = `เวลารวม ${workshopConfiguredMins} นาที / รอบ`;
+      document.getElementById('ws-pause-label').textContent = 'พักเวลา';
+      document.getElementById('ws-rotate-banner')?.classList.add('hidden');
+      document.getElementById('ws-btn-restart-round')?.classList.add('hidden');
+      playDingDongChime();
       runWorkshopInterval();
     }
 
@@ -1189,17 +1276,104 @@
         workshopRemainingSec--;
         updateWorkshopTimerDisplay();
 
-        if (workshopRemainingSec === 300 && !workshopFiveMinWarned) {
+        if (workshopPhase === 'active' && workshopRemainingSec === 300 && !workshopFiveMinWarned) {
           workshopFiveMinWarned = true;
           playDingDongChime();
         }
 
         if (workshopRemainingSec <= 0) {
-          clearInterval(workshopTimer);
-          workshopTimer = null;
-          playDingDongChime();
+          handleWorkshopTimerZero();
         }
       }, 1000);
+    }
+
+    async function handleWorkshopTimerZero() {
+      const banner = document.getElementById('ws-rotate-banner');
+      const bannerTxt = document.getElementById('ws-rotate-banner-text');
+      const restartBtn = document.getElementById('ws-btn-restart-round');
+
+      // กรณีครบเวลาพักเดินเปลี่ยนโต๊ะ → เริ่มจับเวลารอบใหม่อัตโนมัติทันที
+      if (workshopPhase === 'break') {
+        playDingDongChime();
+        workshopPhase = 'active';
+        workshopTotalSec = workshopConfiguredMins * 60;
+        workshopRemainingSec = workshopTotalSec;
+        workshopFiveMinWarned = false;
+        document.getElementById('ws-total-label').textContent = `เวลารวม ${workshopConfiguredMins} นาที / รอบ`;
+        if (banner) banner.classList.add('hidden');
+        if (restartBtn) restartBtn.classList.add('hidden');
+        updateWorkshopTimerDisplay();
+        return;
+      }
+
+      // กรณีหมดเวลารอบกิจกรรมหลัก
+      playDingDongChime();
+      const curRound = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
+
+      if (workshopAutoRotate) {
+        if (curRound < 5) {
+          const nextRound = curRound + 1;
+          await shiftWorkshopRound(1, true);
+
+          if (banner && bannerTxt) {
+            bannerTxt.textContent = `🔄 หมดเวลารอบที่ ${curRound}! สลับกลุ่มขึ้นรอบที่ ${nextRound} / 5 แล้ว — สมาชิกเลื่อนไปกลุ่มถัดไป (1 → 2 → 3 → 4 → 5) • บัตร E-Pass อัปเดตแล้ว`;
+            banner.classList.remove('hidden');
+          }
+
+          if (workshopAfterRotateMode === 'instant') {
+            workshopPhase = 'active';
+            workshopTotalSec = workshopConfiguredMins * 60;
+            workshopRemainingSec = workshopTotalSec;
+            workshopFiveMinWarned = false;
+            document.getElementById('ws-total-label').textContent = `เวลารวม ${workshopConfiguredMins} นาที / รอบ`;
+            if (restartBtn) restartBtn.classList.add('hidden');
+            updateWorkshopTimerDisplay();
+          } else if (workshopAfterRotateMode === 'break60' || workshopAfterRotateMode === 'break120') {
+            const breakSec = workshopAfterRotateMode === 'break60' ? 60 : 120;
+            workshopPhase = 'break';
+            workshopTotalSec = breakSec;
+            workshopRemainingSec = breakSec;
+            workshopFiveMinWarned = true;
+            document.getElementById('ws-total-label').textContent = `พักเดินเปลี่ยนโต๊ะ ${Math.round(breakSec / 60)} นาที`;
+            if (restartBtn) {
+              restartBtn.textContent = `▶ เริ่มรอบที่ ${nextRound} ทันที`;
+              restartBtn.classList.remove('hidden');
+            }
+            updateWorkshopTimerDisplay();
+          } else {
+            // โหมด wait: สลับกลุ่มแล้วหยุดรอสตาฟกดเริ่มจับเวลารอบถัดไป
+            if (workshopTimer) { clearInterval(workshopTimer); workshopTimer = null; }
+            workshopPhase = 'waiting';
+            workshopRemainingSec = 0;
+            if (restartBtn) {
+              restartBtn.textContent = `▶ เริ่มจับเวลารอบที่ ${nextRound} (${workshopConfiguredMins} น.)`;
+              restartBtn.classList.remove('hidden');
+            }
+            updateWorkshopTimerDisplay();
+          }
+        } else {
+          // ครบทั้ง 5 รอบแล้ว
+          if (workshopTimer) { clearInterval(workshopTimer); workshopTimer = null; }
+          workshopPhase = 'completed';
+          workshopRemainingSec = 0;
+          if (banner && bannerTxt) {
+            bannerTxt.textContent = '🎉 ดำเนินกิจกรรมหมุนเวียนครบทั้ง 5 รอบเรียบร้อยแล้ว! ขอบคุณผู้เชี่ยวชาญและผู้เข้าร่วมทุกท่าน';
+            banner.classList.remove('hidden');
+          }
+          if (restartBtn) restartBtn.classList.add('hidden');
+          updateWorkshopTimerDisplay();
+        }
+      } else {
+        // ปิดสลับรอบอัตโนมัติ → หยุดเวลาและแจ้งเตือนให้สตาฟกดสลับรอบเอง
+        if (workshopTimer) { clearInterval(workshopTimer); workshopTimer = null; }
+        workshopPhase = 'waiting';
+        workshopRemainingSec = 0;
+        if (restartBtn) {
+          restartBtn.textContent = `▶ เริ่มจับเวลาใหม่ (${workshopConfiguredMins} น.)`;
+          restartBtn.classList.remove('hidden');
+        }
+        updateWorkshopTimerDisplay();
+      }
     }
 
     function updateWorkshopTimerDisplay() {
@@ -1209,25 +1383,40 @@
       const statusTxtEl = document.getElementById('ws-status-text');
       if (!clockEl || !barEl) return;
 
+      const curRound = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
       clockEl.textContent = formatWorkshopClock(workshopRemainingSec);
       const pct = workshopTotalSec > 0 ? Math.max(0, Math.min(100, (workshopRemainingSec / workshopTotalSec) * 100)) : 0;
       barEl.style.width = `${pct}%`;
 
-      if (workshopRemainingSec <= 0) {
+      if (workshopPhase === 'completed') {
+        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-emerald-400 leading-none';
+        barEl.className = 'h-full rounded-full bg-emerald-400 transition-all duration-700';
+        pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/25 border border-emerald-400 text-emerald-200 text-xs sm:text-sm font-bold';
+        statusTxtEl.textContent = '🎉 ครบกิจกรรมกลุ่มย่อยทั้ง 5 รอบแล้ว!';
+      } else if (workshopPhase === 'break') {
+        clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-sky-300 leading-none';
+        barEl.className = 'h-full rounded-full bg-gradient-to-r from-sky-400 to-indigo-400 transition-all duration-700';
+        pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-sky-500/25 border border-sky-400 text-sky-200 text-xs sm:text-sm font-bold';
+        statusTxtEl.textContent = workshopPaused
+          ? `พักเดินเปลี่ยนโต๊ะ (หยุดชั่วคราว) — เตรียมเริ่มรอบที่ ${curRound}`
+          : `🚶 พักเดินเปลี่ยนโต๊ะ — กำลังจะเริ่มรอบที่ ${curRound} อัตโนมัติ`;
+      } else if (workshopRemainingSec <= 0) {
         clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-rose-400 leading-none animate-pulse';
         barEl.className = 'h-full rounded-full bg-rose-500 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-rose-500/25 border border-rose-400 text-rose-200 text-xs sm:text-sm font-bold';
-        statusTxtEl.textContent = 'หมดเวลากิจกรรมช่วงนี้แล้ว!';
+        statusTxtEl.textContent = workshopAutoRotate
+          ? `สลับขึ้นรอบที่ ${curRound} แล้ว — กดปุ่ม "เริ่มจับเวลารอบที่ ${curRound}" เมื่อพร้อม`
+          : 'หมดเวลากิจกรรมช่วงนี้แล้ว!';
       } else if (workshopRemainingSec <= 300) {
         clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-amber-300 leading-none';
         barEl.className = 'h-full rounded-full bg-amber-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-500/25 border border-amber-400 text-amber-200 text-xs sm:text-sm font-bold';
-        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'เหลือเวลาอีกไม่ถึง 5 นาที — เตรียมสรุปประเด็น';
+        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'เหลือเวลาอีกไม่ถึง 5 นาที — เตรียมสรุปประเด็นและสลับกลุ่ม';
       } else {
         clockEl.className = 'font-mono text-7xl sm:text-8xl lg:text-[8.5rem] font-extrabold tracking-wider text-police-goldLight leading-none drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)]';
         barEl.className = 'h-full rounded-full bg-gradient-to-r from-emerald-400 via-police-goldLight to-amber-400 transition-all duration-700';
         pillEl.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs sm:text-sm font-bold';
-        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : 'กำลังดำเนินกิจกรรมกลุ่มย่อย';
+        statusTxtEl.textContent = workshopPaused ? 'หยุดพักเวลาชั่วคราว' : `กำลังดำเนินกิจกรรมกลุ่มย่อย (รอบที่ ${curRound} / 5)`;
       }
     }
 
@@ -1239,6 +1428,10 @@
 
     function addWorkshopMinutes(extraMins) {
       const addSec = extraMins * 60;
+      if (workshopPhase === 'waiting' || workshopPhase === 'completed') {
+        workshopPhase = 'active';
+        document.getElementById('ws-btn-restart-round')?.classList.add('hidden');
+      }
       workshopRemainingSec = Math.max(0, workshopRemainingSec) + addSec;
       workshopTotalSec += addSec;
       if (workshopRemainingSec > 300) workshopFiveMinWarned = false;
@@ -1317,12 +1510,12 @@
       }).join('');
     }
 
-    async function shiftWorkshopRound(delta) {
+    async function shiftWorkshopRound(delta, isAuto = false) {
       const cur = Math.max(1, Math.min(5, Number(liveWorkshopConfig.currentRound) || 1));
       const next = ((cur - 1 + delta + 5) % 5) + 1;
       liveWorkshopConfig.currentRound = next;
       renderWorkshopGroupCards(getSavedWorkshopNotes());
-      playDingDongChime();
+      if (!isAuto) playDingDongChime();
       try {
         await fetch(API_URL, {
           method: 'POST',
