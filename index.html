@@ -258,21 +258,9 @@
       </div>
     </section>
 
-    <!-- ==================== SPLIT VIEW (ซ้าย: รอเช็กอิน / ขวา: เช็กอินแล้ว) ==================== -->
+    <!-- ==================== SPLIT VIEW (ซ้าย: เช็กอินแล้ว / ขวา: รอเช็กอิน) ==================== -->
     <section id="split-view" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <!-- ฝั่งซ้าย: ยังไม่เช็กอิน -->
-      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
-        <div class="px-4 py-3 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i data-lucide="clock" class="w-4 h-4 text-amber-300"></i>
-            <h2 class="font-bold text-sm sm:text-base">รอลงทะเบียน / ยังไม่เช็กอิน</h2>
-          </div>
-          <span id="split-pending-count" class="px-2.5 py-0.5 rounded-full bg-white text-maroon-800 font-mono text-xs font-extrabold">0 ราย</span>
-        </div>
-        <div id="split-pending-list" class="p-3 space-y-2 max-h-[68vh] overflow-y-auto custom-scroll bg-slate-50/60 dark:bg-slate-900/40"></div>
-      </div>
-
-      <!-- ฝั่งขวา: เช็กอินแล้ว -->
+      <!-- ฝั่งซ้าย: เช็กอินแล้ว -->
       <div class="bg-white dark:bg-slate-800 rounded-3xl border border-emerald-200 dark:border-emerald-900 shadow-sm overflow-hidden flex flex-col">
         <div class="px-4 py-3 bg-gradient-to-r from-emerald-700 to-teal-700 text-white flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -282,6 +270,18 @@
           <span id="split-checked-count" class="px-2.5 py-0.5 rounded-full bg-white text-emerald-800 font-mono text-xs font-extrabold">0 ราย</span>
         </div>
         <div id="split-checked-list" class="p-3 space-y-2 max-h-[68vh] overflow-y-auto custom-scroll bg-emerald-50/30 dark:bg-emerald-950/15"></div>
+      </div>
+
+      <!-- ฝั่งขวา: ยังไม่เช็กอิน -->
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+        <div class="px-4 py-3 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-300"></i>
+            <h2 class="font-bold text-sm sm:text-base">รอลงทะเบียน / ยังไม่เช็กอิน</h2>
+          </div>
+          <span id="split-pending-count" class="px-2.5 py-0.5 rounded-full bg-white text-maroon-800 font-mono text-xs font-extrabold">0 ราย</span>
+        </div>
+        <div id="split-pending-list" class="p-3 space-y-2 max-h-[68vh] overflow-y-auto custom-scroll bg-slate-50/60 dark:bg-slate-900/40"></div>
       </div>
     </section>
 
@@ -341,11 +341,9 @@
     <!-- Camera Viewport -->
     <div id="scanner-viewport" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center">
       <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-      <!-- Viewfinder frame -->
-      <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div class="w-52 h-52 sm:w-60 sm:h-60 relative rounded-2xl border-2 border-emerald-400/70 shadow-[0_0_0_999px_rgba(0,0,0,0.42)]">
-          <div class="scan-laser-line"></div>
-        </div>
+      <!-- Full-frame subtle scan overlay (ไม่ต้องเล็งเข้ากรอบเล็ก สแกนได้ทั่วทั้งหน้าจอกล้อง) -->
+      <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/35">
+        <div class="scan-laser-line opacity-70"></div>
       </div>
       <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
         กำลังเปิดกล้อง...
@@ -1011,8 +1009,16 @@
     let scanLastCode = '';
     let scanLastTime = 0;
     let scanLastDecodeTs = 0;
+    let scanPassToggle = 0;
     let scanOffscreenCanvas = document.createElement('canvas');
     let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
+    let nativeBarcodeDetector = null;
+    let isNativeDetecting = false;
+    try {
+      if ('BarcodeDetector' in window) {
+        nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+      }
+    } catch (e) { nativeBarcodeDetector = null; }
 
     function detectDefaultDay() {
       const now = new Date();
@@ -1589,7 +1595,7 @@
         video.srcObject = scanStream;
         await video.play();
         scanActive = true;
-        if (statusEl) statusEl.textContent = 'เล็ง QR Code ให้อยู่ในกรอบสีเขียว';
+        if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
         scanRafId = requestAnimationFrame(scanVideoLoop);
       } catch (err) {
         if (statusEl) statusEl.textContent = 'เปิดกล้องไม่สำเร็จ: กรุณาอนุญาตสิทธิ์กล้อง';
@@ -1632,8 +1638,13 @@
         scanTorchOn = !scanTorchOn;
         await track.applyConstraints({ advanced: [{ torch: scanTorchOn }] });
         const btn = document.getElementById('btn-scan-torch');
-        if (btn) btn.className = scanTorchOn ? 'p-1.5 rounded-lg bg-amber-400 text-slate-950 transition' : 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
-      } catch (e) {
+        if (btn) {
+          btn.className = scanTorchOn
+            ? 'p-1.5 rounded-lg bg-amber-400 text-slate-950 transition'
+            : 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
+        }
+      } catch (err) {
+        scanTorchOn = false;
         showToast('ไม่สามารถควบคุมไฟแฟลชได้', 'warning');
       }
     }
@@ -1642,11 +1653,13 @@
       scanConfirmMode = !scanConfirmMode;
       const btn = document.getElementById('btn-scan-mode');
       if (btn) {
-        btn.textContent = scanConfirmMode ? 'ตรวจก่อน' : 'สแกนรัว';
+        btn.textContent = scanConfirmMode ? 'ตรวจก่อนเช็กอิน' : 'สแกนรัว';
         btn.className = scanConfirmMode
           ? 'px-2 py-1 rounded-lg bg-amber-400 text-slate-950 text-[10px] font-extrabold transition'
           : 'px-2 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[10px] font-bold transition';
       }
+      cancelPendingScan();
+      showToast(scanConfirmMode ? 'สลับเป็นโหมดตรวจชื่อก่อนยืนยันเช็กอิน' : 'สลับเป็นโหมดสแกนรัวเช็กอินทันที', 'info');
     }
 
     function toggleScannerVoice() {
@@ -1656,37 +1669,73 @@
         btn.className = scanVoiceEnabled
           ? 'p-1.5 rounded-lg bg-emerald-500/25 text-emerald-200 hover:bg-emerald-500/40 text-xs transition'
           : 'p-1.5 rounded-lg bg-white/10 text-slate-400 hover:bg-white/20 text-xs transition';
+        btn.innerHTML = `<i data-lucide="${scanVoiceEnabled ? 'volume-2' : 'volume-x'}" class="w-3.5 h-3.5"></i>`;
+        if (window.lucide) lucide.createIcons();
       }
+      showToast(scanVoiceEnabled ? 'เปิดเสียงพูดต้อนรับแล้ว' : 'ปิดเสียงพูดต้อนรับแล้ว', 'info');
     }
 
-    // จำกัดอัตราการถอดรหัส jsQR เหลือ ~5-6 ครั้ง/วินาที เพื่อไม่ให้ CPU ค้างหรือหน่วง
+    // สแกน QR ได้ทั่วทั้งหน้าจอกล้อง (ใช้ Native BarcodeDetector ของเครื่องคู่กับ jsQR เต็มเฟรมสลับซูมกลาง ไม่หน่วง CPU)
     function scanVideoLoop(nowTs) {
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
 
-      if (nowTs - scanLastDecodeTs < 170) return;
+      if (nowTs - scanLastDecodeTs < 150) return;
       scanLastDecodeTs = nowTs;
 
       const video = document.getElementById('scan-video');
-      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA || typeof jsQR === 'undefined') return;
+      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
+      // 1. ใช้ Native BarcodeDetector ของอุปกรณ์ (เร็วมากและจับ QR ได้ทุกจุดบนหน้าจอ)
+      if (nativeBarcodeDetector && !isNativeDetecting) {
+        isNativeDetecting = true;
+        nativeBarcodeDetector.detect(video).then(barcodes => {
+          if (scanActive && barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+            handleDecodedQr(barcodes[0].rawValue);
+          }
+        }).catch(() => {
+          nativeBarcodeDetector = null;
+        }).finally(() => {
+          isNativeDetecting = false;
+        });
+        return;
+      }
+
+      // 2. Fallback ด้วย jsQR: สลับสแกนเต็มหน้าจอกล้อง 100% กับรอบเสริมซูมกลางสำหรับ QR ขนาดเล็ก
+      if (typeof jsQR === 'undefined') return;
       const vw = video.videoWidth;
       const vh = video.videoHeight;
       if (!vw || !vh) return;
 
-      // สแกนโซนกลาง 70% ที่ความละเอียดพอเหมาะ (เร็วและอ่าน QR ขนาดเล็กแม่น)
-      const cropSize = Math.min(vw, vh) * 0.78;
-      const sx = (vw - cropSize) / 2;
-      const sy = (vh - cropSize) / 2;
-      const targetSize = 420;
-      scanOffscreenCanvas.width = targetSize;
-      scanOffscreenCanvas.height = targetSize;
-      scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
+      scanPassToggle = (scanPassToggle + 1) % 3;
+      if (scanPassToggle !== 2) {
+        const maxW = 540;
+        const scale = Math.min(1, maxW / Math.max(vw, vh));
+        const tw = Math.max(1, Math.round(vw * scale));
+        const th = Math.max(1, Math.round(vh * scale));
+        scanOffscreenCanvas.width = tw;
+        scanOffscreenCanvas.height = th;
+        scanOffscreenCtx.drawImage(video, 0, 0, vw, vh, 0, 0, tw, th);
 
-      const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
-      const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'dontInvert' });
-      if (code && code.data) {
-        handleDecodedQr(code.data);
+        const imgData = scanOffscreenCtx.getImageData(0, 0, tw, th);
+        const code = jsQR(imgData.data, tw, th, { inversionAttempts: 'dontInvert' });
+        if (code && code.data) {
+          handleDecodedQr(code.data);
+        }
+      } else {
+        const cropSize = Math.min(vw, vh) * 0.72;
+        const sx = (vw - cropSize) / 2;
+        const sy = (vh - cropSize) / 2;
+        const targetSize = 420;
+        scanOffscreenCanvas.width = targetSize;
+        scanOffscreenCanvas.height = targetSize;
+        scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
+
+        const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
+        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'dontInvert' });
+        if (code && code.data) {
+          handleDecodedQr(code.data);
+        }
       }
     }
 
