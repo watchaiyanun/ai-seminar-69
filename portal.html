@@ -207,6 +207,7 @@
       border: 1px solid rgba(255, 255, 255, 0.16);
     }
 
+    /* จุดสีเขียวมรกตกระพริบแสดงสถานะเช็กอินสด (Live Verified) */
     @keyframes emeraldPulseRing {
       0% { transform: scale(0.85); opacity: 0.9; }
       70% { transform: scale(1.9); opacity: 0; }
@@ -215,51 +216,54 @@
     .emerald-pulse-dot {
       position: relative;
       display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
       background-color: #34d399;
-      box-shadow: 0 0 8px #10b981;
+      flex-shrink: 0;
     }
     .emerald-pulse-dot::after {
       content: '';
       position: absolute;
       inset: -2px;
-      border-radius: 999px;
-      border: 1.5px solid #6ee7b7;
-      animation: emeraldPulseRing 1.7s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      border-radius: 9999px;
+      border: 1.5px solid #34d399;
+      animation: emeraldPulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
     }
 
-    @keyframes stampSlam {
-      0% { transform: scale(1.45) rotate(-6deg); opacity: 0; }
-      60% { transform: scale(0.95) rotate(1deg); opacity: 1; }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
-    }
-    .stamp-animate {
-      animation: stampSlam 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
+    /* สไตล์ตราประทับเช็กอินแยก 3 วันบนหน้าบัตร */
     .stamp-day-verified {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.42) 100%);
-      border: 1px solid rgba(52, 211, 153, 0.72);
-      box-shadow: 0 0 14px -3px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      background: rgba(16, 185, 129, 0.24);
+      border: 1px solid rgba(52, 211, 153, 0.75);
+      box-shadow: 0 0 12px -3px rgba(16, 185, 129, 0.55);
     }
     .stamp-day-pending {
-      background: rgba(15, 23, 42, 0.35);
-      border: 1px dashed rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px dashed rgba(255, 255, 255, 0.24);
+    }
+    @keyframes stampPop {
+      0% { transform: scale(1.22); opacity: 0.4; }
+      60% { transform: scale(0.96); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .stamp-animate {
+      animation: stampPop 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .custom-scroll::-webkit-scrollbar { width: 5px; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- ==================== HERO HEADER ==================== -->
-  <header class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-700 text-white pt-6 pb-16 px-4 text-center relative overflow-hidden">
-    <div class="max-w-lg mx-auto relative z-10 space-y-2">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[11px] font-medium text-amber-200">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+  <!-- ==================== TOP OFFICIAL HEADER ==================== -->
+  <header class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 text-white pt-6 pb-16 px-4 text-center relative overflow-hidden border-b-2 border-amber-400/60">
+    <div class="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full bg-amber-300/10 blur-2xl"></div>
+    <div class="pointer-events-none absolute -bottom-16 -left-10 w-52 h-52 rounded-full bg-blue-400/10 blur-2xl"></div>
+    <div class="max-w-lg mx-auto relative z-10 space-y-1.5">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-amber-300/40 text-[11px] font-semibold text-amber-200 backdrop-blur-xs">
+        <i data-lucide="calendar-days" class="w-3.5 h-3.5 text-amber-300"></i>
         <span>30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท จ.ปทุมธานี</span>
       </div>
       <h1 class="text-lg sm:text-2xl font-extrabold leading-snug tracking-tight">
@@ -609,7 +613,7 @@
         </div>
       </div>
 
-      <!-- การ์ดคลังเอกสารประกอบการสัมมนา (Google Drive แยกโฟลเดอร์ตามวัน) -->
+      <!-- การ์ดคลังเอกสารประกอบการสัมมนา (Google Drive แยกโฟลเดอร์ตามวัน + เอกสารที่เกี่ยวข้อง) -->
       <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3.5">
         <div class="flex items-start gap-3">
           <div class="w-11 h-11 rounded-2xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0">
@@ -618,7 +622,7 @@
           <div>
             <h3 class="font-bold text-sm sm:text-base text-slate-900">คลังเอกสารประกอบการสัมมนา</h3>
             <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">
-              เลือกเปิดโฟลเดอร์ Google Drive แยกตามวันสัมมนา เพื่อดาวน์โหลดสไลด์ คู่มือ โจทย์ Workshop และภาพบรรยากาศงาน
+              เลือกเปิดโฟลเดอร์ Google Drive แยกตามวันสัมมนาและเอกสารที่เกี่ยวข้อง เพื่อดาวน์โหลดสไลด์ คู่มือ โจทย์ Workshop และเอกสารอ้างอิง
             </p>
           </div>
         </div>
@@ -648,6 +652,15 @@
             <span class="text-[10px] font-medium text-rose-100/90">ร่าง Q&amp;A • นำเสนอผล ↗</span>
           </a>
         </div>
+
+        <!-- โฟลเดอร์เอกสารที่เกี่ยวข้อง -->
+        <a href="https://drive.google.com/drive/folders/1t8YJE4XYOUbxKz_RfWalknZIK3ppzugi?usp=drive_link" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-2xl bg-indigo-700 hover:bg-indigo-800 active:scale-[0.98] text-white text-xs font-bold flex items-center justify-between gap-2 shadow-sm transition">
+          <span class="inline-flex items-center gap-2">
+            <i data-lucide="files" class="w-4 h-4 text-amber-300 shrink-0"></i>
+            <span>เอกสารที่เกี่ยวข้อง</span>
+          </span>
+          <span class="text-[10.5px] font-medium text-indigo-100">เปิดโฟลเดอร์ Google Drive ↗</span>
+        </a>
       </div>
 
       <!-- การ์ดการแต่งกาย -->
