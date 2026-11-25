@@ -1594,17 +1594,22 @@
       }
 
       try {
-        scanStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: scanFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false
-        });
+        try {
+          scanStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
+          });
+        } catch (primaryErr) {
+          // Fallback กรณีคอมพิวเตอร์/มือถือบางรุ่นไม่รองรับ facingMode หรือความละเอียดที่กำหนด
+          scanStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
         video.srcObject = scanStream;
         await video.play();
         scanActive = true;
         if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
         scanRafId = requestAnimationFrame(scanVideoLoop);
       } catch (err) {
-        if (statusEl) statusEl.textContent = 'เปิดกล้องไม่สำเร็จ: กรุณาอนุญาตสิทธิ์กล้อง';
+        if (statusEl) statusEl.textContent = `เปิดกล้องไม่สำเร็จ: ${err.name || 'กรุณาอนุญาตสิทธิ์กล้อง'}`;
       }
     }
 
@@ -1863,6 +1868,45 @@
       scanLastCode = '';
       handleDecodedQr(val);
     }
+
+    function handleQrImageUpload(e) {
+      unlockScannerAudioAndSpeech();
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file || typeof jsQR === 'undefined') return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 800;
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          scanOffscreenCanvas.width = w;
+          scanOffscreenCanvas.height = h;
+          scanOffscreenCtx.drawImage(img, 0, 0, w, h);
+          const imgData = scanOffscreenCtx.getImageData(0, 0, w, h);
+          const code = jsQR(imgData.data, w, h);
+          if (code && code.data) {
+            scanLastCode = '';
+            handleDecodedQr(code.data);
+          } else {
+            showToast('ไม่พบ QR Code ในรูปภาพที่เลือก', 'error');
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateScannerPaceBar() {
+      const el = document.getElementById('scan-pace-text');
+      if (!el) return;
+      const total = participants.length;
+      const checked = participants.filter(p => isCheckedIn(p)).length;
+      el.textContent = `เช็กอินแล้ว ${checked}/${total} ราย • เหลือ ${total - checked} ราย`;
+    }
+
     function initThaiSpeechVoices() {
       try {
         if (!window.speechSynthesis) return;
@@ -1986,17 +2030,6 @@
             synth.speak(u);
           } catch (e) {}
         }, 120);
-      } catch (e) {}
-    }
-
-    function speakWelcome(text) {
-      try {
-        if (!window.speechSynthesis) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'th-TH';
-        u.rate = 1.05;
-        window.speechSynthesis.speak(u);
       } catch (e) {}
     }
 
