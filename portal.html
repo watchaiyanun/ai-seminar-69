@@ -381,6 +381,9 @@
                   <span id="pc-live-status-text">VERIFIED • CHECKED-IN</span>
                 </div>
 
+                <!-- ป้ายสถานะเอกสาร/ข้อมูลบนหน้าบัตร -->
+                <div id="pc-doc-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-sm"></div>
+
                 <!-- ป้ายกลุ่ม Workshop ปัจจุบันบนหน้าบัตร (แสดงเลขกลุ่ม + รอบ + ชื่อหัวข้อประเด็นชัดเจน) -->
                 <div id="pc-workshop-front-pill" class="hidden mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/80 text-left shadow-sm">
                   <div class="flex items-center justify-between gap-1 text-[10px] font-extrabold text-amber-200 leading-tight">
@@ -498,6 +501,35 @@
         <button type="button" onclick="showLookupSwitcher()" class="col-span-2 sm:col-span-1 py-2.5 px-3 rounded-2xl bg-slate-200/80 hover:bg-slate-200 active:scale-[0.98] text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>
           <span>เปลี่ยนชื่อ / สลับบัตร</span>
+        </button>
+      </div>
+
+      <!-- กล่องแจ้งเตือนเอกสารขาด / ข้อมูลยังไม่ครบถ้วน (จากเจ้าหน้าที่ & ตรวจสอบอัตโนมัติ) -->
+      <div id="pc-doc-alert-card" class="hidden rounded-3xl p-4 bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 border-2 border-rose-300 shadow-sm space-y-2.5">
+        <div class="flex items-start gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
+            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0 flex-1 space-y-0.5">
+            <h3 id="pc-doc-alert-title" class="text-xs sm:text-sm font-extrabold text-rose-900 leading-snug">แจ้งเตือน: ข้อมูลหรือเอกสารของท่านยังไม่ครบถ้วน</h3>
+            <p class="text-[11px] text-rose-700 leading-snug">กรุณาดำเนินการกรอกข้อมูลหรือแนบเอกสารที่ขาดเพื่อให้การลงทะเบียนสมบูรณ์ครับ</p>
+          </div>
+        </div>
+
+        <div id="pc-doc-staff-msg-box" class="hidden p-3 rounded-2xl bg-white/95 border border-rose-300 text-xs text-rose-950 space-y-1 shadow-2xs">
+          <p class="text-[10.5px] font-extrabold text-rose-700 uppercase tracking-wide flex items-center gap-1">
+            <i data-lucide="megaphone" class="w-3.5 h-3.5"></i> ข้อความแจ้งเตือนจากเจ้าหน้าที่:
+          </p>
+          <p id="pc-doc-staff-msg-text" class="font-bold leading-relaxed"></p>
+        </div>
+
+        <div id="pc-doc-missing-wrap" class="hidden space-y-1.5">
+          <p class="text-[11px] font-bold text-amber-900">รายการข้อมูล/เอกสารที่ยังไม่ได้กรอกหรือแนบ:</p>
+          <div id="pc-doc-missing-chips" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <button type="button" onclick="openEditRequestModal()" class="w-full py-2.5 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-sm transition">
+          <i data-lucide="upload" class="w-4 h-4"></i> กรอกข้อมูล / แนบเอกสารที่ขาดทันที
         </button>
       </div>
 
@@ -1109,6 +1141,7 @@
         roomNo: String(p.roomNo || '').trim(),
         roommate: String(p.roommate || '').trim(),
         food: String(p.food || 'อาหารทั่วไป').trim(),
+        officialLetter: String(p.officialLetter || '').trim(),
         phone: String(p.phone || '').trim(),
         licensePlate: String(p.licensePlate || '').trim(),
         evaluated: Boolean(p.evaluated),
@@ -1117,8 +1150,46 @@
         letterUrl: String(p.letterUrl || '').trim(),
         workshopGroup: String(p.workshopGroup || '').trim(),
         workshopRole: String(p.workshopRole || 'ผู้เข้าร่วม').trim(),
+        docAlert: String(p.docAlert || '').trim(),
         hasPendingRequest: Boolean(p.hasPendingRequest),
         pendingRequestSummary: String(p.pendingRequestSummary || '').trim()
+      };
+    }
+
+    function getParticipantCompleteness(p) {
+      const missing = [];
+      if (!p) return { isComplete: true, missing: [], hasStaffAlert: false, staffAlert: '' };
+
+      const isDeclined = p.rsvp === 'ไม่สามารถเข้าร่วม';
+      const staffAlert = String(p.docAlert || '').trim();
+      const hasStaffAlert = Boolean(staffAlert);
+
+      if (!p.fullName || p.fullName.includes('รอระบุ')) {
+        missing.push('ระบุชื่อ-สกุลผู้เข้าร่วม');
+      }
+      if (!isDeclined) {
+        if (!p.rsvp || p.rsvp === 'รอการยืนยัน') {
+          missing.push('ยืนยันการตอบรับเข้าร่วม');
+        }
+        if (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && !p.substituteName) {
+          missing.push('ระบุชื่อ-สกุลผู้แทน');
+        }
+        if (p.officialLetter !== 'ส่งแล้ว' && !p.letterUrl) {
+          missing.push('หนังสือส่งตัว');
+        }
+        if (!p.stay30 || !p.stay1) {
+          missing.push('แจ้งความประสงค์เข้าพัก (30 พ.ย. / 1 ธ.ค.)');
+        }
+        if (!p.phone) {
+          missing.push('เบอร์โทรศัพท์ติดต่อ');
+        }
+      }
+
+      return {
+        isComplete: missing.length === 0 && !hasStaffAlert,
+        missing,
+        hasStaffAlert,
+        staffAlert
       };
     }
 
@@ -1385,8 +1456,17 @@
             updated.roommate !== currentParticipant.roommate ||
             updated.workshopGroup !== currentParticipant.workshopGroup ||
             updated.workshopRole !== currentParticipant.workshopRole ||
+            updated.docAlert !== currentParticipant.docAlert ||
+            updated.officialLetter !== currentParticipant.officialLetter ||
+            updated.letterUrl !== currentParticipant.letterUrl ||
+            updated.phone !== currentParticipant.phone ||
+            updated.stay30 !== currentParticipant.stay30 ||
+            updated.stay1 !== currentParticipant.stay1 ||
+            updated.rsvp !== currentParticipant.rsvp ||
             updated.evaluated !== currentParticipant.evaluated ||
             updated.hasPendingRequest !== currentParticipant.hasPendingRequest;
+
+          const gotNewDocAlert = Boolean(updated.docAlert) && updated.docAlert !== currentParticipant.docAlert;
 
           if (hasChanged) {
             currentParticipant = updated;
@@ -1397,6 +1477,8 @@
             if (newlyVerifiedDays.length > 0) {
               const latestKey = newlyVerifiedDays[newlyVerifiedDays.length - 1];
               showToast(`✓ ประทับตรา VERIFIED วันที่ ${dayLabels[latestKey]} (${updated[latestKey]}) เรียบร้อยแล้ว!`, 'success');
+            } else if (gotNewDocAlert) {
+              showToast('🔔 เจ้าหน้าที่ส่งแจ้งเตือนเรื่องเอกสาร/ข้อมูลบนบัตรของท่าน กรุณาตรวจสอบครับ', 'warning');
             }
           }
         } catch (e) {}
@@ -1461,32 +1543,57 @@
         }
       }
 
-      // ข้อมูลที่พัก / เลขห้อง / ผู้พักร่วม ด้านหลังบัตร
-      const stayParts = [];
-      if (p.stay30 === 'พัก') stayParts.push('30 พ.ย.');
-      if (p.stay1 === 'พัก') stayParts.push('1 ธ.ค.');
-      let stayText = stayParts.length > 0 ? `พักคืน ${stayParts.join(' & ')}` : 'ไม่ระบุ / ไม่เข้าพัก';
-      if (p.roomNo) stayText += ` • ห้อง ${p.roomNo}`;
-      document.getElementById('pc-stay').textContent = stayText;
+      // แสดงสถานะความครบถ้วนเอกสาร/ข้อมูล & กล่องแจ้งเตือนจากเจ้าหน้าที่
+      const comp = getParticipantCompleteness(p);
+      const docPill = document.getElementById('pc-doc-status-pill');
+      const docAlertCard = document.getElementById('pc-doc-alert-card');
+      const docAlertTitle = document.getElementById('pc-doc-alert-title');
+      const staffMsgBox = document.getElementById('pc-doc-staff-msg-box');
+      const staffMsgText = document.getElementById('pc-doc-staff-msg-text');
+      const missingWrap = document.getElementById('pc-doc-missing-wrap');
+      const missingChips = document.getElementById('pc-doc-missing-chips');
 
-      const roommateEl = document.getElementById('pc-roommate');
-      if (p.roommate) {
-        roommateEl.textContent = p.roomNo
-          ? `👥 พักคู่กับ: ${p.roommate} (ห้อง ${p.roomNo})`
-          : `👥 พักคู่กับ: ${p.roommate}`;
-        roommateEl.classList.remove('hidden');
-      } else {
-        roommateEl.classList.add('hidden');
+      if (docPill) {
+        if (comp.hasStaffAlert) {
+          docPill.className = 'mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/90 border border-rose-200 text-[9px] font-extrabold text-white shadow-sm animate-pulse';
+          docPill.textContent = '🔔 เจ้าหน้าที่แจ้งเตือนเอกสาร';
+        } else if (!comp.isComplete) {
+          docPill.className = 'mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/90 border border-amber-200 text-[9px] font-extrabold text-slate-950 shadow-sm';
+          docPill.textContent = `⚠️ ข้อมูล/เอกสารขาด ${comp.missing.length} รายการ`;
+        } else {
+          docPill.className = 'mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-300/70 text-[9px] font-bold text-emerald-100 shadow-sm';
+          docPill.textContent = '✓ ข้อมูลและเอกสารครบถ้วน';
+        }
       }
 
-      document.getElementById('pc-food-rsvp').textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
-      const letterLinkEl = document.getElementById('pc-letter-link');
-      if (letterLinkEl) {
-        if (p.letterUrl) {
-          letterLinkEl.href = p.letterUrl;
-          letterLinkEl.classList.remove('hidden');
+      if (docAlertCard) {
+        if (!comp.isComplete || comp.hasStaffAlert) {
+          if (docAlertTitle) {
+            docAlertTitle.textContent = comp.hasStaffAlert
+              ? '🔔 แจ้งเตือนจากเจ้าหน้าที่: เอกสาร/ข้อมูลของท่านยังไม่ครบ'
+              : `⚠️ ข้อมูลและเอกสารของท่านยังกรอกไม่ครบ (${comp.missing.length} รายการ)`;
+          }
+          if (staffMsgBox && staffMsgText) {
+            if (comp.hasStaffAlert) {
+              staffMsgText.textContent = comp.staffAlert;
+              staffMsgBox.classList.remove('hidden');
+            } else {
+              staffMsgBox.classList.add('hidden');
+            }
+          }
+          if (missingWrap && missingChips) {
+            if (comp.missing.length > 0) {
+              missingChips.innerHTML = comp.missing.map(m =>
+                `<span class="px-2.5 py-1 rounded-xl bg-white border border-amber-300 text-amber-950 text-[11px] font-bold shadow-2xs">❌ ${escapeHtml(m)}</span>`
+              ).join('');
+              missingWrap.classList.remove('hidden');
+            } else {
+              missingWrap.classList.add('hidden');
+            }
+          }
+          docAlertCard.classList.remove('hidden');
         } else {
-          letterLinkEl.classList.add('hidden');
+          docAlertCard.classList.add('hidden');
         }
       }
 
