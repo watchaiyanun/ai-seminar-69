@@ -68,18 +68,15 @@
       -webkit-backface-visibility: hidden;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow:
-        0 20px 40px -14px rgba(15, 23, 42, 0.42),
-        0 8px 18px -8px rgba(30, 58, 138, 0.28),
-        0 0 0 1px rgba(212, 175, 55, 0.48);
+      transition: background 0.4s ease, box-shadow 0.4s ease;
     }
     .cc-card-ratio {
-      min-height: 228px;
+      min-height: 234px;
     }
     @media (min-width: 640px) {
       .cc-card-ratio {
         aspect-ratio: 1.586 / 1;
-        min-height: 262px;
+        min-height: 268px;
       }
     }
     .cc-front {
@@ -123,20 +120,75 @@
       pointer-events: none;
     }
 
-    /* พื้นผิวโลหะเมทัลลิกโทนตำรวจ (กรมท่า-เลือดหมู-ทอง) */
-    .cc-front-bg {
+    /* ==================== PRESTIGE ROLE-BASED CARD TIERS (3 ธีมอัตโนมัติ) ==================== */
+
+    /* 1. ผู้เข้าร่วมสัมมนา: Royal Police Navy & Maroon (กรมท่า-เลือดหมู-ทอง) */
+    .cc-front.tier-delegate {
       background:
         radial-gradient(circle at 88% 12%, rgba(159, 18, 57, 0.72) 0%, transparent 46%),
         radial-gradient(circle at 12% 92%, rgba(37, 99, 235, 0.5) 0%, transparent 50%),
         radial-gradient(circle at 52% -10%, rgba(243, 212, 120, 0.26) 0%, transparent 45%),
         linear-gradient(135deg, #090F24 0%, #15224B 44%, #1E3A8A 78%, #34132E 100%);
+      box-shadow:
+        0 20px 40px -14px rgba(15, 23, 42, 0.45),
+        0 8px 18px -8px rgba(30, 58, 138, 0.3),
+        0 0 0 1px rgba(212, 175, 55, 0.5);
     }
-    .cc-back-bg {
+    .cc-back.tier-delegate {
       background:
         radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.55) 0%, transparent 50%),
         radial-gradient(circle at 90% 90%, rgba(136, 19, 55, 0.55) 0%, transparent 50%),
         linear-gradient(145deg, #0B1120 0%, #172554 55%, #1E1B3A 100%);
+      box-shadow:
+        0 20px 40px -14px rgba(15, 23, 42, 0.45),
+        0 0 0 1px rgba(212, 175, 55, 0.5);
     }
+
+    /* 2. ผู้ทรงคุณวุฒิ / วิทยากร: Black Obsidian & Gold (ดำด้านเมทัลลิก ขอบทองหรูระดับ VIP) */
+    .cc-front.tier-vip {
+      background:
+        radial-gradient(circle at 86% 14%, rgba(212, 175, 55, 0.34) 0%, transparent 46%),
+        radial-gradient(circle at 14% 88%, rgba(180, 130, 30, 0.24) 0%, transparent 48%),
+        radial-gradient(circle at 50% -15%, rgba(254, 240, 138, 0.22) 0%, transparent 45%),
+        linear-gradient(135deg, #050609 0%, #111318 42%, #1C1917 76%, #09090B 100%);
+      box-shadow:
+        0 24px 48px -12px rgba(0, 0, 0, 0.7),
+        0 0 28px -6px rgba(212, 175, 55, 0.42),
+        0 0 0 1.5px rgba(243, 212, 120, 0.88);
+    }
+    .cc-back.tier-vip {
+      background:
+        radial-gradient(circle at 18% 18%, rgba(212, 175, 55, 0.22) 0%, transparent 52%),
+        radial-gradient(circle at 88% 88%, rgba(146, 64, 14, 0.3) 0%, transparent 52%),
+        linear-gradient(145deg, #07080B 0%, #14151A 55%, #1C1917 100%);
+      box-shadow:
+        0 24px 48px -12px rgba(0, 0, 0, 0.7),
+        0 0 24px -6px rgba(212, 175, 55, 0.38),
+        0 0 0 1.5px rgba(243, 212, 120, 0.85);
+    }
+
+    /* 3. คณะทำงาน (สยศ.ตร.): Emerald Titanium (กรมท่าตัดเขียวมรกต ดูคล่องตัวและแยกทีมงานชัดเจน) */
+    .cc-front.tier-staff {
+      background:
+        radial-gradient(circle at 88% 14%, rgba(16, 185, 129, 0.45) 0%, transparent 48%),
+        radial-gradient(circle at 12% 90%, rgba(14, 116, 144, 0.55) 0%, transparent 52%),
+        radial-gradient(circle at 50% -10%, rgba(110, 231, 183, 0.22) 0%, transparent 45%),
+        linear-gradient(135deg, #04131E 0%, #0C2B3B 42%, #0F5257 76%, #064E3B 100%);
+      box-shadow:
+        0 20px 42px -12px rgba(6, 78, 59, 0.52),
+        0 8px 20px -8px rgba(16, 185, 129, 0.3),
+        0 0 0 1.5px rgba(52, 211, 153, 0.68);
+    }
+    .cc-back.tier-staff {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(16, 185, 129, 0.32) 0%, transparent 50%),
+        radial-gradient(circle at 88% 88%, rgba(15, 118, 110, 0.45) 0%, transparent 52%),
+        linear-gradient(145deg, #061522 0%, #0B3340 55%, #064E3B 100%);
+      box-shadow:
+        0 20px 42px -12px rgba(6, 78, 59, 0.5),
+        0 0 0 1.5px rgba(52, 211, 153, 0.65);
+    }
+
     .cc-holo-sheen {
       background: linear-gradient(
         118deg,
@@ -152,7 +204,7 @@
       background: linear-gradient(135deg, #FEF08A 0%, #D4AF37 50%, #92400E 100%);
       box-shadow:
         0 6px 16px -4px rgba(0, 0, 0, 0.55),
-        0 0 14px -2px rgba(243, 212, 120, 0.45);
+        0 0 14px -2px rgba(243, 212, 120, 0.55);
     }
 
     .cc-watermark-pattern {
@@ -250,6 +302,26 @@
       animation: stampPop 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
+    /* ==================== INTERACTIVE AI MASCOT GREETING ==================== */
+    @keyframes mascotPopBounce {
+      0% { transform: scale(1) rotate(0deg); }
+      28% { transform: scale(1.14) rotate(-6deg); }
+      58% { transform: scale(0.95) rotate(5deg); }
+      82% { transform: scale(1.04) rotate(-2deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .mascot-bounce {
+      animation: mascotPopBounce 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes speechBubbleIn {
+      0% { opacity: 0; transform: translateY(10px) scale(0.94); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .speech-bubble-animate {
+      animation: speechBubbleIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
@@ -304,12 +376,43 @@
     <!-- ==================== 3D FLIPPABLE CREDIT-CARD E-PASS ==================== -->
     <section id="personal-card" class="hidden space-y-3.5">
 
+      <!-- กล่องข้อความคำทักทายอัจฉริยะจากมาสคอต “คู่หูจราจร AI” (Speech Bubble) -->
+      <div id="mascot-speech-bubble" class="hidden relative z-30 speech-bubble-animate">
+        <div class="relative rounded-2xl bg-white border-2 border-amber-400 shadow-xl px-4 py-3 text-slate-800">
+          <!-- หางลูกศร Speech Bubble ชี้ลงหามาสคอตฝั่งซ้ายของบัตร -->
+          <div class="absolute -bottom-2 left-8 w-4 h-4 bg-white border-r-2 border-b-2 border-amber-400 rotate-45"></div>
+
+          <div class="flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-navy-800 to-maroon-700 border border-amber-300 flex items-center justify-center text-amber-300 shrink-0 shadow-xs">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0 flex-1 space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="text-[11px] font-extrabold text-navy-800 truncate">👮‍♂️ คู่หูจราจร AI ทักทาย</span>
+                  <span id="mascot-speech-counter" class="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 font-mono text-[9.5px] font-bold shrink-0">1/3</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" onclick="nextMascotGreeting()" title="ดูคำแนะนำถัดไป" class="px-2 py-0.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-navy-700 text-[10px] font-bold transition">
+                    ถัดไป ↻
+                  </button>
+                  <button type="button" onclick="closeMascotGreeting()" title="ปิดข้อความ" class="p-0.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+              <p id="mascot-speech-text" class="text-xs sm:text-[13px] font-medium text-slate-800 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ตัวบัตรเครดิต 3 มิติ (แตะเพื่อพลิกด้านหน้า / ด้านหลัง) -->
       <div class="cc-scene">
         <div id="cc-flipper" onclick="flipCreditCard(event)" role="button" tabindex="0" aria-label="แตะเพื่อพลิกบัตรประจำตัว" class="cc-flipper">
 
-          <!-- ========== ด้านหน้าบัตร (FRONT - LUXURY CREDIT CARD 1.586:1) ========== -->
-          <div class="cc-face cc-front cc-front-bg cc-card-ratio text-white px-4 py-3.5 sm:px-5 sm:py-4 relative flex flex-col justify-between">
+          <!-- ========== ด้านหน้าบัตร (FRONT - PRESTIGE ROLE-BASED TIER) ========== -->
+          <div id="cc-front-face" class="cc-face cc-front tier-delegate cc-card-ratio text-white px-4 py-3.5 sm:px-5 sm:py-4 relative flex flex-col justify-between">
             <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
             <div class="cc-gloss-sweep"></div>
@@ -329,24 +432,25 @@
               <path d="M60 36v6M60 70v6M40 56h6M74 56h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
 
-            <!-- แถวบน: โลโก้หน่วยงาน + ตราโฮโลแกรม + สัญลักษณ์ Contactless -->
+            <!-- แถวบน: โลโก้หน่วยงาน + ป้าย Tier ตามบทบาท + ตราโฮโลแกรม + Contactless -->
             <div class="relative z-10 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0">
+              <div class="flex items-center gap-2 min-w-0">
+                <div id="pc-tier-shield" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0">
                   <i data-lucide="shield-check" class="w-4 h-4 text-amber-300"></i>
                 </div>
-                <div>
-                  <p class="text-[9px] tracking-[0.2em] uppercase text-amber-300 font-bold leading-none">ROYAL THAI POLICE</p>
-                  <p class="text-[11px] text-white/90 font-semibold leading-tight mt-0.5">OFFICIAL AI E-PASS</p>
+                <div class="min-w-0">
+                  <p id="pc-tier-kicker" class="text-[9px] tracking-[0.2em] uppercase text-amber-300 font-bold leading-none truncate">ROYAL THAI POLICE</p>
+                  <p id="pc-tier-subtitle" class="text-[11px] text-white/90 font-semibold leading-tight mt-0.5 truncate">OFFICIAL AI E-PASS</p>
                 </div>
               </div>
 
-              <!-- ตราโฮโลแกรมนิรภัย + ไอคอน Contactless NFC -->
-              <div class="flex items-center gap-1.5 text-amber-200/80">
+              <!-- ป้าย Tier ประจำบทบาท + ตราโฮโลแกรมนิรภัย + ไอคอน Contactless -->
+              <div class="flex items-center gap-1.5 text-amber-200/80 shrink-0">
+                <span id="pc-tier-pill" class="px-2 py-0.5 rounded-full text-[8.5px] font-extrabold tracking-wider uppercase border">DELEGATE</span>
                 <div class="cc-holo-seal w-5 h-5 rounded-full p-[1.5px] shadow-md opacity-90" title="Official Hologram Seal">
                   <div class="w-full h-full rounded-full bg-navy-900/75 flex items-center justify-center text-[8px] font-extrabold text-amber-200">AI</div>
                 </div>
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <svg class="w-4 h-4 hidden sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
                   <path d="M8.5 16.5a5 5 0 0 1 0-9" />
                   <path d="M12 19a9 9 0 0 1 0-14" />
                   <path d="M15.5 21.5a13 13 0 0 1 0-19" />
@@ -354,22 +458,37 @@
               </div>
             </div>
 
-            <!-- แถวกลาง: กรอบโลโก้มาสคอตคู่หูจราจร AI ขอบทอง + รหัสประจำตัว + ป้ายกลุ่มปัจจุบัน -->
+            <!-- แถวกลาง: มาสคอตคู่หูจราจร AI แตะทักทายได้ + รหัสประจำตัว + ป้ายกลุ่มปัจจุบัน -->
             <div class="relative z-10 flex items-center justify-between gap-2.5 my-1.5">
-              <div class="cc-logo-medallion w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-[2px] shrink-0 relative">
-                <div class="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center p-0.5">
-                  <img
-                    id="card-mascot-logo"
-                    src="logo.jpg"
-                    alt="โลโก้คู่หูจราจร AI"
-                    class="w-full h-full object-contain"
-                    onerror="handleLogoFallback(this, 'card-mascot-fallback')"
-                  />
-                  <div id="card-mascot-fallback" class="hidden w-full h-full rounded-[12px] bg-gradient-to-br from-navy-800 to-maroon-700 flex flex-col items-center justify-center text-amber-200">
-                    <i data-lucide="bot" class="w-5 h-5"></i>
-                    <span class="text-[8px] font-extrabold tracking-wider mt-0.5">AI KM</span>
+              <div class="flex flex-col items-center shrink-0">
+                <button
+                  type="button"
+                  id="card-mascot-btn"
+                  data-no-flip="true"
+                  onclick="triggerMascotGreeting(event)"
+                  title="แตะมาสคอตคู่หูจราจร AI เพื่อรับคำทักทายอัจฉริยะ"
+                  aria-label="แตะมาสคอตคู่หูจราจร AI เพื่อรับคำทักทาย"
+                  class="cc-logo-medallion w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-[2px] relative cursor-pointer hover:scale-105 active:scale-95 transition touch-manipulation focus:outline-none focus:ring-2 focus:ring-amber-300"
+                >
+                  <div class="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center p-0.5 pointer-events-none">
+                    <img
+                      id="card-mascot-logo"
+                      src="logo.jpg"
+                      alt="โลโก้คู่หูจราจร AI"
+                      class="w-full h-full object-contain"
+                      onerror="handleLogoFallback(this, 'card-mascot-fallback')"
+                    />
+                    <div id="card-mascot-fallback" class="hidden w-full h-full rounded-[12px] bg-gradient-to-br from-navy-800 to-maroon-700 flex flex-col items-center justify-center text-amber-200">
+                      <i data-lucide="bot" class="w-5 h-5"></i>
+                      <span class="text-[8px] font-extrabold tracking-wider mt-0.5">AI KM</span>
+                    </div>
                   </div>
-                </div>
+                  <!-- จุดไอคอนแชทมุมขวาบนของมาสคอต สื่อว่าแตะคุยได้ -->
+                  <span class="pointer-events-none absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 border-2 border-navy-900 text-slate-950 flex items-center justify-center shadow-md">
+                    <i data-lucide="message-circle-more" class="w-3 h-3"></i>
+                  </span>
+                </button>
+                <span id="mascot-tap-hint" class="mt-1 px-1.5 py-0.2 rounded-full bg-black/35 border border-amber-300/40 text-[8px] font-bold text-amber-200 tracking-wide">แตะทักทาย</span>
               </div>
 
               <div class="text-right min-w-0 flex-1 flex flex-col items-end">
@@ -387,7 +506,7 @@
                 <!-- ป้ายสถานะเอกสาร/ข้อมูลบนหน้าบัตร -->
                 <div id="pc-doc-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-sm"></div>
 
-                <!-- ป้ายกลุ่ม Workshop ปัจจุบันบนหน้าบัตร (แสดงเลขกลุ่ม + รอบ + ชื่อหัวข้อประเด็นชัดเจน) -->
+                <!-- ป้ายกลุ่ม Workshop ปัจจุบันบนหน้าบัตร -->
                 <div id="pc-workshop-front-pill" class="hidden mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/80 text-left shadow-sm">
                   <div class="flex items-center justify-between gap-1 text-[10px] font-extrabold text-amber-200 leading-tight">
                     <span id="pc-workshop-front-text" class="truncate">🎯 กลุ่มที่ 1 (รอบที่ 1)</span>
@@ -423,7 +542,7 @@
           </div>
 
           <!-- ========== ด้านหลังบัตร (BACK - แถบแม่เหล็ก + QR เช็กอิน + กลุ่มปัจจุบัน + ที่พัก/อาหาร) ========== -->
-          <div class="cc-face cc-back cc-back-bg cc-card-ratio text-white relative flex flex-col justify-between">
+          <div id="cc-back-face" class="cc-face cc-back tier-delegate cc-card-ratio text-white relative flex flex-col justify-between">
             <div class="cc-watermark-pattern pointer-events-none absolute inset-0"></div>
             <div class="cc-holo-sheen pointer-events-none absolute inset-0"></div>
             <div class="cc-gloss-sweep"></div>
@@ -431,7 +550,7 @@
             <!-- แถบแม่เหล็กด้านบนสไตล์บัตรเครดิต -->
             <div class="relative z-10 pt-3">
               <div class="h-7 w-full bg-slate-950/90 border-y border-white/10 flex items-center justify-between px-4">
-                <span class="text-[9.5px] font-mono tracking-[0.18em] text-slate-400 uppercase">SMART CHECK-IN & DETAILS</span>
+                <span id="pc-back-tier-label" class="text-[9.5px] font-mono tracking-[0.18em] text-slate-400 uppercase">SMART CHECK-IN &amp; DETAILS</span>
                 <span id="pc-back-id" class="text-[10.5px] font-mono font-bold text-amber-300">KM69-00</span>
               </div>
             </div>
@@ -491,10 +610,6 @@
         </div>
       </div>
 
-      <!-- ปุ่มควบคุมใต้บัตร -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-700 shrink-0"></i>
       <!-- ปุ่มควบคุมใต้บัตร (ล็อกเฉพาะเจ้าของ QR Code ไม่อนุญาตให้สลับดูบัตรผู้อื่น) -->
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
@@ -1051,6 +1166,11 @@
     let liveSyncTimer = null;
     let lastKnownCheckIns = { day1: '', day2: '', day3: '' };
 
+    // State สำหรับคำทักทายอัจฉริยะจากมาสคอตคู่หูจราจร AI
+    let mascotMessages = [];
+    let mascotMsgIndex = 0;
+    let mascotAutoHideTimer = null;
+
     function initPortalApp() {
       if (window.lucide) lucide.createIcons();
       const lineBtn = document.getElementById('portal-line-group-btn');
@@ -1073,6 +1193,7 @@
         if (e.key === 'Escape') {
           closeQrZoomModal();
           closeEditRequestModal();
+          closeMascotGreeting();
         }
       });
     }
@@ -1145,6 +1266,7 @@
         position: String(p.position || ''),
         mainUnit: String(p.mainUnit || p.group || ''),
         unitDetail: String(p.unitDetail || p.unit || ''),
+        role: String(p.role || 'ผู้เข้าร่วมสัมมนา').trim(),
         rsvp: String(p.rsvp || 'รอการยืนยัน'),
         day1: formatThaiTime(p.day1),
         day2: formatThaiTime(p.day2),
@@ -1167,6 +1289,255 @@
         hasPendingRequest: Boolean(p.hasPendingRequest),
         pendingRequestSummary: String(p.pendingRequestSummary || '').trim()
       };
+    }
+
+    // ==================== 1. PRESTIGE ROLE-BASED CARD TIERS ====================
+    function getCardTierInfo(p) {
+      const role = String(p?.role || '').trim();
+      const unit = String(p?.mainUnit || '').trim();
+      const unitDetail = String(p?.unitDetail || '').trim();
+
+      // ผู้ทรงคุณวุฒิ / วิทยากร -> Black Obsidian & Gold
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร')) {
+        return {
+          tierClass: 'tier-vip',
+          kicker: 'ROYAL THAI POLICE • VIP',
+          subtitle: role.includes('วิทยากร') ? 'SPEAKER AI E-PASS' : 'HONORARY VIP AI E-PASS',
+          pillText: role.includes('วิทยากร') ? '★ วิทยากร' : '★ ผู้ทรงคุณวุฒิ',
+          pillClass: 'px-2 py-0.5 rounded-full text-[8.5px] font-extrabold tracking-wider uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 text-slate-950 border border-amber-100 shadow-sm',
+          shieldClass: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/35 to-amber-600/20 border border-amber-300/85 flex items-center justify-center shadow-inner shrink-0',
+          backLabel: 'OBSIDIAN VIP • SMART CHECK-IN',
+          tierNameTh: 'Black Obsidian & Gold (ผู้ทรงคุณวุฒิ/วิทยากร)'
+        };
+      }
+
+      // คณะทำงาน (สยศ.ตร.) -> Emerald Titanium
+      if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.') || unitDetail.includes('สยศ.ตร.')) {
+        return {
+          tierClass: 'tier-staff',
+          kicker: 'ROYAL THAI POLICE • สยศ.ตร.',
+          subtitle: 'STAFF COMMITTEE AI E-PASS',
+          pillText: '◆ คณะทำงาน',
+          pillClass: 'px-2 py-0.5 rounded-full text-[8.5px] font-extrabold tracking-wider uppercase bg-emerald-400/25 text-emerald-200 border border-emerald-300/75 shadow-sm',
+          shieldClass: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-emerald-400/30 to-teal-600/20 border border-emerald-300/75 flex items-center justify-center shadow-inner shrink-0',
+          backLabel: 'EMERALD STAFF • SMART CHECK-IN',
+          tierNameTh: 'Emerald Titanium (คณะทำงาน สยศ.ตร.)'
+        };
+      }
+
+      // ผู้เข้าร่วมสัมมนาทั่วไป -> Royal Police Navy & Maroon
+      return {
+        tierClass: 'tier-delegate',
+        kicker: 'ROYAL THAI POLICE',
+        subtitle: 'OFFICIAL AI E-PASS',
+        pillText: 'ผู้เข้าร่วมสัมมนา',
+        pillClass: 'px-2 py-0.5 rounded-full text-[8.5px] font-bold tracking-wide bg-white/15 text-amber-200 border border-amber-300/45',
+        shieldClass: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/30 to-amber-500/10 border border-amber-300/60 flex items-center justify-center shadow-inner shrink-0',
+        backLabel: 'SMART CHECK-IN & DETAILS',
+        tierNameTh: 'Royal Police Navy & Maroon (ผู้เข้าร่วมสัมมนา)'
+      };
+    }
+
+    function applyCardTierTheme(p) {
+      const info = getCardTierInfo(p);
+      const frontFace = document.getElementById('cc-front-face');
+      const backFace = document.getElementById('cc-back-face');
+      const tierClasses = ['tier-delegate', 'tier-vip', 'tier-staff'];
+
+      if (frontFace) {
+        frontFace.classList.remove(...tierClasses);
+        frontFace.classList.add(info.tierClass);
+      }
+      if (backFace) {
+        backFace.classList.remove(...tierClasses);
+        backFace.classList.add(info.tierClass);
+      }
+
+      const kickerEl = document.getElementById('pc-tier-kicker');
+      const subEl = document.getElementById('pc-tier-subtitle');
+      const pillEl = document.getElementById('pc-tier-pill');
+      const shieldEl = document.getElementById('pc-tier-shield');
+      const backLblEl = document.getElementById('pc-back-tier-label');
+
+      if (kickerEl) kickerEl.textContent = info.kicker;
+      if (subEl) subEl.textContent = info.subtitle;
+      if (pillEl) {
+        pillEl.textContent = info.pillText;
+        pillEl.className = info.pillClass;
+      }
+      if (shieldEl) shieldEl.className = info.shieldClass;
+      if (backLblEl) backLblEl.textContent = info.backLabel;
+    }
+
+    // ==================== 2. INTERACTIVE AI MASCOT GREETING ====================
+    function getBangkokDateParts() {
+      try {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Bangkok',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: 'numeric',
+          hour12: false
+        }).formatToParts(new Date());
+        const map = {};
+        parts.forEach(pt => { map[pt.type] = Number(pt.value); });
+        return { year: map.year, month: map.month, day: map.day, hour: map.hour };
+      } catch (e) {
+        const d = new Date();
+        return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(), hour: d.getHours() };
+      }
+    }
+
+    function buildSmartMascotMessages(p) {
+      if (!p) return [];
+      const msgs = [];
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+      const rawName = (isSub ? p.substituteName : p.fullName).trim();
+      const shortName = rawName ? rawName.split(/\s+/)[0] : 'ท่านผู้เข้าร่วม';
+      const now = getBangkokDateParts();
+      const wsInfo = getPersonWorkshopInfo(p, workshopConfig);
+      const comp = getParticipantCompleteness(p);
+
+      // 1. คำทักทายตามวันและช่วงเวลาจริง + การแต่งกาย + สถานะเช็กอิน
+      if (now.month === 11 && now.day === 30) {
+        if (now.hour < 12) {
+          msgs.push(p.day1
+            ? `อรุณสวัสดิ์ครับ ${shortName}! เช้านี้แต่งกายชุดปกติเสื้อเชิ้ตคอพับกากี ท่านเช็กอินเรียบร้อยแล้ว (${p.day1}) ขอให้สนุกกับบรรยาย AI นะครับ`
+            : `อรุณสวัสดิ์ครับ ${shortName}! เช้านี้แต่งกายชุดปกติเสื้อเชิ้ตคอพับกากี และอย่าลืมพลิกหลังบัตรสแกนเช็กอินเข้างานนะครับ`);
+        } else {
+          msgs.push(`สวัสดีช่วงบ่ายครับ ${shortName}! ช่วงบ่ายวันนี้เปลี่ยนเป็นชุดสุภาพ พร้อมร่วมระดมสมองกลุ่มปัญหาการปฏิบัติงานจราจรนะครับ`);
+        }
+      } else if (now.month === 12 && now.day === 1) {
+        msgs.push(p.day2
+          ? `สวัสดีวันที่ 1 ธ.ค. ครับ ${shortName}! วันนี้แต่งกายชุดสุภาพ เช็กอินแล้ว (${p.day2}) พร้อมลุยสัมมนากลุ่มย่อยทั้ง 5 กลุ่มครับ`
+          : `อรุณสวัสดิ์วันที่ 1 ธ.ค. ครับ ${shortName}! วันนี้แต่งกายชุดสุภาพ อย่าลืมสแกนเช็กอินหน้าห้องประชุมก่อนเข้ากลุ่มย่อยนะครับ`);
+      } else if (now.month === 12 && now.day === 2) {
+        if (!p.evaluated) {
+          msgs.push(`สวัสดีวันสุดท้ายครับ ${shortName}! วันนี้แต่งกายชุดสุภาพ และอีกนิดเดียวทำแบบประเมินความพึงพอใจเพื่อปลดล็อกครบ 100% นะครับ`);
+        } else {
+          msgs.push(`สวัสดีวันที่ 2 ธ.ค. ครับ ${shortName}! ขอบคุณที่ร่วมทำแบบประเมินเรียบร้อยแล้ว ขอให้การนำเสนอผลทั้ง 5 ประเด็นราบรื่นนะครับ`);
+        }
+      } else if (now.month === 11 && now.day < 30) {
+        const greetPrefix = now.hour < 12 ? 'อรุณสวัสดิ์' : (now.hour < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีตอนเย็น');
+        msgs.push(`${greetPrefix}ครับ ${shortName}! เตรียมพบกัน 30 พ.ย. นี้นะครับ เช้าวันเปิดงานแต่งกายชุดปกติเสื้อเชิ้ตคอพับกากี และบ่ายชุดสุภาพครับ`);
+      } else {
+        const greetPrefix = now.hour < 12 ? 'อรุณสวัสดิ์' : (now.hour < 17 ? 'สวัสดีตอนบ่าย' : 'สวัสดีครับ');
+        msgs.push(`${greetPrefix} ${shortName}! ยินดีต้อนรับสู่บัตรประจำตัว AI E-Pass ของท่าน แตะที่บัตรเพื่อพลิกดู QR และรายละเอียดที่พักได้ตลอดครับ`);
+      }
+
+      // 2. ข้อมูลกลุ่ม Workshop ปัจจุบันแบบ Real-time
+      if (wsInfo.assigned) {
+        const gObj = (workshopConfig.groups || []).find(g => g.groupNo === wsInfo.currentGroup);
+        const topicShort = gObj && gObj.topic ? ` (${gObj.topic})` : '';
+        if (wsInfo.isFixed) {
+          msgs.push(`⭐ รอบที่ ${wsInfo.round}/5 นี้ ท่านประจำฐานกลุ่มที่ ${wsInfo.currentGroup}${topicShort} ในฐานะผู้เชี่ยวชาญประจำกลุ่มครับ`);
+        } else {
+          msgs.push(`🎯 รอบที่ ${wsInfo.round}/5 นี้ ท่านอยู่กลุ่มที่ ${wsInfo.currentGroup}${topicShort} ครับ พลิกหลังบัตรดูเส้นทางหมุนเวียนทั้ง 5 รอบได้เลย!`);
+        }
+      }
+
+      // 3. แจ้งเตือนเอกสารหรือข้อมูลที่ยังขาด (ถ้ามี)
+      if (comp.hasStaffAlert) {
+        msgs.push(`🔔 เจ้าหน้าที่ฝากแจ้งเตือนบนบัตรครับ: “${comp.staffAlert}” แตะปุ่มสีแดงใต้บัตรเพื่อส่งข้อมูลได้เลยนะครับ`);
+      } else if (!comp.isComplete && comp.missing.length > 0) {
+        msgs.push(`📋 ข้อมูลของท่านยังขาดอีก ${comp.missing.length} รายการ (${comp.missing.slice(0, 2).join(', ')}) แตะปุ่ม “ขอแก้ไข” เพื่อกรอกเพิ่มเติมให้ครบนะครับ`);
+      }
+
+      // 4. ความคืบหน้า 4 กิจกรรม & การทำแบบประเมิน
+      const doneCount = [p.day1, p.day2, p.day3, p.evaluated].filter(Boolean).length;
+      if (doneCount === 4) {
+        msgs.push(`🎉 เยี่ยมยอดเลยครับ! ท่านเข้าร่วมกิจกรรมครบ 100% (4/4 กิจกรรม) แล้ว ขอบคุณที่ร่วมสร้างคลังความรู้งานจราจรครับ`);
+      } else if (!p.evaluated) {
+        msgs.push(`⭐ อีกนิดเดียว! อย่าลืมแวะทำแบบประเมินความพึงพอใจ 10 ข้อ (นิรนาม 100%) เพื่อปลดล็อกครบ 100% และช่วยพัฒนาคู่หูจราจร AI นะครับ`);
+      }
+
+      // 5. ข้อมูลที่พัก / คู่พัก หรือธีมบัตรประจำบทบาท
+      if (p.roomNo || p.roommate) {
+        const roomTxt = p.roomNo ? `ห้องพัก ${p.roomNo}` : 'สิทธิ์เข้าพักโรงแรม';
+        const mateTxt = p.roommate ? ` (ผู้พักร่วม: ${p.roommate})` : '';
+        msgs.push(`🏨 ข้อมูลที่พักของท่าน: ${roomTxt}${mateTxt} และสิทธิ์อาหาร “${p.food || 'อาหารทั่วไป'}” ตรวจสอบได้ด้านหลังบัตรครับ`);
+      } else {
+        const tierInfo = getCardTierInfo(p);
+        if (tierInfo.tierClass === 'tier-vip') {
+          msgs.push(`👑 ยินดีต้อนรับแขกผู้ทรงเกียรติครับ! บัตรของท่านเป็นธีมพิเศษ Black Obsidian & Gold พร้อมให้บริการข้อมูลและเอกสารครบในหน้านี้ครับ`);
+        } else if (tierInfo.tierClass === 'tier-staff') {
+          msgs.push(`🛡️ บัตรคณะทำงานธีม Emerald Titanium พร้อมลุย! ขอบคุณทีมงาน สยศ.ตร. ทุกท่านที่ร่วมขับเคลื่อนโครงการครับ`);
+        } else {
+          msgs.push(`💡 ทิปส์: เลื่อนลงด้านล่างเพื่อโหลดเอกสารแยก 4 โฟลเดอร์ หรือกดปุ่มเปิดแชทบอท “คู่หูจราจร AI” ทดลองถามกฎหมายจราจรได้เลยครับ`);
+        }
+      }
+
+      return msgs;
+    }
+
+    function triggerMascotGreeting(event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      if (!currentParticipant) return;
+
+      // เล่นแอนิเมชันเด้งน่ารักที่ตัวมาสคอต
+      const mascotBtn = document.getElementById('card-mascot-btn');
+      if (mascotBtn) {
+        mascotBtn.classList.remove('mascot-bounce');
+        void mascotBtn.offsetWidth;
+        mascotBtn.classList.add('mascot-bounce');
+      }
+
+      const bubble = document.getElementById('mascot-speech-bubble');
+      const isAlreadyOpen = bubble && !bubble.classList.contains('hidden');
+
+      mascotMessages = buildSmartMascotMessages(currentParticipant);
+      if (mascotMessages.length === 0) return;
+
+      if (isAlreadyOpen) {
+        mascotMsgIndex = (mascotMsgIndex + 1) % mascotMessages.length;
+      } else {
+        mascotMsgIndex = 0;
+      }
+
+      renderMascotSpeechBubble();
+    }
+
+    function nextMascotGreeting() {
+      if (!currentParticipant) return;
+      mascotMessages = buildSmartMascotMessages(currentParticipant);
+      if (mascotMessages.length === 0) return;
+      mascotMsgIndex = (mascotMsgIndex + 1) % mascotMessages.length;
+      renderMascotSpeechBubble();
+    }
+
+    function renderMascotSpeechBubble() {
+      const bubble = document.getElementById('mascot-speech-bubble');
+      const textEl = document.getElementById('mascot-speech-text');
+      const countEl = document.getElementById('mascot-speech-counter');
+      if (!bubble || !textEl) return;
+
+      textEl.textContent = mascotMessages[mascotMsgIndex] || '';
+      if (countEl) {
+        countEl.textContent = `${mascotMsgIndex + 1}/${mascotMessages.length}`;
+      }
+
+      bubble.classList.remove('hidden', 'speech-bubble-animate');
+      void bubble.offsetWidth;
+      bubble.classList.add('speech-bubble-animate');
+
+      if (window.lucide) lucide.createIcons();
+
+      if (mascotAutoHideTimer) clearTimeout(mascotAutoHideTimer);
+      mascotAutoHideTimer = setTimeout(() => {
+        closeMascotGreeting();
+      }, 11000);
+    }
+
+    function closeMascotGreeting() {
+      if (mascotAutoHideTimer) {
+        clearTimeout(mascotAutoHideTimer);
+        mascotAutoHideTimer = null;
+      }
+      document.getElementById('mascot-speech-bubble')?.classList.add('hidden');
     }
 
     function getParticipantCompleteness(p) {
@@ -1438,6 +1809,7 @@
 
           const hasChanged =
             workshopChanged ||
+            updated.role !== currentParticipant.role ||
             updated.day1 !== lastKnownCheckIns.day1 ||
             updated.day2 !== lastKnownCheckIns.day2 ||
             updated.day3 !== lastKnownCheckIns.day3 ||
@@ -1479,6 +1851,7 @@
       const flipper = document.getElementById('cc-flipper');
       if (!flipper) return;
       const isFlipped = flipper.classList.toggle('is-flipped');
+      if (isFlipped) closeMascotGreeting();
       const label = document.getElementById('flip-btn-label');
       if (label) {
         label.textContent = isFlipped ? 'พลิกกลับด้านหน้าบัตร' : 'พลิกดูหลังบัตร (QR & ที่พัก)';
@@ -1496,6 +1869,9 @@
     }
 
     function renderPersonalCard(p, newlyVerifiedDays = []) {
+      // ปรับธีมสีบัตรอัตโนมัติตามบทบาท (VIP / คณะทำงาน / ผู้เข้าร่วม)
+      applyCardTierTheme(p);
+
       const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
       const displayName = isSub ? p.substituteName : p.fullName;
       const displayPos = isSub ? (p.substitutePosition || 'ผู้แทนเข้าร่วมสัมมนา') : (p.position || p.role || '');
