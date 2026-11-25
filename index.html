@@ -345,7 +345,20 @@
       <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/35">
         <div class="scan-laser-line opacity-70"></div>
       </div>
-      <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
+      <!-- กล่องแจ้งเตือนกรณีเปิดกล้องไม่ได้ พร้อมปุ่มลองใหม่ -->
+      <div id="scan-camera-error" class="hidden absolute inset-0 bg-slate-950/92 p-5 flex flex-col items-center justify-center text-center gap-3 z-10">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
+          <i data-lucide="camera-off" class="w-6 h-6"></i>
+        </div>
+        <div class="space-y-1 max-w-xs">
+          <p id="scan-camera-error-title" class="text-xs sm:text-sm font-bold text-white">ไม่สามารถเปิดกล้องได้</p>
+          <p id="scan-camera-error-desc" class="text-[11px] text-slate-300 leading-relaxed"></p>
+        </div>
+        <button type="button" onclick="startCameraStream()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-sm transition">
+          ลองเปิดกล้องอีกครั้ง
+        </button>
+      </div>
+      <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap max-w-[92%] truncate">
         กำลังเปิดกล้อง...
       </div>
     </div>
@@ -1014,15 +1027,27 @@
     let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
     let nativeBarcodeDetector = null;
     let isNativeDetecting = false;
+    let scanCameraSessionId = 0;
     let sharedAudioCtx = null;
     let cachedThaiVoice = null;
     let activeSpeechUtterance = null;
     let speakDelayTimer = null;
-    try {
-      if ('BarcodeDetector' in window) {
-        nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-      }
-    } catch (e) { nativeBarcodeDetector = null; }
+
+    // ตรวจสอบว่าเบราว์เซอร์รองรับ Native BarcodeDetector สำหรับ qr_code จริงหรือไม่
+    (async function initNativeQrDetector() {
+      try {
+        if ('BarcodeDetector' in window) {
+          if (typeof BarcodeDetector.getSupportedFormats === 'function') {
+            const formats = await BarcodeDetector.getSupportedFormats();
+            if (Array.isArray(formats) && formats.includes('qr_code')) {
+              nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+            }
+          } else {
+            nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+          }
+        }
+      } catch (e) { nativeBarcodeDetector = null; }
+    })();
 
     function detectDefaultDay() {
       const now = new Date();
@@ -1042,6 +1067,7 @@
       selectDay(currentDay, false);
       refreshAllData(true);
       startAutoRefresh();
+      window.addEventListener('pagehide', stopCameraStream);
 
       document.addEventListener('click', (e) => {
         const rmInp = document.getElementById('ed-roommate');
@@ -1560,10 +1586,11 @@
 
     // ==================== HD QR SCANNER (OPTIMIZED CPU) ====================
     function openScannerPanel() {
-      unlockScannerAudioAndSpeech();
       document.getElementById('scanner-panel').classList.remove('hidden');
       updateScannerPaceBar();
+      // เรียกเปิดกล้องก่อนทันทีในจังหวะคลิกเพื่อรักษา User Gesture ของเบราว์เซอร์
       startCameraStream();
+      unlockScannerAudioAndSpeech();
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1575,47 +1602,157 @@
     function toggleScannerExpand() {
       scanExpanded = !scanExpanded;
       const panel = document.getElementById('scanner-panel');
+      const vp = document.getElementById('scanner-viewport');
+      const btn = document.getElementById('btn-scan-expand');
       if (scanExpanded) {
         panel.className = 'no-print fixed inset-3 sm:inset-6 z-50 bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/80 overflow-hidden flex flex-col transition-all duration-200';
+        if (vp) vp.className = 'relative bg-black flex-1 min-h-0 w-full overflow-hidden flex items-center justify-center';
+        if (btn) btn.innerHTML = '<i data-lucide="minimize-2" class="w-3.5 h-3.5"></i>';
       } else {
         panel.className = 'no-print fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200';
+        if (vp) vp.className = 'relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center';
+        if (btn) btn.innerHTML = '<i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>';
       }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function showCameraErrorOverlay(title, desc) {
+      const box = document.getElementById('scan-camera-error');
+      const titleEl = document.getElementById('scan-camera-error-title');
+      const descEl = document.getElementById('scan-camera-error-desc');
+      const statusEl = document.getElementById('scan-camera-status');
+      if (titleEl) titleEl.textContent = title || 'ไม่สามารถเปิดกล้องได้';
+      if (descEl) descEl.textContent = desc || '';
+      if (box) box.classList.remove('hidden');
+      if (statusEl) statusEl.textContent = title || 'เปิดกล้องไม่สำเร็จ';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function hideCameraErrorOverlay() {
+      document.getElementById('scan-camera-error')?.classList.add('hidden');
     }
 
     async function startCameraStream() {
       stopCameraStream();
+      const sessionId = ++scanCameraSessionId;
       const statusEl = document.getElementById('scan-camera-status');
       const video = document.getElementById('scan-video');
+      hideCameraErrorOverlay();
       if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง...';
 
+      const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      if (window.isSecureContext === false && !isLocalHost) {
+        showCameraErrorOverlay(
+          'กล้องต้องเปิดผ่านลิงก์ HTTPS',
+          'กรุณาเปิดหน้าเว็บผ่าน GitHub Pages (https://...) เพื่อให้เบราว์เซอร์อนุญาตการเปิดกล้อง หรือใช้พิมพ์รหัส/อัปโหลดรูปด้านล่างแทน'
+        );
+        return;
+      }
+
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        if (statusEl) statusEl.textContent = 'เบราว์เซอร์ไม่รองรับกล้อง (ใช้พิมพ์รหัสหรือเลือกรูปด้านล่าง)';
+        showCameraErrorOverlay(
+          'เบราว์เซอร์ไม่รองรับการเปิดกล้อง',
+          'แนะนำเปิดผ่าน Chrome / Safari หรือใช้พิมพ์รหัส KM69-XX และปุ่มเลือกรูปภาพด้านล่างแทน'
+        );
+        return;
+      }
+
+      // ลองเปิดกล้องแบบ Fallback 3 ระดับ รองรับทั้งมือถือ iOS/Android และกล้องโน้ตบุ๊กทุกรุ่น
+      const constraintSteps = [
+        { video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+        { video: { facingMode: scanFacingMode }, audio: false },
+        { video: true, audio: false }
+      ];
+
+      let acquiredStream = null;
+      let lastErr = null;
+      for (const constraints of constraintSteps) {
+        try {
+          acquiredStream = await navigator.mediaDevices.getUserMedia(constraints);
+          if (acquiredStream) break;
+        } catch (err) {
+          lastErr = err;
+          if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+            break;
+          }
+        }
+      }
+
+      // หากผู้ใช้ปิดหน้าต่างหรือกดสลับกล้องระหว่างรอ ให้ปิดสตรีมเก่าทิ้งทันที
+      if (sessionId !== scanCameraSessionId) {
+        if (acquiredStream) acquiredStream.getTracks().forEach(t => t.stop());
+        return;
+      }
+
+      if (!acquiredStream) {
+        const errName = lastErr ? lastErr.name : '';
+        if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+          showCameraErrorOverlay(
+            'ยังไม่ได้อนุญาตสิทธิ์ใช้งานกล้อง',
+            'กรุณากดที่รูปกุญแจ/การตั้งค่าหน้าช่อง URL แล้วเลือก "อนุญาตกล้อง (Allow)" จากนั้นกดปุ่มด้านล่างเพื่อลองใหม่'
+          );
+        } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+          showCameraErrorOverlay(
+            'ไม่พบอุปกรณ์กล้องในเครื่องนี้',
+            'กรุณาตรวจสอบการเชื่อมต่อกล้อง หรือใช้พิมพ์รหัส / เลือกรูป QR จากเครื่องด้านล่างแทน'
+          );
+        } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
+          showCameraErrorOverlay(
+            'กล้องถูกแอปหรือแท็บอื่นใช้งานอยู่',
+            'กรุณาปิดโปรแกรมหรือแท็บอื่นที่ใช้กล้องอยู่ แล้วกดลองเปิดกล้องอีกครั้ง'
+          );
+        } else {
+          showCameraErrorOverlay(
+            'เปิดกล้องไม่สำเร็จ',
+            `${errName || 'ไม่ทราบสาเหตุ'} — หากเปิดในหน้าต่างพรีวิวหรือแอป LINE แนะนำเปิดผ่าน Safari / Chrome โดยตรง`
+          );
+        }
         return;
       }
 
       try {
-        try {
-          scanStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
-            audio: false
-          });
-        } catch (primaryErr) {
-          // Fallback กรณีคอมพิวเตอร์/มือถือบางรุ่นไม่รองรับ facingMode หรือความละเอียดที่กำหนด
-          scanStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        }
+        scanStream = acquiredStream;
+        video.muted = true;
+        video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('autoplay', '');
         video.srcObject = scanStream;
+
+        // รอให้วิดีโอโหลดขนาดเฟรมพร้อมก่อนสั่งเล่น (แก้ปัญหาจอดำบน iOS/Android)
+        if (video.readyState < 1) {
+          await new Promise(resolve => {
+            const onReady = () => {
+              video.removeEventListener('loadedmetadata', onReady);
+              resolve();
+            };
+            video.addEventListener('loadedmetadata', onReady, { once: true });
+            setTimeout(resolve, 1500);
+          });
+        }
+
+        if (sessionId !== scanCameraSessionId) return;
         await video.play();
+
         scanActive = true;
         if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
         scanRafId = requestAnimationFrame(scanVideoLoop);
-      } catch (err) {
-        if (statusEl) statusEl.textContent = `เปิดกล้องไม่สำเร็จ: ${err.name || 'กรุณาอนุญาตสิทธิ์กล้อง'}`;
+      } catch (playErr) {
+        showCameraErrorOverlay(
+          'ไม่สามารถแสดงภาพจากกล้องได้',
+          `${playErr.message || playErr.name || 'Play error'} — กดลองเปิดกล้องอีกครั้ง`
+        );
       }
     }
 
     function stopCameraStream() {
+      scanCameraSessionId++;
       scanActive = false;
       scanTorchOn = false;
+      const torchBtn = document.getElementById('btn-scan-torch');
+      if (torchBtn) {
+        torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
+      }
       if (scanRafId) {
         cancelAnimationFrame(scanRafId);
         scanRafId = null;
@@ -1625,7 +1762,10 @@
         scanStream = null;
       }
       const video = document.getElementById('scan-video');
-      if (video) video.srcObject = null;
+      if (video) {
+        try { video.pause(); } catch (e) {}
+        video.srcObject = null;
+      }
     }
 
     function switchScannerCamera() {
@@ -1697,14 +1837,16 @@
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
 
-      if (nowTs - scanLastDecodeTs < 150) return;
+      if (nowTs - scanLastDecodeTs < 140) return;
       scanLastDecodeTs = nowTs;
 
       const video = document.getElementById('scan-video');
-      if (!video || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+      if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
 
-      // 1. ใช้ Native BarcodeDetector ของอุปกรณ์ (เร็วมากและจับ QR ได้ทุกจุดบนหน้าจอ)
-      if (nativeBarcodeDetector && !isNativeDetecting) {
+      scanPassToggle = (scanPassToggle + 1) % 3;
+
+      // 1. ใช้ Native BarcodeDetector ในรอบ 0 (และให้ jsQR เต็มเฟรมในรอบ 1 + ซูมกลางในรอบ 2 เพื่อให้สแกนติดไวครบทุกมุมกล้อง)
+      if (nativeBarcodeDetector && !isNativeDetecting && scanPassToggle === 0) {
         isNativeDetecting = true;
         nativeBarcodeDetector.detect(video).then(barcodes => {
           if (scanActive && barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
@@ -1718,13 +1860,12 @@
         return;
       }
 
-      // 2. Fallback ด้วย jsQR: สลับสแกนเต็มหน้าจอกล้อง 100% กับรอบเสริมซูมกลางสำหรับ QR ขนาดเล็ก
+      // 2. อ่านด้วย jsQR: สลับสแกนเต็มหน้าจอกล้อง 100% กับรอบเสริมซูมกลางสำหรับ QR ขนาดเล็ก
       if (typeof jsQR === 'undefined') return;
       const vw = video.videoWidth;
       const vh = video.videoHeight;
       if (!vw || !vh) return;
 
-      scanPassToggle = (scanPassToggle + 1) % 3;
       if (scanPassToggle !== 2) {
         const maxW = 540;
         const scale = Math.min(1, maxW / Math.max(vw, vh));
@@ -1749,7 +1890,7 @@
         scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
 
         const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
-        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'dontInvert' });
+        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'attemptBoth' });
         if (code && code.data) {
           handleDecodedQr(code.data);
         }
