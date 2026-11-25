@@ -389,6 +389,8 @@
 
     <!-- Manual Input & Gallery Upload -->
     <div class="p-3 bg-slate-900 border-t border-white/10 space-y-2">
+      <!-- เมนูเลือกกล้องอัตโนมัติ (แสดงเมื่อเครื่องมีมากกว่า 1 กล้อง เช่น กล้องหน้า/หลัง หรือเว็บแคมเสริม) -->
+      <select id="scan-camera-select" onchange="onScannerDeviceChange(this.value)" class="hidden w-full px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-[11px] text-emerald-200 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"></select>
       <form onsubmit="handleManualQrSubmit(event)" class="flex gap-1.5">
         <input type="text" id="manual-qr-input" placeholder="พิมพ์รหัส เช่น KM69-01 แล้วกด Enter" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-400" />
         <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shrink-0">เช็กอิน</button>
@@ -1028,6 +1030,8 @@
     let nativeBarcodeDetector = null;
     let isNativeDetecting = false;
     let scanCameraSessionId = 0;
+    let scanDeviceId = '';
+    let scanAvailableCameras = [];
     let sharedAudioCtx = null;
     let cachedThaiVoice = null;
     let activeSpeechUtterance = null;
@@ -1588,7 +1592,7 @@
     function openScannerPanel() {
       document.getElementById('scanner-panel').classList.remove('hidden');
       updateScannerPaceBar();
-      // เรียกเปิดกล้องก่อนทันทีในจังหวะคลิกเพื่อรักษา User Gesture ของเบราว์เซอร์
+      // เปิดกล้องทันทีในจังหวะคลิกโดยไม่เรียก speechSynthesis ซ้อนพร้อมกัน เพื่อไม่ให้ขัดจังหวะกล้องบนมือถือ
       startCameraStream();
       unlockScannerAudioAndSpeech();
       if (window.lucide) lucide.createIcons();
@@ -1640,29 +1644,29 @@
       hideCameraErrorOverlay();
       if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง...';
 
-      const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-      if (window.isSecureContext === false && !isLocalHost) {
-        showCameraErrorOverlay(
-          'กล้องต้องเปิดผ่านลิงก์ HTTPS',
-          'กรุณาเปิดหน้าเว็บผ่าน GitHub Pages (https://...) เพื่อให้เบราว์เซอร์อนุญาตการเปิดกล้อง หรือใช้พิมพ์รหัส/อัปโหลดรูปด้านล่างแทน'
-        );
-        return;
-      }
-
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        const isHttps = window.location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(window.location.hostname);
         showCameraErrorOverlay(
-          'เบราว์เซอร์ไม่รองรับการเปิดกล้อง',
-          'แนะนำเปิดผ่าน Chrome / Safari หรือใช้พิมพ์รหัส KM69-XX และปุ่มเลือกรูปภาพด้านล่างแทน'
+          isHttps ? 'เบราว์เซอร์ไม่รองรับการเปิดกล้อง' : 'กล้องต้องเปิดผ่านลิงก์ HTTPS',
+          isHttps
+            ? 'แนะนำเปิดผ่าน Chrome / Safari โดยตรง หรือใช้พิมพ์รหัส KM69-XX และปุ่มเลือกรูปภาพด้านล่างแทน'
+            : 'กรุณาเปิดหน้าเว็บผ่าน GitHub Pages (https://...) เพื่อให้เบราว์เซอร์อนุญาตเปิดกล้อง'
         );
         return;
       }
 
-      // ลองเปิดกล้องแบบ Fallback 3 ระดับ รองรับทั้งมือถือ iOS/Android และกล้องโน้ตบุ๊กทุกรุ่น
-      const constraintSteps = [
-        { video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-        { video: { facingMode: scanFacingMode }, audio: false },
-        { video: true, audio: false }
-      ];
+      // ลำดับการขอเปิดกล้องแบบ Fallback (ยึดรูปแบบเดิมที่เปิดติดไวสุดเป็นอันดับแรก)
+      const constraintSteps = scanDeviceId
+        ? [
+            { video: { deviceId: { exact: scanDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+            { video: { deviceId: { exact: scanDeviceId } }, audio: false },
+            { video: true, audio: false }
+          ]
+        : [
+            { video: { facingMode: scanFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+            { video: { facingMode: { ideal: scanFacingMode } }, audio: false },
+            { video: true, audio: false }
+          ];
 
       let acquiredStream = null;
       let lastErr = null;
@@ -1689,7 +1693,7 @@
         if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
           showCameraErrorOverlay(
             'ยังไม่ได้อนุญาตสิทธิ์ใช้งานกล้อง',
-            'กรุณากดที่รูปกุญแจ/การตั้งค่าหน้าช่อง URL แล้วเลือก "อนุญาตกล้อง (Allow)" จากนั้นกดปุ่มด้านล่างเพื่อลองใหม่'
+            'กรุณากดที่รูปกุญแจ/การตั้งค่าหน้าช่อง URL แล้วเลือก "อนุญาตกล้อง (Allow)" จากนั้นกดลองใหม่'
           );
         } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
           showCameraErrorOverlay(
@@ -1710,39 +1714,57 @@
         return;
       }
 
-      try {
-        scanStream = acquiredStream;
-        video.muted = true;
-        video.playsInline = true;
-        video.setAttribute('muted', '');
-        video.setAttribute('playsinline', '');
-        video.setAttribute('autoplay', '');
-        video.srcObject = scanStream;
+      scanStream = acquiredStream;
+      video.muted = true;
+      video.playsInline = true;
+      video.srcObject = scanStream;
 
-        // รอให้วิดีโอโหลดขนาดเฟรมพร้อมก่อนสั่งเล่น (แก้ปัญหาจอดำบน iOS/Android)
-        if (video.readyState < 1) {
-          await new Promise(resolve => {
-            const onReady = () => {
-              video.removeEventListener('loadedmetadata', onReady);
-              resolve();
-            };
-            video.addEventListener('loadedmetadata', onReady, { once: true });
-            setTimeout(resolve, 1500);
-          });
+      // สั่งเล่นวิดีโอทันทีโดยไม่หน่วงรอ loadedmetadata และไม่แสดงหน้า Error หากเกิด AbortError จาก autoplay
+      try {
+        await video.play();
+      } catch (playErr) {
+        if (playErr && playErr.name !== 'AbortError') {
+          // ลองสั่งเล่นซ้ำอีกครั้งหลังมีข้อมูลเฟรมพร้อม
+          video.onloadedmetadata = () => {
+            video.play().catch(() => {});
+          };
+        }
+      }
+
+      if (sessionId !== scanCameraSessionId) return;
+      scanActive = true;
+      if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
+      scanRafId = requestAnimationFrame(scanVideoLoop);
+      populateScannerCameraList();
+    }
+
+    async function populateScannerCameraList() {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        scanAvailableCameras = devices.filter(d => d.kind === 'videoinput');
+        const sel = document.getElementById('scan-camera-select');
+        if (!sel) return;
+
+        if (scanAvailableCameras.length <= 1) {
+          sel.classList.add('hidden');
+          return;
         }
 
-        if (sessionId !== scanCameraSessionId) return;
-        await video.play();
+        const activeTrack = scanStream ? scanStream.getVideoTracks()[0] : null;
+        const activeId = (activeTrack && activeTrack.getSettings && activeTrack.getSettings().deviceId) || scanDeviceId || '';
 
-        scanActive = true;
-        if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
-        scanRafId = requestAnimationFrame(scanVideoLoop);
-      } catch (playErr) {
-        showCameraErrorOverlay(
-          'ไม่สามารถแสดงภาพจากกล้องได้',
-          `${playErr.message || playErr.name || 'Play error'} — กดลองเปิดกล้องอีกครั้ง`
-        );
-      }
+        sel.innerHTML = scanAvailableCameras.map((cam, idx) => {
+          const label = cam.label || `กล้องตัวที่ ${idx + 1}`;
+          return `<option value="${escapeHtml(cam.deviceId)}" ${cam.deviceId === activeId ? 'selected' : ''}>📷 ${escapeHtml(label)}</option>`;
+        }).join('');
+        sel.classList.remove('hidden');
+      } catch (e) {}
+    }
+
+    function onScannerDeviceChange(newDeviceId) {
+      scanDeviceId = newDeviceId || '';
+      startCameraStream();
     }
 
     function stopCameraStream() {
@@ -1760,16 +1782,24 @@
       if (scanStream) {
         scanStream.getTracks().forEach(t => t.stop());
         scanStream = null;
-      }
-      const video = document.getElementById('scan-video');
-      if (video) {
-        try { video.pause(); } catch (e) {}
-        video.srcObject = null;
+        const video = document.getElementById('scan-video');
+        if (video) {
+          video.srcObject = null;
+        }
       }
     }
 
     function switchScannerCamera() {
-      scanFacingMode = scanFacingMode === 'environment' ? 'user' : 'environment';
+      if (scanAvailableCameras.length > 1) {
+        const activeTrack = scanStream ? scanStream.getVideoTracks()[0] : null;
+        const activeId = (activeTrack && activeTrack.getSettings && activeTrack.getSettings().deviceId) || scanDeviceId;
+        const curIdx = scanAvailableCameras.findIndex(c => c.deviceId === activeId);
+        const nextCam = scanAvailableCameras[(curIdx + 1) % scanAvailableCameras.length];
+        scanDeviceId = nextCam ? nextCam.deviceId : '';
+      } else {
+        scanDeviceId = '';
+        scanFacingMode = scanFacingMode === 'environment' ? 'user' : 'environment';
+      }
       startCameraStream();
     }
 
@@ -2079,12 +2109,6 @@
         if (window.speechSynthesis) {
           initThaiSpeechVoices();
           window.speechSynthesis.resume();
-          // ปลดล็อกสิทธิ์เสียงพูดบน iOS / Android Chrome ระหว่างจังหวะผู้ใช้กดปุ่ม
-          const silent = new SpeechSynthesisUtterance(' ');
-          silent.lang = 'th-TH';
-          silent.volume = 0;
-          silent.rate = 2;
-          window.speechSynthesis.speak(silent);
         }
       } catch (e) {}
     }
