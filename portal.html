@@ -1144,7 +1144,7 @@
         officialLetter: String(p.officialLetter || '').trim(),
         phone: String(p.phone || '').trim(),
         licensePlate: String(p.licensePlate || '').trim(),
-        evaluated: Boolean(p.evaluated),
+        evaluated: p.evaluated === true || String(p.evaluated || '').trim().toLowerCase() === 'true',
         substituteName: String(p.substituteName || '').trim(),
         substitutePosition: String(p.substitutePosition || '').trim(),
         letterUrl: String(p.letterUrl || '').trim(),
@@ -1608,6 +1608,42 @@
         });
       }
 
+      // อัปเดตข้อมูลด้านหลังบัตร (ที่พัก / เลขห้อง / ผู้พักร่วม / อาหาร / การตอบรับ / หนังสือส่งตัว)
+      const stayParts = [];
+      if (p.stay30 === 'พัก') stayParts.push('คืน 30 พ.ย.');
+      if (p.stay1 === 'พัก') stayParts.push('คืน 1 ธ.ค.');
+      let staySummary = stayParts.length > 0
+        ? `เข้าพัก ${stayParts.join(' & ')}`
+        : ((p.stay30 === 'ไม่พัก' && p.stay1 === 'ไม่พัก') ? 'ไม่เข้าพักโรงแรม' : 'ยังไม่ระบุการเข้าพัก');
+      if (p.roomNo) staySummary += ` • ห้อง ${p.roomNo}`;
+      const stayEl = document.getElementById('pc-stay');
+      if (stayEl) stayEl.textContent = staySummary;
+
+      const roommateEl = document.getElementById('pc-roommate');
+      if (roommateEl) {
+        if (p.roommate) {
+          roommateEl.textContent = `ผู้พักร่วม: ${p.roommate}`;
+          roommateEl.classList.remove('hidden');
+        } else {
+          roommateEl.classList.add('hidden');
+        }
+      }
+
+      const foodRsvpEl = document.getElementById('pc-food-rsvp');
+      if (foodRsvpEl) {
+        foodRsvpEl.textContent = `${p.food || 'อาหารทั่วไป'} • ${p.rsvp || 'รอการยืนยัน'}`;
+      }
+
+      const letterEl = document.getElementById('pc-letter-link');
+      if (letterEl) {
+        if (p.letterUrl) {
+          letterEl.href = p.letterUrl;
+          letterEl.classList.remove('hidden');
+        } else {
+          letterEl.classList.add('hidden');
+        }
+      }
+
       // แสดงกลุ่มสัมมนา Workshop ปัจจุบันบนด้านหน้าและด้านหลังบัตร
       const wsInfo = getPersonWorkshopInfo(p, workshopConfig);
       const frontPill = document.getElementById('pc-workshop-front-pill');
@@ -2017,7 +2053,7 @@
         const activeName = (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName;
         const unitLabel = p.unitDetail || p.mainUnit || '';
         return `
-          <button type="button" onclick="selectPortalRoommate('${escapeHtml(activeName).replace(/'/g, "\\'")}')" class="w-full text-left px-3 py-2.5 hover:bg-blue-50 active:bg-blue-100 transition flex items-center justify-between gap-2">
+          <button type="button" data-name="${escapeHtml(activeName)}" onclick="selectPortalRoommate(this)" class="w-full text-left px-3 py-2.5 hover:bg-blue-50 active:bg-blue-100 transition flex items-center justify-between gap-2">
             <div class="min-w-0">
               <div class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(activeName)}</div>
               <div class="text-[10px] text-slate-400 truncate">${escapeHtml(p.id)} • ${escapeHtml(unitLabel)}</div>
@@ -2029,8 +2065,8 @@
       box.classList.remove('hidden');
     }
 
-    function selectPortalRoommate(name) {
-      document.getElementById('req-roommate').value = name;
+    function selectPortalRoommate(el) {
+      document.getElementById('req-roommate').value = el.getAttribute('data-name') || '';
       document.getElementById('req-roommate-suggestions').classList.add('hidden');
     }
 
