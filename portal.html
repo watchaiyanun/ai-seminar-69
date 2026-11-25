@@ -284,22 +284,21 @@
       <p class="text-xs sm:text-sm text-slate-500 font-medium">กำลังโหลดข้อมูลบัตรประจำตัว...</p>
     </div>
 
-    <!-- กล่องค้นหาชื่อ -->
-    <section id="lookup-section" class="hidden bg-white rounded-3xl p-5 shadow-md border border-slate-200 space-y-3">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-navy-700/10 text-navy-700 flex items-center justify-center shrink-0">
-          <i data-lucide="search" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <h2 class="text-sm font-bold text-slate-900">ค้นหาบัตรประจำตัวอิเล็กทรอนิกส์</h2>
-          <p class="text-[11px] text-slate-500">พิมพ์ชื่อ-สกุล หรือรหัส (เช่น KM69-01) เพื่อเปิดบัตรของคุณ</p>
-        </div>
+    <!-- กล่องแจ้งเตือนกรณีเปิดหน้าเว็บโดยไม่ได้สแกน QR Code ประจำตัว (ไม่อนุญาตให้ค้นหาหรือเปิดดูบัตรของผู้อื่น) -->
+    <section id="no-id-notice" class="hidden bg-white rounded-3xl p-5 sm:p-6 shadow-md border-2 border-navy-700/20 text-center space-y-3">
+      <div id="no-id-icon-wrap" class="w-12 h-12 rounded-2xl bg-navy-700/10 text-navy-700 flex items-center justify-center mx-auto">
+        <i data-lucide="qr-code" class="w-6 h-6"></i>
       </div>
-
-      <div class="relative">
-        <input type="text" id="lookup-input" oninput="filterLookupList(this.value)" placeholder="พิมพ์ชื่อ หรือ สังกัด..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700" />
+      <div class="space-y-1">
+        <h2 id="no-id-title" class="text-sm sm:text-base font-extrabold text-slate-900">กรุณาสแกน QR Code ประจำตัวบนป้ายชื่อของท่าน</h2>
+        <p id="no-id-desc" class="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+          เพื่อความปลอดภัยของข้อมูลส่วนบุคคล บัตรประจำตัวอิเล็กทรอนิกส์ (Digital E-Pass) จะแสดงเฉพาะเจ้าของ QR Code เท่านั้น กรุณาใช้กล้องมือถือหรือแอป LINE สแกน QR ด้านหน้าป้ายชื่อที่ได้รับแจก (หากพบปัญหาติดต่อเจ้าหน้าที่โต๊ะลงทะเบียน)
+        </p>
       </div>
-      <div id="lookup-results" class="max-h-52 overflow-y-auto custom-scroll divide-y divide-slate-100 border border-slate-100 rounded-xl"></div>
+      <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-[11px] font-semibold text-slate-600">
+        <i data-lucide="lock" class="w-3.5 h-3.5 text-navy-700"></i>
+        <span>ท่านยังสามารถดูคลังเอกสาร กำหนดการ และการแต่งกายด้านล่างได้ตามปกติ</span>
+      </div>
     </section>
 
     <!-- ==================== 3D FLIPPABLE CREDIT-CARD E-PASS ==================== -->
@@ -496,15 +495,15 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
         <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-700 shrink-0"></i>
+      <!-- ปุ่มควบคุมใต้บัตร (ล็อกเฉพาะเจ้าของ QR Code ไม่อนุญาตให้สลับดูบัตรผู้อื่น) -->
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-700 shrink-0"></i>
           <span id="flip-btn-label" class="truncate">พลิกดูหลังบัตร (QR &amp; ที่พัก)</span>
         </button>
         <button type="button" onclick="openEditRequestModal()" class="py-2.5 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.98] text-white shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
           <span class="truncate">ขอแก้ไข / แจ้งผู้แทน</span>
-        </button>
-        <button type="button" onclick="showLookupSwitcher()" class="col-span-2 sm:col-span-1 py-2.5 px-3 rounded-2xl bg-slate-200/80 hover:bg-slate-200 active:scale-[0.98] text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
-          <i data-lucide="users" class="w-3.5 h-3.5 shrink-0"></i>
-          <span>เปลี่ยนชื่อ / สลับบัตร</span>
         </button>
       </div>
 
@@ -1036,6 +1035,7 @@
 
     let allParticipants = [];
     let currentParticipant = null;
+    let lockedParticipantId = '';
     let workshopConfig = {
       currentRound: 1,
       groups: [
@@ -1344,14 +1344,15 @@
         if (urlId) {
           const found = allParticipants.find(x => x.id.toUpperCase() === urlId.trim().toUpperCase());
           if (found) {
+            lockedParticipantId = found.id;
             selectParticipant(found);
             return;
           }
-          showToast(`ไม่พบรหัส ${urlId} ในระบบ กรุณาค้นหาชื่อด้านล่าง`, 'warning');
+          showNoIdNotice(`ไม่พบรหัส "${urlId}" ในระบบ กรุณาสแกน QR Code ด้านหน้าป้ายประจำตัวของท่านอีกครั้ง หรือติดต่อเจ้าหน้าที่โต๊ะลงทะเบียน`, true);
+          return;
         }
 
-        document.getElementById('lookup-section').classList.remove('hidden');
-        filterLookupList('');
+        showNoIdNotice();
       } catch (err) {
         document.getElementById('loading-card').innerHTML = `
           <p class="text-sm font-bold text-rose-600">ไม่สามารถโหลดข้อมูลได้</p>
@@ -1361,57 +1362,32 @@
       }
     }
 
-    function showLookupSwitcher() {
-      document.getElementById('personal-card').classList.add('hidden');
-      document.getElementById('lookup-section').classList.remove('hidden');
-      document.getElementById('lookup-input').value = '';
-      filterLookupList('');
-      document.getElementById('lookup-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    function showNoIdNotice(customMsg = '', isError = false) {
+      const notice = document.getElementById('no-id-notice');
+      const titleEl = document.getElementById('no-id-title');
+      const descEl = document.getElementById('no-id-desc');
+      const iconWrap = document.getElementById('no-id-icon-wrap');
+      if (!notice) return;
 
-    function filterLookupList(query) {
-      const q = String(query || '').trim().toLowerCase();
-      const matches = allParticipants.filter(p => {
-        if (!q) return true;
-        return `${p.id} ${p.fullName} ${p.substituteName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
-      }).slice(0, 12);
-
-      const container = document.getElementById('lookup-results');
-      if (matches.length === 0) {
-        container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">ไม่พบรายชื่อที่ค้นหา</div>`;
-        return;
+      document.getElementById('personal-card')?.classList.add('hidden');
+      if (isError) {
+        if (titleEl) titleEl.textContent = 'ไม่พบข้อมูลบัตรประจำตัวจาก QR Code นี้';
+        if (descEl) descEl.textContent = customMsg;
+        if (iconWrap) iconWrap.className = 'w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto';
+      } else {
+        if (titleEl) titleEl.textContent = 'กรุณาสแกน QR Code ประจำตัวบนป้ายชื่อของท่าน';
+        if (descEl) descEl.textContent = 'เพื่อความปลอดภัยของข้อมูลส่วนบุคคล บัตรประจำตัวอิเล็กทรอนิกส์ (Digital E-Pass) จะแสดงเฉพาะเจ้าของ QR Code เท่านั้น กรุณาใช้กล้องมือถือหรือแอป LINE สแกน QR ด้านหน้าป้ายชื่อที่ได้รับแจก (หากพบปัญหาติดต่อเจ้าหน้าที่โต๊ะลงทะเบียน)';
+        if (iconWrap) iconWrap.className = 'w-12 h-12 rounded-2xl bg-navy-700/10 text-navy-700 flex items-center justify-center mx-auto';
       }
-
-      container.innerHTML = matches.map(p => {
-        const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName;
-        const name = isSub ? `${p.substituteName} (ผู้แทน ${p.fullName})` : p.fullName;
-        return `
-          <button type="button" onclick="openParticipantById('${escapeHtml(p.id)}')" class="w-full text-left px-3.5 py-2.5 hover:bg-blue-50 transition flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="text-xs font-bold text-slate-800 truncate">${escapeHtml(name)}</div>
-              <div class="text-[11px] text-slate-500 truncate">${escapeHtml(p.id)} • ${escapeHtml(p.unitDetail || p.mainUnit)}</div>
-            </div>
-            <span class="px-2.5 py-1 rounded-lg bg-navy-700/10 text-navy-700 text-[11px] font-bold shrink-0">เปิดบัตร</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function openParticipantById(id) {
-      const found = allParticipants.find(x => x.id === id);
-      if (!found) return;
-      try {
-        const nextUrl = new URL(window.location.href);
-        nextUrl.searchParams.set('id', found.id);
-        window.history.replaceState({}, '', nextUrl.toString());
-      } catch (e) {}
-      document.getElementById('lookup-section').classList.add('hidden');
-      selectParticipant(found);
+      notice.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
     }
 
     function selectParticipant(p) {
       currentParticipant = p;
+      lockedParticipantId = p.id;
       lastKnownCheckIns = { day1: p.day1 || '', day2: p.day2 || '', day3: p.day3 || '' };
+      document.getElementById('no-id-notice')?.classList.add('hidden');
       document.getElementById('personal-card').classList.remove('hidden');
       renderPersonalCard(p, []);
       renderPortalWorkshopGroups();
@@ -1422,7 +1398,7 @@
     function startLiveCheckInPolling() {
       if (liveSyncTimer) clearInterval(liveSyncTimer);
       liveSyncTimer = setInterval(async () => {
-        if (!currentParticipant || document.hidden) return;
+        if (!currentParticipant || !lockedParticipantId || document.hidden) return;
         const ts = Date.now();
         try {
           const [res, wRes] = await Promise.all([
@@ -1449,7 +1425,7 @@
           }
 
           allParticipants = json.data.map(normalizeParticipant);
-          const updated = allParticipants.find(x => x.id.toUpperCase() === currentParticipant.id.toUpperCase());
+          const updated = allParticipants.find(x => x.id.toUpperCase() === lockedParticipantId.toUpperCase());
           if (!updated) return;
 
           const newlyVerifiedDays = [];
