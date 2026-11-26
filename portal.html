@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Digital Pass & Portal - แชทบอท AI คู่หูจราจร</title>
+  <title>Digital Pass &amp; Portal - แชทบอท AI คู่หูจราจร</title>
 
   <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -671,7 +671,7 @@
         </button>
       </div>
 
-      <!-- ปุ่มลัดเข้าใบงานกิจกรรมวันที่ 2 (1 ธ.ค. เช้า: ระดมสมอง / บ่าย: จัดทำ Q&A) เชื่อมชื่อ-กลุ่มจากบัตรอัตโนมัติ -->
+      <!-- ปุ่มลัดเข้าใบงานกิจกรรมวันที่ 2 (1 ธ.ค. เช้า: ระดมสมอง / บ่าย: จัดทำ & ดู Q&A ตามบทบาท) -->
       <div class="grid grid-cols-2 gap-2">
         <a id="btn-day2-morning-link" href="input.html?tab=morning" class="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-950 shadow-sm text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="sun" class="w-3.5 h-3.5 shrink-0"></i>
@@ -679,7 +679,7 @@
         </a>
         <a id="btn-day2-afternoon-link" href="input.html?tab=afternoon" class="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-maroon-700 to-maroon-800 hover:from-maroon-600 hover:to-maroon-700 active:scale-[0.98] text-white shadow-sm border border-amber-300/40 text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
-          <span class="truncate">ใบงานบ่าย 1 ธ.ค. (จัดทำ Q&amp;A)</span>
+          <span id="btn-day2-afternoon-label" class="truncate">ใบงานบ่าย 1 ธ.ค. (จัดทำ Q&amp;A)</span>
         </a>
       </div>
 
@@ -912,7 +912,7 @@
             <i data-lucide="file-edit" class="w-3.5 h-3.5 text-amber-300"></i> กรอกใบงานช่วงเช้า (ระดมสมอง) ↗
           </a>
           <a id="card-day2-afternoon-link" href="input.html?tab=afternoon" class="py-2.5 px-3 rounded-2xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition">
-            <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300"></i> กรอกใบงานช่วงบ่าย (จัดทำ Q&amp;A) ↗
+            <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300"></i> <span id="card-day2-afternoon-label">จัดทำ &amp; ดูคำถาม–คำตอบ Q&amp;A ช่วงบ่าย ↗</span>
           </a>
         </div>
       </div>
@@ -1364,6 +1364,108 @@
       initPortalApp();
     }
 
+    // ==================== PORTAL TABS, SCHEDULE & QR ZOOM ====================
+    function switchPortalTab(tab) {
+      const isInfo = tab === 'info';
+      document.getElementById('tab-info')?.classList.toggle('hidden', !isInfo);
+      document.getElementById('tab-eval')?.classList.toggle('hidden', isInfo);
+
+      const infoBtn = document.getElementById('btn-tab-info');
+      const evalBtn = document.getElementById('btn-tab-eval');
+      if (infoBtn) {
+        infoBtn.className = isInfo
+          ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition'
+          : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
+      }
+      if (evalBtn) {
+        evalBtn.className = !isInfo
+          ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-maroon-700 text-white shadow-sm transition'
+          : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
+      }
+      if (!isInfo) {
+        document.getElementById('tab-eval')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function selectScheduleDay(dayKey) {
+      ['d1', 'd2', 'd3'].forEach(k => {
+        const btn = document.getElementById(`sched-btn-${k}`);
+        if (!btn) return;
+        btn.className = k === dayKey
+          ? 'py-2 rounded-lg font-bold bg-white text-navy-700 shadow-xs transition'
+          : 'py-2 rounded-lg font-medium text-slate-500 hover:text-slate-800 transition';
+      });
+
+      const listEl = document.getElementById('schedule-list');
+      if (!listEl) return;
+      const items = SCHEDULES[dayKey] || [];
+      listEl.innerHTML = items.map(item => `
+        <div class="p-3 rounded-2xl border ${item.isBreak ? 'bg-amber-50/70 border-amber-200/80' : 'bg-slate-50 border-slate-200/80'} flex items-start gap-2.5">
+          <span class="px-2.5 py-1 rounded-xl font-mono text-[11px] font-extrabold shrink-0 ${item.isBreak ? 'bg-amber-200/80 text-amber-950' : 'bg-navy-700 text-white'}">${escapeHtml(item.time)}</span>
+          <div class="min-w-0 flex-1 space-y-1">
+            <p class="font-bold text-slate-900 leading-snug">${escapeHtml(item.title)}</p>
+            ${item.speaker ? `<p class="text-[11px] text-maroon-700 font-semibold">วิทยากร: ${escapeHtml(item.speaker)}</p>` : ''}
+            ${Array.isArray(item.subItems) && item.subItems.length > 0 ? `
+              <ul class="pt-1 space-y-0.5 text-[11px] text-slate-600">
+                ${item.subItems.map(sub => `<li>• ${escapeHtml(sub)}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateEvaluationUiState(isDone) {
+      const doneBanner = document.getElementById('eval-done-banner');
+      const formWrap = document.getElementById('eval-form-wrapper');
+      const inviteTitle = document.getElementById('eval-invite-title');
+      const inviteDesc = document.getElementById('eval-invite-desc');
+      const inviteBtn = document.getElementById('eval-invite-btn');
+
+      if (doneBanner) doneBanner.classList.toggle('hidden', !isDone);
+      if (formWrap) formWrap.classList.toggle('hidden', isDone);
+
+      if (inviteTitle && inviteDesc && inviteBtn) {
+        if (isDone) {
+          inviteTitle.textContent = '✓ ท่านทำแบบประเมินเรียบร้อยแล้ว';
+          inviteDesc.textContent = 'ขอบคุณที่ร่วมประเมินเพื่อพัฒนา AI คู่หูจราจร';
+          inviteBtn.textContent = 'ดูสถานะ';
+          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-bold shadow-sm transition';
+        } else {
+          inviteTitle.textContent = 'ร่วมประเมินความพึงพอใจ';
+          inviteDesc.textContent = 'ไม่ระบุตัวตน 100% เพื่อนำไปพัฒนา AI คู่หูจราจร';
+          inviteBtn.textContent = 'ทำแบบประเมิน';
+          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs font-bold shadow-sm hover:bg-rose-50 transition';
+        }
+      }
+    }
+
+    function openQrZoomModal() {
+      if (!currentParticipant) return;
+      const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(currentParticipant.substituteName);
+      const activeName = isSub ? currentParticipant.substituteName : currentParticipant.fullName;
+
+      document.getElementById('zoom-qr-id').textContent = currentParticipant.id || 'KM69-00';
+      document.getElementById('zoom-qr-name').textContent = activeName || '';
+
+      const container = document.getElementById('zoom-qr-container');
+      if (container && typeof QRCode !== 'undefined') {
+        container.innerHTML = '';
+        new QRCode(container, {
+          text: getPersonalQrText(currentParticipant.id),
+          width: 215,
+          height: 215,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+      document.getElementById('qr-zoom-modal')?.classList.remove('hidden');
+    }
+
+    function closeQrZoomModal() {
+      document.getElementById('qr-zoom-modal')?.classList.add('hidden');
+    }
+
     // ==================== STAFF MODE CONTROLS ====================
     function openStaffUnlockModal() {
       const inp = document.getElementById('staff-pin-input');
@@ -1391,6 +1493,8 @@
 
       if (!currentParticipant && allParticipants.length > 0) {
         selectParticipant(allParticipants[0]);
+      } else if (currentParticipant) {
+        renderPersonalCard(currentParticipant, []);
       }
       showToast('ปลดล็อกโหมดเจ้าหน้าที่เรียบร้อยแล้ว (สามารถดูบัตรได้ทุกใบ)', 'success');
     }
@@ -2454,22 +2558,25 @@
       if (!p) return;
       const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
       const activeName = (isSub ? p.substituteName : p.fullName).trim();
+      const roleStr = String(p.role || '');
+      const isExpert = (wsInfo && wsInfo.isFixed) || roleStr.includes('ผู้ทรงคุณวุฒิ') || roleStr.includes('วิทยากร');
+      const userType = isStaffMode ? 'staff' : (isExpert ? 'expert' : 'member');
 
       const buildUrl = (tab) => {
         const params = new URLSearchParams();
         params.set('tab', tab);
         if (p.id) params.set('id', p.id);
         if (activeName) params.set('name', activeName);
+        params.set('userType', userType);
+        if (isStaffMode) params.set('staff', '1');
+        if (wsInfo && wsInfo.round) params.set('round', String(wsInfo.round));
+
         if (wsInfo && wsInfo.assigned) {
-          if (wsInfo.isFixed) {
+          if (isExpert) {
             params.set('cat', String(wsInfo.baseGroup));
-            params.set('lock', 'cat');
-            params.set('role', `ผู้เชี่ยวชาญประจำหมวดที่ ${wsInfo.baseGroup}`);
           } else {
             params.set('group', String(wsInfo.baseGroup));
             params.set('cat', String(wsInfo.currentGroup));
-            params.set('lock', 'group');
-            params.set('role', `สมาชิกกลุ่มที่ ${wsInfo.baseGroup}`);
           }
         }
         return `input.html?${params.toString()}`;
@@ -2485,103 +2592,18 @@
         const el = document.getElementById(id);
         if (el) el.href = afternoonUrl;
       });
-    }
 
-    function openQrZoomModal() {
-      if (!currentParticipant) return;
-      const isSub = currentParticipant.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(currentParticipant.substituteName);
-      document.getElementById('zoom-qr-id').textContent = currentParticipant.id;
-      document.getElementById('zoom-qr-name').textContent = isSub ? currentParticipant.substituteName : currentParticipant.fullName;
-
-      const box = document.getElementById('zoom-qr-container');
-      box.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(box, {
-          text: getPersonalQrText(currentParticipant.id),
-          width: 215,
-          height: 215,
-          correctLevel: QRCode.CorrectLevel.M
-        });
+      const topAfternoonLabel = document.getElementById('btn-day2-afternoon-label');
+      const cardAfternoonLabel = document.getElementById('card-day2-afternoon-label');
+      if (topAfternoonLabel) {
+        topAfternoonLabel.textContent = isStaffMode
+          ? 'ใบงานบ่าย 1 ธ.ค. (จัดการ Q&A)'
+          : (isExpert ? 'ใบงานบ่าย 1 ธ.ค. (ผู้เชี่ยวชาญ Q&A)' : 'ใบงานบ่าย 1 ธ.ค. (จัดทำ Q&A)');
       }
-      document.getElementById('qr-zoom-modal').classList.remove('hidden');
-    }
-
-    function closeQrZoomModal() {
-      document.getElementById('qr-zoom-modal').classList.add('hidden');
-    }
-
-    function switchPortalTab(tab) {
-      const isInfo = tab === 'info';
-      document.getElementById('tab-info').classList.toggle('hidden', !isInfo);
-      document.getElementById('tab-eval').classList.toggle('hidden', isInfo);
-
-      document.getElementById('btn-tab-info').className = isInfo
-        ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-navy-700 text-white shadow-sm transition'
-        : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
-
-      document.getElementById('btn-tab-eval').className = !isInfo
-        ? 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 bg-maroon-700 text-white shadow-sm transition'
-        : 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 text-slate-600 hover:bg-slate-50 transition';
-
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function selectScheduleDay(dayKey) {
-      ['d1', 'd2', 'd3'].forEach(k => {
-        const btn = document.getElementById(`sched-btn-${k}`);
-        if (!btn) return;
-        btn.className = k === dayKey
-          ? 'py-2 rounded-lg font-bold bg-white text-navy-700 shadow-xs transition'
-          : 'py-2 rounded-lg font-medium text-slate-500 transition';
-      });
-
-      const items = SCHEDULES[dayKey] || [];
-      document.getElementById('schedule-list').innerHTML = items.map(item => `
-        <div class="flex items-start gap-2.5 p-2.5 rounded-xl border ${item.isBreak ? 'bg-amber-50/70 border-amber-200/70' : 'bg-slate-50 border-slate-100'}">
-          <span class="shrink-0 font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${item.isBreak ? 'text-amber-800 bg-amber-100' : 'text-navy-700 bg-blue-50'}">${escapeHtml(item.time)}</span>
-          <div class="min-w-0 flex-1 space-y-1">
-            <div class="${item.isBreak ? 'text-amber-900 font-semibold' : 'text-slate-800 font-medium'} leading-snug">${escapeHtml(item.title)}</div>
-            ${item.speaker ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-maroon-700/10 text-maroon-700 text-[10.5px] font-semibold">วิทยากร: ${escapeHtml(item.speaker)}</span>` : ''}
-            ${item.subItems && item.subItems.length ? `
-              <ul class="mt-1 pl-2.5 border-l-2 border-navy-700/20 space-y-0.5 text-[11px] text-slate-600">
-                ${item.subItems.map(sub => `<li>${escapeHtml(sub)}</li>`).join('')}
-              </ul>
-            ` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function updateEvaluationUiState(isEvaluated) {
-      const doneBanner = document.getElementById('eval-done-banner');
-      const formWrapper = document.getElementById('eval-form-wrapper');
-      const submitBtn = document.getElementById('eval-submit-btn');
-      const inviteBanner = document.getElementById('eval-invite-banner');
-      const inviteTitle = document.getElementById('eval-invite-title');
-      const inviteDesc = document.getElementById('eval-invite-desc');
-      const inviteBtn = document.getElementById('eval-invite-btn');
-
-      if (doneBanner && formWrapper) {
-        doneBanner.classList.toggle('hidden', !isEvaluated);
-        formWrapper.classList.toggle('hidden', isEvaluated);
-      }
-      if (submitBtn) {
-        submitBtn.disabled = isEvaluated;
-      }
-      if (inviteBanner && inviteTitle && inviteDesc && inviteBtn) {
-        if (isEvaluated) {
-          inviteBanner.className = 'bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm';
-          inviteTitle.textContent = 'ท่านทำแบบประเมินเรียบร้อยแล้ว ✓';
-          inviteDesc.textContent = 'ขอขอบคุณสำหรับความคิดเห็นอันมีค่าครับ';
-          inviteBtn.textContent = 'ประเมินแล้ว';
-          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold cursor-default';
-        } else {
-          inviteBanner.className = 'bg-gradient-to-r from-maroon-700 to-maroon-800 rounded-3xl p-4 sm:p-5 text-white flex items-center justify-between gap-3 shadow-sm';
-          inviteTitle.textContent = 'ร่วมประเมินความพึงพอใจ';
-          inviteDesc.textContent = 'ไม่ระบุตัวตน 100% เพื่อนำไปพัฒนา AI คู่หูจราจร';
-          inviteBtn.textContent = 'ทำแบบประเมิน';
-          inviteBtn.className = 'shrink-0 px-4 py-2.5 rounded-xl bg-white text-maroon-800 text-xs font-bold shadow-sm hover:bg-rose-50 transition';
-        }
+      if (cardAfternoonLabel) {
+        cardAfternoonLabel.textContent = isStaffMode
+          ? 'จัดการใบงาน Q&A ช่วงบ่าย (เจ้าหน้าที่) ↗'
+          : (isExpert ? 'ตอบ & ตรวจคำถาม Q&A ช่วงบ่าย (ผู้เชี่ยวชาญ) ↗' : 'จัดทำ & ดูคำถาม–คำตอบ Q&A ช่วงบ่าย ↗');
       }
     }
 
