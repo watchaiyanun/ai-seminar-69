@@ -671,6 +671,18 @@
         </button>
       </div>
 
+      <!-- ปุ่มลัดเข้าใบงานกิจกรรมวันที่ 2 (1 ธ.ค. เช้า: ระดมสมอง / บ่าย: จัดทำ Q&A) เชื่อมชื่อ-กลุ่มจากบัตรอัตโนมัติ -->
+      <div class="grid grid-cols-2 gap-2">
+        <a id="btn-day2-morning-link" href="input.html?tab=morning" class="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-[0.98] text-slate-950 shadow-sm text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="sun" class="w-3.5 h-3.5 shrink-0"></i>
+          <span class="truncate">ใบงานเช้า 1 ธ.ค. (ระดมสมอง)</span>
+        </a>
+        <a id="btn-day2-afternoon-link" href="input.html?tab=afternoon" class="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-maroon-700 to-maroon-800 hover:from-maroon-600 hover:to-maroon-700 active:scale-[0.98] text-white shadow-sm border border-amber-300/40 text-xs font-extrabold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
+          <span class="truncate">ใบงานบ่าย 1 ธ.ค. (จัดทำ Q&amp;A)</span>
+        </a>
+      </div>
+
       <!-- กล่องแจ้งเตือนเอกสารขาด / ข้อมูลยังไม่ครบถ้วน (จากเจ้าหน้าที่ & ตรวจสอบอัตโนมัติ) -->
       <div id="pc-doc-alert-card" class="hidden rounded-3xl p-4 bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 border-2 border-rose-300 shadow-sm space-y-2.5">
         <div class="flex items-start gap-2.5">
@@ -893,6 +905,16 @@
         </div>
 
         <div id="portal-workshop-groups-list" class="space-y-2 text-xs"></div>
+
+        <!-- ปุ่มเข้าบันทึกใบงานกิจกรรมวันที่ 2 (1 ธ.ค.) -->
+        <div class="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <a id="card-day2-morning-link" href="input.html?tab=morning" class="py-2.5 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition">
+            <i data-lucide="file-edit" class="w-3.5 h-3.5 text-amber-300"></i> กรอกใบงานช่วงเช้า (ระดมสมอง) ↗
+          </a>
+          <a id="card-day2-afternoon-link" href="input.html?tab=afternoon" class="py-2.5 px-3 rounded-2xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition">
+            <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300"></i> กรอกใบงานช่วงบ่าย (จัดทำ Q&amp;A) ↗
+          </a>
+        </div>
       </div>
 
       <!-- การ์ดกำหนดการสัมมนา 3 วัน -->
@@ -2287,6 +2309,7 @@
       }
 
       const wsInfo = getPersonWorkshopInfo(p, workshopConfig);
+      updateDay2WorksheetLinks(p, wsInfo);
       const frontPill = document.getElementById('pc-workshop-front-pill');
       const frontText = document.getElementById('pc-workshop-front-text');
       const frontMode = document.getElementById('pc-workshop-front-mode');
@@ -2425,6 +2448,43 @@
       });
 
       if (window.lucide) lucide.createIcons();
+    }
+
+    function updateDay2WorksheetLinks(p, wsInfo) {
+      if (!p) return;
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+      const activeName = (isSub ? p.substituteName : p.fullName).trim();
+
+      const buildUrl = (tab) => {
+        const params = new URLSearchParams();
+        params.set('tab', tab);
+        if (p.id) params.set('id', p.id);
+        if (activeName) params.set('name', activeName);
+        if (wsInfo && wsInfo.assigned) {
+          if (wsInfo.isFixed) {
+            params.set('cat', String(wsInfo.baseGroup));
+            params.set('lock', 'cat');
+            params.set('role', `ผู้เชี่ยวชาญประจำหมวดที่ ${wsInfo.baseGroup}`);
+          } else {
+            params.set('group', String(wsInfo.baseGroup));
+            params.set('cat', String(wsInfo.currentGroup));
+            params.set('lock', 'group');
+            params.set('role', `สมาชิกกลุ่มที่ ${wsInfo.baseGroup}`);
+          }
+        }
+        return `input.html?${params.toString()}`;
+      };
+
+      const morningUrl = buildUrl('morning');
+      const afternoonUrl = buildUrl('afternoon');
+      ['btn-day2-morning-link', 'card-day2-morning-link'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = morningUrl;
+      });
+      ['btn-day2-afternoon-link', 'card-day2-afternoon-link'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = afternoonUrl;
+      });
     }
 
     function openQrZoomModal() {
