@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>หน้าจอแสดงผลคลังความรู้งานจราจร (Presentation Mode) - ศจร.ตร.</title>
+
+  <!-- Google Fonts: Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Sarabun', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html, body {
+      font-family: 'Sarabun', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 7px; height: 7px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .gold-line {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.25) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.25) 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- ==================== TOP PRESENTATION CONTROL BAR ==================== -->
+  <header class="sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-lg">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-white/10 border-2 border-gold-400/80 flex items-center justify-center shrink-0">
+          <i data-lucide="shield-check" class="w-6 h-6 text-gold-400"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-bold tracking-widest uppercase text-gold-400 leading-none truncate">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
+          <h1 class="text-lg sm:text-xl font-extrabold leading-tight truncate mt-0.5">คลังความรู้งานจราจร AI “คู่หูจราจร” (วันที่ 2 • 1 ธ.ค. 2569)</h1>
+        </div>
+      </div>
+
+      <!-- Switchers: Period & Axis -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- ช่วงเช้า / ช่วงบ่าย -->
+        <div class="flex items-center bg-black/30 p-1 rounded-xl border border-white/15 text-xs sm:text-sm">
+          <button type="button" id="btn-period-morning" onclick="setPeriod('morning')" class="px-3.5 py-1.5 rounded-lg font-extrabold transition">☀️ ช่วงเช้า (ประเด็นปัญหา)</button>
+          <button type="button" id="btn-period-afternoon" onclick="setPeriod('afternoon')" class="px-3.5 py-1.5 rounded-lg font-bold transition">📘 ช่วงบ่าย (คลังความรู้ Q&amp;A)</button>
+        </div>
+
+        <!-- มุมมองหลัก: แยกตามกลุ่ม / แยกตามหมวด -->
+        <div class="flex items-center bg-black/30 p-1 rounded-xl border border-white/15 text-xs sm:text-sm">
+          <button type="button" id="btn-axis-group" onclick="setAxis('group')" class="px-3 py-1.5 rounded-lg font-extrabold transition">แยกตามกลุ่ม (1–5)</button>
+          <button type="button" id="btn-axis-cat" onclick="setAxis('cat')" class="px-3 py-1.5 rounded-lg font-bold transition">แยกตามหมวด (1–5)</button>
+        </div>
+      </div>
+
+      <!-- Utility Controls -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" onclick="toggleTimerDrawer()" id="btn-toggle-timer" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-gold-400/60 text-xs font-extrabold text-white transition" title="เปิด/ซ่อน ตัวจับเวลาหมุนฐาน 30 นาที">
+          <i data-lucide="timer" class="w-4 h-4 text-gold-400"></i>
+          <span>จับเวลา 30 น.</span>
+        </button>
+
+        <button type="button" onclick="toggleAutoRefresh()" id="btn-autorefresh" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-xs font-bold text-white transition" title="อัปเดตอัตโนมัติทุก 30 วินาที">
+          <i data-lucide="radio" class="w-3.5 h-3.5"></i>
+          <span id="autorefresh-label">Auto 30s: เปิด</span>
+        </button>
+
+        <button type="button" onclick="fetchWorkshopData(true)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition" title="รีเฟรชข้อมูลทันที">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+
+        <button type="button" onclick="exportCurrentCSV()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold transition" title="ส่งออกข้อมูลเป็นไฟล์ CSV">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Export CSV</span>
+        </button>
+
+        <button type="button" onclick="toggleFullscreen()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-gold-400 transition" title="เปิดเต็มจอโปรเจกเตอร์">
+          <i data-lucide="maximize" class="w-4 h-4"></i>
+        </button>
+
+        <a href="input.html" target="_blank" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition" title="เปิดหน้ากรอกใบงาน">
+          <i data-lucide="file-edit" class="w-4 h-4"></i>
+        </a>
+
+        <a href="index.html" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition" title="กลับหน้า Dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+    <div class="gold-line"></div>
+
+    <!-- ==================== TOGGLEABLE 30-MINUTE WORLD CAFÉ TIMER BAR ==================== -->
+    <div id="timer-drawer" class="hidden bg-navy-900 border-b-2 border-gold-500 px-4 sm:px-6 py-2.5">
+      <div class="max-w-[1700px] mx-auto flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 rounded-full bg-gold-500 text-slate-950 font-extrabold text-xs sm:text-sm">⏱️ World Café หมุนฐาน 30 นาที</span>
+          <div class="flex items-center gap-1.5 bg-white/10 px-2 py-1 rounded-xl border border-white/20">
+            <button type="button" onclick="changeTimerRound(-1)" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/25 font-bold text-xs">◀</button>
+            <span id="timer-round-text" class="font-extrabold text-sm text-gold-400 px-2">รอบที่ 1 / 5</span>
+            <button type="button" onclick="changeTimerRound(1)" class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/25 font-bold text-xs">▶</button>
+          </div>
+          <span id="timer-status-hint" class="hidden lg:inline text-xs text-blue-200">ผู้เชี่ยวชาญประจำฐาน • กลุ่ม 1–5 หมุนเวียนเมื่อหมดรอบ</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span id="timer-clock" class="font-mono text-3xl sm:text-4xl font-extrabold text-gold-400 tracking-wider leading-none">30:00</span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="startRotationTimer()" id="timer-btn-start" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition">▶ เริ่ม</button>
+            <button type="button" onclick="pauseRotationTimer()" id="timer-btn-pause" class="hidden px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition">⏸ พัก</button>
+            <button type="button" onclick="resetRotationTimer()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">↺ รีเซ็ต 30 น.</button>
+            <button type="button" onclick="toggleTimerDrawer()" class="px-2.5 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-500 text-white text-xs font-bold transition">ซ่อน</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN STAGE WORKSPACE ==================== -->
+  <main class="max-w-[1700px] w-full mx-auto px-4 sm:px-6 py-4 space-y-4 flex-1 flex flex-col">
+
+    <!-- 5-SLOT REALTIME SUMMARY BAR (คลิกข้ามไปกลุ่ม/หมวดนั้นได้ทันที) -->
+    <section id="summary-5-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></section>
+
+    <!-- MANUAL NAVIGATION & CROSS-FILTER BAR -->
+    <section class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3.5">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <!-- ปุ่มซ้าย: ก่อนหน้า -->
+        <button type="button" onclick="stepSlot(-1)" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-100 hover:bg-navy-700 hover:text-white border-2 border-slate-300 hover:border-navy-700 text-slate-800 font-extrabold text-base sm:text-lg transition shrink-0">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          <span>← ก่อนหน้า</span>
+        </button>
+
+        <!-- หัวข้อกลางจอขนาดใหญ่ -->
+        <div class="text-center flex-1 min-w-0 px-2 space-y-1">
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <span id="stage-period-badge" class="px-3 py-0.5 rounded-full bg-navy-700 text-white text-xs font-extrabold">ช่วงเช้า • ประเด็นปัญหา</span>
+            <span id="stage-item-count" class="px-3 py-0.5 rounded-full bg-amber-100 text-amber-950 font-mono text-xs font-extrabold">0 รายการ</span>
+            <span id="last-sync-badge" class="text-xs text-slate-500 font-medium">กำลังโหลด...</span>
+          </div>
+          <h2 id="stage-main-title" class="text-2xl sm:text-3xl font-extrabold text-navy-900 leading-tight">กลุ่มที่ 1</h2>
+          <p id="stage-main-scope" class="text-sm sm:text-base text-slate-600 leading-snug"></p>
+        </div>
+
+        <!-- ปุ่มขวา: ถัดไป -->
+        <button type="button" onclick="stepSlot(1)" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-navy-700 hover:bg-navy-800 border-2 border-navy-700 text-white font-extrabold text-base sm:text-lg shadow-sm transition shrink-0">
+          <span>ถัดไป →</span>
+          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- แถบ Cross-Filter -->
+      <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5 text-sm">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-bold text-slate-600 text-xs sm:text-sm flex items-center gap-1">
+            <i data-lucide="filter" class="w-4 h-4 text-navy-700"></i> ตัวกรองย่อย:
+          </span>
+
+          <!-- Cross-filter: เปลี่ยนระหว่างกรองหมวด (เมื่อดูตามกลุ่ม) หรือ กรองกลุ่ม (เมื่อดูตามหมวด) -->
+          <select id="cross-filter-select" onchange="renderStageCards()" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-sm text-navy-900"></select>
+
+          <!-- ตัวกรองเฉพาะช่วงเช้า: ความเร่งด่วน & สถานะ -->
+          <select id="morning-filter-urgency" onchange="renderStageCards()" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-sm">
+            <option value="all">ทุกระดับความเร่งด่วน</option>
+            <option value="เร่งด่วนมาก">🔴 เร่งด่วนมาก</option>
+            <option value="เร่งด่วน">🟠 เร่งด่วน</option>
+            <option value="ทั่วไป">🟢 ทั่วไป</option>
+          </select>
+
+          <select id="morning-filter-status" onchange="renderStageCards()" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-sm">
+            <option value="all">ทุกสถานะ Q&amp;A</option>
+            <option value="รอทำคำตอบ">⏳ รอทำคำตอบ</option>
+            <option value="ทำ Q&A แล้ว">✅ ทำ Q&amp;A แล้ว</option>
+          </select>
+
+          <input type="text" id="stage-search-input" oninput="renderStageCards()" placeholder="ค้นหาคำสำคัญ..." class="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-sm w-48 sm:w-64 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-700" />
+        </div>
+
+        <p class="text-xs text-slate-500 hidden xl:block">
+          💡 กดปุ่มลูกศร <strong>← / →</strong> บนคีย์บอร์ดเพื่อสลับกลุ่ม/หมวด • คลิกที่การ์ดเพื่อขยายเต็มจอ (Focus View)
+        </p>
+      </div>
+    </section>
+
+    <!-- STAGE PRESENTATION CARDS GRID -->
+    <section id="stage-cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-8"></section>
+
+  </main>
+
+  <!-- ==================== FULLSCREEN FOCUS VIEW MODAL ==================== -->
+  <div id="focus-modal" onclick="closeFocusModal()" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-5xl w-full max-h-[93vh] shadow-2xl overflow-hidden border-4 border-gold-500 flex flex-col">
+      <!-- Modal Header -->
+      <div class="shrink-0 px-5 sm:px-7 py-4 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2 min-w-0">
+          <span id="fm-id-badge" class="px-3 py-1 rounded-xl bg-gold-500 text-slate-950 font-mono text-sm font-extrabold">QA-001</span>
+          <span id="fm-group-badge" class="px-3 py-1 rounded-xl bg-white/15 border border-white/25 text-sm font-bold">กลุ่มที่ 1</span>
+          <span id="fm-cat-badge" class="px-3 py-1 rounded-xl bg-maroon-700 border border-rose-300/40 text-sm font-bold truncate">หมวดที่ 1</span>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="fm-counter" class="font-mono text-sm font-bold text-gold-400 px-2">1 / 1</span>
+          <button type="button" onclick="stepFocusItem(-1)" class="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-sm font-bold transition">← ก่อนหน้า</button>
+          <button type="button" onclick="stepFocusItem(1)" class="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-sm font-bold transition">ถัดไป →</button>
+          <button type="button" onclick="closeFocusModal()" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-sm font-extrabold transition">ปิด (Esc)</button>
+        </div>
+      </div>
+
+      <!-- Modal Content -->
+      <div id="fm-body" class="flex-1 overflow-y-auto custom-scroll p-6 sm:p-8 space-y-6 bg-slate-50"></div>
+
+      <!-- Modal Footer -->
+      <div id="fm-footer" class="shrink-0 px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+
+    const CATEGORIES = [
+      {
+        no: 1,
+        short: 'กฎหมายจราจร',
+        name: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
+        scope: 'พ.ร.บ.จราจรทางบก, พ.ร.บ.รถยนต์, การตีความข้อกฎหมาย, อำนาจหน้าที่, การเปรียบเทียบปรับ และข้อกฎหมายใหม่',
+        color: '#1E3A8A'
+      },
+      {
+        no: 2,
+        short: 'คู่มือ / SOP',
+        name: 'คู่มือแนวทาง ข้อสั่งการ และมาตรฐานการปฏิบัติงาน (SOP)',
+        scope: 'การตั้งจุดตรวจ/จุดสกัด, การตรวจวัดแอลกอฮอล์, การจัดการจราจร/อุบัติเหตุ, ขั้นตอนปฏิบัติ และหนังสือสั่งการ ตร./ศจร.ตร.',
+        color: '#0F766E'
+      },
+      {
+        no: 3,
+        short: 'ไอที PTM/TPCC',
+        name: 'การใช้งานระบบเทคโนโลยีสารสนเทศงานจราจร (PTM / TPCC)',
+        scope: 'ระบบใบสั่งจราจร PTM, ระบบบริหารจุดตรวจ TPCC, ระบบตัดคะแนนความประพฤติ, การเชื่อมโยงข้อมูล และปัญหาการใช้งานอุปกรณ์',
+        color: '#4338CA'
+      },
+      {
+        no: 4,
+        short: 'การเงิน/งบฯ',
+        name: 'ด้านการเงินและงบประมาณงานจราจร',
+        scope: 'เงินรางวัลค่าปรับจราจร, การจัดสรรและเบิกจ่ายงบประมาณ, ค่าตอบแทน/เบี้ยเลี้ยง, การจัดซื้อจัดจ้าง และระเบียบการเงิน',
+        color: '#B45309'
+      },
+      {
+        no: 5,
+        short: 'ข้อโต้แย้งประชาชน',
+        name: 'ประเด็นข้อโต้แย้งจากประชาชนในระหว่างปฏิบัติหน้าที่',
+        scope: 'การโต้เถียงเรื่องอำนาจตรวจค้น/ออกใบสั่ง, การถ่ายคลิปเผยแพร่, ข้อร้องเรียนที่พบบ่อย และแนวทางสื่อสารลดความขัดแย้ง',
+        color: '#881337'
+      }
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+
+    let API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+    let morningIssues = [];
+    let afternoonQAs = [];
+
+    let currentPeriod = 'morning'; // 'morning' | 'afternoon'
+    let currentAxis = 'group';     // 'group' | 'cat'
+    let currentSlot = 1;           // 1..5
+    let autoRefreshOn = true;
+    let autoRefreshTimer = null;
+
+    // Focus View state
+    let displayedItems = [];
+    let focusIndex = -1;
+
+    // 30-Minute Rotation Timer state
+    let timerRound = 1;
+    let timerRemainingSec = 30 * 60;
+    let timerInterval = null;
+    let timerRunning = false;
+
+    function getCategoryObj(no) {
+      return CATEGORIES.find(c => c.no === Number(no)) || CATEGORIES[0];
+    }
+
+    function initDisplayApp() {
+      if (window.lucide) lucide.createIcons();
+      setPeriod('morning', false);
+      setAxis('group', false);
+      rebuildCrossFilterOptions();
+      fetchWorkshopData(true);
+      startAutoRefreshLoop();
+
+      // รองรับปุ่มลูกศรซ้าย-ขวา และ Esc บนคีย์บอร์ด
+      document.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+        const focusOpen = !document.getElementById('focus-modal').classList.contains('hidden');
+        if (e.key === 'Escape' && focusOpen) {
+          closeFocusModal();
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (focusOpen) stepFocusItem(-1);
+          else stepSlot(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (focusOpen) stepFocusItem(1);
+          else stepSlot(1);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDisplayApp);
+    } else {
+      initDisplayApp();
+    }
+
+    function startAutoRefreshLoop() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (autoRefreshOn && !document.hidden) {
+          fetchWorkshopData(false);
+        }
+      }, 30000);
+    }
+
+    function toggleAutoRefresh() {
+      autoRefreshOn = !autoRefreshOn;
+      const btn = document.getElementById('btn-autorefresh');
+      const lbl = document.getElementById('autorefresh-label');
+      lbl.textContent = autoRefreshOn ? 'Auto 30s: เปิด' : 'Auto 30s: ปิด';
+      btn.className = autoRefreshOn
+        ? 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-xs font-bold text-white transition'
+        : 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold text-slate-300 transition';
+    }
+
+    async function fetchWorkshopData(showLoading = false) {
+      const badge = document.getElementById('last-sync-badge');
+      if (showLoading && badge) badge.textContent = 'กำลังอัปเดตข้อมูล...';
+      try {
+        const res = await fetch(`${API_URL}?action=getWorkshopData&_t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
+
+        morningIssues = Array.isArray(json.data?.issues) ? json.data.issues : [];
+        afternoonQAs = Array.isArray(json.data?.qas) ? json.data.qas : [];
+
+        const t = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+        if (badge) badge.textContent = `อัปเดตล่าสุด ${t} น.`;
+        renderAll();
+      } catch (err) {
+        if (badge) badge.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+      }
+    }
+
+    // ==================== PERIOD, AXIS & MANUAL STEPPING ====================
+    function setPeriod(period, shouldRender = true) {
+      currentPeriod = period;
+      const isMorning = period === 'morning';
+
+      document.getElementById('btn-period-morning').className = isMorning
+        ? 'px-3.5 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 shadow-xs transition'
+        : 'px-3.5 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+      document.getElementById('btn-period-afternoon').className = !isMorning
+        ? 'px-3.5 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 shadow-xs transition'
+        : 'px-3.5 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+
+      document.getElementById('morning-filter-urgency').classList.toggle('hidden', !isMorning);
+      document.getElementById('morning-filter-status').classList.toggle('hidden', !isMorning);
+
+      if (shouldRender) renderAll();
+    }
+
+    function setAxis(axis, shouldRender = true) {
+      currentAxis = axis;
+      const isGrp = axis === 'group';
+      document.getElementById('btn-axis-group').className = isGrp
+        ? 'px-3 py-1.5 rounded-lg font-extrabold bg-white text-navy-900 shadow-xs transition'
+        : 'px-3 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+      document.getElementById('btn-axis-cat').className = !isGrp
+        ? 'px-3 py-1.5 rounded-lg font-extrabold bg-white text-navy-900 shadow-xs transition'
+        : 'px-3 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+
+      rebuildCrossFilterOptions();
+      if (shouldRender) renderAll();
+    }
+
+    function rebuildCrossFilterOptions() {
+      const sel = document.getElementById('cross-filter-select');
+      if (!sel) return;
+      if (currentAxis === 'group') {
+        sel.innerHTML = `<option value="all">ทุกหมวดหมู่ (หมวด 1–5)</option>` +
+          CATEGORIES.map(c => `<option value="${c.no}">เฉพาะหมวด ${c.no}: ${escapeHtml(c.short)}</option>`).join('');
+      } else {
+        sel.innerHTML = `<option value="all">ทุกกลุ่ม (กลุ่ม 1–5)</option>` +
+          [1, 2, 3, 4, 5].map(g => `<option value="${g}">เฉพาะกลุ่มที่ ${g}</option>`).join('');
+      }
+    }
+
+    function selectSlot(slotNo) {
+      currentSlot = Math.max(1, Math.min(5, Number(slotNo) || 1));
+      renderAll();
+    }
+
+    function stepSlot(delta) {
+      currentSlot = ((currentSlot - 1 + delta + 5) % 5) + 1;
+      renderAll();
+    }
+
+    function renderAll() {
+      renderSummary5Bar();
+      renderStageHeader();
+      renderStageCards();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderSummary5Bar() {
+      const box = document.getElementById('summary-5-grid');
+      if (!box) return;
+      const source = currentPeriod === 'morning' ? morningIssues : afternoonQAs;
+
+      box.innerHTML = [1, 2, 3, 4, 5].map(n => {
+        const active = n === currentSlot;
+        const count = source.filter(item => currentAxis === 'group' ? item.groupNo === n : item.categoryNo === n).length;
+        const cat = getCategoryObj(n);
+        const title = currentAxis === 'group' ? `กลุ่มที่ ${n}` : `หมวดที่ ${n}`;
+        const sub = currentAxis === 'group' ? 'ผู้เข้าร่วมสัมมนา' : cat.short;
+
+        return `
+          <button type="button" onclick="selectSlot(${n})" class="p-3.5 rounded-2xl border-2 text-left transition flex items-center justify-between gap-2 ${
+            active
+              ? 'border-navy-700 bg-gradient-to-br from-navy-800 to-navy-700 text-white shadow-md scale-[1.01]'
+              : 'border-slate-200 bg-white hover:border-navy-700/50 text-slate-800 shadow-2xs'
+          }">
+            <div class="min-w-0">
+              <p class="font-extrabold text-base sm:text-lg leading-tight truncate">${title}</p>
+              <p class="text-xs truncate ${active ? 'text-gold-400 font-semibold' : 'text-slate-500'}">${escapeHtml(sub)}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-mono text-2xl sm:text-3xl font-extrabold leading-none ${active ? 'text-white' : 'text-navy-800'}">${count}</span>
+              <span class="block text-[10.5px] font-bold ${active ? 'text-blue-200' : 'text-slate-400'}">ข้อ</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderStageHeader() {
+      const pBadge = document.getElementById('stage-period-badge');
+      const titleEl = document.getElementById('stage-main-title');
+      const scopeEl = document.getElementById('stage-main-scope');
+
+      if (currentPeriod === 'morning') {
+        pBadge.textContent = '☀️ ช่วงเช้า • ใบงานที่ 1 ประเด็นปัญหาและข้อขัดข้อง';
+        pBadge.className = 'px-3 py-0.5 rounded-full bg-navy-700 text-white text-xs sm:text-sm font-extrabold';
+      } else {
+        pBadge.textContent = '📘 ช่วงบ่าย • ใบงานที่ 2 คลังความรู้งานจราจร (Q&A)';
+        pBadge.className = 'px-3 py-0.5 rounded-full bg-maroon-700 text-white text-xs sm:text-sm font-extrabold';
+      }
+
+      if (currentAxis === 'group') {
+        titleEl.textContent = `กลุ่มที่ ${currentSlot}`;
+        const crossVal = document.getElementById('cross-filter-select').value;
+        if (crossVal !== 'all') {
+          const c = getCategoryObj(crossVal);
+          scopeEl.textContent = `กำลังกรองเฉพาะ หมวดที่ ${c.no}: ${c.name} — ขอบเขต: ${c.scope}`;
+        } else {
+          scopeEl.textContent = `แสดงผลงานทั้งหมดของกลุ่มที่ ${currentSlot} (ครอบคลุมทั้ง 5 หมวดหมู่หลัก)`;
+        }
+      } else {
+        const c = getCategoryObj(currentSlot);
+        titleEl.textContent = `หมวดที่ ${c.no} : ${c.name}`;
+        scopeEl.textContent = `ขอบเขตเนื้อหา: ${c.scope}`;
+      }
+    }
+
+    function getUrgencyStyle(urgency) {
+      if (urgency === 'เร่งด่วนมาก') {
+        return {
+          border: 'border-l-rose-600',
+          badge: 'bg-rose-100 text-rose-800 border-rose-300',
+          label: '🔴 เร่งด่วนมาก'
+        };
+      }
+      if (urgency === 'เร่งด่วน') {
+        return {
+          border: 'border-l-amber-500',
+          badge: 'bg-amber-100 text-amber-900 border-amber-300',
+          label: '🟠 เร่งด่วน'
+        };
+      }
+      return {
+        border: 'border-l-emerald-600',
+        badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        label: '🟢 ทั่วไป'
+      };
+    }
+
+    function renderStageCards() {
+      const grid = document.getElementById('stage-cards-grid');
+      const countBadge = document.getElementById('stage-item-count');
+      if (!grid) return;
+
+      const crossVal = document.getElementById('cross-filter-select').value;
+      const qSearch = String(document.getElementById('stage-search-input').value || '').trim().toLowerCase();
+
+      if (currentPeriod === 'morning') {
+        const urgFilter = document.getElementById('morning-filter-urgency').value;
+        const stFilter = document.getElementById('morning-filter-status').value;
+        const urgWeight = { 'เร่งด่วนมาก': 1, 'เร่งด่วน': 2, 'ทั่วไป': 3 };
+
+        displayedItems = morningIssues.filter(item => {
+          if (currentAxis === 'group' && item.groupNo !== currentSlot) return false;
+          if (currentAxis === 'cat' && item.categoryNo !== currentSlot) return false;
+          if (crossVal !== 'all') {
+            if (currentAxis === 'group' && String(item.categoryNo) !== crossVal) return false;
+            if (currentAxis === 'cat' && String(item.groupNo) !== crossVal) return false;
+          }
+          if (urgFilter !== 'all' && item.urgency !== urgFilter) return false;
+          if (stFilter !== 'all' && item.qaStatus !== stFilter) return false;
+          if (qSearch && !`${item.issueId} ${item.issueText} ${item.recorder} ${item.categoryName}`.toLowerCase().includes(qSearch)) return false;
+          return true;
+        }).sort((a, b) => (urgWeight[a.urgency] || 9) - (urgWeight[b.urgency] || 9));
+
+        countBadge.textContent = `${displayedItems.length} ประเด็น`;
+        renderStageHeader();
+
+        if (displayedItems.length === 0) {
+          grid.innerHTML = `<div class="col-span-full bg-white rounded-3xl p-16 text-center border border-slate-200 text-lg font-bold text-slate-400">ยังไม่มีประเด็นปัญหาในช่วงเช้าตามเงื่อนไขที่เลือก</div>`;
+          return;
+        }
+
+        grid.innerHTML = displayedItems.map((item, idx) => {
+          const u = getUrgencyStyle(item.urgency);
+          const cat = getCategoryObj(item.categoryNo);
+          return `
+            <div onclick="openFocusModal(${idx})" class="cursor-pointer bg-white hover:bg-blue-50/40 rounded-3xl p-5 sm:p-6 border border-slate-200 border-l-[6px] ${u.border} shadow-sm hover:shadow-md transition flex flex-col justify-between gap-3">
+              <div class="space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="font-mono text-sm font-extrabold px-2.5 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
+                    <span class="px-2.5 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 text-sm font-extrabold">กลุ่ม ${item.groupNo}</span>
+                    <span class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-navy-800 text-sm font-bold">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                  </div>
+                  <span class="px-3 py-0.5 rounded-full border text-xs sm:text-sm font-extrabold ${u.badge}">${u.label}</span>
+                </div>
+
+                <p class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
+                <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(item.recorder || '-')}</strong></span>
+                <div class="flex items-center gap-2">
+                  ${item.qaStatus === 'ทำ Q&A แล้ว'
+                    ? `<span class="px-3 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-extrabold">✓ ทำ Q&amp;A แล้ว (${escapeHtml(item.qaId)})</span>`
+                    : `<span class="px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">⏳ รอทำคำตอบช่วงบ่าย</span>`
+                  }
+                  <span class="text-xs font-bold text-navy-700">ขยายเต็มจอ ⤢</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        // ช่วงบ่าย (Q&A)
+        displayedItems = afternoonQAs.filter(q => {
+          if (currentAxis === 'group' && q.groupNo !== currentSlot) return false;
+          if (currentAxis === 'cat' && q.categoryNo !== currentSlot) return false;
+          if (crossVal !== 'all') {
+            if (currentAxis === 'group' && String(q.categoryNo) !== crossVal) return false;
+            if (currentAxis === 'cat' && String(q.groupNo) !== crossVal) return false;
+          }
+          if (qSearch && !`${q.qaId} ${q.question} ${q.standardAnswer} ${q.refLaw} ${q.refMedia} ${q.caution} ${q.recorder}`.toLowerCase().includes(qSearch)) return false;
+          return true;
+        });
+
+        countBadge.textContent = `${displayedItems.length} ใบงาน Q&A`;
+        renderStageHeader();
+
+        if (displayedItems.length === 0) {
+          grid.innerHTML = `<div class="col-span-full bg-white rounded-3xl p-16 text-center border border-slate-200 text-lg font-bold text-slate-400">ยังไม่มีใบงาน Q&amp;A ในมุมมองนี้</div>`;
+          return;
+        }
+
+        grid.innerHTML = displayedItems.map((q, idx) => {
+          const cat = getCategoryObj(q.categoryNo);
+          return `
+            <div onclick="openFocusModal(${idx})" class="cursor-pointer bg-white hover:bg-amber-50/30 rounded-3xl p-5 sm:p-6 border-2 border-slate-200 hover:border-gold-500 shadow-sm hover:shadow-lg transition flex flex-col justify-between gap-3">
+              <div class="space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="font-mono text-sm font-extrabold px-2.5 py-0.5 rounded-lg bg-maroon-700 text-white">${escapeHtml(q.qaId)}</span>
+                    <span class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 text-sm font-extrabold">ข้อที่ ${escapeHtml(q.sheetNo || idx + 1)}</span>
+                    <span class="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 text-sm font-bold">กลุ่ม ${q.groupNo}</span>
+                    <span class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-navy-800 text-sm font-bold">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                  </div>
+                  <span class="px-3 py-1 rounded-xl bg-navy-700 text-white text-xs font-extrabold">ขยายเต็มจอ ⤢</span>
+                </div>
+
+                <h3 class="text-xl sm:text-2xl font-extrabold text-navy-900 leading-snug break-words">
+                  ${escapeHtml(q.question)}
+                </h3>
+
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-base sm:text-lg text-slate-800 leading-relaxed line-clamp-3">
+                  <strong class="text-emerald-700">คำตอบมาตรฐาน:</strong> ${escapeHtml(q.standardAnswer)}
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-xs sm:text-sm">
+                  ${q.refMedia ? `<span class="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-navy-800 font-bold">📊 มีสื่อ/PowerPoint</span>` : ''}
+                  ${q.refLaw ? `<span class="px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-maroon-800 font-bold">⚖️ มีระเบียบ/กฎหมาย</span>` : ''}
+                  ${q.caution ? `<span class="px-2.5 py-1 rounded-xl bg-amber-100 border border-amber-300 text-amber-950 font-extrabold">⚠️ มีข้อควรระวัง</span>` : ''}
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-slate-500">
+                <span>ผู้บันทึก: <strong class="text-slate-800">${escapeHtml(q.recorder || '-')}</strong></span>
+                <span>ผู้ตรวจสอบ: <strong class="text-slate-800">${escapeHtml(q.reviewer || '-')}</strong></span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // ==================== FOCUS VIEW MODAL ====================
+    function openFocusModal(idx) {
+      if (idx < 0 || idx >= displayedItems.length) return;
+      focusIndex = idx;
+      renderFocusModalContent();
+      document.getElementById('focus-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeFocusModal() {
+      focusIndex = -1;
+      document.getElementById('focus-modal').classList.add('hidden');
+    }
+
+    function stepFocusItem(delta) {
+      if (displayedItems.length === 0) return;
+      focusIndex = (focusIndex + delta + displayedItems.length) % displayedItems.length;
+      renderFocusModalContent();
+    }
+
+    function renderFocusModalContent() {
+      const item = displayedItems[focusIndex];
+      if (!item) return;
+
+      const body = document.getElementById('fm-body');
+      const footer = document.getElementById('fm-footer');
+      const cat = getCategoryObj(item.categoryNo);
+
+      document.getElementById('fm-counter').textContent = `${focusIndex + 1} / ${displayedItems.length}`;
+      document.getElementById('fm-group-badge').textContent = `กลุ่มที่ ${item.groupNo}`;
+      document.getElementById('fm-cat-badge').textContent = `หมวดที่ ${cat.no}: ${cat.name}`;
+
+      if (currentPeriod === 'morning') {
+        const u = getUrgencyStyle(item.urgency);
+        document.getElementById('fm-id-badge').textContent = item.issueId;
+        body.innerHTML = `
+          <div class="space-y-5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-4 py-1 rounded-full border-2 text-base font-extrabold ${u.badge}">${u.label}</span>
+              <span class="px-4 py-1 rounded-full text-base font-extrabold ${item.qaStatus === 'ทำ Q&A แล้ว' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">
+                ${escapeHtml(item.qaStatus)} ${item.qaId ? `(${escapeHtml(item.qaId)})` : ''}
+              </span>
+            </div>
+            <div class="p-6 sm:p-8 rounded-3xl bg-white border-2 border-navy-700/20 shadow-sm">
+              <p class="text-sm font-extrabold text-navy-700 uppercase tracking-wider mb-2">ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย</p>
+              <p class="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-base text-navy-900">
+              <strong>ขอบเขตหมวดที่ ${cat.no}:</strong> ${escapeHtml(cat.scope)}
+            </div>
+          </div>
+        `;
+        footer.innerHTML = `
+          <span>ผู้บันทึกข้อมูล: <strong class="text-slate-900">${escapeHtml(item.recorder || '-')}</strong></span>
+          <span>เวลาบันทึก: <strong class="font-mono text-slate-900">${escapeHtml(item.timestamp || '-')}</strong></span>
+        `;
+      } else {
+        document.getElementById('fm-id-badge').textContent = `${item.qaId} • ใบงานข้อที่ ${item.sheetNo || (focusIndex + 1)}`;
+        body.innerHTML = `
+          <div class="space-y-5">
+            <!-- 1. คำถาม -->
+            <div class="p-5 sm:p-6 rounded-3xl bg-white border-2 border-navy-700/25 shadow-xs space-y-2">
+              <span class="inline-block px-3 py-0.5 rounded-full bg-navy-700 text-white text-xs sm:text-sm font-extrabold">1. คำถาม / ประเด็นปัญหา</span>
+              <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-navy-900 leading-snug break-words">${escapeHtml(item.question)}</h3>
+            </div>
+
+            <!-- 2. คำตอบมาตรฐาน -->
+            <div class="p-5 sm:p-6 rounded-3xl bg-emerald-50/70 border-2 border-emerald-300 space-y-2">
+              <span class="inline-block px-3 py-0.5 rounded-full bg-emerald-700 text-white text-xs sm:text-sm font-extrabold">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ</span>
+              <p class="text-xl sm:text-2xl font-semibold text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(item.standardAnswer)}</p>
+            </div>
+
+            <!-- 3. แหล่งอ้างอิง 2 ช่อง -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-5 rounded-3xl bg-white border border-blue-200 shadow-2xs space-y-1.5">
+                <p class="text-sm font-extrabold text-navy-800 flex items-center gap-1.5">📊 3.1 สื่อ / อินโฟกราฟิก / PowerPoint</p>
+                <p class="text-lg sm:text-xl text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(item.refMedia || '— ไม่ระบุ —')}</p>
+              </div>
+              <div class="p-5 rounded-3xl bg-white border border-rose-200 shadow-2xs space-y-1.5">
+                <p class="text-sm font-extrabold text-maroon-800 flex items-center gap-1.5">⚖️ 3.2 ระเบียบ / กฎหมาย</p>
+                <p class="text-lg sm:text-xl text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(item.refLaw || '— ไม่ระบุ —')}</p>
+              </div>
+            </div>
+
+            <!-- 4. ข้อควรระวัง -->
+            ${item.caution ? `
+              <div class="p-5 rounded-3xl bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-400 space-y-1.5">
+                <p class="text-sm font-extrabold text-rose-800 flex items-center gap-1.5">⚠️ 4. ข้อควรระวัง / ข้อยกเว้น</p>
+                <p class="text-lg sm:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(item.caution)}</p>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        footer.innerHTML = `
+          <div class="flex flex-wrap gap-x-5 gap-y-1">
+            <span>ผู้บันทึกข้อมูล: <strong class="text-slate-900">${escapeHtml(item.recorder || '-')}</strong></span>
+            <span>หัวหน้ากลุ่ม / ผู้ตรวจสอบ: <strong class="text-slate-900">${escapeHtml(item.reviewer || '-')}</strong></span>
+          </div>
+          <div class="flex items-center gap-3">
+            ${item.refIssueId ? `<span class="font-mono text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">อ้างอิงช่วงเช้า: ${escapeHtml(item.refIssueId)}</span>` : ''}
+            <span>วันที่: <strong class="font-mono text-slate-900">${escapeHtml(item.dateTh || '-')}</strong></span>
+          </div>
+        `;
+      }
+    }
+
+    // ==================== 30-MINUTE ROTATION TIMER ====================
+    function toggleTimerDrawer() {
+      document.getElementById('timer-drawer').classList.toggle('hidden');
+    }
+
+    function changeTimerRound(delta) {
+      timerRound = ((timerRound - 1 + delta + 5) % 5) + 1;
+      document.getElementById('timer-round-text').textContent = `รอบที่ ${timerRound} / 5`;
+    }
+
+    function updateTimerClockUi() {
+      const m = String(Math.floor(Math.max(0, timerRemainingSec) / 60)).padStart(2, '0');
+      const s = String(Math.max(0, timerRemainingSec) % 60).padStart(2, '0');
+      const el = document.getElementById('timer-clock');
+      el.textContent = `${m}:${s}`;
+      if (timerRemainingSec <= 0) {
+        el.className = 'font-mono text-3xl sm:text-4xl font-extrabold text-rose-400 tracking-wider leading-none animate-pulse';
+      } else if (timerRemainingSec <= 300) {
+        el.className = 'font-mono text-3xl sm:text-4xl font-extrabold text-amber-300 tracking-wider leading-none';
+      } else {
+        el.className = 'font-mono text-3xl sm:text-4xl font-extrabold text-gold-400 tracking-wider leading-none';
+      }
+    }
+
+    function startRotationTimer() {
+      if (timerRunning) return;
+      if (timerRemainingSec <= 0) timerRemainingSec = 30 * 60;
+      timerRunning = true;
+      document.getElementById('timer-btn-start').classList.add('hidden');
+      document.getElementById('timer-btn-pause').classList.remove('hidden');
+
+      timerInterval = setInterval(() => {
+        timerRemainingSec--;
+        updateTimerClockUi();
+        if (timerRemainingSec === 300) {
+          playGentleChime();
+          showToast('เหลือเวลาอีก 5 นาที ก่อนหมุนเปลี่ยนฐานครับ', 'warning');
+        }
+        if (timerRemainingSec <= 0) {
+          pauseRotationTimer();
+          playGentleChime();
+          showToast(`หมดเวลารอบที่ ${timerRound} แล้ว! เชิญทุกกลุ่มหมุนเปลี่ยนฐานถัดไป`, 'success');
+        }
+      }, 1000);
+    }
+
+    function pauseRotationTimer() {
+      timerRunning = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timer-btn-start').classList.remove('hidden');
+      document.getElementById('timer-btn-pause').classList.add('hidden');
+    }
+
+    function resetRotationTimer() {
+      pauseRotationTimer();
+      timerRemainingSec = 30 * 60;
+      updateTimerClockUi();
+    }
+
+    function playGentleChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [{ f: 880, t: 0, d: 0.4 }, { f: 659.25, t: 0.28, d: 0.7 }];
+        notes.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(n.f, ctx.currentTime + n.t);
+          gain.gain.setValueAtTime(0.001, ctx.currentTime + n.t);
+          gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + n.t + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + n.t + n.d);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + n.t);
+          osc.stop(ctx.currentTime + n.t + n.d + 0.05);
+        });
+      } catch (e) {}
+    }
+
+    // ==================== EXPORT CSV & FULLSCREEN ====================
+    function exportCurrentCSV() {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      if (currentPeriod === 'morning') {
+        const headers = ['Issue_ID', 'Timestamp', 'Group_No', 'Category_No', 'Category_Name', 'Recorder', 'Issue_Text', 'Urgency', 'QA_Status', 'QA_ID'];
+        const rows = morningIssues.map(x => [
+          x.issueId, x.timestamp, x.groupNo, x.categoryNo, x.categoryName,
+          x.recorder, x.issueText, x.urgency, x.qaStatus, x.qaId
+        ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+        downloadCsvFile(headers, rows, `ใบงานช่วงเช้า_ประเด็นปัญหา_ศจร_${todayStr}.csv`);
+        showToast('ดาวน์โหลด CSV ช่วงเช้า (ประเด็นปัญหา) เรียบร้อยแล้ว', 'success');
+      } else {
+        const headers = ['QA_ID', 'Ref_Issue_ID', 'Sheet_No', 'Date_TH', 'Group_No', 'Category_No', 'Category_Name', 'Question', 'Standard_Answer', 'Ref_Media', 'Ref_Law', 'Caution', 'Recorder', 'Reviewer', 'Timestamp'];
+        const rows = afternoonQAs.map(q => [
+          q.qaId, q.refIssueId, q.sheetNo, q.dateTh, q.groupNo, q.categoryNo, q.categoryName,
+          q.question, q.standardAnswer, q.refMedia, q.refLaw, q.caution, q.recorder, q.reviewer, q.timestamp
+        ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+        downloadCsvFile(headers, rows, `ใบงานช่วงบ่าย_คลังความรู้QA_ศจร_${todayStr}.csv`);
+        showToast('ดาวน์โหลด CSV ช่วงบ่าย (คลังความรู้ Q&A) เรียบร้อยแล้ว', 'success');
+      }
+    }
+
+    function downloadCsvFile(headers, rows, filename) {
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3400);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
