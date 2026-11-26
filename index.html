@@ -646,16 +646,32 @@
             <button type="button" onclick="switchWmTab('bygroup')" id="wm-tab-bygroup" class="px-3 py-1 rounded-lg font-bold bg-indigo-700 text-white transition">จัดแยกตามกลุ่ม 1–5</button>
             <button type="button" onclick="switchWmTab('all')" id="wm-tab-all" class="px-3 py-1 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">ตารางรายชื่อทั้งหมด</button>
           </div>
+          <button type="button" onclick="refreshWorkshopModalFromSheet()" class="px-3 py-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold border border-sky-300 transition" title="ดึงรายชื่อล่าสุดจาก Google Sheets ใหม่">
+            🔄 ดึงรายชื่อล่าสุด
+          </button>
           <button type="button" onclick="autoDistributeWorkshopGroups()" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold border border-amber-300 transition">
             ✨ กระจายสมาชิกที่ยังไม่มีกลุ่มอัตโนมัติ
           </button>
         </div>
       </div>
 
+      <!-- แถบค้นหารายชื่อด่วนในหน้าจัดกลุ่ม (หาชื่อไม่เจอ/เช็กว่าอยู่กลุ่มไหน) -->
+      <div class="px-5 py-2.5 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shrink-0 space-y-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[220px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="wm-quick-find" oninput="renderWmQuickFind()" placeholder="ค้นหาด่วน (เช่น KM69-10, ยศวัฒน์) เพื่อตรวจสถานะกลุ่มหรือย้ายกลุ่ม/ตั้งเป็นผู้เชี่ยวชาญได้ทันที..." class="w-full pl-9 pr-8 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <button type="button" id="wm-quick-find-clear" onclick="clearWmQuickFind()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 font-bold text-xs">✕</button>
+          </div>
+          <span id="wm-unassigned-pill" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold shrink-0">ยังไม่จัดกลุ่ม: 0 ราย</span>
+        </div>
+        <div id="wm-quick-find-results" class="hidden space-y-1.5 max-h-44 overflow-y-auto custom-scroll"></div>
+      </div>
+
       <div class="p-4 sm:p-5 overflow-y-auto custom-scroll flex-1">
         <div id="wm-view-bygroup" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3.5"></div>
         <div id="wm-view-all" class="hidden space-y-2.5">
-          <input type="text" id="wm-all-search" oninput="renderWorkshopManager()" placeholder="ค้นหาชื่อหรือสังกัด..." class="w-full max-w-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs" />
+          <input type="text" id="wm-all-search" oninput="renderWorkshopManager()" placeholder="ค้นหารหัส, ชื่อ หรือสังกัด..." class="w-full max-w-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs" />
           <div id="wm-all-list" class="divide-y divide-slate-200 dark:divide-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden"></div>
         </div>
       </div>
@@ -1397,8 +1413,9 @@
       const isSub = hasSubstitute(p);
       const name = isSub ? p.substituteName : p.fullName;
       const subText = isSub ? `ผู้แทน: ${p.fullName}` : (p.position || '');
-      const wsBadge = p.workshopGroup
-        ? `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-[10px]">${String(p.workshopRole).includes('ผู้เชี่ยวชาญ') ? `⭐ ผู้เชี่ยวชาญ ก.${p.workshopGroup}` : `กลุ่ม ${p.workshopGroup}`}</span>`
+      const wsNum = parseWorkshopGroupNo(p.workshopGroup);
+      const wsBadge = wsNum
+        ? `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-[10px]">${isWmFixedRole(p.workshopRole) ? `⭐ ผู้เชี่ยวชาญ ก.${wsNum}` : `กลุ่ม ${wsNum}`}</span>`
         : '';
       const comp = getParticipantCompleteness(p);
       const docStatusBadge = comp.hasStaffAlert
@@ -1462,6 +1479,7 @@
         const name = isSub ? p.substituteName : p.fullName;
         const checked = isCheckedIn(p);
         const comp = getParticipantCompleteness(p);
+        const wsNum = parseWorkshopGroupNo(p.workshopGroup);
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40">
             <td class="py-2.5 px-3 font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(p.id)}</td>
@@ -1470,7 +1488,7 @@
               <div class="text-[11px] text-slate-500">${isSub ? `ผู้แทน: ${escapeHtml(p.fullName)}` : escapeHtml(p.position)}</div>
             </td>
             <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(p.unitDetail || p.mainUnit)}</td>
-            <td class="py-2.5 px-3">${p.workshopGroup ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 font-bold text-[10.5px]">${String(p.workshopRole).includes('ผู้เชี่ยวชาญ') ? `⭐ ผู้เชี่ยวชาญ ก.${p.workshopGroup}` : `กลุ่ม ${p.workshopGroup}`}</span>` : '-'}</td>
+            <td class="py-2.5 px-3">${wsNum ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 font-bold text-[10.5px]">${isWmFixedRole(p.workshopRole) ? `⭐ ผู้เชี่ยวชาญ ก.${wsNum}` : `กลุ่ม ${wsNum}`}</span>` : '-'}</td>
             <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[10.5px]">${escapeHtml(p.rsvp)}</span></td>
             <td class="py-2.5 px-3 text-[11px] space-y-0.5">
               <div>${getStayStatusBadgeHtml(p)} ${p.roomNo ? `<span class="font-mono font-bold text-sky-700 ml-1">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}</div>
@@ -2098,8 +2116,9 @@
       document.getElementById('ed-roommate').value = p.roommate || '';
       document.getElementById('ed-phone').value = p.phone || '';
       document.getElementById('ed-plate').value = p.licensePlate || '';
-      document.getElementById('ed-ws-group').value = p.workshopGroup || '';
-      document.getElementById('ed-ws-role').value = p.workshopRole || 'ผู้เข้าร่วม';
+      const parsedWsG = parseWorkshopGroupNo(p.workshopGroup);
+      document.getElementById('ed-ws-group').value = parsedWsG ? String(parsedWsG) : '';
+      document.getElementById('ed-ws-role').value = isWmFixedRole(p.workshopRole) ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม';
       document.getElementById('ed-evaluated').checked = Boolean(p.evaluated);
       document.getElementById('ed-doc-alert').value = p.docAlert || '';
       document.getElementById('ed-letter-file').value = '';
@@ -2135,7 +2154,7 @@
         if (p.id === curId) return false;
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
         if (!q) return true;
-        return `${p.id} ${name} ${p.mainUnit}`.toLowerCase().includes(q);
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
       }).slice(0, 8);
 
       if (matches.length === 0) {
@@ -2188,7 +2207,7 @@
       let fileData = null;
       if (fileInput.files && fileInput.files[0]) {
         if (fileInput.files[0].size > 5 * 1024 * 1024) {
-          showToast('ขนาดไฟล์ต้องไม่เกิน 5MB', 'error');
+          showToast('ขนาดไฟล์หนังสือส่งตัวต้องไม่เกิน 5MB', 'error');
           return;
         }
         fileData = await readFileAsBase64(fileInput.files[0]);
@@ -2260,6 +2279,9 @@
           if (localTarget && res.letterUrl) localTarget.letterUrl = res.letterUrl;
           showToast(res.message || 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
           closeEditModal();
+          isMutatingData = false;
+          // โหลดซ้ำเบาๆ เพื่อให้การจับคู่ผู้พักร่วมสองทาง (Two-Way Roommate Sync) อัปเดตทั้ง 2 คนทันที
+          await fetchParticipants(false);
         } else {
           showToast(res.message || 'บันทึกไม่สำเร็จ', 'error');
         }
@@ -2272,28 +2294,35 @@
       }
     }
 
-    // ==================== DOC AUDIT & HOTEL SUMMARY (แยกไปหน้า summary.html) ====================
+    // ==================== EXTERNAL SUMMARY LINKS (summary.html) ====================
+    function openStaySummaryModal() {
+      window.open('summary.html?tab=stay', '_blank', 'noopener');
+    }
+
     function openDocAuditModal() {
-      window.open('summary.html?tab=docs', '_blank');
+      window.open('summary.html?tab=docs', '_blank', 'noopener');
     }
 
     function openDocAlertQuickModal(id) {
-      const targetUrl = id ? `summary.html?tab=docs&alert=${encodeURIComponent(id)}` : 'summary.html?tab=docs';
-      window.open(targetUrl, '_blank');
+      const url = id
+        ? `summary.html?tab=docs&alert=${encodeURIComponent(id)}`
+        : 'summary.html?tab=docs';
+      window.open(url, '_blank', 'noopener');
     }
 
-    function openStaySummaryModal(initialTab) {
-      const subParam = initialTab ? `&sub=${encodeURIComponent(initialTab)}` : '';
-      window.open(`summary.html?tab=stay${subParam}`, '_blank');
+    // ==================== WORKSHOP 5-GROUP MANAGER (UNLIMITED EXPERTS + QUICK FIND) ====================
+    function parseWorkshopGroupNo(val) {
+      const s = String(val || '').trim();
+      const m = s.match(/[1-5]/);
+      return m ? parseInt(m[0], 10) : 0;
     }
 
-    // ==================== WORKSHOP 5-GROUP MANAGER (ID-BOUND) ====================
     function isWmFixedRole(roleStr) {
       const r = String(roleStr || '');
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
     }
 
-    function openWorkshopManagerModal() {
+    function buildWmDraftFromParticipants() {
       wmDraftRound = Math.max(1, Math.min(5, Number(workshopConfig.currentRound) || 1));
       wmDraftGroups = DEFAULT_WM_GROUPS.map(def => {
         const existing = (workshopConfig.groups || []).find(g => Number(g.groupNo) === def.groupNo);
@@ -2305,28 +2334,42 @@
       });
 
       wmDraftAssignments = {};
-      const slotCounter = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      const orderCounter = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       const sorted = [...participants].sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
       sorted.forEach(p => {
-        const g = parseInt(p.workshopGroup, 10);
+        const g = parseWorkshopGroupNo(p.workshopGroup);
         const validG = (g >= 1 && g <= 5) ? String(g) : '';
-        const isExp = validG && isWmFixedRole(p.workshopRole);
-        let slot = 0;
+        const isExp = Boolean(validG) && isWmFixedRole(p.workshopRole);
+        let order = 0;
         if (isExp) {
-          slotCounter[g]++;
-          slot = slotCounter[g] <= 2 ? slotCounter[g] : 0;
+          orderCounter[g]++;
+          order = orderCounter[g];
         }
         wmDraftAssignments[p.id] = {
           group: validG,
           role: isExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
-          slot: slot
+          order: order
         };
       });
+    }
 
+    function openWorkshopManagerModal() {
+      buildWmDraftFromParticipants();
+      const qf = document.getElementById('wm-quick-find');
+      if (qf) qf.value = '';
+      clearWmQuickFind();
       switchWmTab('bygroup');
       setModalWorkshopRound(wmDraftRound);
       document.getElementById('workshop-manager-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
+    }
+
+    async function refreshWorkshopModalFromSheet() {
+      showToast('กำลังดึงรายชื่อล่าสุดจาก Google Sheets...', 'info');
+      await Promise.all([fetchParticipants(true), fetchWorkshopConfig()]);
+      buildWmDraftFromParticipants();
+      setModalWorkshopRound(wmDraftRound);
+      showToast(`โหลดรายชื่อล่าสุดครบ ${participants.length} รายเรียบร้อยแล้ว`, 'success');
     }
 
     function closeWorkshopManagerModal() {
@@ -2358,21 +2401,81 @@
       renderWorkshopManager();
     }
 
-    function getWmSlotExpertId(gNum, slotIdx) {
-      const gStr = String(gNum);
-      for (const pid of Object.keys(wmDraftAssignments)) {
-        const a = wmDraftAssignments[pid];
-        if (a.group === gStr && isWmFixedRole(a.role) && a.slot === slotIdx) return pid;
+    function clearWmQuickFind() {
+      const inp = document.getElementById('wm-quick-find');
+      if (inp) inp.value = '';
+      document.getElementById('wm-quick-find-clear')?.classList.add('hidden');
+      document.getElementById('wm-quick-find-results')?.classList.add('hidden');
+    }
+
+    function renderWmQuickFind() {
+      const inp = document.getElementById('wm-quick-find');
+      const box = document.getElementById('wm-quick-find-results');
+      const clr = document.getElementById('wm-quick-find-clear');
+      if (!inp || !box) return;
+
+      const q = inp.value.trim().toLowerCase();
+      if (clr) clr.classList.toggle('hidden', q.length === 0);
+      if (!q) {
+        box.classList.add('hidden');
+        return;
       }
-      return '';
+
+      const matches = participants.filter(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${p.position}`.toLowerCase().includes(q);
+      });
+
+      if (matches.length === 0) {
+        box.innerHTML = `<div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">ไม่พบ "${escapeHtml(inp.value.trim())}" ในรายชื่อที่โหลดมา (${participants.length} ราย) — ลองกดปุ่ม “🔄 ดึงรายชื่อล่าสุด” หรือตรวจสอบว่าคอลัมน์ A (ID) ใน Google Sheet มีรหัสครบถ้วนครับ</div>`;
+        box.classList.remove('hidden');
+        return;
+      }
+
+      box.innerHTML = matches.slice(0, 10).map(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        const isExp = a.group && isWmFixedRole(a.role);
+        return `
+          <div class="p-2 rounded-xl bg-indigo-50/70 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="min-w-0 flex-1">
+              <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(p.id)}</span>
+              <strong class="ml-1 text-slate-900 dark:text-white">${escapeHtml(name)}</strong>
+              <span class="ml-1 text-[11px] text-slate-500">(${escapeHtml(p.unitDetail || p.mainUnit)})</span>
+              <span class="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${a.group ? (isExp ? 'bg-amber-200 text-amber-950' : 'bg-sky-100 text-sky-900') : 'bg-slate-200 text-slate-700'}">
+                ${a.group ? (isExp ? `⭐ ผู้เชี่ยวชาญ กลุ่ม ${a.group}` : `👥 สมาชิก กลุ่ม ${a.group}`) : 'ยังไม่จัดกลุ่ม'}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select onchange="onWmAssignGroupFromAll('${escapeHtml(p.id)}', this.value)" class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] font-bold">
+                <option value="" ${!a.group ? 'selected' : ''}>ยังไม่จัดกลุ่ม</option>
+                ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${a.group === String(n) ? 'selected' : ''}>กลุ่ม ${n}</option>`).join('')}
+              </select>
+              <button type="button" onclick="onWmToggleRole('${escapeHtml(p.id)}')" ${!a.group ? 'disabled' : ''} class="px-2 py-1 rounded-lg text-[10.5px] font-bold border transition ${!a.group ? 'opacity-40 cursor-not-allowed bg-slate-100' : (isExp ? 'bg-amber-100 border-amber-300 text-amber-950' : 'bg-sky-50 border-sky-200 text-sky-900')}">
+                ${isExp ? '⭐ ประจำฐาน' : '🔄 หมุนเวียน'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      box.classList.remove('hidden');
     }
 
     function renderWorkshopManager() {
       const assignedCount = Object.values(wmDraftAssignments).filter(a => a.group).length;
       const expertCount = Object.values(wmDraftAssignments).filter(a => a.group && isWmFixedRole(a.role)).length;
+      const unassignedCount = participants.length - assignedCount;
+
       const sumEl = document.getElementById('wm-summary-text');
       if (sumEl) {
         sumEl.textContent = `จัดกลุ่มแล้ว ${assignedCount}/${participants.length} ราย (ผู้เชี่ยวชาญประจำฐาน ${expertCount} ราย • สมาชิกหมุนเวียน ${assignedCount - expertCount} ราย)`;
+      }
+      const unPill = document.getElementById('wm-unassigned-pill');
+      if (unPill) {
+        unPill.textContent = `ยังไม่จัดกลุ่ม: ${unassignedCount} ราย`;
+        unPill.className = unassignedCount > 0
+          ? 'px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-bold shrink-0'
+          : 'px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold shrink-0';
       }
 
       if (wmActiveTab === 'bygroup') {
@@ -2380,24 +2483,34 @@
       } else {
         renderWmAllTableView();
       }
+      renderWmQuickFind();
       if (window.lucide) lucide.createIcons();
     }
 
-    function buildExpertDropdownOptions(gNum, slotIdx, currentVal) {
-      const priority = participants.filter(p =>
+    function buildExpertAddDropdownOptions(gNum) {
+      const gStr = String(gNum);
+      // แสดงทุกคนที่ยังไม่ได้เป็นผู้เชี่ยวชาญของกลุ่มนี้ (รองรับเพิ่มผู้เชี่ยวชาญได้ไม่จำกัด 1, 2, 3, 4+ คน)
+      const candidates = participants.filter(p => {
+        const a = wmDraftAssignments[p.id];
+        return !(a && a.group === gStr && isWmFixedRole(a.role));
+      });
+      const priority = candidates.filter(p =>
         String(p.role).includes('ผู้ทรงคุณวุฒิ') || String(p.role).includes('วิทยากร') || String(p.role).includes('คณะทำงาน')
       );
-      const others = participants.filter(p => !priority.includes(p));
+      const others = candidates.filter(p => !priority.includes(p));
 
       const renderOpt = (p) => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
         const curA = wmDraftAssignments[p.id];
-        const tag = (curA && curA.group && curA.group !== String(gNum)) ? ` [อยู่ ก.${curA.group}]` : '';
-        return `<option value="${escapeHtml(p.id)}" ${currentVal === p.id ? 'selected' : ''}>${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})${tag}</option>`;
+        let tag = '';
+        if (curA && curA.group) {
+          tag = isWmFixedRole(curA.role) ? ` [⭐ ผู้เชี่ยวชาญ ก.${curA.group}]` : ` [สมาชิก ก.${curA.group}]`;
+        }
+        return `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})${tag}</option>`;
       };
 
       return `
-        <option value="">-- ยังไม่ระบุผู้เชี่ยวชาญคนที่ ${slotIdx} --</option>
+        <option value="">+ เพิ่มผู้เชี่ยวชาญ / วิทยากรเข้ากลุ่มที่ ${gNum}...</option>
         <optgroup label="⭐ ผู้ทรงคุณวุฒิ / วิทยากร / คณะทำงาน">${priority.map(renderOpt).join('')}</optgroup>
         <optgroup label="👥 ผู้เข้าร่วมสัมมนาทั้งหมด">${others.map(renderOpt).join('')}</optgroup>
       `;
@@ -2411,16 +2524,23 @@
 
       box.innerHTML = wmDraftGroups.map((g, idx) => {
         const gNum = g.groupNo;
+        const gStr = String(gNum);
         const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
-        const exp1 = getWmSlotExpertId(gNum, 1);
-        const exp2 = getWmSlotExpertId(gNum, 2);
+
+        // ดึงผู้เชี่ยวชาญทั้งหมดในกลุ่มนี้ (ไม่จำกัดแค่ 2 คน — รองรับ 3+ คนได้ครบทุกคน)
+        const experts = participants
+          .filter(p => {
+            const a = wmDraftAssignments[p.id];
+            return a && a.group === gStr && isWmFixedRole(a.role);
+          })
+          .sort((a, b) => (wmDraftAssignments[a.id].order || 99) - (wmDraftAssignments[b.id].order || 99));
 
         const members = participants.filter(p => {
           const a = wmDraftAssignments[p.id];
-          return a && a.group === String(gNum) && !isWmFixedRole(a.role);
+          return a && a.group === gStr && !isWmFixedRole(a.role);
         });
 
-        const addOptions = [
+        const addMemberOptions = [
           `<option value="">+ เพิ่มสมาชิกเข้ากลุ่มที่ ${gNum}...</option>`,
           `<optgroup label="ยังไม่จัดกลุ่ม (${unassignedList.length})">${unassignedList.map(p => {
             const name = hasSubstitute(p) ? p.substituteName : p.fullName;
@@ -2428,10 +2548,11 @@
           }).join('')}</optgroup>`,
           `<optgroup label="ย้ายมาจากกลุ่มอื่น">${participants.filter(p => {
             const a = wmDraftAssignments[p.id];
-            return a && a.group && a.group !== String(gNum);
+            return a && a.group && a.group !== gStr;
           }).map(p => {
             const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-            return `<option value="${escapeHtml(p.id)}">[ก.${wmDraftAssignments[p.id].group}] ${escapeHtml(p.id)} • ${escapeHtml(name)}</option>`;
+            const roleTag = isWmFixedRole(wmDraftAssignments[p.id].role) ? '⭐' : '';
+            return `<option value="${escapeHtml(p.id)}">[${roleTag}ก.${wmDraftAssignments[p.id].group}] ${escapeHtml(p.id)} • ${escapeHtml(name)}</option>`;
           }).join('')}</optgroup>`
         ].join('');
 
@@ -2447,16 +2568,40 @@
               <input type="text" value="${escapeHtml(g.topic)}" oninput="onWmTopicInput(${gNum}, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold" />
             </div>
 
-            <div class="p-3 bg-amber-50/70 dark:bg-amber-950/20 border-b border-amber-200/70 dark:border-amber-900 space-y-1.5 text-xs">
-              <p class="font-bold text-amber-900 dark:text-amber-300 text-[11px]">⭐ วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (อยู่ฐานเดิมตลอดทุกรอบ):</p>
-              <select onchange="onWmExpertSelect(${gNum}, 1, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-xs font-semibold">
-                ${buildExpertDropdownOptions(gNum, 1, exp1)}
-              </select>
-              <select onchange="onWmExpertSelect(${gNum}, 2, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-xs font-semibold">
-                ${buildExpertDropdownOptions(gNum, 2, exp2)}
+            <!-- โซนวิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (รองรับได้ไม่จำกัดจำนวน 1, 2, 3+ คน) -->
+            <div class="p-3 bg-amber-50/75 dark:bg-amber-950/20 border-b border-amber-200/80 dark:border-amber-900 space-y-2 text-xs">
+              <div class="flex items-center justify-between gap-1">
+                <p class="font-bold text-amber-900 dark:text-amber-300 text-[11px]">⭐ วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (${experts.length} ราย):</p>
+                <span class="text-[10px] text-amber-800/80 font-medium">อยู่ฐานเดิมทุกรอบ</span>
+              </div>
+
+              <div class="space-y-1">
+                ${experts.length === 0
+                  ? `<p class="text-[11px] text-amber-800/60 italic py-1">ยังไม่ได้ระบุผู้เชี่ยวชาญประจำกลุ่ม</p>`
+                  : experts.map((exp, eIdx) => {
+                      const name = hasSubstitute(exp) ? exp.substituteName : exp.fullName;
+                      return `
+                        <div class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-[11px] shadow-2xs">
+                          <div class="min-w-0 flex-1 truncate">
+                            <span class="font-mono font-bold text-amber-700 dark:text-amber-300">${eIdx + 1}. ${escapeHtml(exp.id)}</span>
+                            <span class="font-bold text-slate-900 dark:text-white ml-1">${escapeHtml(name)}</span>
+                          </div>
+                          <div class="flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="onWmConvertExpertToMember('${escapeHtml(exp.id)}')" title="เปลี่ยนเป็นสมาชิกหมุนเวียนในกลุ่มนี้" class="px-1.5 py-0.5 rounded bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-[10px] font-bold">🔄</button>
+                            <button type="button" onclick="onWmRemoveMember('${escapeHtml(exp.id)}')" title="นำออกจากกลุ่ม" class="px-1.5 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold">✕</button>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')
+                }
+              </div>
+
+              <select onchange="if(this.value){ onWmAddExpertToGroup(${gNum}, this.value); this.value=''; }" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-xs font-semibold">
+                ${buildExpertAddDropdownOptions(gNum)}
               </select>
             </div>
 
+            <!-- โซนสมาชิกหมุนเวียน -->
             <div class="p-3 space-y-2 flex-1 flex flex-col justify-between">
               <div class="space-y-1.5">
                 <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">👥 สมาชิกเริ่มต้นกลุ่มที่ ${gNum} (${members.length} ราย • หมุนเวียนตามรอบ):</p>
@@ -2471,7 +2616,10 @@
                               <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(m.id)}</span>
                               <span class="font-semibold text-slate-800 dark:text-white ml-1">${escapeHtml(name)}</span>
                             </div>
-                            <button type="button" onclick="onWmRemoveMember('${escapeHtml(m.id)}')" title="นำออกจากกลุ่ม" class="px-1.5 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold shrink-0">✕</button>
+                            <div class="flex items-center gap-1 shrink-0">
+                              <button type="button" onclick="onWmPromoteMemberToExpert('${escapeHtml(m.id)}')" title="ตั้งเป็นผู้เชี่ยวชาญประจำกลุ่มนี้" class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold">⭐</button>
+                              <button type="button" onclick="onWmRemoveMember('${escapeHtml(m.id)}')" title="นำออกจากกลุ่ม" class="px-1.5 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold">✕</button>
+                            </div>
                           </div>
                         `;
                       }).join('')
@@ -2480,7 +2628,7 @@
               </div>
 
               <select onchange="if(this.value){ onWmAddMemberToGroup(${gNum}, this.value); this.value=''; }" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-medium mt-2">
-                ${addOptions}
+                ${addMemberOptions}
               </select>
             </div>
           </div>
@@ -2495,12 +2643,12 @@
       const list = participants.filter(p => {
         if (!q) return true;
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        return `${p.id} ${name} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
       });
 
       box.innerHTML = list.map(p => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
         const isExp = isWmFixedRole(a.role);
         return `
           <div class="px-3.5 py-2.5 bg-white dark:bg-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -2528,33 +2676,66 @@
       if (g) g.topic = val;
     }
 
-    function onWmExpertSelect(gNum, slotIdx, newPid) {
-      const prevPid = getWmSlotExpertId(gNum, slotIdx);
-      if (prevPid && prevPid !== newPid) {
-        wmDraftAssignments[prevPid] = { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
-      }
-      if (newPid) {
-        wmDraftAssignments[newPid] = { group: String(gNum), role: 'ผู้เชี่ยวชาญประจำกลุ่ม', slot: slotIdx };
-      }
+    function getNextExpertOrder(gNum) {
+      const gStr = String(gNum);
+      let maxOrder = 0;
+      Object.values(wmDraftAssignments).forEach(a => {
+        if (a && a.group === gStr && isWmFixedRole(a.role) && (a.order || 0) > maxOrder) {
+          maxOrder = a.order;
+        }
+      });
+      return maxOrder + 1;
+    }
+
+    function onWmAddExpertToGroup(gNum, pid) {
+      if (!pid) return;
+      wmDraftAssignments[pid] = {
+        group: String(gNum),
+        role: 'ผู้เชี่ยวชาญประจำกลุ่ม',
+        order: getNextExpertOrder(gNum)
+      };
+      renderWorkshopManager();
+    }
+
+    function onWmConvertExpertToMember(pid) {
+      const cur = wmDraftAssignments[pid];
+      if (!cur || !cur.group) return;
+      wmDraftAssignments[pid] = { group: cur.group, role: 'ผู้เข้าร่วม', order: 0 };
+      renderWorkshopManager();
+    }
+
+    function onWmPromoteMemberToExpert(pid) {
+      const cur = wmDraftAssignments[pid];
+      if (!cur || !cur.group) return;
+      wmDraftAssignments[pid] = {
+        group: cur.group,
+        role: 'ผู้เชี่ยวชาญประจำกลุ่ม',
+        order: getNextExpertOrder(Number(cur.group))
+      };
       renderWorkshopManager();
     }
 
     function onWmAddMemberToGroup(gNum, pid) {
-      wmDraftAssignments[pid] = { group: String(gNum), role: 'ผู้เข้าร่วม', slot: 0 };
+      wmDraftAssignments[pid] = { group: String(gNum), role: 'ผู้เข้าร่วม', order: 0 };
       renderWorkshopManager();
     }
 
     function onWmRemoveMember(pid) {
-      wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+      wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
       renderWorkshopManager();
     }
 
     function onWmAssignGroupFromAll(pid, val) {
-      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
       if (!val) {
-        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
       } else {
-        wmDraftAssignments[pid] = { group: String(val), role: cur.role || 'ผู้เข้าร่วม', slot: 0 };
+        const keepExp = isWmFixedRole(cur.role);
+        wmDraftAssignments[pid] = {
+          group: String(val),
+          role: keepExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
+          order: keepExp ? getNextExpertOrder(Number(val)) : 0
+        };
       }
       renderWorkshopManager();
     }
@@ -2563,16 +2744,10 @@
       const cur = wmDraftAssignments[pid];
       if (!cur || !cur.group) return;
       const nextExp = !isWmFixedRole(cur.role);
-      let nextSlot = 0;
-      if (nextExp) {
-        const gNum = Number(cur.group);
-        if (!getWmSlotExpertId(gNum, 1)) nextSlot = 1;
-        else if (!getWmSlotExpertId(gNum, 2)) nextSlot = 2;
-      }
       wmDraftAssignments[pid] = {
         group: cur.group,
         role: nextExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
-        slot: nextSlot
+        order: nextExp ? getNextExpertOrder(Number(cur.group)) : 0
       };
       renderWorkshopManager();
     }
@@ -2592,7 +2767,7 @@
         for (let g = 2; g <= 5; g++) {
           if (counts[g] < counts[minG]) minG = g;
         }
-        wmDraftAssignments[p.id] = { group: String(minG), role: 'ผู้เข้าร่วม', slot: 0 };
+        wmDraftAssignments[p.id] = { group: String(minG), role: 'ผู้เข้าร่วม', order: 0 };
         counts[minG]++;
       });
       renderWorkshopManager();
@@ -2621,12 +2796,12 @@
       const list = participants.filter(p => {
         if (!q) return true;
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        return `${p.id} ${name} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
       });
 
       box.innerHTML = list.map(p => {
         const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
         const inThis = a.group === gStr && !isWmFixedRole(a.role);
         const isFixedExp = a.group && isWmFixedRole(a.role);
         return `
@@ -2649,11 +2824,11 @@
 
     function toggleQuickPickMember(pid) {
       const gStr = String(wmQuickPickGroupNo);
-      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
       if (cur.group === gStr && !isWmFixedRole(cur.role)) {
-        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', slot: 0 };
+        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
       } else {
-        wmDraftAssignments[pid] = { group: gStr, role: 'ผู้เข้าร่วม', slot: 0 };
+        wmDraftAssignments[pid] = { group: gStr, role: 'ผู้เข้าร่วม', order: 0 };
       }
       renderGroupQuickPickList();
     }
@@ -2670,7 +2845,7 @@
             const a = wmDraftAssignments[p.id];
             return a && a.group === gStr && isWmFixedRole(a.role);
           })
-          .sort((a, b) => (wmDraftAssignments[a.id].slot || 9) - (wmDraftAssignments[b.id].slot || 9))
+          .sort((a, b) => (wmDraftAssignments[a.id].order || 99) - (wmDraftAssignments[b.id].order || 99))
           .map(p => (hasSubstitute(p) ? p.substituteName : p.fullName).trim());
         return {
           groupNo: g.groupNo,
