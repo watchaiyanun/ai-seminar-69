@@ -69,11 +69,11 @@
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           <span>กลับหน้าบัตร</span>
         </a>
-        <a id="btn-open-display" href="display.html" target="_blank" class="hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition">
+        <a id="btn-open-display" href="display.html" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition">
           <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
           <span>จอเวที</span>
         </a>
-        <button type="button" onclick="fetchAllWorkshopData(true)" title="รีเฟรชข้อมูลล่าสุด" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition">
+        <button type="button" id="btn-refresh-ws" onclick="fetchAllWorkshopData(true)" title="อัปเดตข้อมูลล่าสุด" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
       </div>
@@ -82,21 +82,45 @@
   </header>
 
   <!-- ==================== MAIN WORKSPACE ==================== -->
-  <main class="max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 pb-12 space-y-4 flex-1">
+  <main class="max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
 
-    <!-- การ์ดแสดงตัวตน บทบาท กลุ่มประจำตัว และโต๊ะหมุนเวียนรอบปัจจุบัน -->
-    <section id="identity-banner" class="hidden p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-navy-700/20 shadow-xs space-y-2">
+    <!-- การ์ดแสดงตัวตน บทบาท กลุ่มประจำตัว และโต๊ะรอบปัจจุบันของเจ้าของบัตร -->
+    <section id="user-context-banner" class="hidden bg-white rounded-3xl p-4 border-2 border-navy-700/20 shadow-xs space-y-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
-          <span id="id-badge-code" class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-mono text-xs font-extrabold shrink-0">KM69-00</span>
-          <strong id="id-badge-name" class="text-sm sm:text-base text-slate-900 truncate">กำลังโหลดข้อมูล...</strong>
+          <span id="uc-code" class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-mono text-xs font-extrabold shrink-0">KM69-00</span>
+          <strong id="uc-name" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">ผู้เข้าร่วมสัมมนา</strong>
         </div>
-        <span id="id-badge-role-pill" class="px-3 py-1 rounded-full text-xs font-extrabold shrink-0">ผู้เข้าร่วมกลุ่ม</span>
+        <span id="uc-role-pill" class="px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0">👥 ผู้เข้าร่วมสัมมนา</span>
       </div>
-      <div id="id-rotation-summary" class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed"></div>
+      <p id="uc-rotation-summary" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
     </section>
 
-    <!-- แถบแจ้งเตือนสดเมื่อเจ้าหน้าที่เปลี่ยนรอบบนจอเวที (ทั้งกลุ่มย้ายโต๊ะมาพร้อมกันในคลิกเดียว หรืออยู่โต๊ะเดิมต่อได้) -->
+    <!-- แถบสถานะรอบหมุนเวียน (ผู้เข้าร่วมเห็นสถานะรอบจากเวทีแบบอ่านอย่างเดียว • เจ้าหน้าที่กดเปลี่ยนและซิงค์รอบกลางได้) -->
+    <section id="round-selector-card" class="bg-white rounded-3xl p-3.5 sm:p-4 border-2 border-navy-700/20 shadow-xs space-y-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-8 h-8 rounded-xl bg-navy-800 text-gold-400 flex items-center justify-center shrink-0">
+            <i data-lucide="repeat" class="w-4 h-4"></i>
+          </span>
+          <div class="min-w-0">
+            <p id="round-selector-title" class="text-xs sm:text-sm font-extrabold text-navy-900 leading-tight truncate">📍 รอบหมุนเวียนปัจจุบัน: รอบที่ 1 / 5 (ควบคุมโดยเจ้าหน้าที่)</p>
+            <p id="round-selector-hint" class="text-[11px] text-slate-500 truncate">ระบบจะย้ายโต๊ะของกลุ่มท่านให้อัตโนมัติเมื่อเจ้าหน้าที่เปลี่ยนรอบบนเวที</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span id="live-stage-round-pill" class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-extrabold">● รอบเวที: รอบที่ 1</span>
+          <button type="button" id="btn-staff-sync-round" onclick="syncSelectedRoundToServer()" class="hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold shadow-xs transition" title="บันทึกและซิงค์รอบที่เลือกขึ้นเวทีและหน้าบัตรทุกคน">
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-gold-400"></i>
+            <span id="btn-staff-sync-round-label">ซิงค์รอบ 1 ให้ทุกคน</span>
+          </button>
+        </div>
+      </div>
+      <!-- ปุ่มเลือกรอบ 1–5 (แสดงเฉพาะโหมดเจ้าหน้าที่เท่านั้น) -->
+      <div id="round-selector-buttons" class="hidden grid grid-cols-5 gap-1.5 sm:gap-2"></div>
+    </section>
+
+    <!-- แถบแจ้งเตือนสดเมื่อเจ้าหน้าที่เปลี่ยนรอบระหว่างที่กำลังพิมพ์ค้างอยู่ -->
     <section id="round-change-banner" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-2 border-amber-400 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 animate-bounce">
@@ -169,7 +193,7 @@
       </button>
     </section>
 
-    <!-- การ์ดแสดงผู้เชี่ยวชาญประจำโต๊ะ & สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน (แสดงเฉพาะโหมดกรอกใบงานเช้า/บ่าย) -->
+    <!-- การ์ดแสดงผู้เชี่ยวชาญประจำโต๊ะ & สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน -->
     <section id="table-roster-card" class="bg-white rounded-3xl border border-indigo-200 shadow-xs overflow-hidden">
       <button type="button" onclick="toggleRosterPanel()" class="w-full px-4 sm:px-5 py-3 bg-indigo-50/80 hover:bg-indigo-100/70 flex flex-wrap items-center justify-between gap-2 text-left transition">
         <div class="flex items-center gap-2 min-w-0">
@@ -240,10 +264,10 @@
             <div id="m-category-scope-box" class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
           </div>
 
-          <!-- 2. กลุ่มผู้ส่งประเด็น (กลุ่ม 1–5 กดเลือกเองได้) -->
+          <!-- 2. กลุ่มผู้ส่งประเด็น (ล็อกตามกลุ่มประจำตัวสำหรับผู้เข้าร่วมสัมมนา) -->
           <div class="space-y-2 pt-1">
             <div class="flex flex-wrap items-center justify-between gap-1.5">
-              <label class="font-extrabold text-navy-900">2. กลุ่มผู้ส่งประเด็น (กลุ่ม 1–5) <span class="text-rose-600">*</span></label>
+              <label class="font-extrabold text-navy-900">2. กลุ่มผู้ส่งประเด็น <span class="text-rose-600">*</span></label>
               <span id="m-group-helper-pill" class="px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-maroon-800 text-xs font-extrabold">เลือกกลุ่ม 1–5</span>
             </div>
             <p id="m-group-explain" class="text-xs text-slate-600 leading-relaxed"></p>
@@ -336,7 +360,7 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!--    TAB 2: ใบงานช่วงบ่าย (จัดทำ Q&A — เลือกโต๊ะ/กลุ่มเองได้ + กันตอบซ้ำ)    -->
+    <!--    TAB 2: ใบงานช่วงบ่าย (จัดทำ Q&A — เลือกโต๊ะเองได้ + กันตอบซ้ำ)         -->
     <!-- ========================================================================= -->
     <section id="panel-afternoon" class="hidden space-y-4">
 
@@ -357,7 +381,7 @@
           </div>
         </div>
 
-        <!-- ปุ่มสลับโต๊ะ 1–5 แบบ 1 แตะ (โต๊ะ = หมวด) -->
+        <!-- ปุ่มสลับโต๊ะ 1–5 แบบ 1 แตะ -->
         <div class="space-y-1.5">
           <div class="flex flex-wrap items-center justify-between gap-1.5 text-xs">
             <span class="font-extrabold text-navy-900">📍 เลือกโต๊ะ / หมวดหมู่ที่ต้องการตอบ Q&amp;A (กดเปลี่ยนหรือย้อนกลับโต๊ะเดิมได้เอง):</span>
@@ -384,7 +408,7 @@
         </div>
       </div>
 
-      <!-- กล่องดูคำตอบ Q&A ที่เพื่อนในกลุ่มของตัวเองส่งแล้ว (กันคนในกลุ่มตอบซ้ำข้อเดียวกัน) -->
+      <!-- กล่องดูคำตอบ Q&A ที่เพื่อนในกลุ่มส่งแล้ว (กันตอบซ้ำ + แก้ไข/ลบรายการที่มีสิทธิ์) -->
       <div class="bg-white rounded-3xl border-2 border-emerald-200 shadow-xs overflow-hidden">
         <div class="px-5 py-3 bg-emerald-50/85 border-b border-emerald-200 flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2 min-w-0">
@@ -399,10 +423,10 @@
             <button type="button" id="btn-tmqa-group" onclick="setTeammateQaScope('group')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition">กลุ่มนี้ทุกโต๊ะ</button>
           </div>
         </div>
-        <div id="teammate-qa-list" class="p-3.5 space-y-2 max-h-56 overflow-y-auto custom-scroll"></div>
+        <div id="teammate-qa-list" class="p-3.5 space-y-2 max-h-60 overflow-y-auto custom-scroll"></div>
       </div>
 
-      <!-- 1. คิวคำถามจากช่วงเช้า (ดึงมาตอบเป็นข้อๆ — แสดงชัดว่าใครตอบแล้วเพื่อกันทำซ้ำ) -->
+      <!-- 1. คิวคำถามจากช่วงเช้า -->
       <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 bg-amber-50/70 border-b border-amber-200 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -490,7 +514,7 @@
                 <label for="qa-group" id="qa-group-label" class="block text-sm font-extrabold text-navy-900">กลุ่มที่ (1–5) <span class="text-rose-600">*</span></label>
                 <span id="qa-group-role-badge" class="hidden text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-maroon-800"></span>
               </div>
-              <select id="qa-group" onchange="onQaCategoryOrGroupChange()" class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white font-semibold text-sm sm:text-base">
+              <select id="qa-group" onchange="onQaCategoryOrGroupChange()" class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white font-semibold text-sm sm:text-base disabled:bg-slate-200 disabled:text-slate-700 disabled:cursor-not-allowed">
                 <option value="1">กลุ่มที่ 1</option>
                 <option value="2">กลุ่มที่ 2</option>
                 <option value="3">กลุ่มที่ 3</option>
@@ -617,7 +641,7 @@
     <footer class="text-center pt-2 text-xs text-slate-400 space-y-1">
       <p>โครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI “คู่หูจราจร” • ศจร.ตร.</p>
       <p id="footer-unlock-wrap">
-        <button type="button" onclick="openStaffUnlockModal()" class="text-slate-400 hover:text-navy-700 underline transition">สำหรับเจ้าหน้าที่ (ปลดล็อกจัดการทั้งหมด)</button>
+        <button type="button" onclick="openStaffUnlockModal()" class="text-slate-400 hover:text-navy-700 underline transition">สำหรับเจ้าหน้าที่ (ปลดล็อกจัดการทั้งหมด &amp; คุมรอบ)</button>
       </p>
     </footer>
   </main>
@@ -672,6 +696,7 @@
           <span id="qr-read-id" class="px-2.5 py-0.5 rounded-lg bg-gold-500 text-slate-950 font-mono text-xs font-extrabold">QA-001</span>
           <span id="qr-read-cat" class="px-2.5 py-0.5 rounded-lg bg-white/15 text-xs font-bold truncate">โต๊ะที่ 1</span>
           <span id="qr-read-grp" class="px-2.5 py-0.5 rounded-lg bg-maroon-700 text-xs font-bold">กลุ่มที่ 1</span>
+          <span id="qr-read-counter" class="font-mono text-xs text-gold-400 font-bold ml-1">1/1</span>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button type="button" onclick="stepQAReader(-1)" class="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-bold transition">← ก่อนหน้า</button>
@@ -709,7 +734,7 @@
       </div>
       <div class="space-y-1">
         <h3 class="font-extrabold text-base text-slate-900">ปลดล็อกโหมดเจ้าหน้าที่</h3>
-        <p class="text-xs text-slate-500">กรอกรหัสผ่านเจ้าหน้าที่เพื่อเปิดสิทธิ์จัดการและแก้ไขข้อมูลครบทุกโต๊ะ/ทุกกลุ่ม</p>
+        <p class="text-xs text-slate-500">กรอกรหัสผ่านเจ้าหน้าที่เพื่อเปิดสิทธิ์ควบคุมรอบหมุนเวียนกลาง และจัดการข้อมูลครบทุกโต๊ะ/ทุกกลุ่ม</p>
       </div>
       <form onsubmit="submitStaffPin(event)" class="space-y-3">
         <input type="password" id="staff-pin-input" inputmode="numeric" maxlength="10" placeholder="กรอกรหัส (2569)" required class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-600" />
@@ -779,17 +804,19 @@
 
     const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
 
+    // สถานะบริบทของผู้ใช้งาน
     let userContext = {
       id: '',
       name: '',
       userType: 'member', // 'member' | 'expert' | 'staff'
       baseGroup: 0,       // กลุ่มประจำตัวของผู้เข้าร่วม หรือโต๊ะประจำฐานของผู้เชี่ยวชาญ
-      currentRound: 1,
+      currentRound: 1,    // รอบจริงปัจจุบันจากเวที (1–5)
       isPersonalScan: false
     };
 
     let activeTab = 'morning'; // 'morning' | 'afternoon' | 'library'
     let isLibraryViewOnly = false;
+    let selectedRound = 1; // รอบที่ใช้แสดง (สำหรับผู้เข้าร่วมจะยึดตาม userContext.currentRound เสมอ ส่วนเจ้าหน้าที่กดสลับเพื่อซิงค์ได้)
     let selectedCategory = Number(safeGet('ws2_last_cat', '1')) || 1;
     let selectedGroup = Number(safeGet('ws2_last_group', '1')) || 1;
     let morningListScope = 'match';     // 'match' | 'cat' | 'group' | 'all'
@@ -809,6 +836,7 @@
     let pendingDeleteTask = null;
     let isMutating = false;
 
+    // ==================== HELPER FUNCTIONS ====================
     function getCategoryObj(no) {
       return CATEGORIES.find(c => c.no === Number(no)) || CATEGORIES[0];
     }
@@ -831,6 +859,12 @@
       return wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร');
     }
 
+    function getDisplayNameOfParticipant(p) {
+      if (!p) return '';
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(String(p.substituteName || '').trim());
+      return isSub ? String(p.substituteName).trim() : String(p.fullName || '').trim();
+    }
+
     function getRotatingStationForGroup(baseGroup, round) {
       if (!baseGroup || baseGroup < 1 || baseGroup > 5) return 0;
       const r = Math.max(1, Math.min(5, Number(round) || 1));
@@ -843,7 +877,6 @@
       return (((stationNo - 1 - (r - 1) + 5) % 5) + 1);
     }
 
-    // ตรวจสอบว่าโต๊ะใดคือโต๊ะที่กลุ่มนี้ "ผ่านมาแล้วในรอบก่อนหน้า" เพื่อติดป้ายให้ย้อนกลับไปตอบได้ง่าย
     function isPreviouslyVisitedStation(baseGroup, stationNo, currentRound) {
       if (!baseGroup || currentRound <= 1) return false;
       for (let r = 1; r < currentRound; r++) {
@@ -852,8 +885,9 @@
       return false;
     }
 
-    function isExpertOrStaff() {
-      return userContext.userType === 'expert' || userContext.userType === 'staff';
+    // ล็อกกลุ่มประจำตัวสำหรับผู้เข้าร่วมสัมมนาที่ถูกจัดกลุ่มไว้ใน Google Sheets
+    function isGroupLockedForUser() {
+      return userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
     }
 
     function canEditMorningIssue(item) {
@@ -880,6 +914,17 @@
       return !userContext.baseGroup || Number(qa.groupNo) === userContext.baseGroup;
     }
 
+    function getUrgencyBadgeInfo(urgency) {
+      if (urgency === 'เร่งด่วนมาก') {
+        return { cls: 'bg-rose-100 text-rose-800 border-rose-300', label: '🔴 เร่งด่วนมาก' };
+      }
+      if (urgency === 'เร่งด่วน') {
+        return { cls: 'bg-amber-100 text-amber-900 border-amber-300', label: '🟠 เร่งด่วน' };
+      }
+      return { cls: 'bg-emerald-100 text-emerald-800 border-emerald-300', label: '🟢 ทั่วไป' };
+    }
+
+    // ==================== APP INITIALIZATION ====================
     function initInputApp() {
       const params = new URLSearchParams(window.location.search);
       const urlId = String(params.get('id') || '').trim();
@@ -895,6 +940,7 @@
       userContext.id = urlId;
       userContext.name = urlName || safeGet('ws2_recorder_name', '');
       userContext.currentRound = Math.max(1, Math.min(5, urlRound));
+      selectedRound = userContext.currentRound;
       lastKnownServerRound = userContext.currentRound;
       userContext.isPersonalScan = Boolean(urlId);
 
@@ -930,7 +976,7 @@
       document.getElementById('m-recorder').value = savedRecorder;
       document.getElementById('qa-recorder').value = savedRecorder;
       const savedReviewer = safeGet('ws2_reviewer_name', '');
-      document.getElementById('qa-reviewer').value = userContext.userType === 'expert' && userContext.name
+      document.getElementById('qa-reviewer').value = (userContext.userType === 'expert' && userContext.name)
         ? userContext.name
         : savedReviewer;
       document.getElementById('qa-date-th').value = getTodayThaiDateString();
@@ -954,7 +1000,7 @@
       if (window.lucide) lucide.createIcons();
       fetchAllWorkshopData(true);
 
-      // ซิงค์อัตโนมัติทุก 10 วินาที เพื่อให้เพื่อนในกลุ่มเห็นคำถามและคำตอบที่เพิ่งส่งทันที (กันตอบซ้ำ)
+      // ซิงค์อัตโนมัติทุก 10 วินาที เพื่อให้เพื่อนในกลุ่มเห็นคำถามและคำตอบที่เพิ่งส่งทันที
       setInterval(() => {
         if (!document.hidden && !isMutating) fetchAllWorkshopData(false);
       }, 10000);
@@ -965,6 +1011,14 @@
           closeQAReaderModal();
           closeDeleteModal();
           closeStaffUnlockModal();
+        } else if (readerActiveIndex !== -1 && !document.getElementById('qa-reader-modal').classList.contains('hidden')) {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            stepQAReader(-1);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            stepQAReader(1);
+          }
         }
       });
     }
@@ -994,7 +1048,6 @@
         const requests = [
           fetch(`${API_URL}?action=getWorkshopData&_t=${ts}`, { cache: 'no-store' })
         ];
-        // ดึงรายชื่อผู้เข้าร่วมทั้งหมดในครั้งแรก (และตอนกดรีเฟรช) เพื่อแสดงรายชื่อสมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน + ผู้เชี่ยวชาญประจำโต๊ะ
         if (!hasInitializedFromServer || showLoading || allParticipants.length === 0) {
           requests.push(fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }).catch(() => null));
         }
@@ -1007,95 +1060,95 @@
         morningIssues = Array.isArray(wJson.data?.issues) ? wJson.data.issues : [];
         afternoonQAs = Array.isArray(wJson.data?.qas) ? wJson.data.qas : [];
 
-        const liveCfg = wJson.data?.workshopConfig;
-        if (liveCfg) {
-          workshopConfig = liveCfg;
-          if (Number(liveCfg.currentRound) >= 1 && Number(liveCfg.currentRound) <= 5) {
-            const newRound = Number(liveCfg.currentRound);
-            const roundChangedLive = hasInitializedFromServer && lastKnownServerRound > 0 && newRound !== lastKnownServerRound;
-            userContext.currentRound = newRound;
-            lastKnownServerRound = newRound;
-            if (roundChangedLive && activeTab !== 'library') {
-              showRoundChangeNotification(newRound);
-            }
-          }
-        }
-
+        // 1. ประมวลผลรายชื่อผู้เข้าร่วม (ดึงกลุ่มประจำตัวและบทบาทจริงจาก Google Sheets)
         if (pRes && pRes.ok) {
           try {
             const pJson = await pRes.json();
             if (pJson.status === 'success' && Array.isArray(pJson.data)) {
               allParticipants = pJson.data;
-              if (userContext.id) {
-                const me = allParticipants.find(x => String(x.id || '').trim().toUpperCase() === userContext.id.toUpperCase());
-                if (me) {
-                  const isSub = me.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(me.substituteName);
-                  const fullName = (isSub ? me.substituteName : me.fullName) || userContext.name;
-                  userContext.name = String(fullName).trim();
-                  const g = parseGroupDigit(me.workshopGroup);
-                  const wr = String(me.workshopRole || '');
-                  const role = String(me.role || '');
-                  const isExp = wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร') || role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร');
-
-                  if (userContext.userType !== 'staff') {
-                    userContext.userType = isExp ? 'expert' : 'member';
-                  }
-                  if (g >= 1 && g <= 5) {
-                    userContext.baseGroup = g;
-                  }
-                  if (userContext.name) {
-                    persistRecorderName(userContext.name);
-                    if (isExp && !document.getElementById('qa-reviewer').value) {
-                      document.getElementById('qa-reviewer').value = userContext.name;
-                    }
-                  }
-
-                  if (!hasInitializedFromServer) {
-                    if (userContext.userType === 'expert' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
-                      selectedCategory = userContext.baseGroup;
-                      selectedGroup = getVisitingGroupAtStation(selectedCategory, userContext.currentRound) || 1;
-                      document.getElementById('q-filter-cat').value = String(selectedCategory);
-                      document.getElementById('q-filter-group').value = 'all';
-                      document.getElementById('qa-category').value = String(selectedCategory);
-                      document.getElementById('qa-group').value = String(selectedGroup);
-                    } else if (userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
-                      selectedGroup = userContext.baseGroup;
-                      selectedCategory = getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound) || 1;
-                      document.getElementById('q-filter-cat').value = String(selectedCategory);
-                      document.getElementById('q-filter-group').value = 'all';
-                      document.getElementById('qa-group').value = String(selectedGroup);
-                      document.getElementById('qa-category').value = String(selectedCategory);
-                    }
-                  }
-                }
-              }
+              hydrateUserContextFromParticipants();
             }
           } catch (e) {}
+        }
+
+        // 2. ประมวลผลรอบหมุนเวียนปัจจุบันจากเวที
+        const liveCfg = wJson.data?.workshopConfig;
+        if (liveCfg) {
+          workshopConfig = liveCfg;
+          const srvRound = Number(liveCfg.currentRound);
+          if (srvRound >= 1 && srvRound <= 5) {
+            const roundChangedLive = hasInitializedFromServer && lastKnownServerRound > 0 && srvRound !== lastKnownServerRound;
+            userContext.currentRound = srvRound;
+            if (!hasInitializedFromServer || userContext.userType !== 'staff') {
+              selectedRound = srvRound;
+            }
+            lastKnownServerRound = srvRound;
+
+            // โหลดครั้งแรก: ตั้งโต๊ะให้ตรงรอบเวทีอัตโนมัติ (กรณีล็อกกลุ่ม/ผู้เชี่ยวชาญ)
+            if (!hasInitializedFromServer) {
+              const urlCat = parseGroupDigit(new URLSearchParams(window.location.search).get('cat'));
+              if (isGroupLockedForUser()) {
+                selectedGroup = userContext.baseGroup;
+                selectedCategory = urlCat || getRotatingStationForGroup(userContext.baseGroup, srvRound) || 1;
+              } else if (userContext.userType === 'expert' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
+                selectedCategory = userContext.baseGroup;
+                selectedGroup = getVisitingGroupAtStation(userContext.baseGroup, srvRound) || 1;
+              }
+              document.getElementById('qa-category').value = String(selectedCategory);
+              document.getElementById('qa-group').value = String(selectedGroup);
+              document.getElementById('q-filter-cat').value = String(selectedCategory);
+            } else if (roundChangedLive && activeTab !== 'library') {
+              handleLiveRoundChangedFromServer(srvRound);
+            }
+          }
         }
 
         hasInitializedFromServer = true;
 
         if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
         if (syncText) {
-          const t = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
-          syncText.textContent = `ซิงค์ล่าสุด ${t} น. • เช้า ${morningIssues.length} ข้อ • คลัง Q&A ${afternoonQAs.length} ข้อ`;
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          syncText.textContent = `ซิงค์ล่าสุด ${nowStr} น. (เช้า ${morningIssues.length} • Q&A ${afternoonQAs.length})`;
         }
 
-        applyRoleUiAndPermissions();
-        updateCountersAndProgress();
-        renderTableRosterCard();
-        renderMorningTeammatePanel();
-        renderMorningList();
-        renderAfternoonStationButtons();
-        renderTeammateQaPanel();
-        renderAfternoonQueue();
-        renderQAExplorer();
-        if (!document.getElementById('qa-edit-id').value) {
-          updateQaScopeAndAutoSheetNo();
-        }
+        renderEverything();
       } catch (err) {
-        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0';
+        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-rose-400 inline-block shrink-0';
         if (syncText) syncText.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        if (showLoading) showToast('ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้: ' + err.message, 'error');
+      }
+    }
+
+    // ซิงค์ตัวตน บทบาท และกลุ่มประจำตัวของผู้สแกน QR จาก Google Sheets จริง
+    function hydrateUserContextFromParticipants() {
+      if (!userContext.id || allParticipants.length === 0) return;
+      const found = allParticipants.find(p => String(p.id || '').trim().toUpperCase() === userContext.id.toUpperCase());
+      if (!found) return;
+
+      const activeName = getDisplayNameOfParticipant(found);
+      if (activeName) {
+        userContext.name = activeName;
+        if (!document.getElementById('m-recorder').value) document.getElementById('m-recorder').value = activeName;
+        if (!document.getElementById('qa-recorder').value) document.getElementById('qa-recorder').value = activeName;
+      }
+
+      const grpNo = parseGroupDigit(found.workshopGroup);
+      if (userContext.userType !== 'staff') {
+        if (isFixedExpertPerson(found)) {
+          userContext.userType = 'expert';
+          if (grpNo) userContext.baseGroup = grpNo;
+          if (!document.getElementById('qa-reviewer').value && activeName) {
+            document.getElementById('qa-reviewer').value = activeName;
+          }
+        } else {
+          userContext.userType = 'member';
+          if (grpNo) {
+            userContext.baseGroup = grpNo;
+            selectedGroup = grpNo;
+          }
+        }
+      } else if (grpNo && !userContext.baseGroup) {
+        userContext.baseGroup = grpNo;
       }
     }
 
@@ -1109,74 +1162,57 @@
       return await res.json();
     }
 
-    // ==================== LIVE TABLE ROSTER (ผู้เชี่ยวชาญประจำโต๊ะ + ทั้งกลุ่มที่ย้ายมาด้วยกัน) ====================
-    function toggleRosterPanel() {
-      rosterCollapsed = !rosterCollapsed;
-      document.getElementById('table-roster-body')?.classList.toggle('hidden', rosterCollapsed);
-      const lbl = document.getElementById('roster-toggle-label');
-      if (lbl) lbl.textContent = rosterCollapsed ? 'แสดงรายชื่อ' : 'ซ่อนรายชื่อ';
+    // ==================== ROUND CONTROL & LIVE ROTATION ====================
+    function isUserCurrentlyDrafting() {
+      const mText = String(document.getElementById('m-issue-text')?.value || '').trim();
+      const mEdit = String(document.getElementById('m-edit-id')?.value || '').trim();
+      const qaQ = String(document.getElementById('qa-question')?.value || '').trim();
+      const qaA = String(document.getElementById('qa-answer')?.value || '').trim();
+      const qaEdit = String(document.getElementById('qa-edit-id')?.value || '').trim();
+      return Boolean(mText || mEdit || qaQ || qaA || qaEdit);
     }
 
-    function renderTableRosterCard() {
-      const card = document.getElementById('table-roster-card');
-      if (!card) return;
-      card.classList.toggle('hidden', activeTab === 'library' || isLibraryViewOnly);
-      if (activeTab === 'library' || isLibraryViewOnly) return;
+    function handleLiveRoundChangedFromServer(newRound) {
+      if (userContext.userType === 'staff') return;
+      selectedRound = newRound;
 
-      const catObj = getCategoryObj(selectedCategory);
-      const gNo = selectedGroup;
-
-      // 1. ผู้เชี่ยวชาญประจำโต๊ะนี้ (ไม่ลุกเปลี่ยนไปไหน)
-      const expertList = allParticipants
-        .filter(p => parseGroupDigit(p.workshopGroup) === selectedCategory && isFixedExpertPerson(p))
-        .map(p => ({
-          id: p.id,
-          name: (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName
-        }));
-
-      const apiG = (workshopConfig.groups || []).find(x => Number(x.groupNo) === selectedCategory);
-      if (apiG && apiG.experts) {
-        String(apiG.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean).forEach(extName => {
-          const dup = expertList.some(e => e.name.trim() === extName) ||
-                      allParticipants.some(p => p.fullName?.trim() === extName || p.substituteName?.trim() === extName);
-          if (!dup) expertList.push({ id: '', name: extName });
-        });
+      // หากผู้เข้าร่วม/ผู้เชี่ยวชาญไม่ได้กำลังพิมพ์ค้างอยู่ ให้ย้ายโต๊ะอัตโนมัติทันที
+      if (!isUserCurrentlyDrafting()) {
+        applyRecommendedStationForRound(newRound, true);
+        dismissRoundChangeBanner();
+        return;
       }
-
-      // 2. สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน (ตามกลุ่มที่เลือก)
-      const memberList = allParticipants
-        .filter(p => !isFixedExpertPerson(p) && parseGroupDigit(p.workshopGroup) === gNo)
-        .map(p => ({
-          id: p.id,
-          name: (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName,
-          unit: p.mainUnit || ''
-        }));
-
-      document.getElementById('roster-card-title').textContent =
-        `โต๊ะที่ ${catObj.no} (${catObj.short}) — ⭐ ผู้เชี่ยวชาญ ${expertList.length} ท่าน + 👥 สมาชิกกลุ่มที่ ${gNo} ย้ายมาด้วยกัน ${memberList.length} ท่าน`;
-      document.getElementById('roster-card-sub').textContent =
-        `เมื่อเปลี่ยนโต๊ะ สมาชิกกลุ่มที่ ${gNo} ทั้งหมดจะย้ายมาที่โต๊ะที่ ${catObj.no} พร้อมกัน (ผู้เชี่ยวชาญนั่งประจำโต๊ะเดิม)`;
-
-      document.getElementById('roster-expert-title').textContent = `⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ ${catObj.no} (ไม่ย้ายโต๊ะ)`;
-      document.getElementById('roster-expert-count').textContent = `${expertList.length} ท่าน`;
-      document.getElementById('roster-expert-chips').innerHTML = expertList.length === 0
-        ? `<span class="text-xs text-amber-800/70 italic">ยังไม่ได้ระบุผู้เชี่ยวชาญประจำโต๊ะนี้</span>`
-        : expertList.map(e => {
-            const isMe = userContext.id && e.id && e.id.toUpperCase() === userContext.id.toUpperCase();
-            return `<span class="px-2.5 py-1 rounded-xl text-xs font-bold ${isMe ? 'bg-amber-500 text-slate-950 shadow-xs' : 'bg-white border border-amber-300 text-amber-950'}">${isMe ? '★ ' : ''}${escapeHtml(e.name)}</span>`;
-          }).join('');
-
-      document.getElementById('roster-member-title').textContent = `👥 สมาชิกกลุ่มที่ ${gNo} (ย้ายโต๊ะมาพร้อมกันทั้งกลุ่ม)`;
-      document.getElementById('roster-member-count').textContent = `${memberList.length} ท่าน`;
-      document.getElementById('roster-member-chips').innerHTML = memberList.length === 0
-        ? `<span class="text-xs text-slate-400 italic">ยังไม่มีรายชื่อสมาชิกในกลุ่มที่ ${gNo}</span>`
-        : memberList.map(m => {
-            const isMe = userContext.id && m.id && m.id.toUpperCase() === userContext.id.toUpperCase();
-            return `<span class="px-2.5 py-1 rounded-xl text-xs ${isMe ? 'bg-navy-700 text-white font-extrabold shadow-xs' : 'bg-white border border-blue-200 text-slate-800 font-semibold'}">${escapeHtml(m.name)}${isMe ? ' (ท่าน)' : ''}</span>`;
-          }).join('');
+      showRoundChangeNotification(newRound);
     }
 
-    // ==================== ROUND CHANGE BANNER & LIBRARY VIEW-ONLY MODE ====================
+    function applyRecommendedStationForRound(roundNo, showFeedback = false) {
+      selectedRound = Math.max(1, Math.min(5, Number(roundNo) || 1));
+
+      if (isGroupLockedForUser()) {
+        selectedGroup = userContext.baseGroup;
+        const nextCat = getRotatingStationForGroup(userContext.baseGroup, selectedRound) || 1;
+        selectWorkingCategory(nextCat);
+        if (showFeedback) {
+          showToast(`🔔 รอบที่ ${selectedRound}/5: ย้ายกลุ่มที่ ${userContext.baseGroup} ไป${getCategoryObj(nextCat).tableLabel} อัตโนมัติแล้ว`, 'success');
+        }
+      } else if (userContext.userType === 'expert' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
+        const nextGrp = getVisitingGroupAtStation(userContext.baseGroup, selectedRound) || 1;
+        selectedCategory = userContext.baseGroup;
+        selectedGroup = nextGrp;
+        const qaGrpSel = document.getElementById('qa-group');
+        const qaCatSel = document.getElementById('qa-category');
+        if (qaCatSel && !document.getElementById('qa-edit-id').value) qaCatSel.value = String(selectedCategory);
+        if (qaGrpSel && !document.getElementById('qa-edit-id').value) qaGrpSel.value = String(selectedGroup);
+        renderEverything();
+        if (showFeedback) {
+          showToast(`🔔 รอบที่ ${selectedRound}/5: กลุ่มที่ ${nextGrp} ย้ายมาที่โต๊ะที่ ${userContext.baseGroup} ของท่านแล้ว`, 'success');
+        }
+      } else {
+        const nextCat = getRotatingStationForGroup(selectedGroup, selectedRound) || selectedCategory;
+        selectWorkingCategory(nextCat);
+      }
+    }
+
     function showRoundChangeNotification(newRound) {
       const banner = document.getElementById('round-change-banner');
       const txt = document.getElementById('round-change-text');
@@ -1199,15 +1235,7 @@
     }
 
     function jumpToRecommendedStation() {
-      if (userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
-        const nextCat = getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound);
-        selectWorkingCategory(nextCat);
-        showToast(`กลุ่มที่ ${userContext.baseGroup} ย้ายมาที่ ${getCategoryObj(nextCat).tableLabel} แล้ว`, 'success');
-      } else if (userContext.userType === 'expert' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5) {
-        const nextGrp = getVisitingGroupAtStation(userContext.baseGroup, userContext.currentRound);
-        selectMorningGroup(nextGrp);
-        showToast(`สลับเป็นกลุ่มที่ ${nextGrp} สำหรับรอบที่ ${userContext.currentRound} แล้ว`, 'success');
-      }
+      applyRecommendedStationForRound(userContext.currentRound, true);
       dismissRoundChangeBanner();
     }
 
@@ -1215,109 +1243,179 @@
       document.getElementById('round-change-banner')?.classList.add('hidden');
     }
 
+    // ควบคุมการสลับรอบ (เฉพาะเจ้าหน้าที่เท่านั้น)
+    function selectWorkingRound(roundNo, showFeedback = false) {
+      if (userContext.userType !== 'staff') return;
+      applyRecommendedStationForRound(roundNo, showFeedback);
+    }
+
+    // เจ้าหน้าที่กดซิงค์รอบที่เลือกลง Google Sheets เพื่ออัปเดตหน้าบัตรทุกคนทันที
+    async function syncSelectedRoundToServer() {
+      if (userContext.userType !== 'staff') return;
+      const btn = document.getElementById('btn-staff-sync-round');
+      const lbl = document.getElementById('btn-staff-sync-round-label');
+      if (btn) btn.disabled = true;
+      if (lbl) lbl.textContent = 'กำลังซิงค์...';
+      isMutating = true;
+
+      try {
+        const res = await postToApi({ action: 'setWorkshopRound', currentRound: selectedRound });
+        if (res.status !== 'success') throw new Error(res.message || 'ซิงค์รอบไม่สำเร็จ');
+        userContext.currentRound = selectedRound;
+        lastKnownServerRound = selectedRound;
+        showToast(`📢 ซิงค์เปลี่ยนเป็นรอบที่ ${selectedRound}/5 ขึ้นเวทีและหน้าบัตรทุกคนเรียบร้อยแล้ว!`, 'success');
+        renderEverything();
+      } catch (err) {
+        showToast('ซิงค์รอบไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        if (btn) btn.disabled = false;
+        if (lbl) lbl.textContent = `ซิงค์รอบ ${selectedRound} ให้ทุกคน`;
+      }
+    }
+
+    function renderRoundSelectorCard() {
+      const card = document.getElementById('round-selector-card');
+      const titleEl = document.getElementById('round-selector-title');
+      const box = document.getElementById('round-selector-buttons');
+      const livePill = document.getElementById('live-stage-round-pill');
+      const hintEl = document.getElementById('round-selector-hint');
+      const syncBtn = document.getElementById('btn-staff-sync-round');
+      const syncLbl = document.getElementById('btn-staff-sync-round-label');
+      if (!card || !box) return;
+
+      const hideCard = activeTab === 'library' || isLibraryViewOnly;
+      card.classList.toggle('hidden', hideCard);
+      if (hideCard) return;
+
+      const isLockedMember = isGroupLockedForUser();
+      const isExpert = userContext.userType === 'expert' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
+      const isStaff = userContext.userType === 'staff';
+
+      if (!isStaff) {
+        selectedRound = userContext.currentRound;
+      }
+
+      if (titleEl) {
+        titleEl.textContent = isStaff
+          ? `🛡️ ควบคุมรอบหมุนเวียนกลาง (เฉพาะเจ้าหน้าที่ • เลือกรอบ 1–5)`
+          : `📍 รอบหมุนเวียนปัจจุบัน: รอบที่ ${userContext.currentRound} / 5 (ควบคุมโดยเจ้าหน้าที่)`;
+      }
+      if (livePill) {
+        livePill.textContent = `● รอบเวที: รอบที่ ${userContext.currentRound}`;
+      }
+      if (hintEl) {
+        if (isStaff) {
+          hintEl.textContent = `กดเลือกรอบ 1–5 แล้วกดปุ่ม “ซิงค์รอบนี้ให้ทุกคน” เพื่อเปลี่ยนรอบกลางบนเวทีและหน้าบัตรผู้เข้าร่วมทุกคน`;
+        } else if (isLockedMember) {
+          const curTbl = getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound);
+          hintEl.textContent = `🔒 ล็อกกลุ่มที่ ${userContext.baseGroup} ตามบัตรของท่าน • โต๊ะรอบนี้คือ โต๊ะที่ ${curTbl} (เปลี่ยนรอบอัตโนมัติตามเจ้าหน้าที่)`;
+        } else if (isExpert) {
+          const visGrp = getVisitingGroupAtStation(userContext.baseGroup, userContext.currentRound);
+          hintEl.textContent = `⭐ โต๊ะประจำท่าน: โต๊ะที่ ${userContext.baseGroup} • รอบนี้กลุ่มที่ ${visGrp} ย้ายมาที่โต๊ะท่าน (ควบคุมรอบโดยเจ้าหน้าที่)`;
+        } else {
+          hintEl.textContent = `รอบกิจกรรมควบคุมโดยเจ้าหน้าที่บนเวที (ระบบอัปเดตอัตโนมัติ)`;
+        }
+      }
+
+      if (syncBtn) {
+        syncBtn.classList.toggle('hidden', !isStaff);
+        if (syncLbl) syncLbl.textContent = `ซิงค์รอบ ${selectedRound} ให้ทุกคน`;
+      }
+
+      box.classList.toggle('hidden', !isStaff);
+      if (!isStaff) {
+        box.innerHTML = '';
+        return;
+      }
+
+      box.innerHTML = [1, 2, 3, 4, 5].map(r => {
+        const active = r === selectedRound;
+        const isStageLive = r === userContext.currentRound;
+        const subText = `โต๊ะ ${getRotatingStationForGroup(selectedGroup, r) || r}`;
+        return `
+          <button type="button" onclick="selectWorkingRound(${r}, true)" class="py-2 px-1.5 rounded-2xl border-2 text-center transition ${
+            active
+              ? 'border-navy-700 bg-navy-700 text-white shadow-sm'
+              : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-navy-700/60 text-slate-800'
+          }">
+            <div class="flex items-center justify-center gap-1 text-[10px] font-bold ${active ? 'text-gold-400' : (isStageLive ? 'text-emerald-700' : 'text-slate-400')}">
+              ${isStageLive ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span><span>เวที</span>' : '<span>รอบที่</span>'}
+            </div>
+            <div class="font-mono text-base sm:text-lg font-extrabold leading-tight">${r}</div>
+            <div class="text-[10.5px] font-bold truncate ${active ? 'text-blue-100' : 'text-slate-600'}">${escapeHtml(subText)}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // ==================== TABS & VIEW-ONLY LIBRARY MODE ====================
     function applyLibraryViewOnlyUi(viewOnly) {
       isLibraryViewOnly = Boolean(viewOnly);
-      document.getElementById('worksheet-tabs-bar')?.classList.toggle('hidden', isLibraryViewOnly);
       document.getElementById('library-view-mode-bar')?.classList.toggle('hidden', !isLibraryViewOnly);
-      if (isLibraryViewOnly) {
-        document.getElementById('round-change-banner')?.classList.add('hidden');
-      }
-      renderTableRosterCard();
-      if (window.lucide) lucide.createIcons();
+      document.getElementById('worksheet-tabs-bar')?.classList.toggle('hidden', isLibraryViewOnly);
     }
 
     function exitLibraryViewOnlyMode() {
       applyLibraryViewOnlyUi(false);
-      switchWorksheetTab('afternoon');
+      switchWorksheetTab('morning');
     }
 
-    // ==================== ROLE-BASED UI & FREE SELECTION ====================
+    function switchWorksheetTab(tab) {
+      activeTab = tab;
+      document.getElementById('panel-morning')?.classList.toggle('hidden', tab !== 'morning');
+      document.getElementById('panel-afternoon')?.classList.toggle('hidden', tab !== 'afternoon');
+      document.getElementById('panel-library')?.classList.toggle('hidden', tab !== 'library');
+
+      const tabConfigs = [
+        { key: 'morning', activeCls: 'border-navy-700 bg-navy-700 text-white', iconActive: 'bg-white/15 text-gold-400', badgeActive: 'bg-gold-500 text-slate-950', iconInactive: 'bg-blue-100 text-navy-700', badgeInactive: 'bg-slate-100 text-slate-700' },
+        { key: 'afternoon', activeCls: 'border-maroon-700 bg-maroon-700 text-white', iconActive: 'bg-white/15 text-gold-400', badgeActive: 'bg-gold-500 text-slate-950', iconInactive: 'bg-rose-100 text-maroon-700', badgeInactive: 'bg-slate-100 text-slate-700' },
+        { key: 'library', activeCls: 'border-teal-700 bg-teal-700 text-white', iconActive: 'bg-white/15 text-gold-400', badgeActive: 'bg-gold-500 text-slate-950', iconInactive: 'bg-teal-100 text-teal-800', badgeInactive: 'bg-slate-100 text-slate-700' }
+      ];
+
+      tabConfigs.forEach(tc => {
+        const btn = document.getElementById(`tab-btn-${tc.key}`);
+        const icon = document.getElementById(`tab-icon-${tc.key}`);
+        const badge = document.getElementById(`badge-count-${tc.key}`);
+        const isAct = tc.key === tab;
+        if (btn) {
+          btn.className = `p-3 rounded-2xl border-2 text-left flex items-center justify-between gap-2.5 transition shadow-xs ${
+            isAct ? tc.activeCls : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+          }`;
+        }
+        if (icon) icon.className = `w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isAct ? tc.iconActive : tc.iconInactive}`;
+        if (badge) badge.className = `px-2.5 py-1 rounded-full font-mono text-xs font-extrabold shrink-0 ${isAct ? tc.badgeActive : tc.badgeInactive}`;
+      });
+
+      renderRoundSelectorCard();
+      renderTableRosterCard();
+      if (tab === 'afternoon') {
+        syncQaFormCategoryScopeAndSheetNo();
+      } else if (tab === 'library') {
+        renderQAExplorer();
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ==================== ROLE UI, PERMISSIONS & TABLE ROSTER ====================
     function applyRoleUiAndPermissions() {
-      const expertOrStaff = isExpertOrStaff();
       const isStaff = userContext.userType === 'staff';
       const isExpert = userContext.userType === 'expert';
-      const hasBaseGroup = userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
+      const hasBaseGroup = userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
+      const isLockedMember = isGroupLockedForUser();
 
-      const banner = document.getElementById('identity-banner');
-      const codeEl = document.getElementById('id-badge-code');
-      const nameEl = document.getElementById('id-badge-name');
-      const rolePill = document.getElementById('id-badge-role-pill');
-      const rotSummary = document.getElementById('id-rotation-summary');
-
-      document.getElementById('btn-open-display')?.classList.toggle('hidden', !expertOrStaff);
+      // Header & Footer buttons
+      document.getElementById('btn-open-display')?.classList.toggle('hidden', !isStaff);
       document.getElementById('footer-unlock-wrap')?.classList.toggle('hidden', isStaff);
 
-      const tabAfTitle = document.getElementById('tab-afternoon-title');
-      const tabAfSub = document.getElementById('tab-afternoon-sub');
-      const qaHeaderTitle = document.getElementById('qa-header-title');
-      const qaFormTitle = document.getElementById('qa-form-title');
-      const qaFormSub = document.getElementById('qa-form-sub');
-      const qaGroupSel = document.getElementById('qa-group');
-      const qaGroupLabel = document.getElementById('qa-group-label');
-      const qaGroupBadge = document.getElementById('qa-group-role-badge');
-      const qaCatBadge = document.getElementById('qa-cat-role-badge');
-      const qaReviewerLbl = document.getElementById('qa-reviewer-label');
-      const roleNoticeBox = document.getElementById('role-permission-notice');
-      const roleNoticeText = document.getElementById('role-permission-text');
+      // แถบแสดงตัวตนด้านบน
+      const banner = document.getElementById('user-context-banner');
+      const codeEl = document.getElementById('uc-code');
+      const nameEl = document.getElementById('uc-name');
+      const rolePill = document.getElementById('uc-role-pill');
+      const rotSummary = document.getElementById('uc-rotation-summary');
 
-      if (qaGroupSel) qaGroupSel.disabled = false;
-
-      if (isStaff) {
-        tabAfTitle.textContent = 'ใบงานบ่าย (จัดการ Q&A)';
-        tabAfSub.textContent = 'ตอบ/แก้ไขได้ครบทุกโต๊ะ';
-        qaHeaderTitle.textContent = 'ใบงานช่วงบ่าย : จัดการคลังความรู้ Q&A (โหมดเจ้าหน้าที่)';
-        qaFormTitle.textContent = '🛡️ ฟอร์มจัดทำและจัดการคำตอบ Q&A (โหมดเจ้าหน้าที่)';
-        qaFormSub.textContent = 'เลือกโต๊ะ/หมวด และกลุ่มเพื่อบันทึกหรือแก้ไขคำตอบได้ทั้งหมด';
-        qaGroupLabel.innerHTML = 'กลุ่มที่ (1–5) <span class="text-rose-600">*</span>';
-        qaGroupBadge.classList.add('hidden');
-        qaCatBadge.classList.add('hidden');
-        qaReviewerLbl.textContent = 'หัวหน้ากลุ่ม / ผู้เชี่ยวชาญผู้ตรวจสอบความถูกต้อง';
-        roleNoticeBox.className = 'p-3 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-start gap-2.5 text-xs sm:text-sm text-indigo-950';
-        roleNoticeText.innerHTML = '<strong>🛡️ โหมดเจ้าหน้าที่:</strong> กดสลับโต๊ะ 1–5 และกลุ่ม 1–5 เพื่อดึงคำถามช่วงเช้ามาจัดทำ ตรวจทาน แก้ไข หรือลบได้ครบทุกโต๊ะ';
-      } else if (isExpert) {
-        const expCatObj = userContext.baseGroup ? getCategoryObj(userContext.baseGroup) : null;
-        tabAfTitle.textContent = 'ใบงานบ่าย (ตอบ Q&A)';
-        tabAfSub.textContent = expCatObj ? `ตอบ Q&A โต๊ะที่ ${expCatObj.no}` : 'ตอบ & ตรวจทาน Q&A';
-        qaHeaderTitle.textContent = 'ใบงานช่วงบ่าย : ตอบและตรวจทานคำถาม Q&A (ผู้เชี่ยวชาญประจำโต๊ะ)';
-        qaFormTitle.textContent = expCatObj
-          ? `⭐ ฟอร์มตอบคำถาม Q&A — ผู้เชี่ยวชาญประจำ${expCatObj.tableLabel}`
-          : '⭐ ฟอร์มตอบคำถาม Q&A (ผู้เชี่ยวชาญ)';
-        qaFormSub.textContent = 'ดึงคำถามช่วงเช้าของทุกกลุ่ม (1–5) ที่มาคุยที่โต๊ะท่านมาตอบเป็นข้อๆ หรือสลับดูโต๊ะอื่นได้อิสระ';
-        qaGroupLabel.innerHTML = 'กลุ่มที่ถาม (1–5) <span class="text-rose-600">*</span>';
-        qaGroupBadge.classList.add('hidden');
-        if (expCatObj) {
-          qaCatBadge.textContent = `⭐ โต๊ะประจำท่าน: โต๊ะ ${expCatObj.no}`;
-          qaCatBadge.classList.remove('hidden');
-        } else {
-          qaCatBadge.classList.add('hidden');
-        }
-        qaReviewerLbl.textContent = 'ผู้เชี่ยวชาญประจำโต๊ะ / ผู้ตรวจสอบความถูกต้อง';
-        roleNoticeBox.className = 'p-3 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950';
-        roleNoticeText.innerHTML = expCatObj
-          ? `<strong>⭐ ผู้เชี่ยวชาญประจำ ${escapeHtml(expCatObj.tableLabel)}:</strong> ท่านนั่งประจำโต๊ะเดิม ดึงคำถามของ<strong>ทุกกลุ่ม (1–5)</strong> มาตอบเป็นข้อๆ และดูคำตอบที่ส่งแล้วด้านล่างเพื่อป้องกันการตอบซ้ำ`
-          : '<strong>⭐ ผู้เชี่ยวชาญ / วิทยากร:</strong> กดเลือกโต๊ะ 1–5 ด้านบนเพื่อดึงคำถามช่วงเช้าของทุกกลุ่มมาตอบเป็นข้อๆ ได้ทันที';
-      } else {
-        tabAfTitle.textContent = 'ใบงานบ่าย (กรอก Q&A)';
-        tabAfSub.textContent = 'เลือกโต๊ะแล้วดึงคำถามมาตอบ';
-        qaHeaderTitle.textContent = 'ใบงานช่วงบ่าย : จัดทำคำถาม–คำตอบ (Q&A)';
-        qaFormTitle.textContent = '📝 ใบงานที่ 2 : จัดทำคำถาม–คำตอบมาตรฐาน (Q&A)';
-        qaFormSub.textContent = 'แตะเลือกโต๊ะ (1–5) ได้เองทุกเมื่อ ทั้งโต๊ะรอบปัจจุบันหรือย้อนกลับไปตอบโต๊ะที่ผ่านมาแล้ว';
-        qaGroupLabel.innerHTML = 'กลุ่มผู้จัดทำ (1–5) <span class="text-rose-600">*</span>';
-        if (hasBaseGroup) {
-          qaGroupBadge.textContent = `กลุ่มท่าน: กลุ่ม ${userContext.baseGroup}`;
-          qaGroupBadge.classList.remove('hidden');
-        } else {
-          qaGroupBadge.classList.add('hidden');
-        }
-        qaCatBadge.classList.add('hidden');
-        qaReviewerLbl.textContent = 'หัวหน้ากลุ่ม / ผู้เชี่ยวชาญผู้ตรวจสอบความถูกต้อง';
-        roleNoticeBox.className = 'p-3 rounded-2xl bg-blue-50 border border-blue-200 flex items-start gap-2.5 text-xs sm:text-sm text-navy-900';
-        roleNoticeText.innerHTML = hasBaseGroup
-          ? `<strong>👥 ผู้เข้าร่วม (กลุ่มที่ ${userContext.baseGroup}):</strong> ผู้บันทึกเลือก <strong>โต๊ะ 1–5</strong> เองได้ตลอด (รวมถึงย้อนกลับไปตอบโต๊ะเดิมที่ลุกมาแล้ว) และเห็นคำตอบของเพื่อนในกลุ่มที่ ${userContext.baseGroup} ทันทีเพื่อกันตอบซ้ำกันครับ`
-          : '<strong>👥 ผู้เข้าร่วมสัมมนา:</strong> กดเลือก <strong>โต๊ะ 1–5</strong> ด้านบนได้เองเพื่อดึงคำถามช่วงเช้ามาตอบเป็นข้อๆ และดูคำตอบที่เพื่อนในกลุ่มส่งแล้วด้านล่างเพื่อกันตอบซ้ำครับ';
-      }
-
-      if (userContext.id || isStaff) {
+      if (banner && (userContext.id || isStaff)) {
         banner.classList.remove('hidden');
         codeEl.textContent = userContext.id || 'STAFF';
         nameEl.textContent = userContext.name || (isStaff ? 'เจ้าหน้าที่ / คณะทำงาน (โหมดจัดการทั้งหมด)' : 'ผู้เข้าร่วมสัมมนา');
@@ -1326,15 +1424,15 @@
           const catObj = getCategoryObj(userContext.baseGroup || selectedCategory);
           const visitingGrp = getVisitingGroupAtStation(catObj.no, userContext.currentRound);
           rolePill.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
-          rolePill.textContent = userContext.baseGroup ? `⭐ ผู้เชี่ยวชาญ โต๊ะที่ ${userContext.baseGroup}` : '⭐ ผู้เชี่ยวชาญ / วิทยากร';
+          rolePill.textContent = hasBaseGroup ? `⭐ ผู้เชี่ยวชาญ โต๊ะที่ ${userContext.baseGroup}` : '⭐ ผู้เชี่ยวชาญ / วิทยากร';
           rotSummary.innerHTML = `
             <span class="font-bold text-navy-800">⭐ โต๊ะประจำท่าน: ${escapeHtml(catObj.tableLabel)}</span> (นั่งประจำไม่ย้ายโต๊ะ) •
-            <span class="font-bold text-maroon-700">รอบที่ ${userContext.currentRound}/5: กลุ่มที่ ${visitingGrp} ย้ายมาที่โต๊ะท่านทั้งกลุ่ม</span>
+            <span class="font-bold text-maroon-700">รอบปัจจุบัน (${userContext.currentRound}/5): กลุ่มที่ ${visitingGrp} ย้ายมาที่โต๊ะท่านทั้งกลุ่ม</span>
           `;
         } else if (isStaff) {
           rolePill.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
           rolePill.textContent = '🛡️ โหมดเจ้าหน้าที่';
-          rotSummary.innerHTML = `รอบหมุนเวียนปัจจุบัน: <strong class="text-navy-800">รอบที่ ${userContext.currentRound}/5</strong> • เจ้าหน้าที่สามารถสลับโต๊ะ 1–5 และกลุ่ม 1–5 เพื่อบันทึก ตรวจทาน หรือแก้ไขได้ทั้งหมด`;
+          rotSummary.innerHTML = `รอบหมุนเวียนปัจจุบัน: <strong class="text-navy-800">รอบที่ ${userContext.currentRound}/5</strong> • เจ้าหน้าที่สามารถเปลี่ยนรอบกลาง สลับโต๊ะ 1–5 และกลุ่ม 1–5 เพื่อบันทึก ตรวจทาน หรือแก้ไขได้ทั้งหมด`;
         } else {
           rolePill.className = 'px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0';
           rolePill.textContent = hasBaseGroup ? `👥 กลุ่มที่ ${userContext.baseGroup}` : '👥 ผู้เข้าร่วมสัมมนา';
@@ -1343,159 +1441,228 @@
             const curStation = getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound);
             const stObj = getCategoryObj(curStation);
             rotSummary.innerHTML = `
-              <strong>กลุ่มประจำตัว:</strong> <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">กลุ่มที่ ${userContext.baseGroup}</span>
+              <strong>กลุ่มประจำตัว:</strong> <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">🔒 ล็อกกลุ่มที่ ${userContext.baseGroup}</span>
               <span class="mx-1">•</span>
-              <strong>รอบปัจจุบัน (${userContext.currentRound}/5):</strong> ทั้งกลุ่มย้ายมาอยู่ที่ <span class="font-extrabold text-navy-800">${escapeHtml(stObj.tableLabel)}</span>
-              <span class="mx-1">•</span>
-              <span class="text-slate-600">กดเปลี่ยนหรือย้อนโต๊ะ 1–5 เองได้ตลอดเวลา</span>
+              <strong>รอบปัจจุบันจากเวที (รอบที่ ${userContext.currentRound}/5):</strong> โต๊ะของกลุ่มท่านคือ <span class="font-extrabold text-navy-800">${escapeHtml(stObj.tableLabel)}</span>
             `;
           } else {
-            rotSummary.innerHTML = `รอบหมุนเวียนปัจจุบัน: <strong class="text-navy-800">รอบที่ ${userContext.currentRound}/5</strong> • กดเลือก <strong>โต๊ะ 1–5</strong> เพื่อส่งประเด็นหรือตอบ Q&amp;A ได้ทันที`;
+            rotSummary.innerHTML = `รอบหมุนเวียนปัจจุบันจากเวที: <strong class="text-navy-800">รอบที่ ${userContext.currentRound}/5</strong> (ควบคุมโดยเจ้าหน้าที่)`;
           }
         }
-      } else {
+      } else if (banner) {
         banner.classList.add('hidden');
       }
 
-      renderMorningSelectors();
-      renderAfternoonStationButtons();
-      renderTableRosterCard();
-      if (window.lucide) lucide.createIcons();
-    }
+      // ข้อความสิทธิ์และล็อกช่องกลุ่มในช่วงบ่าย (Q&A)
+      const qaGroupSel = document.getElementById('qa-group');
+      const qaGroupBadge = document.getElementById('qa-group-role-badge');
+      const qaCatBadge = document.getElementById('qa-cat-role-badge');
+      const roleNoticeBox = document.getElementById('role-permission-notice');
+      const roleNoticeText = document.getElementById('role-permission-text');
 
-    // ==================== TAB SWITCHING ====================
-    function switchWorksheetTab(tab) {
-      activeTab = tab;
-      document.getElementById('panel-morning').classList.toggle('hidden', tab !== 'morning');
-      document.getElementById('panel-afternoon').classList.toggle('hidden', tab !== 'afternoon');
-      document.getElementById('panel-library').classList.toggle('hidden', tab !== 'library');
-
-      const tabStyles = {
-        morning: {
-          btn: 'p-3 rounded-2xl border-2 border-navy-700 bg-gradient-to-r from-navy-800 to-navy-700 text-white text-left flex items-center justify-between gap-2.5 transition shadow-md',
-          icon: 'w-10 h-10 rounded-xl bg-white/15 text-gold-400 flex items-center justify-center shrink-0',
-          badge: 'px-2.5 py-1 rounded-full bg-white text-navy-800 font-mono text-xs font-extrabold shrink-0',
-          offIcon: 'w-10 h-10 rounded-xl bg-blue-50 text-navy-700 flex items-center justify-center shrink-0',
-          offBadge: 'px-2.5 py-1 rounded-full bg-blue-100 text-navy-800 font-mono text-xs font-extrabold shrink-0'
-        },
-        afternoon: {
-          btn: 'p-3 rounded-2xl border-2 border-maroon-700 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white text-left flex items-center justify-between gap-2.5 transition shadow-md',
-          icon: 'w-10 h-10 rounded-xl bg-white/15 text-gold-400 flex items-center justify-center shrink-0',
-          badge: 'px-2.5 py-1 rounded-full bg-white text-maroon-800 font-mono text-xs font-extrabold shrink-0',
-          offIcon: 'w-10 h-10 rounded-xl bg-rose-50 text-maroon-700 flex items-center justify-center shrink-0',
-          offBadge: 'px-2.5 py-1 rounded-full bg-rose-100 text-maroon-800 font-mono text-xs font-extrabold shrink-0'
-        },
-        library: {
-          btn: 'p-3 rounded-2xl border-2 border-teal-700 bg-gradient-to-r from-teal-800 to-teal-700 text-white text-left flex items-center justify-between gap-2.5 transition shadow-md',
-          icon: 'w-10 h-10 rounded-xl bg-white/15 text-gold-400 flex items-center justify-center shrink-0',
-          badge: 'px-2.5 py-1 rounded-full bg-white text-teal-900 font-mono text-xs font-extrabold shrink-0',
-          offIcon: 'w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0',
-          offBadge: 'px-2.5 py-1 rounded-full bg-teal-100 text-teal-900 font-mono text-xs font-extrabold shrink-0'
+      if (qaGroupSel) {
+        if (isLockedMember) {
+          selectedGroup = userContext.baseGroup;
+          qaGroupSel.value = String(userContext.baseGroup);
+          qaGroupSel.disabled = true;
+          if (qaGroupBadge) {
+            qaGroupBadge.textContent = `🔒 ล็อกกลุ่ม ${userContext.baseGroup}`;
+            qaGroupBadge.classList.remove('hidden');
+          }
+        } else {
+          qaGroupSel.disabled = false;
+          if (qaGroupBadge) qaGroupBadge.classList.add('hidden');
         }
-      };
-
-      ['morning', 'afternoon', 'library'].forEach(k => {
-        const active = k === tab;
-        const s = tabStyles[k];
-        const btn = document.getElementById(`tab-btn-${k}`);
-        const icon = document.getElementById(`tab-icon-${k}`);
-        const badge = document.getElementById(`badge-count-${k}`);
-        if (btn) btn.className = active ? s.btn : 'p-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 hover:border-slate-400 text-left flex items-center justify-between gap-2.5 transition';
-        if (icon) icon.className = active ? s.icon : s.offIcon;
-        if (badge) badge.className = active ? s.badge : s.offBadge;
-      });
-
-      renderTableRosterCard();
-      if (tab === 'morning') {
-        renderMorningTeammatePanel();
-        renderMorningList();
-      } else if (tab === 'afternoon') {
-        renderAfternoonStationButtons();
-        updateQaScopeAndAutoSheetNo();
-        renderTeammateQaPanel();
-        renderAfternoonQueue();
-      } else if (tab === 'library') {
-        renderQAExplorer();
       }
-      if (window.lucide) lucide.createIcons();
+
+      if (qaCatBadge) {
+        if (isExpert && hasBaseGroup) {
+          qaCatBadge.textContent = `⭐ โต๊ะประจำท่าน: โต๊ะ ${userContext.baseGroup}`;
+          qaCatBadge.classList.remove('hidden');
+        } else {
+          qaCatBadge.classList.add('hidden');
+        }
+      }
+
+      if (roleNoticeBox && roleNoticeText) {
+        if (isStaff) {
+          roleNoticeBox.className = 'p-3 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-start gap-2.5 text-xs sm:text-sm text-indigo-950';
+          roleNoticeText.innerHTML = `<strong>🛡️ โหมดเจ้าหน้าที่:</strong> สามารถควบคุมรอบหมุนเวียนกลาง ดึงคำถามช่วงเช้ามาตอบ บันทึก แก้ไข และลบรายการได้ครบทั้ง 5 โต๊ะและ 5 กลุ่ม`;
+        } else if (isExpert) {
+          roleNoticeBox.className = 'p-3 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950';
+          roleNoticeText.innerHTML = hasBaseGroup
+            ? `<strong>⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ ${userContext.baseGroup}:</strong> ท่านสามารถดูคำถามจากทุกกลุ่ม (1–5) ดึงมาตอบเป็นข้อๆ และตรวจทานแก้ไข Q&amp;A ในโต๊ะที่รับผิดชอบได้ทั้งหมด`
+            : `<strong>⭐ ผู้เชี่ยวชาญ / วิทยากร:</strong> ท่านสามารถเลือกดูคำถามจากทุกกลุ่ม (1–5) และดึงมาตอบเป็นข้อๆ ได้ครบทุกโต๊ะ`;
+        } else {
+          roleNoticeBox.className = 'p-3 rounded-2xl bg-blue-50 border border-blue-200 flex items-start gap-2.5 text-xs sm:text-sm text-navy-900';
+          roleNoticeText.innerHTML = hasBaseGroup
+            ? `<strong>👥 ผู้เข้าร่วม (🔒 ล็อกกลุ่มที่ ${userContext.baseGroup}):</strong> กลุ่มประจำตัวและรอบกิจกรรม (รอบที่ ${userContext.currentRound}/5) กำหนดตามระบบอัตโนมัติ ท่านสามารถดึงคำถามช่วงเช้ามาตอบในนามกลุ่มที่ ${userContext.baseGroup} หรือแตะสลับโต๊ะ 1–5 เพื่อย้อนกลับไปตอบโต๊ะเดิมได้ทันที`
+            : `<strong>👥 ผู้เข้าร่วมสัมมนา:</strong> รอบกิจกรรมปัจจุบัน (รอบที่ ${userContext.currentRound}/5) ควบคุมโดยเจ้าหน้าที่ ท่านสามารถเลือกโต๊ะ 1–5 เพื่อดึงคำถามช่วงเช้ามาตอบเป็นข้อๆ และดูคำตอบเพื่อนเพื่อกันตอบซ้ำได้ทันที`;
+        }
+      }
     }
 
-    function updateCountersAndProgress() {
+    function toggleRosterPanel() {
+      rosterCollapsed = !rosterCollapsed;
+      document.getElementById('table-roster-body')?.classList.toggle('hidden', rosterCollapsed);
+      const lbl = document.getElementById('roster-toggle-label');
+      if (lbl) lbl.textContent = rosterCollapsed ? 'แสดงรายชื่อ' : 'ซ่อนรายชื่อ';
+    }
+
+    function renderTableRosterCard() {
+      const card = document.getElementById('table-roster-card');
+      if (!card) return;
+      const hideCard = activeTab === 'library' || isLibraryViewOnly;
+      card.classList.toggle('hidden', hideCard);
+      if (hideCard) return;
+
+      const catNo = selectedCategory;
+      const grpNo = isGroupLockedForUser() ? userContext.baseGroup : selectedGroup;
+      const catObj = getCategoryObj(catNo);
+
+      // ผู้เชี่ยวชาญประจำโต๊ะนี้ (นั่งประจำไม่ย้ายโต๊ะ)
+      const expertsAtTable = allParticipants.filter(p => parseGroupDigit(p.workshopGroup) === catNo && isFixedExpertPerson(p));
+      // สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน
+      const membersInGroup = allParticipants.filter(p => parseGroupDigit(p.workshopGroup) === grpNo && !isFixedExpertPerson(p));
+
+      document.getElementById('roster-card-title').textContent =
+        `รายชื่อที่โต๊ะที่ ${catNo} (${catObj.short}) — ⭐ ผู้เชี่ยวชาญประจำโต๊ะ (${expertsAtTable.length}) + 👥 กลุ่มที่ ${grpNo} (${membersInGroup.length} ราย ย้ายมาทั้งกลุ่ม)`;
+      document.getElementById('roster-expert-title').textContent = `⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ ${catNo} (นั่งประจำไม่ย้ายโต๊ะ)`;
+      document.getElementById('roster-expert-count').textContent = `${expertsAtTable.length} ราย`;
+      document.getElementById('roster-member-title').textContent = `👥 สมาชิกกลุ่มที่ ${grpNo} (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)`;
+      document.getElementById('roster-member-count').textContent = `${membersInGroup.length} ราย`;
+
+      const expBox = document.getElementById('roster-expert-chips');
+      const memBox = document.getElementById('roster-member-chips');
+
+      if (expBox) {
+        if (expertsAtTable.length === 0) {
+          const cfgGroup = (workshopConfig.groups || []).find(g => Number(g.groupNo) === catNo);
+          const fallbackExperts = cfgGroup && cfgGroup.experts
+            ? String(cfgGroup.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean)
+            : [];
+          expBox.innerHTML = fallbackExperts.length > 0
+            ? fallbackExperts.map(name => `<span class="px-2.5 py-1 rounded-xl bg-white border border-amber-300 text-amber-950 text-[11px] font-bold">⭐ ${escapeHtml(name)}</span>`).join('')
+            : `<span class="text-[11px] text-amber-800/70 italic">ยังไม่ได้ระบุรายชื่อผู้เชี่ยวชาญประจำโต๊ะที่ ${catNo}</span>`;
+        } else {
+          expBox.innerHTML = expertsAtTable.map(p => {
+            const name = getDisplayNameOfParticipant(p);
+            const isMe = userContext.id && String(p.id).toUpperCase() === userContext.id.toUpperCase();
+            return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-bold ${isMe ? 'bg-amber-400 border-amber-500 text-slate-950' : 'bg-white border-amber-300 text-amber-950'}">⭐ ${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
+          }).join('');
+        }
+      }
+
+      if (memBox) {
+        if (membersInGroup.length === 0) {
+          memBox.innerHTML = `<span class="text-[11px] text-navy-800/60 italic">ยังไม่มีรายชื่อสมาชิกในกลุ่มที่ ${grpNo} (รอเจ้าหน้าที่จัดกลุ่ม)</span>`;
+        } else {
+          memBox.innerHTML = membersInGroup.map(p => {
+            const name = getDisplayNameOfParticipant(p);
+            const isMe = userContext.id && String(p.id).toUpperCase() === userContext.id.toUpperCase();
+            return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-semibold ${isMe ? 'bg-navy-700 border-navy-800 text-white font-extrabold' : 'bg-white border-blue-200 text-navy-900'}">${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
+          }).join('');
+        }
+      }
+    }
+
+    // ==================== RENDER EVERYTHING ====================
+    function renderEverything() {
       document.getElementById('badge-count-morning').textContent = `${morningIssues.length} ข้อ`;
       document.getElementById('badge-count-afternoon').textContent = `${afternoonQAs.length} ข้อ`;
-      const libBadge = document.getElementById('badge-count-library');
-      if (libBadge) libBadge.textContent = `${afternoonQAs.length} ข้อ`;
+      document.getElementById('badge-count-library').textContent = `${afternoonQAs.length} ข้อ`;
 
-      const totalIssues = morningIssues.length;
-      const doneIssues = morningIssues.filter(x => x.qaStatus === 'ทำ Q&A แล้ว').length;
-      const pct = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
-      document.getElementById('qa-progress-label').textContent = `ตอบคำถามจากช่วงเช้าแล้ว ${doneIssues} / ${totalIssues} ข้อ (คลังคำตอบ Q&A ทั้งหมด ${afternoonQAs.length} ข้อ)`;
-      document.getElementById('qa-progress-pct').textContent = `${pct}%`;
-      document.getElementById('qa-progress-bar').style.width = `${pct}%`;
+      applyRoleUiAndPermissions();
+      renderRoundSelectorCard();
+      renderTableRosterCard();
+
+      // ช่วงเช้า
+      renderMorningSelectors();
+      renderMorningTeammatePanel();
+      renderMorningList();
+
+      // ช่วงบ่าย
+      renderAfternoonStationButtons();
+      renderAfternoonProgress();
+      renderTeammateQaPanel();
+      renderAfternoonQueue();
+      syncQaFormCategoryScopeAndSheetNo();
+
+      // คลัง Q&A
+      renderQAExplorer();
+
+      if (window.lucide) lucide.createIcons();
     }
 
-    // ==================== UNIFIED TABLE = CATEGORY SWITCHER ====================
+    // ==================== TABLE & GROUP SELECTION ====================
     function selectWorkingCategory(catNo) {
       selectedCategory = Math.max(1, Math.min(5, Number(catNo) || 1));
       safeSet('ws2_last_cat', String(selectedCategory));
 
+      // ซิงค์กับฟอร์มและคิวช่วงบ่าย (ถ้าไม่ได้กำลังแก้ไข Q&A ค้างอยู่)
       const qaCatSel = document.getElementById('qa-category');
       if (qaCatSel && !document.getElementById('qa-edit-id').value) {
         qaCatSel.value = String(selectedCategory);
       }
       const qFilterCat = document.getElementById('q-filter-cat');
-      if (qFilterCat) {
-        qFilterCat.value = String(selectedCategory);
-      }
+      if (qFilterCat) qFilterCat.value = String(selectedCategory);
 
       renderTableRosterCard();
       renderMorningSelectors();
       renderMorningTeammatePanel();
       renderMorningList();
       renderAfternoonStationButtons();
-      updateQaScopeAndAutoSheetNo();
       renderTeammateQaPanel();
       renderAfternoonQueue();
+      syncQaFormCategoryScopeAndSheetNo();
+      checkMorningDuplicateHint(document.getElementById('m-issue-text')?.value || '');
+      checkQaDuplicateHint(document.getElementById('qa-question')?.value || '');
+      if (window.lucide) lucide.createIcons();
     }
 
-    function selectMorningGroup(gNo) {
-      selectedGroup = Math.max(1, Math.min(5, Number(gNo) || 1));
+    function selectMorningGroup(grpNo) {
+      if (isGroupLockedForUser()) return;
+      selectedGroup = Math.max(1, Math.min(5, Number(grpNo) || 1));
       safeSet('ws2_last_group', String(selectedGroup));
+
       const qaGrpSel = document.getElementById('qa-group');
-      if (qaGrpSel && !document.getElementById('qa-edit-id').value) {
+      if (qaGrpSel && !document.getElementById('qa-edit-id').value && !qaGrpSel.disabled) {
         qaGrpSel.value = String(selectedGroup);
       }
+
+      renderRoundSelectorCard();
       renderTableRosterCard();
       renderMorningSelectors();
       renderMorningTeammatePanel();
       renderMorningList();
       renderTeammateQaPanel();
+      if (window.lucide) lucide.createIcons();
     }
 
+    // ==================== MORNING SECTION ====================
     function renderMorningSelectors() {
-      const grpBox = document.getElementById('m-group-buttons');
       const catBox = document.getElementById('m-category-buttons');
       const scopeBox = document.getElementById('m-category-scope-box');
+      const grpBox = document.getElementById('m-group-buttons');
+      const catHelper = document.getElementById('m-cat-helper-pill');
       const grpHelper = document.getElementById('m-group-helper-pill');
       const grpExplain = document.getElementById('m-group-explain');
-      const catHelper = document.getElementById('m-cat-helper-pill');
+      if (!catBox || !grpBox) return;
 
-      const hasBaseMember = userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
+      const hasBaseMember = isGroupLockedForUser();
       const isExpert = userContext.userType === 'expert';
-      const visitingGrpForExpert = isExpert && userContext.baseGroup
-        ? getVisitingGroupAtStation(userContext.baseGroup, userContext.currentRound)
-        : 0;
-      const rotatingCatForMember = hasBaseMember
-        ? getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound)
-        : 0;
+      const activeRound = userContext.userType === 'staff' ? selectedRound : userContext.currentRound;
+      const rotatingCatForMember = hasBaseMember ? getRotatingStationForGroup(userContext.baseGroup, activeRound) : 0;
+      const visitingGrpForExpert = (isExpert && userContext.baseGroup) ? getVisitingGroupAtStation(userContext.baseGroup, activeRound) : 0;
 
       if (hasBaseMember) {
-        grpHelper.textContent = `กลุ่มประจำตัวของท่าน: กลุ่มที่ ${userContext.baseGroup}`;
-        grpExplain.textContent = `• ระบบเลือก “กลุ่มที่ ${userContext.baseGroup}” ไว้ให้แล้ว (กดเปลี่ยนกลุ่มเองได้หากช่วยบันทึกให้กลุ่มอื่น)`;
-        catHelper.textContent = `📍 รอบที่ ${userContext.currentRound}/5 โต๊ะปัจจุบันของกลุ่ม ${userContext.baseGroup} คือ โต๊ะที่ ${rotatingCatForMember}`;
+        selectedGroup = userContext.baseGroup;
+        grpHelper.textContent = `🔒 ล็อกกลุ่มประจำตัว: กลุ่มที่ ${userContext.baseGroup}`;
+        grpExplain.textContent = `• ระบบล็อก “กลุ่มที่ ${userContext.baseGroup}” ตามบัตรประจำตัวของท่านให้อัตโนมัติ (ไม่ต้องกดเลือกกลุ่มเพื่อป้องกันส่งผิดกลุ่ม)`;
+        catHelper.textContent = `📍 รอบปัจจุบัน (${activeRound}/5) โต๊ะของกลุ่ม ${userContext.baseGroup} คือ โต๊ะที่ ${rotatingCatForMember}`;
       } else if (isExpert) {
         grpHelper.textContent = visitingGrpForExpert
-          ? `📍 รอบที่ ${userContext.currentRound}/5: กลุ่มที่ ${visitingGrpForExpert} อยู่ที่โต๊ะท่าน`
+          ? `📍 รอบปัจจุบัน (${activeRound}/5): กลุ่มที่ ${visitingGrpForExpert} อยู่ที่โต๊ะท่าน`
           : 'เลือกกลุ่มที่กำลังมาคุยที่โต๊ะท่าน';
         grpExplain.textContent = '• เลือกหมายเลขกลุ่ม (1–5) ที่ย้ายมานั่งที่โต๊ะท่านในแต่ละรอบ';
         catHelper.textContent = userContext.baseGroup
@@ -1504,14 +1671,14 @@
       } else {
         grpHelper.textContent = 'เลือกกลุ่มผู้บันทึก (1–5) ได้เอง';
         grpExplain.textContent = '• เลือกหมายเลขกลุ่ม (1–5) ของผู้บันทึกข้อมูล';
-        catHelper.textContent = `รอบหมุนเวียนปัจจุบัน: รอบที่ ${userContext.currentRound}/5`;
+        catHelper.textContent = `รอบเวทีปัจจุบัน: รอบที่ ${activeRound}/5`;
       }
 
-      // 1. ปุ่มเลือกโต๊ะ 1–5 (รวมโต๊ะกับหมวดเป็นปุ่มเดียว + ป้าย 📍 รอบนี้ และ ↩️ โต๊ะก่อนหน้า ให้ย้อนกลับง่าย)
+      // 1. ปุ่มเลือกโต๊ะ 1–5
       catBox.innerHTML = CATEGORIES.map(c => {
         const active = c.no === selectedCategory;
         const isCurrentTable = rotatingCatForMember === c.no;
-        const isPrevTable = hasBaseMember && !isCurrentTable && isPreviouslyVisitedStation(userContext.baseGroup, c.no, userContext.currentRound);
+        const isPrevTable = hasBaseMember && !isCurrentTable && isPreviouslyVisitedStation(userContext.baseGroup, c.no, activeRound);
         const isExpertBase = isExpert && userContext.baseGroup === c.no;
         const cntInTable = morningIssues.filter(m => Number(m.categoryNo) === c.no && Number(m.groupNo) === selectedGroup).length;
 
@@ -1524,7 +1691,7 @@
             <div class="flex items-center justify-between gap-1">
               <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-navy-700'}">โต๊ะที่ ${c.no}</span>
               <div class="flex items-center gap-1">
-                ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบนี้</span>` : ''}
+                ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบ ${activeRound}</span>` : ''}
                 ${isPrevTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">↩️ โต๊ะก่อนหน้า</span>` : ''}
                 ${isExpertBase ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
               </div>
@@ -1535,174 +1702,120 @@
         `;
       }).join('');
 
-      // 2. ปุ่มเลือกกลุ่ม 1–5
-      grpBox.innerHTML = [1, 2, 3, 4, 5].map(g => {
-        const active = g === selectedGroup;
-        const isVisiting = visitingGrpForExpert === g;
-        const isMyBase = hasBaseMember && g === userContext.baseGroup;
-        return `
-          <button type="button" onclick="selectMorningGroup(${g})" class="relative py-2.5 px-1.5 rounded-2xl border-2 font-extrabold text-center transition ${
-            active
-              ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
-              : 'border-slate-200 bg-white text-slate-700 hover:border-maroon-600/60'
-          }">
-            ${isVisiting ? `<span class="block text-[9.5px] font-bold ${active ? 'text-gold-400' : 'text-emerald-700'} leading-none mb-0.5">📍 รอบนี้</span>` : ''}
-            ${isMyBase ? `<span class="block text-[9.5px] font-bold ${active ? 'text-gold-400' : 'text-maroon-700'} leading-none mb-0.5">กลุ่มท่าน</span>` : ''}
-            <span class="block text-[11px] font-semibold opacity-85">กลุ่มที่</span>
-            <span class="block font-mono text-lg leading-tight">${g}</span>
-          </button>
-        `;
-      }).join('');
-
       const curCat = getCategoryObj(selectedCategory);
-      scopeBox.innerHTML = `
-        <p class="font-extrabold text-navy-800">โต๊ะที่ ${curCat.no} : ${escapeHtml(curCat.name)}</p>
-        <p class="text-slate-700 mt-0.5"><strong>ขอบเขตเนื้อหา:</strong> ${escapeHtml(curCat.scope)}</p>
-      `;
+      if (scopeBox) {
+        scopeBox.innerHTML = `<strong class="text-navy-800">ขอบเขตโต๊ะที่ ${curCat.no} (${escapeHtml(curCat.name)}):</strong> ${escapeHtml(curCat.scope)}`;
+      }
+
+      // 2. กลุ่มผู้ส่งประเด็น: ล็อกเป็นการ์ดเดียวสำหรับผู้เข้าร่วมสัมมนา
+      if (hasBaseMember) {
+        grpBox.className = 'block';
+        grpBox.innerHTML = `
+          <div class="p-3.5 rounded-2xl border-2 border-maroon-700 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white flex flex-wrap items-center justify-between gap-2 shadow-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-10 h-10 rounded-xl bg-white/15 border border-gold-400/60 text-gold-400 font-mono text-xl font-extrabold flex items-center justify-center shrink-0">${userContext.baseGroup}</span>
+              <div>
+                <p class="font-extrabold text-sm sm:text-base leading-tight">กลุ่มที่ ${userContext.baseGroup} (กลุ่มประจำตัวของท่าน)</p>
+                <p class="text-[11px] text-rose-100 mt-0.5">🔒 ล็อกกลุ่มอัตโนมัติตามบัตรประจำตัว ไม่ต้องกดเลือกกลุ่ม</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-gold-500 text-slate-950 text-xs font-extrabold shrink-0">🔒 ล็อกกลุ่มแล้ว</span>
+          </div>
+        `;
+      } else {
+        grpBox.className = 'grid grid-cols-5 gap-2';
+        grpBox.innerHTML = [1, 2, 3, 4, 5].map(g => {
+          const active = g === selectedGroup;
+          const isVisiting = visitingGrpForExpert === g;
+          return `
+            <button type="button" onclick="selectMorningGroup(${g})" class="relative py-2.5 px-1.5 rounded-2xl border-2 font-extrabold text-center transition ${
+              active
+                ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-maroon-600/60'
+            }">
+              ${isVisiting ? `<span class="block text-[9.5px] font-bold ${active ? 'text-gold-400' : 'text-emerald-700'} leading-none mb-0.5">📍 รอบ ${activeRound}</span>` : ''}
+              <span class="block text-[11px] font-semibold opacity-85">กลุ่มที่</span>
+              <span class="block font-mono text-lg leading-tight">${g}</span>
+            </button>
+          `;
+        }).join('');
+      }
     }
 
+    // แสดงรายการที่เพื่อนในกลุ่มส่งแล้วในโต๊ะนี้ (กันถามซ้ำ)
     function renderMorningTeammatePanel() {
       const titleEl = document.getElementById('morning-teammate-title');
       const cntEl = document.getElementById('morning-teammate-count');
       const listEl = document.getElementById('morning-teammate-list');
       if (!listEl) return;
 
-      const catObj = getCategoryObj(selectedCategory);
-      const teamIssues = morningIssues
+      const items = morningIssues
         .filter(m => Number(m.groupNo) === selectedGroup && Number(m.categoryNo) === selectedCategory)
         .slice()
         .reverse();
 
       if (titleEl) {
-        titleEl.innerHTML = `<i data-lucide="users" class="w-4 h-4 text-emerald-700 shrink-0"></i><span>ประเด็นที่เพื่อนใน<strong>กลุ่มที่ ${selectedGroup}</strong> ส่งแล้วใน<strong>โต๊ะที่ ${catObj.no}</strong> (ตรวจดูก่อนพิมพ์เพื่อกันถามซ้ำ)</span>`;
+        titleEl.innerHTML = `<i data-lucide="users" class="w-4 h-4 text-emerald-700 shrink-0"></i><span>ประเด็นที่เพื่อนในกลุ่มที่ ${selectedGroup} ส่งแล้วในโต๊ะที่ ${selectedCategory} (ดูเพื่อกันถามซ้ำ)</span>`;
       }
-      if (cntEl) cntEl.textContent = `${teamIssues.length} ข้อ`;
+      if (cntEl) cntEl.textContent = `${items.length} ข้อ`;
 
-      if (teamIssues.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-emerald-800/75 italic py-1">ยังไม่มีเพื่อนในกลุ่มที่ ${selectedGroup} ส่งประเด็นในโต๊ะที่ ${catObj.no} — เริ่มส่งข้อแรกได้เลยครับ</p>`;
-      } else {
-        listEl.innerHTML = teamIssues.map((m, idx) => `
+      if (items.length === 0) {
+        listEl.innerHTML = `<p class="text-emerald-800/70 italic py-1">ยังไม่มีเพื่อนในกลุ่มที่ ${selectedGroup} ส่งประเด็นในโต๊ะที่ ${selectedCategory} — ท่านสามารถพิมพ์ส่งประเด็นแรกได้เลยครับ</p>`;
+        return;
+      }
+
+      listEl.innerHTML = items.map(item => {
+        const urg = getUrgencyBadgeInfo(item.urgency);
+        const linkedQa = item.qaId ? afternoonQAs.find(q => q.qaId === item.qaId) : null;
+        return `
           <div class="p-2 rounded-xl bg-white border border-emerald-200 flex items-start justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <span class="font-mono font-bold text-emerald-800 mr-1">${teamIssues.length - idx}. [${escapeHtml(m.issueId)}]</span>
-              <span class="font-semibold text-slate-800 break-words">${escapeHtml(m.issueText)}</span>
-              <span class="text-[11px] text-slate-400 ml-1.5">— โดย ${escapeHtml(m.recorder || '-')}</span>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-mono font-extrabold text-navy-700">${escapeHtml(item.issueId)}</span>
+                <span class="px-1.5 py-0.2 rounded-full border text-[10px] font-bold ${urg.cls}">${urg.label}</span>
+                <span class="text-[10.5px] text-slate-500">โดย ${escapeHtml(item.recorder || '-')}</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-snug break-words">${escapeHtml(item.issueText)}</p>
             </div>
-            ${m.qaStatus === 'ทำ Q&A แล้ว' ? `<span class="shrink-0 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">✓ ตอบแล้ว</span>` : ''}
+            ${linkedQa ? `<button type="button" onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="shrink-0 px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-[10.5px] transition">ดูคำตอบ</button>` : ''}
           </div>
-        `).join('');
-      }
-      if (window.lucide) lucide.createIcons();
-    }
-
-    // แจ้งเตือนทันทีหากพิมพ์คำถามคล้ายกับที่เพื่อนในกลุ่มหรือโต๊ะนี้ส่งไปแล้ว
-    function checkMorningDuplicateHint(rawText) {
-      const warnEl = document.getElementById('m-duplicate-warning');
-      if (!warnEl) return;
-      const q = String(rawText || '').trim().toLowerCase();
-      if (q.length < 6) {
-        warnEl.classList.add('hidden');
-        return;
-      }
-      const tokens = q.split(/\s+/).filter(w => w.length >= 3);
-      const editId = document.getElementById('m-edit-id').value.trim();
-
-      const similar = morningIssues.find(m => {
-        if (editId && m.issueId === editId) return false;
-        if (Number(m.categoryNo) !== selectedCategory) return false;
-        const txt = String(m.issueText || '').toLowerCase();
-        if (txt.includes(q) || q.includes(txt)) return true;
-        if (tokens.length >= 2) {
-          const hits = tokens.filter(t => txt.includes(t)).length;
-          return hits >= Math.min(3, tokens.length);
-        }
-        return false;
-      });
-
-      if (similar) {
-        warnEl.innerHTML = `⚠️ <strong>พบประเด็นคล้ายกันในโต๊ะที่ ${selectedCategory}:</strong> “${escapeHtml(similar.issueText)}” (ส่งโดยกลุ่ม ${similar.groupNo} • ${escapeHtml(similar.recorder || '-')}) — ตรวจสอบก่อนส่งเพื่อกันซ้ำครับ`;
-        warnEl.classList.remove('hidden');
-      } else {
-        warnEl.classList.add('hidden');
-      }
-    }
-
-    function checkQaDuplicateHint(rawText) {
-      const warnEl = document.getElementById('qa-duplicate-warning');
-      if (!warnEl) return;
-      const q = String(rawText || '').trim().toLowerCase();
-      if (q.length < 6) {
-        warnEl.classList.add('hidden');
-        return;
-      }
-      const editId = document.getElementById('qa-edit-id').value.trim();
-      const catNo = Number(document.getElementById('qa-category').value) || selectedCategory;
-      const tokens = q.split(/\s+/).filter(w => w.length >= 3);
-
-      const similar = afternoonQAs.find(item => {
-        if (editId && item.qaId === editId) return false;
-        if (Number(item.categoryNo) !== catNo) return false;
-        const txt = String(item.question || '').toLowerCase();
-        if (txt.includes(q) || q.includes(txt)) return true;
-        if (tokens.length >= 2) {
-          const hits = tokens.filter(t => txt.includes(t)).length;
-          return hits >= Math.min(3, tokens.length);
-        }
-        return false;
-      });
-
-      if (similar) {
-        warnEl.innerHTML = `⚠️ <strong>พบคำตอบ Q&amp;A ที่คล้ายกันแล้ว (${escapeHtml(similar.qaId)}):</strong> “${escapeHtml(similar.question)}” (กลุ่ม ${similar.groupNo} • โดย ${escapeHtml(similar.recorder || '-')}) — แนะนำตรวจดูก่อนเพื่อกันตอบซ้ำครับ`;
-        warnEl.classList.remove('hidden');
-      } else {
-        warnEl.classList.add('hidden');
-      }
-    }
-
-    function renderAfternoonStationButtons() {
-      const box = document.getElementById('qa-station-buttons');
-      const helper = document.getElementById('qa-station-helper');
-      if (!box) return;
-
-      const hasBaseMember = userContext.userType === 'member' && userContext.baseGroup >= 1 && userContext.baseGroup <= 5;
-      const isExpert = userContext.userType === 'expert';
-      const rotatingCatForMember = hasBaseMember
-        ? getRotatingStationForGroup(userContext.baseGroup, userContext.currentRound)
-        : 0;
-
-      const activeCatObj = getCategoryObj(selectedCategory);
-      if (helper) {
-        helper.textContent = `กำลังทำงานที่ ${activeCatObj.tableLabel}`;
-      }
-
-      box.innerHTML = CATEGORIES.map(c => {
-        const active = c.no === selectedCategory;
-        const pendingCnt = morningIssues.filter(m => Number(m.categoryNo) === c.no && m.qaStatus !== 'ทำ Q&A แล้ว').length;
-        const doneCnt = afternoonQAs.filter(q => Number(q.categoryNo) === c.no).length;
-        const isCurrentTable = rotatingCatForMember === c.no;
-        const isPrevTable = hasBaseMember && !isCurrentTable && isPreviouslyVisitedStation(userContext.baseGroup, c.no, userContext.currentRound);
-        const isExpertBase = isExpert && userContext.baseGroup === c.no;
-
-        return `
-          <button type="button" onclick="selectWorkingCategory(${c.no})" class="p-2.5 rounded-2xl border-2 text-left transition ${
-            active
-              ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
-              : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-maroon-600/60 text-slate-800'
-          }">
-            <div class="flex items-center justify-between gap-1">
-              <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-navy-700'}">โต๊ะที่ ${c.no}</span>
-              ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบนี้</span>` : ''}
-              ${isPrevTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}">↩️ ย้อนกลับ</span>` : ''}
-              ${isExpertBase ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
-            </div>
-            <p class="text-xs font-extrabold truncate mt-0.5">${escapeHtml(c.short)}</p>
-            <p class="text-[10.5px] mt-0.5 ${active ? 'text-rose-100' : 'text-slate-500'}">รอตอบ ${pendingCnt} • ตอบแล้ว ${doneCnt}</p>
-          </button>
         `;
       }).join('');
     }
 
-    // ==================== MORNING FORM CRUD ====================
+    function checkMorningDuplicateHint(rawText) {
+      const box = document.getElementById('m-duplicate-warning');
+      if (!box) return;
+      const q = String(rawText || '').trim().toLowerCase();
+      const editId = document.getElementById('m-edit-id').value;
+      if (q.length < 6) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const words = q.split(/\s+/).filter(w => w.length >= 3);
+      const matches = morningIssues.filter(m => {
+        if (m.issueId === editId) return false;
+        if (Number(m.categoryNo) !== selectedCategory) return false;
+        const txt = String(m.issueText || '').toLowerCase();
+        if (txt.includes(q) || q.includes(txt.slice(0, 14))) return true;
+        if (words.length >= 2) {
+          const hit = words.filter(w => txt.includes(w)).length;
+          return hit >= Math.min(2, words.length);
+        }
+        return false;
+      }).slice(0, 2);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = `⚠️ <strong>พบประเด็นใกล้เคียงในโต๊ะที่ ${selectedCategory}:</strong> ` +
+        matches.map(m => `[${escapeHtml(m.issueId)} • กลุ่ม ${m.groupNo}] “${escapeHtml(m.issueText.slice(0, 75))}${m.issueText.length > 75 ? '...' : ''}”`).join(' / ');
+      box.classList.remove('hidden');
+    }
+
     function setMorningListScope(scope, shouldRender = true) {
       morningListScope = scope;
       ['match', 'cat', 'group', 'all'].forEach(k => {
@@ -1715,23 +1828,109 @@
       if (shouldRender) renderMorningList();
     }
 
+    function renderMorningList() {
+      const box = document.getElementById('morning-issues-list');
+      const cntEl = document.getElementById('morning-list-count');
+      const subEl = document.getElementById('morning-list-subtitle');
+      if (!box) return;
+
+      const filtered = morningIssues.filter(item => {
+        if (morningListScope === 'match') return Number(item.groupNo) === selectedGroup && Number(item.categoryNo) === selectedCategory;
+        if (morningListScope === 'cat') return Number(item.categoryNo) === selectedCategory;
+        if (morningListScope === 'group') return Number(item.groupNo) === selectedGroup;
+        return true;
+      }).slice().reverse();
+
+      const subMap = {
+        match: `แสดงเฉพาะ กลุ่มที่ ${selectedGroup} ที่ โต๊ะที่ ${selectedCategory}`,
+        cat: `แสดงทุกกลุ่ม (1–5) ที่ โต๊ะที่ ${selectedCategory}`,
+        group: `แสดงทุกโต๊ะ (1–5) ของ กลุ่มที่ ${selectedGroup}`,
+        all: 'แสดงประเด็นทั้งหมดทุกโต๊ะและทุกกลุ่ม'
+      };
+      if (cntEl) cntEl.textContent = filtered.length;
+      if (subEl) subEl.textContent = subMap[morningListScope] || '';
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="py-10 text-center text-xs sm:text-sm text-slate-400">ยังไม่มีรายการประเด็นปัญหาในตัวกรองที่เลือก</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(item => {
+        const cat = getCategoryObj(item.categoryNo);
+        const urg = getUrgencyBadgeInfo(item.urgency);
+        const editable = canEditMorningIssue(item);
+        const linkedQa = item.qaId ? afternoonQAs.find(q => q.qaId === item.qaId) : null;
+        const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
+
+        return `
+          <div class="p-3.5 rounded-2xl border ${isDone ? 'border-emerald-200 bg-emerald-50/35' : 'border-slate-200 bg-slate-50/70'} space-y-2">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${item.groupNo}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-blue-100 text-navy-800 font-bold">โต๊ะ ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-full border font-bold text-[11px] ${urg.cls}">${urg.label}</span>
+                ${isDone ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10.5px]">✅ ตอบแล้ว (${escapeHtml(item.qaId || 'Q&A')})</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1 shrink-0 text-xs">
+                ${!isDone ? `
+                  <button type="button" onclick="selectMorningIssueForQA('${escapeHtml(item.issueId)}')" class="px-2.5 py-1 rounded-lg bg-maroon-700 hover:bg-maroon-800 text-white font-bold transition">
+                    ✍️ ตอบ Q&amp;A
+                  </button>
+                ` : (linkedQa ? `
+                  <button type="button" onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-800 text-white font-bold transition">
+                    👁️ ดูคำตอบ
+                  </button>
+                ` : '')}
+                ${editable ? `
+                  <button type="button" onclick="editMorningIssue('${escapeHtml(item.issueId)}')" title="แก้ไขประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button type="button" onclick="askDeleteMorningIssue('${escapeHtml(item.issueId)}')" title="ลบประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-rose-100 border border-slate-200 text-rose-600 transition">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <p class="text-sm sm:text-base font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+
+            ${linkedQa ? `
+              <div onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="cursor-pointer p-2.5 rounded-xl bg-white border border-emerald-300 hover:border-emerald-500 text-xs text-slate-700 space-y-0.5 transition">
+                <p class="font-extrabold text-emerald-800">✅ คำตอบมาตรฐาน (${escapeHtml(linkedQa.qaId)} • โดย ${escapeHtml(linkedQa.recorder || '-')}):</p>
+                <p class="line-clamp-2 leading-relaxed">${escapeHtml(linkedQa.standardAnswer)}</p>
+              </div>
+            ` : ''}
+
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1 border-t border-slate-200/70">
+              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(item.recorder || '-')}</strong></span>
+              <span class="font-mono">${escapeHtml(item.timestamp || '')}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     async function submitMorningForm(e) {
       e.preventDefault();
       const editId = document.getElementById('m-edit-id').value.trim();
       const recorder = document.getElementById('m-recorder').value.trim();
       const issueText = document.getElementById('m-issue-text').value.trim();
-      const urgency = document.querySelector('input[name="m-urgency"]:checked')?.value || 'ทั่วไป';
+      const urgencyEl = document.querySelector('input[name="m-urgency"]:checked');
+      const urgency = urgencyEl ? urgencyEl.value : 'เร่งด่วน';
+      const finalGroup = isGroupLockedForUser() ? userContext.baseGroup : selectedGroup;
       const catObj = getCategoryObj(selectedCategory);
 
-      if (!issueText || !recorder) {
+      if (!recorder || !issueText) {
         showToast('กรุณากรอกชื่อผู้บันทึกและประเด็นปัญหาให้ครบถ้วน', 'warning');
         return;
       }
 
+      persistRecorderName(recorder);
       const btn = document.getElementById('m-submit-btn');
       const lbl = document.getElementById('m-submit-label');
       btn.disabled = true;
-      lbl.textContent = editId ? 'กำลังบันทึกการแก้ไข...' : 'กำลังส่งข้อมูล...';
+      lbl.textContent = 'กำลังบันทึก...';
       isMutating = true;
 
       try {
@@ -1739,8 +1938,8 @@
           ? {
               action: 'updateMorningIssue',
               issueId: editId,
-              groupNo: selectedGroup,
-              categoryNo: selectedCategory,
+              groupNo: finalGroup,
+              categoryNo: catObj.no,
               categoryName: catObj.name,
               recorder,
               issueText,
@@ -1748,8 +1947,8 @@
             }
           : {
               action: 'addMorningIssue',
-              groupNo: selectedGroup,
-              categoryNo: selectedCategory,
+              groupNo: finalGroup,
+              categoryNo: catObj.no,
               categoryName: catObj.name,
               recorder,
               issueText,
@@ -1759,219 +1958,207 @@
         const res = await postToApi(payload);
         if (res.status !== 'success') throw new Error(res.message || 'บันทึกไม่สำเร็จ');
 
-        showToast(res.message || 'บันทึกประเด็นเรียบร้อยแล้ว', 'success');
-        document.getElementById('m-issue-text').value = '';
-        document.getElementById('m-duplicate-warning')?.classList.add('hidden');
+        showToast(res.message || 'บันทึกประเด็นปัญหาเรียบร้อยแล้ว', 'success');
         cancelMorningEdit();
-        isMutating = false;
+        document.getElementById('m-issue-text').value = '';
+        document.getElementById('m-duplicate-warning').classList.add('hidden');
         await fetchAllWorkshopData(false);
-        document.getElementById('m-issue-text').focus();
       } catch (err) {
         showToast('บันทึกไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         isMutating = false;
         btn.disabled = false;
-        lbl.textContent = document.getElementById('m-edit-id').value ? 'บันทึกการแก้ไข' : 'บันทึกประเด็นปัญหา';
+        lbl.textContent = document.getElementById('m-edit-id').value ? 'บันทึกการแก้ไขประเด็น' : 'บันทึกประเด็นปัญหา';
       }
     }
 
-    function startEditMorningIssue(issueId) {
-      const item = morningIssues.find(x => x.issueId === issueId);
-      if (!item) return;
+    function editMorningIssue(issueId) {
+      const item = morningIssues.find(m => m.issueId === issueId);
+      if (!item || !canEditMorningIssue(item)) return;
 
       document.getElementById('m-edit-id').value = item.issueId;
-      selectedGroup = item.groupNo;
-      selectedCategory = item.categoryNo;
-      document.getElementById('m-recorder').value = item.recorder || '';
+      selectedCategory = Number(item.categoryNo) || 1;
+      if (!isGroupLockedForUser()) {
+        selectedGroup = Number(item.groupNo) || 1;
+      }
+      document.getElementById('m-recorder').value = item.recorder || userContext.name || '';
       document.getElementById('m-issue-text').value = item.issueText || '';
 
-      const radio = document.querySelector(`input[name="m-urgency"][value="${item.urgency}"]`);
-      if (radio) radio.checked = true;
+      const radios = document.querySelectorAll('input[name="m-urgency"]');
+      radios.forEach(r => { r.checked = r.value === item.urgency; });
 
       document.getElementById('morning-edit-badge').classList.remove('hidden');
       document.getElementById('m-cancel-edit-btn').classList.remove('hidden');
       document.getElementById('m-submit-label').textContent = 'บันทึกการแก้ไขประเด็น';
-      renderTableRosterCard();
+
       renderMorningSelectors();
+      renderMorningTeammatePanel();
       document.getElementById('morning-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function cancelMorningEdit() {
       document.getElementById('m-edit-id').value = '';
+      document.getElementById('m-issue-text').value = '';
+      document.getElementById('m-duplicate-warning').classList.add('hidden');
       document.getElementById('morning-edit-badge').classList.add('hidden');
       document.getElementById('m-cancel-edit-btn').classList.add('hidden');
       document.getElementById('m-submit-label').textContent = 'บันทึกประเด็นปัญหา';
-      renderMorningSelectors();
     }
 
-    function getUrgencyBadge(urgency) {
-      if (urgency === 'เร่งด่วนมาก') return `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-xs font-extrabold">🔴 เร่งด่วนมาก</span>`;
-      if (urgency === 'เร่งด่วน') return `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-extrabold">🟠 เร่งด่วน</span>`;
-      return `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold">🟢 ทั่วไป</span>`;
+    function askDeleteMorningIssue(issueId) {
+      const item = morningIssues.find(m => m.issueId === issueId);
+      if (!item || !canEditMorningIssue(item)) return;
+      openDeleteModal(
+        `ต้องการลบประเด็น ${item.issueId} (“${item.issueText.slice(0, 60)}${item.issueText.length > 60 ? '...' : ''}”) ใช่หรือไม่?`,
+        async () => {
+          const res = await postToApi({ action: 'deleteMorningIssue', issueId: item.issueId });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
+          showToast(res.message || 'ลบประเด็นเรียบร้อยแล้ว', 'success');
+          if (document.getElementById('m-edit-id').value === item.issueId) cancelMorningEdit();
+          await fetchAllWorkshopData(false);
+        }
+      );
     }
 
-    function renderMorningList() {
-      const box = document.getElementById('morning-issues-list');
-      const countEl = document.getElementById('morning-list-count');
-      const subEl = document.getElementById('morning-list-subtitle');
+    // ==================== AFTERNOON Q&A SECTION ====================
+    function renderAfternoonStationButtons() {
+      const box = document.getElementById('qa-station-buttons');
+      const helper = document.getElementById('qa-station-helper');
       if (!box) return;
 
-      const filtered = morningIssues.filter(item => {
-        if (morningListScope === 'cat') return Number(item.categoryNo) === selectedCategory;
-        if (morningListScope === 'match') return Number(item.groupNo) === selectedGroup && Number(item.categoryNo) === selectedCategory;
-        if (morningListScope === 'group') return Number(item.groupNo) === selectedGroup;
-        return true;
-      }).slice().reverse();
+      const hasBaseMember = isGroupLockedForUser();
+      const isExpert = userContext.userType === 'expert';
+      const activeRound = userContext.userType === 'staff' ? selectedRound : userContext.currentRound;
+      const rotatingCatForMember = hasBaseMember ? getRotatingStationForGroup(userContext.baseGroup, activeRound) : 0;
 
-      const curCat = getCategoryObj(selectedCategory);
-      const scopeLabels = {
-        match: `กลุ่มที่ ${selectedGroup} • ${curCat.tableLabel}`,
-        cat: `ทุกกลุ่มใน ${curCat.tableLabel}`,
-        group: `ทุกโต๊ะของกลุ่มที่ ${selectedGroup}`,
-        all: 'ทั้งหมดทุกโต๊ะและทุกกลุ่ม'
-      };
-      if (countEl) countEl.textContent = filtered.length;
-      if (subEl) subEl.textContent = `กำลังแสดง: ${scopeLabels[morningListScope] || ''}`;
-
-      if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-10 text-center text-sm text-slate-400">ยังไม่มีประเด็นปัญหาที่ส่งในเงื่อนไขนี้</div>`;
-        return;
+      if (helper) {
+        const curCat = getCategoryObj(selectedCategory);
+        helper.textContent = `กำลังทำงานที่ โต๊ะที่ ${curCat.no} (${curCat.short})`;
       }
 
-      box.innerHTML = filtered.map(item => {
-        const cat = getCategoryObj(item.categoryNo);
-        const linkedQa = afternoonQAs.find(q => q.qaId === item.qaId || (q.refIssueId && q.refIssueId === item.issueId));
-        const canEdit = canEditMorningIssue(item);
+      box.innerHTML = CATEGORIES.map(c => {
+        const active = c.no === selectedCategory;
+        const totalInCat = morningIssues.filter(m => Number(m.categoryNo) === c.no).length;
+        const doneInCat = afternoonQAs.filter(q => Number(q.categoryNo) === c.no).length;
+        const isCurrentTable = rotatingCatForMember === c.no;
+        const isPrevTable = hasBaseMember && !isCurrentTable && isPreviouslyVisitedStation(userContext.baseGroup, c.no, activeRound);
+        const isExpertBase = isExpert && userContext.baseGroup === c.no;
+
         return `
-          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2" style="border-left: 5px solid ${cat.color};">
-            <div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                <span class="font-mono font-extrabold px-2 py-0.5 rounded bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
-                <span class="px-2 py-0.5 rounded text-white font-bold" style="background:${cat.color}">โต๊ะ ${cat.no} : ${escapeHtml(cat.short)}</span>
-                <span class="px-2 py-0.5 rounded bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${item.groupNo}</span>
-                ${getUrgencyBadge(item.urgency)}
-                ${item.qaStatus === 'ทำ Q&A แล้ว'
-                  ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-xs font-extrabold">✓ ตอบแล้ว</span>`
-                  : `<span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-xs font-bold">⏳ รอตอบช่วงบ่าย</span>`
-                }
-              </div>
-
-              <div class="flex flex-wrap items-center gap-1 shrink-0">
-                ${!linkedQa ? `
-                  <button type="button" onclick="jumpToAnswerIssue('${escapeHtml(item.issueId)}')" class="px-2.5 py-1 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-bold transition">
-                    ✍️ ตอบข้อนี้
-                  </button>
-                ` : `
-                  <button type="button" onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-                    📖 ดูคำตอบ
-                  </button>
-                `}
-                ${canEdit ? `
-                  <button type="button" onclick="startEditMorningIssue('${escapeHtml(item.issueId)}')" class="px-2 py-1 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 text-navy-800 text-xs font-bold transition">✏️</button>
-                  <button type="button" onclick="askDeleteMorningIssue('${escapeHtml(item.issueId)}')" class="px-2 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition">🗑️</button>
-                ` : ''}
-              </div>
+          <button type="button" onclick="selectWorkingCategory(${c.no})" class="p-2.5 rounded-2xl border-2 text-left transition ${
+            active
+              ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
+              : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-maroon-600/60 text-slate-800'
+          }">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-maroon-700'}">โต๊ะ ${c.no}</span>
+              ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบ ${activeRound}</span>` : ''}
+              ${isPrevTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">↩️ เดิม</span>` : ''}
+              ${isExpertBase ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
             </div>
-
-            <p class="text-sm sm:text-base font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
-
-            ${linkedQa ? `
-              <div onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="cursor-pointer p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100/70 transition text-xs sm:text-sm text-emerald-950">
-                <strong class="text-emerald-800">✅ คำตอบมาตรฐาน (${escapeHtml(linkedQa.qaId)} • โดย ${escapeHtml(linkedQa.recorder || '-')}):</strong>
-                <span class="line-clamp-2">${escapeHtml(linkedQa.standardAnswer)}</span>
-              </div>
-            ` : ''}
-
-            <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(item.recorder || '-')}</strong></span>
-              <span class="font-mono">${escapeHtml(item.timestamp || '')}</span>
-            </div>
-          </div>
+            <span class="block text-xs font-extrabold truncate mt-0.5">${escapeHtml(c.short)}</span>
+            <span class="block text-[10px] mt-0.5 ${active ? 'text-rose-100' : 'text-slate-500'}">Q&amp;A ${doneInCat} / เช้า ${totalInCat}</span>
+          </button>
         `;
       }).join('');
     }
 
-    function jumpToAnswerIssue(issueId) {
-      switchWorksheetTab('afternoon');
-      pickMorningIssueForQA(issueId);
+    function renderAfternoonProgress() {
+      const total = morningIssues.length;
+      const done = morningIssues.filter(m => m.qaStatus === 'ทำ Q&A แล้ว').length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      const lbl = document.getElementById('qa-progress-label');
+      const pctEl = document.getElementById('qa-progress-pct');
+      const bar = document.getElementById('qa-progress-bar');
+      if (lbl) lbl.textContent = `ตอบคำถามจากช่วงเช้าแล้ว ${done} / ${total} ข้อ (คลัง Q&A รวม ${afternoonQAs.length} ข้อ)`;
+      if (pctEl) pctEl.textContent = `${pct}%`;
+      if (bar) bar.style.width = `${pct}%`;
     }
 
-    // ==================== TEAMMATE Q&A PANEL (กันคนในกลุ่มตอบซ้ำ) ====================
     function setTeammateQaScope(scope, shouldRender = true) {
       teammateQaScope = scope;
-      const map = { group_cat: 'btn-tmqa-group-cat', cat: 'btn-tmqa-cat', group: 'btn-tmqa-group' };
-      Object.keys(map).forEach(k => {
-        const el = document.getElementById(map[k]);
-        if (!el) return;
-        el.className = k === scope
-          ? 'px-2.5 py-1 rounded-lg bg-emerald-700 text-white text-[11px] font-bold transition'
-          : 'px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-[11px] font-semibold transition';
+      const map = [
+        { k: 'group_cat', id: 'btn-tmqa-group-cat' },
+        { k: 'cat', id: 'btn-tmqa-cat' },
+        { k: 'group', id: 'btn-tmqa-group' }
+      ];
+      map.forEach(item => {
+        const btn = document.getElementById(item.id);
+        if (!btn) return;
+        btn.className = item.k === scope
+          ? 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-700 text-white transition'
+          : 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white text-emerald-900 border border-emerald-200 hover:bg-emerald-100 transition';
       });
       if (shouldRender) renderTeammateQaPanel();
     }
 
     function renderTeammateQaPanel() {
-      const box = document.getElementById('teammate-qa-list');
       const heading = document.getElementById('teammate-qa-heading');
+      const box = document.getElementById('teammate-qa-list');
       if (!box) return;
 
-      const catObj = getCategoryObj(selectedCategory);
+      const grpNo = isGroupLockedForUser() ? userContext.baseGroup : selectedGroup;
       const list = afternoonQAs.filter(q => {
-        if (teammateQaScope === 'group_cat') return Number(q.groupNo) === selectedGroup && Number(q.categoryNo) === selectedCategory;
+        if (teammateQaScope === 'group_cat') return Number(q.groupNo) === grpNo && Number(q.categoryNo) === selectedCategory;
         if (teammateQaScope === 'cat') return Number(q.categoryNo) === selectedCategory;
-        if (teammateQaScope === 'group') return Number(q.groupNo) === selectedGroup;
+        if (teammateQaScope === 'group') return Number(q.groupNo) === grpNo;
         return true;
       }).slice().reverse();
 
-      const titleMap = {
-        group_cat: `คำตอบที่กลุ่มที่ ${selectedGroup} ส่งแล้วในโต๊ะที่ ${catObj.no} (${list.length} ข้อ) — ดูเพื่อกันตอบซ้ำ`,
-        cat: `คำตอบทุกกลุ่มในโต๊ะที่ ${catObj.no} : ${catObj.short} (${list.length} ข้อ)`,
-        group: `คำตอบทั้งหมดของกลุ่มที่ ${selectedGroup} ทุกโต๊ะ (${list.length} ข้อ)`
-      };
-      if (heading) heading.textContent = titleMap[teammateQaScope] || '';
+      if (heading) {
+        if (teammateQaScope === 'group_cat') heading.textContent = `คำตอบ Q&A ที่กลุ่มที่ ${grpNo} ส่งแล้วในโต๊ะที่ ${selectedCategory} (${list.length} ข้อ • ดูเพื่อกันตอบซ้ำ)`;
+        else if (teammateQaScope === 'cat') heading.textContent = `คำตอบ Q&A ทุกกลุ่มในโต๊ะที่ ${selectedCategory} (${list.length} ข้อ)`;
+        else heading.textContent = `คำตอบ Q&A ทั้งหมดของกลุ่มที่ ${grpNo} ทุกโต๊ะ (${list.length} ข้อ)`;
+      }
 
       if (list.length === 0) {
-        box.innerHTML = `<div class="py-4 text-center text-xs sm:text-sm text-emerald-800/70 italic">ยังไม่มีเพื่อนส่งคำตอบในเงื่อนไขนี้ — เริ่มเลือกคำถามจากคิวด้านล่างมาตอบได้เลยครับ</div>`;
+        box.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">ยังไม่มีคำตอบ Q&amp;A ในขอบเขตที่เลือก</p>`;
         return;
       }
 
-      box.innerHTML = list.map((q, idx) => {
-        const c = getCategoryObj(q.categoryNo);
-        const canEditThis = canEditAfternoonQA(q);
+      box.innerHTML = list.map(q => {
+        const cat = getCategoryObj(q.categoryNo);
+        const editable = canEditAfternoonQA(q);
         return `
-          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-start justify-between gap-2" style="border-left: 4px solid ${c.color};">
-            <div class="min-w-0 flex-1 space-y-1">
-              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span class="font-mono font-extrabold px-2 py-0.5 rounded bg-navy-800 text-white">${escapeHtml(q.qaId)}</span>
-                <span class="px-2 py-0.5 rounded text-white font-bold" style="background:${c.color}">โต๊ะ ${c.no}</span>
-                <span class="px-2 py-0.5 rounded bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${q.groupNo}</span>
-                <span class="text-slate-500">ตอบโดย: <strong class="text-slate-800">${escapeHtml(q.recorder || '-')}</strong></span>
+          <div class="p-3 rounded-2xl bg-slate-50 border border-emerald-200/90 hover:border-emerald-400 transition space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="font-mono font-extrabold px-2 py-0.5 rounded bg-maroon-700 text-white">${escapeHtml(q.qaId)}</span>
+                <span class="px-2 py-0.5 rounded bg-navy-800 text-gold-400 font-bold">ข้อ ${escapeHtml(q.sheetNo || '-')}</span>
+                <span class="px-2 py-0.5 rounded bg-blue-100 text-navy-800 font-bold">โต๊ะ ${cat.no}</span>
+                <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-bold">กลุ่ม ${q.groupNo}</span>
+                <span class="text-[11px] text-slate-500">ตอบโดย <strong>${escapeHtml(q.recorder || '-')}</strong></span>
               </div>
-              <p class="text-sm font-extrabold text-slate-900 leading-snug break-words">❓ ${escapeHtml(q.question)}</p>
-              <p class="text-xs text-emerald-900 line-clamp-2">✅ ${escapeHtml(q.standardAnswer)}</p>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="openQAReaderById('${escapeHtml(q.qaId)}')" class="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-[11px] font-bold transition">🔍 อ่านเต็ม</button>
+                ${editable ? `
+                  <button type="button" onclick="editAfternoonQA('${escapeHtml(q.qaId)}')" title="แก้ไข Q&A" class="p-1.5 rounded-lg bg-white hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button type="button" onclick="askDeleteAfternoonQA('${escapeHtml(q.qaId)}')" title="ลบ Q&A" class="p-1.5 rounded-lg bg-white hover:bg-rose-100 border border-slate-200 text-rose-600 transition">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
             </div>
-            <div class="flex items-center gap-1 shrink-0">
-              <button type="button" onclick="openQAReaderById('${escapeHtml(q.qaId)}')" class="px-2.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">อ่านเต็ม</button>
-              ${canEditThis ? `
-                <button type="button" onclick="startEditAfternoonQA('${escapeHtml(q.qaId)}')" class="px-2 py-1.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 text-navy-800 text-xs font-bold transition" title="แก้ไขคำตอบนี้">✏️</button>
-                <button type="button" onclick="askDeleteAfternoonQA('${escapeHtml(q.qaId)}')" class="px-2 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition" title="ลบคำตอบนี้">🗑️</button>
-              ` : ''}
-            </div>
+            <p class="text-xs sm:text-sm font-extrabold text-navy-900 leading-snug break-words">ถาม: ${escapeHtml(q.question)}</p>
+            <p class="text-xs text-slate-700 line-clamp-2 leading-relaxed">ตอบ: ${escapeHtml(q.standardAnswer)}</p>
           </div>
         `;
       }).join('');
     }
 
-    // ==================== AFTERNOON QUEUE & FORM CRUD ====================
     function toggleQueueCollapse() {
       queueCollapsed = !queueCollapsed;
-      document.getElementById('afternoon-queue-body').classList.toggle('hidden', queueCollapsed);
-      document.getElementById('btn-toggle-queue').textContent = queueCollapsed ? 'แสดงรายการคิว' : 'ซ่อนรายการคิว';
+      document.getElementById('afternoon-queue-body')?.classList.toggle('hidden', queueCollapsed);
+      const btn = document.getElementById('btn-toggle-queue');
+      if (btn) btn.textContent = queueCollapsed ? 'แสดงรายการคิว' : 'ซ่อนรายการคิว';
     }
 
     function renderAfternoonQueue() {
       const box = document.getElementById('afternoon-queue-body');
-      const countEl = document.getElementById('queue-filtered-count');
+      const cntEl = document.getElementById('queue-filtered-count');
       if (!box) return;
 
       const fCat = document.getElementById('q-filter-cat').value;
@@ -1979,7 +2166,8 @@
       const fUrg = document.getElementById('q-filter-urgency').value;
       const fStatus = document.getElementById('q-filter-status').value;
 
-      const urgWeight = { 'เร่งด่วนมาก': 1, 'เร่งด่วน': 2, 'ทั่วไป': 3 };
+      const urgOrder = { 'เร่งด่วนมาก': 1, 'เร่งด่วน': 2, 'ทั่วไป': 3 };
+
       const list = morningIssues.filter(item => {
         if (fCat !== 'all' && String(item.categoryNo) !== fCat) return false;
         if (fGrp !== 'all' && String(item.groupNo) !== fGrp) return false;
@@ -1987,88 +2175,92 @@
         if (fStatus !== 'all' && item.qaStatus !== fStatus) return false;
         return true;
       }).sort((a, b) => {
-        // แสดงข้อที่ "รอทำคำตอบ" ขึ้นก่อนเสมอ
-        const stA = a.qaStatus === 'ทำ Q&A แล้ว' ? 1 : 0;
-        const stB = b.qaStatus === 'ทำ Q&A แล้ว' ? 1 : 0;
-        if (stA !== stB) return stA - stB;
-        return (urgWeight[a.urgency] || 9) - (urgWeight[b.urgency] || 9);
+        const aDone = a.qaStatus === 'ทำ Q&A แล้ว' ? 1 : 0;
+        const bDone = b.qaStatus === 'ทำ Q&A แล้ว' ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        return (urgOrder[a.urgency] || 9) - (urgOrder[b.urgency] || 9);
       });
 
-      if (countEl) countEl.textContent = list.length;
+      if (cntEl) cntEl.textContent = list.length;
 
       if (list.length === 0) {
-        box.innerHTML = `<div class="py-8 text-center text-sm text-slate-400">ไม่มีคำถามในคิวตามตัวกรองที่เลือก (สามารถเลือก “ทุกโต๊ะ / หมวด” หรือกดปุ่ม “+ เพิ่ม Q&amp;A ใหม่” ได้เลยครับ)</div>`;
+        box.innerHTML = `<div class="py-8 text-center text-xs sm:text-sm text-slate-400">ไม่พบประเด็นจากช่วงเช้าตามตัวกรองที่เลือก</div>`;
         return;
       }
 
       box.innerHTML = list.map(item => {
         const cat = getCategoryObj(item.categoryNo);
-        const done = item.qaStatus === 'ทำ Q&A แล้ว';
-        const linkedQa = done ? afternoonQAs.find(q => q.qaId === item.qaId || q.refIssueId === item.issueId) : null;
+        const urg = getUrgencyBadgeInfo(item.urgency);
+        const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
+        const linkedQa = item.qaId ? afternoonQAs.find(q => q.qaId === item.qaId) : null;
+
         return `
-          <div class="p-3 rounded-2xl border ${done ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-slate-200 hover:border-maroon-600/60'} flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition">
+          <div class="p-3 rounded-2xl border ${isDone ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white hover:border-maroon-600/50'} flex flex-wrap items-center justify-between gap-2.5 transition">
             <div class="min-w-0 flex-1 space-y-1">
-              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+              <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
                 <span class="font-mono font-extrabold px-2 py-0.5 rounded bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
-                <span class="px-2 py-0.5 rounded text-white font-bold" style="background:${cat.color}">โต๊ะ ${cat.no} : ${escapeHtml(cat.short)}</span>
-                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold">กลุ่ม ${item.groupNo}</span>
-                ${getUrgencyBadge(item.urgency)}
+                <span class="px-2 py-0.5 rounded bg-blue-100 text-navy-800 font-bold">โต๊ะ ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold">กลุ่ม ${item.groupNo} ถาม</span>
+                <span class="px-2 py-0.5 rounded-full border font-bold ${urg.cls}">${urg.label}</span>
+                ${isDone ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold">✅ ตอบแล้วโดย ${escapeHtml(linkedQa?.recorder || 'ทีมงาน')} (${escapeHtml(item.qaId)})</span>` : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">⏳ รอทำคำตอบ</span>`}
               </div>
-              <p class="text-sm sm:text-base font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
-              ${linkedQa ? `<p class="text-xs text-emerald-800 font-semibold">✅ ตอบแล้วโดย ${escapeHtml(linkedQa.recorder || '-')} (กลุ่ม ${linkedQa.groupNo}) : ${escapeHtml(linkedQa.standardAnswer.slice(0, 90))}${linkedQa.standardAnswer.length > 90 ? '...' : ''}</p>` : ''}
+              <p class="text-xs sm:text-sm font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
             </div>
-            <div class="shrink-0">
-              ${done
-                ? `<button type="button" onclick="openQAReaderById('${escapeHtml(item.qaId || (linkedQa ? linkedQa.qaId : ''))}')" class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-extrabold transition">📖 ดูคำตอบ (${escapeHtml(item.qaId || 'Q&A')})</button>`
-                : `<button type="button" onclick="pickMorningIssueForQA('${escapeHtml(item.issueId)}')" class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-extrabold shadow-xs transition">✍️ เลือกทำ Q&amp;A →</button>`
-              }
+
+            <div class="shrink-0 flex items-center gap-1.5">
+              ${isDone && linkedQa ? `
+                <button type="button" onclick="openQAReaderById('${escapeHtml(linkedQa.qaId)}')" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
+                  👁️ ดูคำตอบ
+                </button>
+              ` : `
+                <button type="button" onclick="selectMorningIssueForQA('${escapeHtml(item.issueId)}')" class="px-3.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-extrabold shadow-2xs transition">
+                  ✍️ ดึงมาตอบข้อนี้ →
+                </button>
+              `}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function pickMorningIssueForQA(issueId) {
-      const item = morningIssues.find(x => x.issueId === issueId);
+    function selectMorningIssueForQA(issueId) {
+      const item = morningIssues.find(m => m.issueId === issueId);
       if (!item) return;
 
-      cancelAfternoonEdit();
-      selectedCategory = item.categoryNo;
+      switchWorksheetTab('afternoon');
+      cancelAfternoonEdit(false);
+
       document.getElementById('qa-ref-issue-id').value = item.issueId;
       document.getElementById('qa-ref-badge').textContent = item.issueId;
       document.getElementById('qa-ref-banner').classList.remove('hidden');
 
-      document.getElementById('qa-category').value = String(item.categoryNo);
-      const targetGroup = (userContext.userType === 'member' && userContext.baseGroup) ? userContext.baseGroup : item.groupNo;
-      selectedGroup = targetGroup;
-      document.getElementById('qa-group').value = String(targetGroup);
-      document.getElementById('qa-question').value = item.issueText;
-      document.getElementById('qa-duplicate-warning')?.classList.add('hidden');
+      selectedCategory = Number(item.categoryNo) || 1;
+      document.getElementById('qa-category').value = String(selectedCategory);
+      document.getElementById('q-filter-cat').value = String(selectedCategory);
 
-      renderTableRosterCard();
+      if (isGroupLockedForUser()) {
+        document.getElementById('qa-group').value = String(userContext.baseGroup);
+      } else {
+        selectedGroup = Number(item.groupNo) || selectedGroup;
+        document.getElementById('qa-group').value = String(selectedGroup);
+      }
+
+      document.getElementById('qa-question').value = item.issueText || '';
+      syncQaFormCategoryScopeAndSheetNo();
       renderAfternoonStationButtons();
+      renderTableRosterCard();
       renderTeammateQaPanel();
-      updateQaScopeAndAutoSheetNo();
+      checkQaDuplicateHint(item.issueText || '');
 
       document.getElementById('qa-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => document.getElementById('qa-answer').focus(), 400);
-      showToast(`ดึงคำถาม ${item.issueId} มาใส่ในฟอร์มตอบคำถามแล้ว`, 'info');
+      setTimeout(() => document.getElementById('qa-answer')?.focus(), 350);
+      showToast(`ดึงคำถาม ${item.issueId} เข้าฟอร์มใบงาน Q&A เรียบร้อยแล้ว`, 'info');
     }
 
     function startStandaloneQA() {
       cancelAfternoonEdit();
-      clearLinkedMorningIssue();
-      document.getElementById('qa-question').value = '';
-      document.getElementById('qa-answer').value = '';
-      document.getElementById('qa-ref-media').value = '';
-      document.getElementById('qa-ref-law').value = '';
-      document.getElementById('qa-caution').value = '';
-      document.getElementById('qa-duplicate-warning')?.classList.add('hidden');
-      document.getElementById('qa-category').value = String(selectedCategory);
-      document.getElementById('qa-group').value = String(selectedGroup);
-      updateQaScopeAndAutoSheetNo();
       document.getElementById('qa-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => document.getElementById('qa-question').focus(), 350);
+      setTimeout(() => document.getElementById('qa-question')?.focus(), 250);
     }
 
     function clearLinkedMorningIssue() {
@@ -2077,38 +2269,78 @@
     }
 
     function onQaCategoryOrGroupChange() {
-      const catNo = Number(document.getElementById('qa-category').value) || 1;
-      const grpNo = Number(document.getElementById('qa-group').value) || 1;
-      selectedCategory = catNo;
-      selectedGroup = grpNo;
-      safeSet('ws2_last_cat', String(catNo));
-      safeSet('ws2_last_group', String(grpNo));
-      document.getElementById('q-filter-cat').value = String(catNo);
+      const catVal = Number(document.getElementById('qa-category').value) || 1;
+      const grpVal = isGroupLockedForUser() ? userContext.baseGroup : (Number(document.getElementById('qa-group').value) || 1);
+      selectedCategory = catVal;
+      selectedGroup = grpVal;
+      safeSet('ws2_last_cat', String(selectedCategory));
+      if (!isGroupLockedForUser()) safeSet('ws2_last_group', String(selectedGroup));
+
+      document.getElementById('q-filter-cat').value = String(selectedCategory);
+      syncQaFormCategoryScopeAndSheetNo();
       renderTableRosterCard();
-      renderMorningSelectors();
-      renderMorningTeammatePanel();
       renderAfternoonStationButtons();
       renderTeammateQaPanel();
       renderAfternoonQueue();
-      updateQaScopeAndAutoSheetNo();
+      checkQaDuplicateHint(document.getElementById('qa-question')?.value || '');
     }
 
-    function updateQaScopeAndAutoSheetNo() {
-      const catNo = Number(document.getElementById('qa-category').value) || 1;
-      const cat = getCategoryObj(catNo);
-      const scopeEl = document.getElementById('qa-cat-scope-box');
-      if (scopeEl) {
-        scopeEl.innerHTML = `<strong class="text-navy-800">ขอบเขต ${escapeHtml(cat.tableLabel)}:</strong> ${escapeHtml(cat.scope)}`;
+    function syncQaFormCategoryScopeAndSheetNo() {
+      const catNo = Number(document.getElementById('qa-category').value) || selectedCategory;
+      const catObj = getCategoryObj(catNo);
+      const scopeBox = document.getElementById('qa-cat-scope-box');
+      if (scopeBox) {
+        scopeBox.innerHTML = `<strong class="text-navy-800">ขอบเขตโต๊ะที่ ${catObj.no} (${escapeHtml(catObj.name)}):</strong> ${escapeHtml(catObj.scope)}`;
       }
+
+      // รันเลขใบงานข้อที่อัตโนมัติ (เฉพาะกรณีไม่ได้กำลังแก้ไข)
       if (!document.getElementById('qa-edit-id').value) {
-        const sameCat = afternoonQAs.filter(q => Number(q.categoryNo) === catNo);
+        const sheetInp = document.getElementById('qa-sheet-no');
         let maxNo = 0;
-        sameCat.forEach(q => {
-          const n = parseInt(String(q.sheetNo || '').replace(/[^\d]/g, ''), 10) || 0;
-          if (n > maxNo) maxNo = n;
+        afternoonQAs.forEach(q => {
+          if (Number(q.categoryNo) === catNo) {
+            const n = parseInt(String(q.sheetNo || '').replace(/[^\d]/g, ''), 10) || 0;
+            if (n > maxNo) maxNo = n;
+          }
         });
-        document.getElementById('qa-sheet-no').value = String(maxNo + 1);
+        if (sheetInp && (!sheetInp.dataset.userEdited || !sheetInp.value)) {
+          sheetInp.value = String(maxNo + 1);
+        }
       }
+    }
+
+    function checkQaDuplicateHint(rawText) {
+      const box = document.getElementById('qa-duplicate-warning');
+      if (!box) return;
+      const q = String(rawText || '').trim().toLowerCase();
+      const editId = document.getElementById('qa-edit-id').value;
+      const catNo = Number(document.getElementById('qa-category').value) || selectedCategory;
+      if (q.length < 6) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const words = q.split(/\s+/).filter(w => w.length >= 3);
+      const matches = afternoonQAs.filter(item => {
+        if (item.qaId === editId) return false;
+        if (Number(item.categoryNo) !== catNo) return false;
+        const txt = String(item.question || '').toLowerCase();
+        if (txt.includes(q) || q.includes(txt.slice(0, 14))) return true;
+        if (words.length >= 2) {
+          const hit = words.filter(w => txt.includes(w)).length;
+          return hit >= Math.min(2, words.length);
+        }
+        return false;
+      }).slice(0, 2);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = `⚠️ <strong>มีคำตอบ Q&amp;A ที่คล้ายกันอยู่แล้วในโต๊ะที่ ${catNo}:</strong> ` +
+        matches.map(m => `<button type="button" onclick="openQAReaderById('${escapeHtml(m.qaId)}')" class="underline font-extrabold text-maroon-800 hover:text-navy-700">[${escapeHtml(m.qaId)} • กลุ่ม ${m.groupNo}: “${escapeHtml(m.question.slice(0, 60))}${m.question.length > 60 ? '...' : ''}”]</button>`).join(' / ');
+      box.classList.remove('hidden');
     }
 
     async function submitAfternoonForm(e) {
@@ -2116,7 +2348,8 @@
       const editId = document.getElementById('qa-edit-id').value.trim();
       const refIssueId = document.getElementById('qa-ref-issue-id').value.trim();
       const categoryNo = Number(document.getElementById('qa-category').value) || 1;
-      const groupNo = Number(document.getElementById('qa-group').value) || 1;
+      const groupNo = isGroupLockedForUser() ? userContext.baseGroup : (Number(document.getElementById('qa-group').value) || 1);
+      const catObj = getCategoryObj(categoryNo);
       const sheetNo = document.getElementById('qa-sheet-no').value.trim();
       const dateTh = document.getElementById('qa-date-th').value.trim() || getTodayThaiDateString();
       const question = document.getElementById('qa-question').value.trim();
@@ -2126,17 +2359,19 @@
       const caution = document.getElementById('qa-caution').value.trim();
       const recorder = document.getElementById('qa-recorder').value.trim();
       const reviewer = document.getElementById('qa-reviewer').value.trim();
-      const catObj = getCategoryObj(categoryNo);
 
       if (!question || !standardAnswer || !recorder) {
         showToast('กรุณากรอกคำถาม คำตอบมาตรฐาน และชื่อผู้บันทึกให้ครบถ้วน', 'warning');
         return;
       }
 
+      persistRecorderName(recorder);
+      safeSet('ws2_reviewer_name', reviewer);
+
       const btn = document.getElementById('qa-submit-btn');
       const lbl = document.getElementById('qa-submit-label');
       btn.disabled = true;
-      lbl.textContent = editId ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึกคำตอบ...';
+      lbl.textContent = 'กำลังบันทึก Q&A...';
       isMutating = true;
 
       try {
@@ -2154,18 +2389,10 @@
             };
 
         const res = await postToApi(payload);
-        if (res.status !== 'success') throw new Error(res.message || 'บันทึกไม่สำเร็จ');
+        if (res.status !== 'success') throw new Error(res.message || 'บันทึก Q&A ไม่สำเร็จ');
 
-        showToast(res.message || 'บันทึกใบงาน Q&A เรียบร้อยแล้ว', 'success');
-        document.getElementById('qa-question').value = '';
-        document.getElementById('qa-answer').value = '';
-        document.getElementById('qa-ref-media').value = '';
-        document.getElementById('qa-ref-law').value = '';
-        document.getElementById('qa-caution').value = '';
-        document.getElementById('qa-duplicate-warning')?.classList.add('hidden');
-        clearLinkedMorningIssue();
+        showToast(res.message || 'บันทึกคำตอบ Q&A เรียบร้อยแล้ว!', 'success');
         cancelAfternoonEdit();
-        isMutating = false;
         await fetchAllWorkshopData(false);
       } catch (err) {
         showToast('บันทึก Q&A ไม่สำเร็จ: ' + err.message, 'error');
@@ -2176,137 +2403,171 @@
       }
     }
 
-    function startEditAfternoonQA(qaId) {
-      const q = afternoonQAs.find(x => x.qaId === qaId);
-      if (!q) return;
+    function editAfternoonQA(qaId) {
+      const qa = afternoonQAs.find(q => q.qaId === qaId);
+      if (!qa || !canEditAfternoonQA(qa)) return;
 
-      document.getElementById('qa-edit-id').value = q.qaId;
-      document.getElementById('qa-category').value = String(q.categoryNo);
-      document.getElementById('qa-group').value = String(q.groupNo);
-      document.getElementById('qa-sheet-no').value = q.sheetNo || '';
-      document.getElementById('qa-date-th').value = q.dateTh || getTodayThaiDateString();
-      document.getElementById('qa-question').value = q.question || '';
-      document.getElementById('qa-answer').value = q.standardAnswer || '';
-      document.getElementById('qa-ref-media').value = q.refMedia || '';
-      document.getElementById('qa-ref-law').value = q.refLaw || '';
-      document.getElementById('qa-caution').value = q.caution || '';
-      document.getElementById('qa-recorder').value = q.recorder || '';
-      document.getElementById('qa-reviewer').value = q.reviewer || '';
+      switchWorksheetTab('afternoon');
+      document.getElementById('qa-edit-id').value = qa.qaId;
+      document.getElementById('qa-ref-issue-id').value = qa.refIssueId || '';
+      if (qa.refIssueId) {
+        document.getElementById('qa-ref-badge').textContent = qa.refIssueId;
+        document.getElementById('qa-ref-banner').classList.remove('hidden');
+      } else {
+        document.getElementById('qa-ref-banner').classList.add('hidden');
+      }
 
-      clearLinkedMorningIssue();
+      selectedCategory = Number(qa.categoryNo) || 1;
+      document.getElementById('qa-category').value = String(selectedCategory);
+      if (isGroupLockedForUser()) {
+        document.getElementById('qa-group').value = String(userContext.baseGroup);
+      } else {
+        selectedGroup = Number(qa.groupNo) || 1;
+        document.getElementById('qa-group').value = String(selectedGroup);
+      }
+
+      document.getElementById('qa-sheet-no').value = qa.sheetNo || '';
+      document.getElementById('qa-date-th').value = qa.dateTh || getTodayThaiDateString();
+      document.getElementById('qa-question').value = qa.question || '';
+      document.getElementById('qa-answer').value = qa.standardAnswer || '';
+      document.getElementById('qa-ref-media').value = qa.refMedia || '';
+      document.getElementById('qa-ref-law').value = qa.refLaw || '';
+      document.getElementById('qa-caution').value = qa.caution || '';
+      document.getElementById('qa-recorder').value = qa.recorder || userContext.name || '';
+      document.getElementById('qa-reviewer').value = qa.reviewer || '';
+
       document.getElementById('qa-edit-badge').classList.remove('hidden');
       document.getElementById('qa-cancel-edit-btn').classList.remove('hidden');
       document.getElementById('qa-submit-label').textContent = 'บันทึกการแก้ไข Q&A';
-      updateQaScopeAndAutoSheetNo();
+
+      syncQaFormCategoryScopeAndSheetNo();
       document.getElementById('qa-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function cancelAfternoonEdit() {
+    function cancelAfternoonEdit(resetFields = true) {
       document.getElementById('qa-edit-id').value = '';
+      document.getElementById('qa-ref-issue-id').value = '';
+      document.getElementById('qa-ref-banner').classList.add('hidden');
       document.getElementById('qa-edit-badge').classList.add('hidden');
       document.getElementById('qa-cancel-edit-btn').classList.add('hidden');
       document.getElementById('qa-submit-label').textContent = 'บันทึกคำตอบ Q&A';
-      updateQaScopeAndAutoSheetNo();
+      document.getElementById('qa-duplicate-warning').classList.add('hidden');
+
+      if (resetFields) {
+        document.getElementById('qa-question').value = '';
+        document.getElementById('qa-answer').value = '';
+        document.getElementById('qa-ref-media').value = '';
+        document.getElementById('qa-ref-law').value = '';
+        document.getElementById('qa-caution').value = '';
+        document.getElementById('qa-sheet-no').value = '';
+        document.getElementById('qa-date-th').value = getTodayThaiDateString();
+        syncQaFormCategoryScopeAndSheetNo();
+      }
     }
 
-    // ==================== TAB 3: READ-ONLY Q&A LIBRARY (แสดงเฉพาะคำถาม–คำตอบเป็นข้อๆ ล้วนๆ) ====================
-    function setExplorerCategory(catKey) {
+    function askDeleteAfternoonQA(qaId) {
+      const qa = afternoonQAs.find(q => q.qaId === qaId);
+      if (!qa || !canEditAfternoonQA(qa)) return;
+      openDeleteModal(
+        `ต้องการลบคำตอบ ${qa.qaId} (“${qa.question.slice(0, 60)}${qa.question.length > 60 ? '...' : ''}”) ใช่หรือไม่?${qa.refIssueId ? ` (สถานะข้อ ${qa.refIssueId} จะกลับเป็นรอทำคำตอบ)` : ''}`,
+        async () => {
+          const res = await postToApi({ action: 'deleteAfternoonQA', qaId: qa.qaId });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
+          showToast(res.message || 'ลบคำตอบ Q&A เรียบร้อยแล้ว', 'success');
+          if (document.getElementById('qa-edit-id').value === qa.qaId) cancelAfternoonEdit();
+          await fetchAllWorkshopData(false);
+        }
+      );
+    }
+
+    // ==================== TAB 3: READ-ONLY Q&A LIBRARY EXPLORER ====================
+    function setExplorerCatFilter(catKey) {
       explorerCatFilter = String(catKey);
       renderQAExplorer();
     }
 
-    function renderExplorerCategoryPills() {
-      const box = document.getElementById('explorer-cat-pills');
-      if (!box) return;
-
-      const countFor = (catNo) => afternoonQAs.filter(q => catNo === 'all' || Number(q.categoryNo) === catNo).length;
-      const pills = [
-        { key: 'all', label: `ทั้งหมด (${countFor('all')})` },
-        ...CATEGORIES.map(c => ({ key: String(c.no), label: `โต๊ะ ${c.no}: ${c.short} (${countFor(c.no)})` }))
-      ];
-
-      box.innerHTML = pills.map(p => {
-        const active = explorerCatFilter === p.key;
-        return `
-          <button type="button" onclick="setExplorerCategory('${p.key}')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-            active
-              ? 'bg-gold-500 text-slate-950 shadow-xs'
-              : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-          }">${escapeHtml(p.label)}</button>
-        `;
-      }).join('');
-    }
-
     function renderQAExplorer() {
-      renderExplorerCategoryPills();
-      const box = document.getElementById('qa-explorer-list');
+      const pillsBox = document.getElementById('explorer-cat-pills');
+      const listBox = document.getElementById('qa-explorer-list');
       const countBadge = document.getElementById('explorer-count-badge');
-      if (!box) return;
+      if (!pillsBox || !listBox) return;
+
+      // ปุ่มกรองตามหมวด 1–5 พร้อมยอดจำนวนข้อ
+      const allBtnActive = explorerCatFilter === 'all';
+      pillsBox.innerHTML = [
+        `<button type="button" onclick="setExplorerCatFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+          allBtnActive ? 'bg-gold-500 text-slate-950 shadow-xs' : 'bg-white/10 hover:bg-white/20 text-white border border-white/15'
+        }">ทุกโต๊ะ/หมวด (${afternoonQAs.length})</button>`,
+        ...CATEGORIES.map(c => {
+          const cnt = afternoonQAs.filter(q => Number(q.categoryNo) === c.no).length;
+          const act = explorerCatFilter === String(c.no);
+          return `<button type="button" onclick="setExplorerCatFilter('${c.no}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            act ? 'bg-gold-500 text-slate-950 shadow-xs font-extrabold' : 'bg-white/10 hover:bg-white/20 text-white border border-white/15'
+          }">โต๊ะ ${c.no}: ${escapeHtml(c.short)} (${cnt})</button>`;
+        })
+      ].join('');
 
       const qSearch = String(document.getElementById('explorer-search')?.value || '').trim().toLowerCase();
       const grpFilter = document.getElementById('explorer-filter-group')?.value || 'all';
 
-      const list = afternoonQAs.filter(q => {
+      currentLibraryOrderedList = afternoonQAs.filter(q => {
         if (explorerCatFilter !== 'all' && String(q.categoryNo) !== explorerCatFilter) return false;
         if (grpFilter !== 'all' && String(q.groupNo) !== grpFilter) return false;
-        if (!qSearch) return true;
-        const hay = `${q.qaId} ${q.question} ${q.standardAnswer} ${q.refMedia} ${q.refLaw} ${q.caution} ${q.categoryName} ${q.recorder} ${q.reviewer}`.toLowerCase();
-        return hay.includes(qSearch);
+        if (qSearch) {
+          const hay = `${q.qaId} ${q.question} ${q.standardAnswer} ${q.refMedia} ${q.refLaw} ${q.caution} ${q.categoryName} ${q.recorder} ${q.reviewer}`.toLowerCase();
+          if (!hay.includes(qSearch)) return false;
+        }
+        return true;
       });
 
-      currentLibraryOrderedList = list;
-      if (countBadge) countBadge.textContent = `${list.length} ข้อ`;
+      if (countBadge) countBadge.textContent = `${currentLibraryOrderedList.length} ข้อ`;
 
-      if (list.length === 0) {
-        box.innerHTML = `<div class="py-12 text-center text-sm text-slate-400">ยังไม่มีรายการคำถาม–คำตอบในเงื่อนไขที่เลือก</div>`;
+      if (currentLibraryOrderedList.length === 0) {
+        listBox.innerHTML = `<div class="py-14 text-center text-sm text-slate-400 font-semibold">ยังไม่มีรายการคำถาม–คำตอบ (Q&amp;A) ในหมวดหรือคำค้นหาที่เลือก</div>`;
         return;
       }
 
-      // แสดงเฉพาะคำถาม–คำตอบเรียงเป็นข้อๆ (ข้อที่ 1, ข้อที่ 2, ...) ไม่มีช่องกรอกและไม่มีปุ่มแก้ไข/ลบ
-      box.innerHTML = list.map((q, idx) => {
+      // แสดงเฉพาะคำถาม–คำตอบเรียงเป็นข้อๆ (Read-Only ล้วน ไม่มีช่องกรอกและไม่มีปุ่มแก้ไข/ลบ)
+      listBox.innerHTML = currentLibraryOrderedList.map((q, idx) => {
         const cat = getCategoryObj(q.categoryNo);
         return `
-          <article class="rounded-2xl bg-white border border-slate-200 shadow-2xs overflow-hidden" style="border-left: 5px solid ${cat.color};">
-            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-extrabold">ข้อที่ ${idx + 1}</span>
-                <span class="px-2 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">โต๊ะ ${cat.no} : ${escapeHtml(cat.short)}</span>
-                <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${q.groupNo}</span>
-                <span class="font-mono text-[11px] text-slate-400">${escapeHtml(q.qaId)}</span>
+          <article onclick="openQAReaderByIndex(${idx})" class="cursor-pointer rounded-3xl p-4 sm:p-5 bg-white hover:bg-teal-50/40 border-2 border-slate-200 hover:border-teal-500 shadow-2xs transition space-y-3" style="border-left: 6px solid ${cat.color};">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="px-2.5 py-0.5 rounded-lg bg-teal-800 text-gold-400 font-extrabold">ข้อที่ ${idx + 1}</span>
+                <span class="font-mono font-bold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700">${escapeHtml(q.qaId)}</span>
+                <span class="px-2.5 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">โต๊ะที่ ${cat.no} : ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-extrabold">กลุ่มที่ ${q.groupNo}</span>
               </div>
-              <button type="button" onclick="openQAReaderAtIndex(${idx})" class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 font-bold text-xs transition">
-                🔍 ขยายอ่านเต็มจอ
-              </button>
+              <span class="text-xs font-extrabold text-teal-800 shrink-0">🔍 ขยายอ่านเต็มจอ ⤢</span>
             </div>
 
-            <div class="p-4 space-y-3">
-              <div>
-                <p class="text-[11px] font-extrabold text-navy-700 uppercase tracking-wide">คำถาม</p>
-                <h3 class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug mt-0.5 break-words">${escapeHtml(q.question)}</h3>
+            <div class="space-y-1">
+              <p class="text-[11px] font-extrabold uppercase tracking-wider text-navy-700">คำถาม / ประเด็นปัญหา</p>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(q.question)}</h3>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-emerald-50/75 border border-emerald-200 space-y-1">
+              <p class="text-[11px] font-extrabold text-emerald-800">คำตอบมาตรฐาน / แนวทางปฏิบัติ</p>
+              <p class="text-sm sm:text-base text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
+            </div>
+
+            ${(q.refMedia || q.refLaw) ? `
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                ${q.refMedia ? `<div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-200 text-navy-900"><strong>📊 สื่อ/PowerPoint:</strong> ${escapeHtml(q.refMedia)}</div>` : ''}
+                ${q.refLaw ? `<div class="p-2.5 rounded-xl bg-rose-50/70 border border-rose-200 text-maroon-900"><strong>⚖️ ระเบียบ/กฎหมาย:</strong> ${escapeHtml(q.refLaw)}</div>` : ''}
               </div>
+            ` : ''}
 
-              <div class="p-3.5 rounded-2xl bg-emerald-50/75 border border-emerald-200">
-                <p class="text-[11px] font-extrabold text-emerald-800 uppercase tracking-wide">คำตอบมาตรฐาน / แนวทางปฏิบัติ</p>
-                <p class="text-sm sm:text-base text-slate-800 leading-relaxed mt-1 whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
+            ${q.caution ? `
+              <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs font-semibold text-amber-950">
+                <strong>⚠️ ข้อควรระวัง/ข้อยกเว้น:</strong> ${escapeHtml(q.caution)}
               </div>
+            ` : ''}
 
-              ${(q.refMedia || q.refLaw) ? `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  ${q.refMedia ? `<div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-200 text-slate-700"><strong class="text-navy-800 block mb-0.5">📊 สื่อ / อินโฟกราฟิก / PowerPoint:</strong>${escapeHtml(q.refMedia)}</div>` : ''}
-                  ${q.refLaw ? `<div class="p-2.5 rounded-xl bg-rose-50/70 border border-rose-200 text-slate-700"><strong class="text-maroon-800 block mb-0.5">⚖️ ระเบียบ / กฎหมาย:</strong>${escapeHtml(q.refLaw)}</div>` : ''}
-                </div>
-              ` : ''}
-
-              ${q.caution ? `
-                <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs sm:text-sm text-amber-950">
-                  <strong class="text-amber-900">⚠️ ข้อควรระวัง / ข้อยกเว้น:</strong> ${escapeHtml(q.caution)}
-                </div>
-              ` : ''}
-
-              <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-                <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(q.recorder || '-')}</strong>${q.reviewer ? ` • ผู้ตรวจสอบ: <strong class="text-slate-700">${escapeHtml(q.reviewer)}</strong>` : ''}</span>
-                <span class="font-mono">${escapeHtml(q.dateTh || '')}</span>
-              </div>
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(q.recorder || '-')}</strong>${q.reviewer ? ` • ผู้ตรวจสอบ: <strong class="text-slate-700">${escapeHtml(q.reviewer)}</strong>` : ''}</span>
+              <span class="font-mono">${escapeHtml(q.dateTh || '')}</span>
             </div>
           </article>
         `;
@@ -2315,31 +2576,27 @@
 
     // ==================== FULLSCREEN Q&A READER MODAL ====================
     function openQAReaderById(qaId) {
-      if (!qaId) return;
-      if (currentLibraryOrderedList.length === 0) currentLibraryOrderedList = afternoonQAs.slice();
-      let idx = currentLibraryOrderedList.findIndex(x => x.qaId === qaId);
-      if (idx === -1) {
-        currentLibraryOrderedList = afternoonQAs.slice();
-        idx = currentLibraryOrderedList.findIndex(x => x.qaId === qaId);
+      const idxInLib = currentLibraryOrderedList.findIndex(q => q.qaId === qaId);
+      if (idxInLib !== -1) {
+        openQAReaderByIndex(idxInLib);
+        return;
       }
-      if (idx === -1) {
+      const found = afternoonQAs.find(q => q.qaId === qaId);
+      if (!found) {
         showToast('ไม่พบข้อมูลคำตอบ Q&A นี้', 'warning');
         return;
       }
-      openQAReaderAtIndex(idx);
+      currentLibraryOrderedList = afternoonQAs.slice();
+      const idx = currentLibraryOrderedList.findIndex(q => q.qaId === qaId);
+      openQAReaderByIndex(idx !== -1 ? idx : 0);
     }
 
-    function openQAReaderAtIndex(idx) {
+    function openQAReaderByIndex(idx) {
       if (idx < 0 || idx >= currentLibraryOrderedList.length) return;
       readerActiveIndex = idx;
       renderQAReaderContent();
       document.getElementById('qa-reader-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
-    }
-
-    function closeQAReaderModal() {
-      readerActiveIndex = -1;
-      document.getElementById('qa-reader-modal').classList.add('hidden');
     }
 
     function stepQAReader(delta) {
@@ -2348,85 +2605,89 @@
       renderQAReaderContent();
     }
 
+    function closeQAReaderModal() {
+      readerActiveIndex = -1;
+      document.getElementById('qa-reader-modal')?.classList.add('hidden');
+    }
+
     function renderQAReaderContent() {
       const q = currentLibraryOrderedList[readerActiveIndex];
       if (!q) return;
       const cat = getCategoryObj(q.categoryNo);
-      document.getElementById('qr-read-id').textContent = `ข้อที่ ${readerActiveIndex + 1} / ${currentLibraryOrderedList.length} • ${q.qaId}`;
-      document.getElementById('qr-read-cat').textContent = `โต๊ะ ${cat.no} : ${cat.short}`;
+
+      document.getElementById('qr-read-id').textContent = `${q.qaId} • ข้อที่ ${readerActiveIndex + 1}`;
+      document.getElementById('qr-read-cat').textContent = `โต๊ะที่ ${cat.no}: ${cat.short}`;
       document.getElementById('qr-read-grp').textContent = `กลุ่มที่ ${q.groupNo}`;
+      document.getElementById('qr-read-counter').textContent = `${readerActiveIndex + 1} / ${currentLibraryOrderedList.length}`;
 
       document.getElementById('qr-read-body').innerHTML = `
         <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-navy-700/20 space-y-1.5">
-          <span class="inline-block px-2.5 py-0.5 rounded-full bg-navy-700 text-white text-xs font-extrabold">1. คำถาม / ประเด็นปัญหา</span>
+          <p class="text-xs font-extrabold text-navy-700">1. คำถาม / ประเด็นปัญหา (โต๊ะที่ ${cat.no} : ${escapeHtml(cat.name)})</p>
           <h3 class="text-lg sm:text-2xl font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(q.question)}</h3>
         </div>
+
         <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 space-y-1.5">
-          <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-700 text-white text-xs font-extrabold">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ</span>
-          <p class="text-base sm:text-lg text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
+          <p class="text-xs font-extrabold text-emerald-800">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ</p>
+          <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
         </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="p-4 rounded-2xl bg-white border border-blue-200 space-y-1">
             <p class="text-xs font-extrabold text-navy-800">📊 3.1 สื่อ / อินโฟกราฟิก / PowerPoint</p>
-            <p class="text-sm text-slate-800 whitespace-pre-line break-words">${escapeHtml(q.refMedia || '— ไม่ระบุ —')}</p>
+            <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refMedia || '— ไม่ระบุ —')}</p>
           </div>
           <div class="p-4 rounded-2xl bg-white border border-rose-200 space-y-1">
             <p class="text-xs font-extrabold text-maroon-800">⚖️ 3.2 ระเบียบ / กฎหมาย</p>
-            <p class="text-sm text-slate-800 whitespace-pre-line break-words">${escapeHtml(q.refLaw || '— ไม่ระบุ —')}</p>
+            <p class="text-sm text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refLaw || '— ไม่ระบุ —')}</p>
           </div>
         </div>
+
         ${q.caution ? `
           <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 space-y-1">
             <p class="text-xs font-extrabold text-amber-900">⚠️ 4. ข้อควรระวัง / ข้อยกเว้น</p>
-            <p class="text-sm sm:text-base font-bold text-amber-950 whitespace-pre-line break-words">${escapeHtml(q.caution)}</p>
+            <p class="text-sm sm:text-base font-bold text-amber-950 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.caution)}</p>
           </div>
         ` : ''}
       `;
 
       document.getElementById('qr-read-footer').innerHTML = `
         <span>ผู้บันทึก: <strong class="text-slate-900">${escapeHtml(q.recorder || '-')}</strong>${q.reviewer ? ` • ผู้ตรวจสอบ: <strong class="text-slate-900">${escapeHtml(q.reviewer)}</strong>` : ''}</span>
-        <span class="font-mono">${escapeHtml(q.dateTh || '')}</span>
+        <span class="font-mono">${q.refIssueId ? `อ้างอิง ${escapeHtml(q.refIssueId)} • ` : ''}${escapeHtml(q.dateTh || '')}</span>
       `;
     }
 
-    // ==================== DELETE CONFIRMATION MODAL ====================
-    function askDeleteMorningIssue(issueId) {
-      pendingDeleteTask = { type: 'morning', id: issueId };
-      document.getElementById('delete-confirm-desc').textContent = `ต้องการลบประเด็นปัญหาช่วงเช้ารหัส ${issueId} ออกจาก Google Sheets ใช่หรือไม่?`;
-      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    // ==================== MODALS: EXAMPLE, DELETE, STAFF PIN ====================
+    function openExampleModal() {
+      document.getElementById('example-modal')?.classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
-    function askDeleteAfternoonQA(qaId) {
-      pendingDeleteTask = { type: 'afternoon', id: qaId };
-      document.getElementById('delete-confirm-desc').textContent = `ต้องการลบคำตอบ Q&A รหัส ${qaId} ออกจาก Google Sheets ใช่หรือไม่? (หากผูกกับประเด็นช่วงเช้า ระบบจะคืนสถานะกลับเป็น “รอทำคำตอบ” อัตโนมัติ)`;
+    function closeExampleModal() {
+      document.getElementById('example-modal')?.classList.add('hidden');
+    }
+
+    function openDeleteModal(descText, onConfirmFn) {
+      pendingDeleteTask = onConfirmFn;
+      document.getElementById('delete-confirm-desc').textContent = descText;
       document.getElementById('delete-confirm-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
     function closeDeleteModal() {
       pendingDeleteTask = null;
-      document.getElementById('delete-confirm-modal').classList.add('hidden');
+      document.getElementById('delete-confirm-modal')?.classList.add('hidden');
     }
 
     async function executePendingDelete() {
-      if (!pendingDeleteTask) return;
-      const task = pendingDeleteTask;
+      if (typeof pendingDeleteTask !== 'function') return;
+      const fn = pendingDeleteTask;
       const btn = document.getElementById('delete-confirm-btn');
       btn.disabled = true;
       btn.textContent = 'กำลังลบ...';
       isMutating = true;
-
       try {
-        const payload = task.type === 'morning'
-          ? { action: 'deleteMorningIssue', issueId: task.id }
-          : { action: 'deleteAfternoonQA', qaId: task.id };
-        const res = await postToApi(payload);
-        if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
-        showToast(res.message || 'ลบรายการเรียบร้อยแล้ว', 'success');
+        await fn();
         closeDeleteModal();
-        isMutating = false;
-        await fetchAllWorkshopData(false);
       } catch (err) {
         showToast('ลบไม่สำเร็จ: ' + err.message, 'error');
       } finally {
@@ -2436,24 +2697,16 @@
       }
     }
 
-    // ==================== EXAMPLE & STAFF UNLOCK MODALS ====================
-    function openExampleModal() {
-      document.getElementById('example-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-    function closeExampleModal() {
-      document.getElementById('example-modal').classList.add('hidden');
-    }
-
     function openStaffUnlockModal() {
       const inp = document.getElementById('staff-pin-input');
       if (inp) inp.value = '';
-      document.getElementById('staff-unlock-modal').classList.remove('hidden');
+      document.getElementById('staff-unlock-modal')?.classList.remove('hidden');
       setTimeout(() => inp?.focus(), 60);
       if (window.lucide) lucide.createIcons();
     }
+
     function closeStaffUnlockModal() {
-      document.getElementById('staff-unlock-modal').classList.add('hidden');
+      document.getElementById('staff-unlock-modal')?.classList.add('hidden');
     }
 
     function submitStaffPin(e) {
@@ -2466,11 +2719,8 @@
       userContext.userType = 'staff';
       safeSessionSet('ai_seminar_ws_staff', 'true');
       closeStaffUnlockModal();
-      applyRoleUiAndPermissions();
-      renderMorningList();
-      renderTeammateQaPanel();
-      renderAfternoonQueue();
-      showToast('ปลดล็อกโหมดเจ้าหน้าที่เรียบร้อยแล้ว', 'success');
+      renderEverything();
+      showToast('ปลดล็อกโหมดเจ้าหน้าที่เรียบร้อยแล้ว (ควบคุมรอบและจัดการได้ทั้งหมด)', 'success');
     }
 
     // ==================== TOAST & ESCAPE ====================
@@ -2490,7 +2740,7 @@
       setTimeout(() => {
         el.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => el.remove(), 300);
-      }, 3200);
+      }, 3300);
     }
 
     function escapeHtml(str) {
