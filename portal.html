@@ -555,13 +555,13 @@
                 <!-- ป้ายสถานะเอกสาร/ข้อมูลบนหน้าบัตร -->
                 <div id="pc-doc-status-pill" class="hidden mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-sm"></div>
 
-                <!-- ป้ายกลุ่ม Workshop ปัจจุบันบนหน้าบัตร -->
-                <div id="pc-workshop-front-pill" class="hidden mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/80 text-left shadow-sm">
-                  <div class="flex items-center justify-between gap-1 text-[10px] font-extrabold text-amber-200 leading-tight">
-                    <span id="pc-workshop-front-text" class="truncate">🎯 กลุ่มที่ 1 (รอบที่ 1)</span>
-                    <span id="pc-workshop-front-mode" class="shrink-0 px-1.5 py-0.2 rounded bg-black/30 text-[8.5px] text-white font-semibold">หมุนเวียน</span>
+                <!-- Live Session & Dress Code HUD (แสดงเฉพาะด้านหน้าบัตร — ไม่ซ้ำกับกลุ่มสัมมนาที่อยู่ด้านหลังบัตร) -->
+                <div id="pc-live-hud-pill" class="mt-1 w-full max-w-[250px] px-2.5 py-1 rounded-xl bg-black/35 border border-amber-300/60 text-left shadow-sm backdrop-blur-xs">
+                  <div class="flex items-center justify-between gap-1 text-[9.5px] font-extrabold text-amber-200 leading-tight">
+                    <span id="pc-hud-status" class="truncate">⏱️ กำหนดการสัมมนา</span>
+                    <span id="pc-hud-dress" class="shrink-0 px-1.5 py-0.2 rounded bg-white/15 text-[8.5px] text-white font-semibold">👔 ชุดสุภาพ</span>
                   </div>
-                  <p id="pc-workshop-front-topic" class="text-[9.5px] text-white/95 font-medium truncate mt-0.5 leading-tight"></p>
+                  <p id="pc-hud-session" class="text-[9.5px] text-white/95 font-medium truncate mt-0.5 leading-tight">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท</p>
                 </div>
               </div>
             </div>
@@ -663,7 +663,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="flipCreditCard()" class="py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-50 active:scale-[0.98] border border-slate-200 shadow-xs text-xs font-bold text-navy-800 flex items-center justify-center gap-1.5 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-700 shrink-0"></i>
-          <span id="flip-btn-label" class="truncate">พลิกดูหลังบัตร (QR &amp; ที่พัก)</span>
+          <span id="flip-btn-label" class="truncate">พลิกดูหลังบัตร (QR • ที่พัก • กลุ่ม)</span>
         </button>
         <button type="button" onclick="openEditRequestModal()" class="py-2.5 px-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.98] text-white shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 transition">
           <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
@@ -1342,6 +1342,7 @@
     const WORKSHOP_GROUP_COLORS = ['#1E3A8A', '#0F766E', '#4338CA', '#D97706', '#9F1239'];
     let ratings = { q1: null, q2: null, q3: null, q4: null, q5: null, q6: null, q7: null, q8: null, q9: null, q10: null };
     let liveSyncTimer = null;
+    let liveHudTimer = null;
     let lastKnownCheckIns = { day1: '', day2: '', day3: '' };
 
     // State สำหรับคำทักทายอัจฉริยะจากมาสคอตคู่หูจราจร AI
@@ -1369,6 +1370,9 @@
       renderRatingQuestions();
       selectScheduleDay(detectDefaultScheduleDay());
       loadParticipantsAndInit();
+      updateFrontCardLiveHud();
+      if (liveHudTimer) clearInterval(liveHudTimer);
+      liveHudTimer = setInterval(updateFrontCardLiveHud, 60000);
 
       document.addEventListener('click', (e) => {
         const input = document.getElementById('req-roommate');
@@ -1487,9 +1491,14 @@
       const inviteTitle = document.getElementById('eval-invite-title');
       const inviteDesc = document.getElementById('eval-invite-desc');
       const inviteBtn = document.getElementById('eval-invite-btn');
+      const submitBtn = document.getElementById('eval-submit-btn');
 
       if (doneBanner) doneBanner.classList.toggle('hidden', !isDone);
       if (formWrap) formWrap.classList.toggle('hidden', isDone);
+      if (submitBtn && !isDone) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ส่งแบบประเมินความพึงพอใจ';
+      }
 
       if (inviteTitle && inviteDesc && inviteBtn) {
         if (isDone) {
@@ -1831,14 +1840,91 @@
           month: 'numeric',
           day: 'numeric',
           hour: 'numeric',
+          minute: 'numeric',
           hour12: false
         }).formatToParts(new Date());
         const map = {};
         parts.forEach(pt => { map[pt.type] = Number(pt.value); });
-        return { year: map.year, month: map.month, day: map.day, hour: map.hour };
+        return { year: map.year, month: map.month, day: map.day, hour: map.hour, minute: map.minute || 0 };
       } catch (e) {
         const d = new Date();
-        return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(), hour: d.getHours() };
+        return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(), hour: d.getHours(), minute: d.getMinutes() };
+      }
+    }
+
+    // คำนวณ Live Session & Dress Code HUD สำหรับแสดงบนด้านหน้าบัตร (แทนกล่องกลุ่มที่ย้ายไปอยู่ด้านหลังบัตรอย่างเดียว)
+    function updateFrontCardLiveHud() {
+      const statusEl = document.getElementById('pc-hud-status');
+      const dressEl = document.getElementById('pc-hud-dress');
+      const sessionEl = document.getElementById('pc-hud-session');
+      if (!statusEl || !dressEl || !sessionEl) return;
+
+      const now = getBangkokDateParts();
+      const nowMins = (now.hour * 60) + now.minute;
+
+      const DAY_SESSIONS = {
+        '11-30': [
+          { start: 8 * 60 + 30, end: 9 * 60 + 30, title: 'ลงทะเบียนผู้เข้าร่วมสัมมนา', dress: '👔 คอพับกากี' },
+          { start: 9 * 60 + 30, end: 10 * 60, title: 'พิธีเปิดโครงการสัมมนา', dress: '👔 คอพับกากี' },
+          { start: 10 * 60, end: 12 * 60, title: 'บรรยาย AI Chatbot (สพร./DGA)', dress: '👔 คอพับกากี' },
+          { start: 12 * 60, end: 13 * 60 + 30, title: 'พักรับประทานอาหารกลางวัน', dress: '👔 เปลี่ยนชุดสุภาพ' },
+          { start: 13 * 60 + 30, end: 16 * 60 + 30, title: 'สัมมนากลุ่มปัญหาข้อขัดข้อง (ศวปถ.)', dress: '👔 ชุดสุภาพ' },
+          { start: 18 * 60, end: 20 * 60, title: 'รับประทานอาหารเย็น', dress: '👔 ชุดสุภาพ' }
+        ],
+        '12-1': [
+          { start: 8 * 60, end: 9 * 60, title: 'ลงทะเบียนวันที่ 2', dress: '👔 ชุดสุภาพ' },
+          { start: 9 * 60, end: 12 * 60, title: 'กลุ่มย่อย 5 โต๊ะ: ใบงานเช้า (ระดมสมอง)', dress: '👔 ชุดสุภาพ' },
+          { start: 12 * 60, end: 13 * 60 + 30, title: 'พักรับประทานอาหารกลางวัน', dress: '👔 ชุดสุภาพ' },
+          { start: 13 * 60 + 30, end: 16 * 60 + 30, title: 'กลุ่มย่อย 5 โต๊ะ: ใบงานบ่าย (จัดทำ Q&A)', dress: '👔 ชุดสุภาพ' },
+          { start: 18 * 60, end: 20 * 60, title: 'รับประทานอาหารเย็น', dress: '👔 ชุดสุภาพ' }
+        ],
+        '12-2': [
+          { start: 8 * 60, end: 9 * 60, title: 'ลงทะเบียนวันที่ 3', dress: '👔 ชุดสุภาพ' },
+          { start: 9 * 60, end: 12 * 60, title: 'จัดทำร่างคำถาม-คำตอบ 5 ประเด็น', dress: '👔 ชุดสุภาพ' },
+          { start: 12 * 60, end: 13 * 60 + 30, title: 'พักรับประทานอาหารกลางวัน', dress: '👔 ชุดสุภาพ' },
+          { start: 13 * 60 + 30, end: 16 * 60, title: 'นำเสนอผล 5 ประเด็น & พิธีปิด', dress: '👔 ชุดสุภาพ' }
+        ]
+      };
+
+      const key = `${now.month}-${now.day}`;
+      const todayList = DAY_SESSIONS[key];
+
+      if (todayList) {
+        const current = todayList.find(s => nowMins >= s.start && nowMins < s.end);
+        const next = todayList.find(s => nowMins < s.start);
+
+        if (current) {
+          const left = current.end - nowMins;
+          statusEl.textContent = `● กำลังดำเนินการ • เหลือ ${left} น.`;
+          dressEl.textContent = current.dress;
+          sessionEl.textContent = current.title;
+        } else if (next) {
+          const wait = next.start - nowMins;
+          const hh = String(Math.floor(next.start / 60)).padStart(2, '0');
+          const mm = String(next.start % 60).padStart(2, '0');
+          statusEl.textContent = wait <= 90 ? `⏳ อีก ${wait} น. (${hh}.${mm} น.)` : `▶ ถัดไป ${hh}.${mm} น.`;
+          dressEl.textContent = next.dress;
+          sessionEl.textContent = next.title;
+        } else {
+          statusEl.textContent = '✓ จบกิจกรรมภาคกลางวันแล้ว';
+          dressEl.textContent = '🌙 พักผ่อน';
+          sessionEl.textContent = key === '12-2' ? 'ขอบคุณทุกท่านที่ร่วมสัมมนาครับ' : 'พบกันใหม่พรุ่งนี้ 08.00 น. (ชุดสุภาพ)';
+        }
+        return;
+      }
+
+      // ก่อนเริ่มวันงานสัมมนา (นับถอยหลังวันเปิดงาน 30 พ.ย. 2569)
+      const startDate = new Date(2026, 10, 30);
+      const todayDate = new Date(now.year, now.month - 1, now.day);
+      const diffDays = Math.round((startDate - todayDate) / 86400000);
+      if (diffDays > 0) {
+        statusEl.textContent = `🗓️ นับถอยหลังอีก ${diffDays} วันเปิดงาน`;
+        dressEl.textContent = '👔 เช้า 30 พ.ย. คอพับกากี';
+        sessionEl.textContent = '30 พ.ย. – 2 ธ.ค. 69 • โรงแรมไพน์เฮิร์สท';
+      } else {
+        statusEl.textContent = '✨ โครงการสัมมนา AI คู่หูจราจร';
+        dressEl.textContent = '📍 ไพน์เฮิร์สท';
+        sessionEl.textContent = 'คลังความรู้งานจราจร 5 หมวด • ศจร.ตร.';
       }
     }
 
@@ -2024,6 +2110,11 @@
       };
     }
 
+    function parseWorkshopGroupNo(val) {
+      const m = String(val || '').trim().match(/[1-5]/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
     function isPersonFixedExpert(p) {
       const r = String(p.workshopRole || '');
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
@@ -2034,7 +2125,7 @@
       const groups = cfg.groups || [];
       if (!p) return { assigned: false, baseGroup: 0, currentGroup: 0, isFixed: false, round };
 
-      const base = parseInt(p.workshopGroup, 10);
+      const base = parseWorkshopGroupNo(p.workshopGroup);
       if (base >= 1 && base <= 5) {
         const isFixed = isPersonFixedExpert(p);
         const currentGroup = isFixed ? base : (((base - 1 + (round - 1)) % 5) + 1);
@@ -2079,7 +2170,7 @@
         const isMyGroup = myInfo.assigned && myInfo.currentGroup === gNum;
 
         const fixedExpertsFromList = allParticipants
-          .filter(p => parseInt(p.workshopGroup, 10) === gNum && isPersonFixedExpert(p))
+          .filter(p => parseWorkshopGroupNo(p.workshopGroup) === gNum && isPersonFixedExpert(p))
           .map(p => (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && p.substituteName) ? p.substituteName : p.fullName);
 
         const expertNames = [];
@@ -2095,7 +2186,7 @@
 
         const membersInThisRound = allParticipants.filter(p => {
           if (isPersonFixedExpert(p)) return false;
-          const base = parseInt(p.workshopGroup, 10);
+          const base = parseWorkshopGroupNo(p.workshopGroup);
           if (!base || base < 1 || base > 5) return false;
           const eff = (((base - 1 + (round - 1)) % 5) + 1);
           return eff === gNum;
@@ -2326,7 +2417,7 @@
       if (isFlipped) closeMascotGreeting();
       const label = document.getElementById('flip-btn-label');
       if (label) {
-        label.textContent = isFlipped ? 'พลิกกลับด้านหน้าบัตร' : 'พลิกดูหลังบัตร (QR & ที่พัก)';
+        label.textContent = isFlipped ? 'พลิกกลับด้านหน้าบัตร' : 'พลิกดูหลังบัตร (QR • ที่พัก • กลุ่ม)';
       }
     }
 
@@ -2479,16 +2570,13 @@
 
       const wsInfo = getPersonWorkshopInfo(p, workshopConfig);
       updateDay2WorksheetLinks(p, wsInfo);
-      const frontPill = document.getElementById('pc-workshop-front-pill');
-      const frontText = document.getElementById('pc-workshop-front-text');
-      const frontMode = document.getElementById('pc-workshop-front-mode');
-      const frontTopic = document.getElementById('pc-workshop-front-topic');
+      updateFrontCardLiveHud();
       const backBox = document.getElementById('pc-workshop-back-box');
-      if (frontPill && frontText && backBox) {
+      if (backBox) {
         if (wsInfo.assigned) {
           const gObj = (workshopConfig.groups || []).find(g => g.groupNo === wsInfo.currentGroup) || {};
           const fixedExpertsFromList = allParticipants
-            .filter(x => parseInt(x.workshopGroup, 10) === wsInfo.currentGroup && isPersonFixedExpert(x))
+            .filter(x => parseWorkshopGroupNo(x.workshopGroup) === wsInfo.currentGroup && isPersonFixedExpert(x))
             .map(x => (x.rsvp === 'ส่งผู้แทนเข้าร่วม' && x.substituteName) ? x.substituteName : x.fullName);
           const expertNames = [];
           fixedExpertsFromList.forEach(n => { if (n && !expertNames.includes(n)) expertNames.push(n); });
@@ -2500,44 +2588,26 @@
           }
 
           if (wsInfo.isFixed) {
-            frontPill.className = 'mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-amber-400/25 border border-amber-300/85 text-left shadow-sm';
-            frontText.textContent = `⭐ ผู้เชี่ยวชาญกลุ่มที่ ${wsInfo.currentGroup}`;
-            if (frontMode) {
-              frontMode.textContent = 'ประจำฐานเดิม';
-              frontMode.className = 'shrink-0 px-1.5 py-0.2 rounded bg-amber-300 text-slate-950 text-[8.5px] font-extrabold';
-            }
-            if (frontTopic) frontTopic.textContent = gObj.topic || '';
-
-            document.getElementById('pc-workshop-back-title').textContent = `⭐ ผู้เชี่ยวชาญประจำกลุ่ม ${wsInfo.currentGroup}`;
-            document.getElementById('pc-workshop-back-round').textContent = 'ประจำกลุ่มเดิม';
+            document.getElementById('pc-workshop-back-title').textContent = `⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ ${wsInfo.currentGroup}`;
+            document.getElementById('pc-workshop-back-round').textContent = 'นั่งประจำโต๊ะเดิม';
             document.getElementById('pc-workshop-back-topic').textContent = gObj.topic || '';
-            document.getElementById('pc-workshop-back-experts').textContent = 'วิทยากร/ผู้เชี่ยวชาญจะอยู่ประจำฐานนี้ตลอดทุกรอบ';
+            document.getElementById('pc-workshop-back-experts').textContent = 'ผู้เชี่ยวชาญประจำโต๊ะนี้ตลอดทุกรอบ (กลุ่ม 1–5 เวียนมาคุย)';
             document.getElementById('pc-workshop-back-route').textContent = `รอบปัจจุบัน: รอบที่ ${wsInfo.round} / 5`;
           } else {
-            frontPill.className = 'mt-1 w-full max-w-[245px] px-2.5 py-1 rounded-xl bg-sky-400/25 border border-sky-300/85 text-left shadow-sm';
-            frontText.textContent = `🎯 กลุ่มที่ ${wsInfo.currentGroup} (รอบที่ ${wsInfo.round}/5)`;
-            if (frontMode) {
-              frontMode.textContent = 'เปลี่ยนกลุ่มตามรอบ';
-              frontMode.className = 'shrink-0 px-1.5 py-0.2 rounded bg-sky-300 text-slate-950 text-[8.5px] font-extrabold';
-            }
-            if (frontTopic) frontTopic.textContent = gObj.topic || '';
-
-            document.getElementById('pc-workshop-back-title').textContent = `กลุ่มปัจจุบัน: กลุ่มที่ ${wsInfo.currentGroup}`;
+            document.getElementById('pc-workshop-back-title').textContent = `👥 กลุ่มที่ ${wsInfo.baseGroup} • โต๊ะปัจจุบัน: โต๊ะที่ ${wsInfo.currentGroup}`;
             document.getElementById('pc-workshop-back-round').textContent = `รอบที่ ${wsInfo.round} / 5`;
             document.getElementById('pc-workshop-back-topic').textContent = gObj.topic || '';
             document.getElementById('pc-workshop-back-experts').textContent = expertNames.length
-              ? `ผู้เชี่ยวชาญกลุ่มนี้: ${expertNames.join(', ')}`
-              : 'ผู้เชี่ยวชาญประจำกลุ่ม (1–2 คน)';
+              ? `ผู้เชี่ยวชาญประจำโต๊ะนี้: ${expertNames.join(', ')}`
+              : 'ผู้เชี่ยวชาญประจำโต๊ะ (1–2 คน)';
             const routeSteps = [1, 2, 3, 4, 5].map(r => {
               const gAtR = (((wsInfo.baseGroup - 1 + (r - 1)) % 5) + 1);
-              return r === wsInfo.round ? `[ร${r}:ก${gAtR}]` : `ร${r}:ก${gAtR}`;
+              return r === wsInfo.round ? `[ร${r}:โต๊ะ${gAtR}]` : `ร${r}:โต๊ะ${gAtR}`;
             });
-            document.getElementById('pc-workshop-back-route').textContent = `หมุนเวียน: ${routeSteps.join(' → ')}`;
+            document.getElementById('pc-workshop-back-route').textContent = `เส้นทางย้ายโต๊ะ: ${routeSteps.join(' → ')}`;
           }
-          frontPill.classList.remove('hidden');
           backBox.classList.remove('hidden');
         } else {
-          frontPill.classList.add('hidden');
           backBox.classList.add('hidden');
         }
       }
@@ -2634,9 +2704,10 @@
       const isExpert = (wsInfo && wsInfo.isFixed) || roleStr.includes('ผู้ทรงคุณวุฒิ') || roleStr.includes('วิทยากร');
       const userType = isStaffMode ? 'staff' : (isExpert ? 'expert' : 'member');
 
-      const buildUrl = (tab) => {
+      const buildUrl = (tab, viewOnly = false) => {
         const params = new URLSearchParams();
         params.set('tab', tab);
+        if (viewOnly) params.set('mode', 'view');
         if (p.id) params.set('id', p.id);
         if (activeName) params.set('name', activeName);
         params.set('userType', userType);
@@ -2656,6 +2727,7 @@
 
       const morningUrl = buildUrl('morning');
       const afternoonUrl = buildUrl('afternoon');
+      const libraryUrl = buildUrl('library', true);
 
       // อัปเดตลิงก์ครบทั้ง 3 ช่วงในศูนย์รวมใบงานในการ์ดกลุ่มย่อย (จุดที่ 2)
       const cardMorningEl = document.getElementById('card-day2-morning-link');
@@ -2664,7 +2736,7 @@
       const cardAfternoonLabel = document.getElementById('card-day2-afternoon-label');
       if (cardMorningEl) cardMorningEl.href = morningUrl;
       if (cardAfternoonEl) cardAfternoonEl.href = afternoonUrl;
-      if (cardPresentEl) cardPresentEl.href = afternoonUrl;
+      if (cardPresentEl) cardPresentEl.href = libraryUrl;
       if (cardAfternoonLabel) {
         cardAfternoonLabel.textContent = isStaffMode
           ? 'ใบงานที่ 2 : จัดการคลังความรู้ Q&A (เจ้าหน้าที่)'
@@ -2728,9 +2800,9 @@
             topBtn1Label.textContent = '📝 บันทึกประเด็นปัญหา';
           }
           if (topBtn2 && topBtn2Label) {
-            topBtn2.href = afternoonUrl;
+            topBtn2.href = libraryUrl;
             topBtn2.className = secondarySlateCls;
-            topBtn2Label.textContent = '📘 ดูคลังคำถาม Q&A';
+            topBtn2Label.textContent = '📖 ดูคลังคำถาม Q&A';
           }
         }
       } else if (now.month === 12 && now.day === 1) {
@@ -2789,9 +2861,9 @@
 
           if (ctxBadge) ctxBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-teal-600 animate-ping"></span><span>🎤 วันนี้ 2 ธ.ค. (ช่วงบ่าย) • นำเสนอผล 5 ประเด็น</span>`;
           if (topBtn1 && topBtn1Label) {
-            topBtn1.href = afternoonUrl;
+            topBtn1.href = libraryUrl;
             topBtn1.className = primaryNavyCls;
-            topBtn1Label.textContent = '🎤 เปิดคลัง Q&A นำเสนอผล';
+            topBtn1Label.textContent = '📖 เปิดคลัง Q&A นำเสนอผล';
           }
           if (topBtn2 && topBtn2Label) {
             smartSecondaryEvalMode = true;
@@ -2907,6 +2979,7 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
 
         if (json.status === 'success') {
@@ -3069,6 +3142,7 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (json.status === 'success') {
           showToast(json.message || 'ส่งคำขอแก้ไขไปยังเจ้าหน้าที่เรียบร้อยแล้ว', 'success');
