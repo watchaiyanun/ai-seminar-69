@@ -73,6 +73,15 @@
     }
     .flash-success { animation: screenFlashGreen 0.65s ease-out; }
 
+    @keyframes focusRingPop {
+      0% { transform: translate(-50%, -50%) scale(1.35); opacity: 1; }
+      65% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.95; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+    .focus-ring-pop {
+      animation: focusRingPop 0.85s ease-out forwards;
+    }
+
     @media print {
       .no-print { display: none !important; }
     }
@@ -369,14 +378,30 @@
     </div>
 
     <!-- Camera Viewport -->
-    <div id="scanner-viewport" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center">
+    <div id="scanner-viewport" onclick="handleTapToFocus(event)" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none">
       <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-      <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/35">
+
+      <!-- กรอบนำสายตาสแกน + เลเซอร์ (ยังคงสแกนได้ทั่วทั้งหน้าจอกล้อง) -->
+      <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/30">
         <div class="scan-laser-line opacity-70"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[62%] aspect-square max-w-[230px]">
+          <span class="absolute top-0 left-0 w-5 h-5 border-t-[3px] border-l-[3px] border-emerald-400 rounded-tl-lg"></span>
+          <span class="absolute top-0 right-0 w-5 h-5 border-t-[3px] border-r-[3px] border-emerald-400 rounded-tr-lg"></span>
+          <span class="absolute bottom-0 left-0 w-5 h-5 border-b-[3px] border-l-[3px] border-emerald-400 rounded-bl-lg"></span>
+          <span class="absolute bottom-0 right-0 w-5 h-5 border-b-[3px] border-r-[3px] border-emerald-400 rounded-br-lg"></span>
+        </div>
       </div>
 
+      <!-- ป้ายบอกความละเอียดจริง & สถานะ Auto-Focus -->
+      <div id="scan-res-badge" class="hidden pointer-events-none absolute top-2 left-2.5 px-2 py-0.5 rounded-lg bg-black/65 border border-white/15 font-mono text-[10px] font-bold text-emerald-300">
+        HD • AF
+      </div>
+
+      <!-- วงแหวนแอนิเมชันเมื่อแตะจอเพื่อโฟกัส -->
+      <div id="scan-focus-ring" class="hidden pointer-events-none absolute w-14 h-14 rounded-full border-2 border-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.7)] z-10"></div>
+
       <!-- Error Overlay (แสดงเฉพาะกรณีเปิดกล้องไม่ได้จริง) -->
-      <div id="scan-camera-error-box" class="hidden absolute inset-0 bg-slate-950/90 p-5 flex flex-col items-center justify-center text-center gap-2.5 z-10">
+      <div id="scan-camera-error-box" onclick="event.stopPropagation()" class="hidden absolute inset-0 bg-slate-950/90 p-5 flex flex-col items-center justify-center text-center gap-2.5 z-20">
         <div class="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
           <i data-lucide="camera-off" class="w-5 h-5"></i>
         </div>
@@ -386,8 +411,20 @@
         </button>
       </div>
 
-      <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
+      <div id="scan-camera-status" class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
         กำลังเปิดกล้อง...
+      </div>
+    </div>
+
+    <!-- แถบควบคุมซูมกล้อง (แสดงอัตโนมัติเมื่อกล้องรองรับการซูม ช่วยให้โฟกัส QR ระยะ 20-30 ซม. คมชัดมาก) -->
+    <div id="scan-zoom-bar" class="hidden shrink-0 px-3 py-1.5 bg-slate-900 border-t border-white/10 flex items-center gap-2 text-[11px]">
+      <span class="text-slate-400 shrink-0 font-semibold">🔍 ซูม:</span>
+      <input type="range" id="scan-zoom-slider" min="1" max="3" step="0.1" value="1" oninput="setScannerZoom(this.value)" class="flex-1 accent-emerald-400 h-1.5 cursor-pointer" />
+      <span id="scan-zoom-value" class="font-mono font-bold text-emerald-300 w-9 text-right shrink-0">1.0x</span>
+      <div class="flex items-center gap-1 shrink-0">
+        <button type="button" onclick="setScannerZoom(1)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1x</button>
+        <button type="button" onclick="setScannerZoom(1.5)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1.5x</button>
+        <button type="button" onclick="setScannerZoom(2)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">2x</button>
       </div>
     </div>
 
@@ -953,6 +990,10 @@
     let scanLastTime = 0;
     let scanLastDecodeTs = 0;
     let scanPassToggle = 0;
+    let scanZoomMin = 1;
+    let scanZoomMax = 1;
+    let scanZoomCurrent = 1;
+    let scanSupportsZoom = false;
     let scanOffscreenCanvas = document.createElement('canvas');
     let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
     let nativeBarcodeDetector = null;
@@ -1648,6 +1689,121 @@
       startCameraStream();
     }
 
+    // ปรับโฟกัสอัตโนมัติ (Continuous Auto-Focus) และตั้งค่าซูมทันทีที่เปิดกล้อง
+    async function applyCameraSharpnessConstraints(track, videoEl) {
+      const zoomBar = document.getElementById('scan-zoom-bar');
+      const resBadge = document.getElementById('scan-res-badge');
+      scanSupportsZoom = false;
+      if (zoomBar) zoomBar.classList.add('hidden');
+
+      let hasAutoFocus = false;
+      if (track && typeof track.getCapabilities === 'function') {
+        try {
+          const caps = track.getCapabilities() || {};
+          const adv = {};
+
+          if (Array.isArray(caps.focusMode)) {
+            if (caps.focusMode.includes('continuous')) {
+              adv.focusMode = 'continuous';
+              hasAutoFocus = true;
+            } else if (caps.focusMode.includes('single-shot')) {
+              adv.focusMode = 'single-shot';
+              hasAutoFocus = true;
+            }
+          }
+          if (Array.isArray(caps.exposureMode) && caps.exposureMode.includes('continuous')) {
+            adv.exposureMode = 'continuous';
+          }
+          if (Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes('continuous')) {
+            adv.whiteBalanceMode = 'continuous';
+          }
+
+          if (Object.keys(adv).length > 0) {
+            await track.applyConstraints({ advanced: [adv] }).catch(() => {});
+          }
+
+          // เปิดแถบควบคุมซูมหากกล้องรองรับ (ช่วยถ่าย QR บนป้ายจากระยะ 20-30 ซม. ให้คมกริบ)
+          if (caps.zoom && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number' && caps.zoom.max > caps.zoom.min) {
+            scanSupportsZoom = true;
+            scanZoomMin = caps.zoom.min;
+            scanZoomMax = Math.min(caps.zoom.max, 4);
+            const slider = document.getElementById('scan-zoom-slider');
+            if (slider) {
+              slider.min = String(scanZoomMin);
+              slider.max = String(scanZoomMax);
+              slider.step = String(caps.zoom.step && caps.zoom.step <= 0.2 ? caps.zoom.step : 0.1);
+            }
+            const savedZoom = parseFloat(safeGet('ai_seminar_scan_zoom', '1')) || 1;
+            const initialZoom = Math.max(scanZoomMin, Math.min(scanZoomMax, savedZoom));
+            await setScannerZoom(initialZoom, false);
+            if (zoomBar) zoomBar.classList.remove('hidden');
+          }
+        } catch (e) {}
+      }
+
+      // แสดงความละเอียดจริงของภาพกล้องเมื่อวิดีโอเริ่มส่งเฟรม
+      const updateResBadge = () => {
+        if (!resBadge || !videoEl || !videoEl.videoWidth) return;
+        resBadge.textContent = `${videoEl.videoWidth}×${videoEl.videoHeight}${hasAutoFocus ? ' • AF' : ''}`;
+        resBadge.classList.remove('hidden');
+      };
+      updateResBadge();
+      setTimeout(updateResBadge, 450);
+    }
+
+    async function setScannerZoom(val, persist = true) {
+      if (!scanStream || !scanSupportsZoom) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track) return;
+      const clamped = Math.max(scanZoomMin, Math.min(scanZoomMax, parseFloat(val) || scanZoomMin));
+      scanZoomCurrent = clamped;
+      const slider = document.getElementById('scan-zoom-slider');
+      const label = document.getElementById('scan-zoom-value');
+      if (slider) slider.value = String(clamped);
+      if (label) label.textContent = `${clamped.toFixed(1)}x`;
+      if (persist) safeSet('ai_seminar_scan_zoom', String(clamped));
+      try {
+        await track.applyConstraints({ advanced: [{ zoom: clamped }] });
+      } catch (e) {}
+    }
+
+    // แตะที่หน้าจอกล้องเพื่อสั่งจับโฟกัสใหม่ทันที (Tap-to-Focus)
+    async function handleTapToFocus(event) {
+      if (!scanActive || !scanStream) return;
+      const vp = document.getElementById('scanner-viewport');
+      const ring = document.getElementById('scan-focus-ring');
+      if (vp && ring && event) {
+        const rect = vp.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        ring.style.left = `${x}px`;
+        ring.style.top = `${y}px`;
+        ring.classList.remove('hidden', 'focus-ring-pop');
+        void ring.offsetWidth;
+        ring.classList.add('focus-ring-pop');
+      }
+
+      const track = scanStream.getVideoTracks()[0];
+      if (!track || typeof track.getCapabilities !== 'function') return;
+      try {
+        const caps = track.getCapabilities() || {};
+        if (Array.isArray(caps.focusMode)) {
+          if (caps.focusMode.includes('single-shot')) {
+            await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }).catch(() => {});
+            if (caps.focusMode.includes('continuous')) {
+              setTimeout(() => {
+                if (scanActive && track.readyState === 'live') {
+                  track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+                }
+              }, 650);
+            }
+          } else if (caps.focusMode.includes('continuous')) {
+            await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+          }
+        }
+      } catch (e) {}
+    }
+
     async function startCameraStream() {
       const sessionId = ++scanCameraSessionId;
       stopCameraStream(false);
@@ -1655,18 +1811,21 @@
 
       const statusEl = document.getElementById('scan-camera-status');
       const video = document.getElementById('scan-video');
-      if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง...';
+      if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง Full HD...';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         showScannerErrorOverlay('เบราว์เซอร์ไม่รองรับกล้อง (ต้องเปิดผ่าน HTTPS เช่น GitHub Pages) — สามารถพิมพ์รหัสหรือเลือกรูปด้านล่างได้ทันที');
         return;
       }
 
+      // ขอความละเอียด Full HD (1920x1080) ก่อน แล้วค่อยลดระดับหากอุปกรณ์ไม่รองรับ เพื่อให้จุด QR คมชัดที่สุด
       const constraintCandidates = [];
       if (scanSelectedDeviceId) {
+        constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
         constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
         constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId } }, audio: false });
       }
+      constraintCandidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
       constraintCandidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
       constraintCandidates.push({ video: { facingMode: scanFacingMode }, audio: false });
       constraintCandidates.push({ video: true, audio: false });
@@ -1716,9 +1875,10 @@
       const activeTrack = stream.getVideoTracks()[0];
       const activeSettings = activeTrack && activeTrack.getSettings ? activeTrack.getSettings() : {};
       refreshAvailableCameras(activeSettings.deviceId || scanSelectedDeviceId);
+      applyCameraSharpnessConstraints(activeTrack, video);
 
       scanActive = true;
-      if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
+      if (statusEl) statusEl.textContent = 'แตะที่จอกล้องเพื่อโฟกัส • สแกนได้ทั่วทั้งหน้าจอ';
       scanRafId = requestAnimationFrame(scanVideoLoop);
     }
 
@@ -1726,6 +1886,7 @@
       if (bumpSession) scanCameraSessionId++;
       scanActive = false;
       scanTorchOn = false;
+      scanSupportsZoom = false;
       if (scanRafId) {
         cancelAnimationFrame(scanRafId);
         scanRafId = null;
@@ -1736,6 +1897,8 @@
       }
       const video = document.getElementById('scan-video');
       if (video) video.srcObject = null;
+      document.getElementById('scan-zoom-bar')?.classList.add('hidden');
+      document.getElementById('scan-res-badge')?.classList.add('hidden');
       const torchBtn = document.getElementById('btn-scan-torch');
       if (torchBtn) {
         torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
@@ -1806,26 +1969,47 @@
         if (window.lucide) lucide.createIcons();
       }
       if (scanVoiceEnabled) {
-        speakWelcome('เปิดเสียงพูดต้อนรับแล้วครับ');
+        speakWelcome('เปิดระบบเสียงพูดต้อนรับแล้วครับ');
       }
       showToast(scanVoiceEnabled ? 'เปิดเสียงพูดต้อนรับแล้ว' : 'ปิดเสียงพูดต้อนรับแล้ว', 'info');
     }
 
-    // ลูปสแกน QR แบบ Hybrid 3 จังหวะ (Native BarcodeDetector + jsQR เต็มเฟรม + jsQR ซูมกลาง)
+    // เร่งคอนทราสต์ภาพระดับพิกเซล (ช่วยให้ซองพลาสติกสะท้อนแสงหรือห้องแสงน้อยสแกนติดง่ายขึ้น)
+    function enhanceGrayscaleContrast(imageData) {
+      const d = imageData.data;
+      let min = 255;
+      let max = 0;
+      for (let i = 0; i < d.length; i += 16) {
+        const lum = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
+        if (lum < min) min = lum;
+        if (lum > max) max = lum;
+      }
+      const range = Math.max(24, max - min);
+      const scale = 255 / range;
+      for (let i = 0; i < d.length; i += 4) {
+        const lum = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
+        const stretched = Math.max(0, Math.min(255, Math.round((lum - min) * scale)));
+        d[i] = d[i + 1] = d[i + 2] = stretched;
+      }
+      return imageData;
+    }
+
+    // ลูปสแกน QR ความคมชัดสูง (Native BarcodeDetector ทุกรอบ + jsQR ความละเอียดสูง 3 จังหวะ + เร่งคอนทราสต์)
     function scanVideoLoop(nowTs) {
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
 
-      if (nowTs - scanLastDecodeTs < 150) return;
+      const minInterval = nativeBarcodeDetector ? 85 : 110;
+      if (nowTs - scanLastDecodeTs < minInterval) return;
       scanLastDecodeTs = nowTs;
 
       const video = document.getElementById('scan-video');
       if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight) return;
 
-      scanPassToggle = (scanPassToggle + 1) % 3;
+      scanPassToggle = (scanPassToggle + 1) % 4;
 
-      // จังหวะที่ 0: ใช้ Native BarcodeDetector แบบไม่บล็อก jsQR
-      if (scanPassToggle === 0 && nativeBarcodeDetector && !isNativeDetecting) {
+      // 1. ใช้ Native BarcodeDetector แบบเต็มความละเอียดของกล้องทุกรอบ (เร็วและคมชัดที่สุดบน Chrome/Edge/Android)
+      if (nativeBarcodeDetector && !isNativeDetecting) {
         isNativeDetecting = true;
         nativeBarcodeDetector.detect(video).then(barcodes => {
           if (scanActive && barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
@@ -1836,16 +2020,32 @@
         }).finally(() => {
           isNativeDetecting = false;
         });
-        return;
+        // หากมี Native detector ให้รัน jsQR เสริมเฉพาะทุกๆ 4 รอบ เพื่อไม่หน่วงเครื่องแต่ช่วยจับ QR เอียง/แสงจ้า
+        if (scanPassToggle !== 3) return;
       }
 
       if (typeof jsQR === 'undefined' || !scanOffscreenCtx) return;
       const vw = video.videoWidth;
       const vh = video.videoHeight;
 
-      if (scanPassToggle !== 2) {
-        // สแกนเต็มเฟรมทุกมุมจอ
-        const maxW = 540;
+      if (scanPassToggle === 0 || scanPassToggle === 2) {
+        // จังหวะที่ 1: ครอปกลางเฟรมความละเอียดสูง (680px) สำหรับ QR URL ยาวบนป้ายชื่อ/มือถือ
+        const cropSize = Math.min(vw, vh) * 0.7;
+        const sx = Math.round((vw - cropSize) / 2);
+        const sy = Math.round((vh - cropSize) / 2);
+        const targetSize = Math.min(680, Math.round(cropSize));
+        scanOffscreenCanvas.width = targetSize;
+        scanOffscreenCanvas.height = targetSize;
+        scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
+
+        const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
+        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'attemptBoth' });
+        if (code && code.data) {
+          handleDecodedQr(code.data);
+        }
+      } else if (scanPassToggle === 1) {
+        // จังหวะที่ 2: สแกนเต็มเฟรมความละเอียดสูง (840px) เพื่อให้สแกนติดได้ทุกมุมจอ
+        const maxW = 840;
         const scale = Math.min(1, maxW / Math.max(vw, vh));
         const tw = Math.max(1, Math.round(vw * scale));
         const th = Math.max(1, Math.round(vh * scale));
@@ -1859,17 +2059,17 @@
           handleDecodedQr(code.data);
         }
       } else {
-        // ซูมกลางเฟรมสำหรับ QR ขนาดเล็ก
-        const cropSize = Math.min(vw, vh) * 0.72;
-        const sx = (vw - cropSize) / 2;
-        const sy = (vh - cropSize) / 2;
-        const targetSize = 420;
+        // จังหวะที่ 3: ครอปกลาง + เร่งคอนทราสต์ (ช่วยกรณีซองป้ายสะท้อนแสงไฟหรือห้องแสงน้อย)
+        const cropSize = Math.min(vw, vh) * 0.62;
+        const sx = Math.round((vw - cropSize) / 2);
+        const sy = Math.round((vh - cropSize) / 2);
+        const targetSize = Math.min(560, Math.round(cropSize));
         scanOffscreenCanvas.width = targetSize;
         scanOffscreenCanvas.height = targetSize;
         scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
 
-        const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
-        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'dontInvert' });
+        const imgData = enhanceGrayscaleContrast(scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize));
+        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'attemptBoth' });
         if (code && code.data) {
           handleDecodedQr(code.data);
         }
@@ -1997,7 +2197,7 @@
       reader.onload = () => {
         const img = new Image();
         img.onload = () => {
-          const maxDim = 800;
+          const maxDim = 1200;
           const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
           const w = Math.round(img.width * scale);
           const h = Math.round(img.height * scale);
@@ -2005,7 +2205,7 @@
           scanOffscreenCanvas.height = h;
           scanOffscreenCtx.drawImage(img, 0, 0, w, h);
           const imgData = scanOffscreenCtx.getImageData(0, 0, w, h);
-          const code = jsQR(imgData.data, w, h);
+          const code = jsQR(imgData.data, w, h, { inversionAttempts: 'attemptBoth' });
           if (code && code.data) {
             scanLastCode = '';
             handleDecodedQr(code.data);
