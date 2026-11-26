@@ -915,6 +915,20 @@
           </p>
         </div>
 
+        <!-- แถบเลือกรอบหมุนเวียน (รอบ 1–5 กดสลับดูเองได้อิสระ • เจ้าหน้าที่กดซิงค์รอบกลางให้ทุกคนได้) -->
+        <div class="p-3 rounded-2xl bg-slate-50 border border-indigo-200/80 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-1.5 text-[11px]">
+            <span class="font-extrabold text-navy-900">🔄 เลือกรอบหมุนเวียน (กดสลับดูรอบ 1–5 เองได้):</span>
+            <div class="flex items-center gap-1.5">
+              <span id="portal-live-round-hint" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">● เวที: รอบที่ 1</span>
+              <button type="button" id="portal-staff-sync-round-btn" onclick="syncPortalRoundToServer()" class="hidden px-2.5 py-0.5 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white text-[10px] font-extrabold shadow-xs transition">
+                📢 ซิงค์รอบนี้ให้ทุกคน
+              </button>
+            </div>
+          </div>
+          <div id="portal-round-switcher" class="grid grid-cols-5 gap-1.5"></div>
+        </div>
+
         <div id="portal-workshop-groups-list" class="space-y-2 text-xs"></div>
 
         <!-- จุดที่ 2: ศูนย์รวมใบงานแยกตามกำหนดการรายวัน (1 ธ.ค. เช้า / 1 ธ.ค. บ่าย – 2 ธ.ค. เช้า / 2 ธ.ค. บ่าย) -->
@@ -1328,6 +1342,7 @@
     let lockedParticipantId = '';
     let isStaffMode = false;
     let smartSecondaryEvalMode = false;
+    let selectedPreviewRound = 0; // 0 = ตามรอบจริงจากเวที, 1..5 = ผู้ใช้กดเลือกรอบเอง
 
     let workshopConfig = {
       currentRound: 1,
@@ -1611,6 +1626,7 @@
         if (totalLbl) totalLbl.textContent = `ค้นหาหรือเลือกดูบัตรผู้เข้าร่วมได้ทั้งหมด (${allParticipants.length} ราย)`;
         populateStaffParticipantSelect();
       }
+      renderPortalWorkshopGroups();
       if (window.lucide) lucide.createIcons();
     }
 
@@ -2120,8 +2136,57 @@
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
     }
 
+    function getLiveWorkshopRound(cfg = workshopConfig) {
+      return Math.max(1, Math.min(5, Number(cfg.currentRound) || 1));
+    }
+
+    function getEffectivePortalRound(cfg = workshopConfig) {
+      if (selectedPreviewRound >= 1 && selectedPreviewRound <= 5) return selectedPreviewRound;
+      return getLiveWorkshopRound(cfg);
+    }
+
+    function selectPortalPreviewRound(r) {
+      selectedPreviewRound = Math.max(1, Math.min(5, Number(r) || 1));
+      renderPortalWorkshopGroups();
+      if (currentParticipant) {
+        renderPersonalCard(currentParticipant, []);
+      }
+    }
+
+    async function syncPortalRoundToServer() {
+      if (!isStaffMode) return;
+      const targetRound = getEffectivePortalRound(workshopConfig);
+      const btn = document.getElementById('portal-staff-sync-round-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'กำลังซิงค์...';
+      }
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'setWorkshopRound', currentRound: targetRound })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'เปลี่ยนรอบไม่สำเร็จ');
+        workshopConfig.currentRound = targetRound;
+        selectedPreviewRound = 0;
+        renderPortalWorkshopGroups();
+        if (currentParticipant) renderPersonalCard(currentParticipant, []);
+        showToast(`📢 เปลี่ยนรอบกลางเป็นรอบที่ ${targetRound} และซิงค์ขึ้นบัตรทุกคนแล้ว`, 'success');
+      } catch (err) {
+        showToast('เปลี่ยนรอบกลางไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = `📢 ซิงค์รอบ ${getEffectivePortalRound(workshopConfig)} ให้ทุกคน`;
+        }
+      }
+    }
+
     function getPersonWorkshopInfo(p, cfg = workshopConfig) {
-      const round = Math.max(1, Math.min(5, Number(cfg.currentRound) || 1));
+      const round = getEffectivePortalRound(cfg);
       const groups = cfg.groups || [];
       if (!p) return { assigned: false, baseGroup: 0, currentGroup: 0, isFixed: false, round };
 
@@ -2146,19 +2211,47 @@
       const listEl = document.getElementById('portal-workshop-groups-list');
       const roundBadge = document.getElementById('portal-workshop-round-badge');
       const myStatusEl = document.getElementById('portal-workshop-my-status');
+      const roundSwitcher = document.getElementById('portal-round-switcher');
+      const liveHint = document.getElementById('portal-live-round-hint');
+      const staffSyncBtn = document.getElementById('portal-staff-sync-round-btn');
       if (!listEl) return;
 
-      const round = Math.max(1, Math.min(5, Number(workshopConfig.currentRound) || 1));
+      const liveRound = getLiveWorkshopRound(workshopConfig);
+      const round = getEffectivePortalRound(workshopConfig);
       const groups = workshopConfig.groups || [];
       const myInfo = getPersonWorkshopInfo(currentParticipant, workshopConfig);
 
       if (roundBadge) roundBadge.textContent = `รอบที่ ${round} / 5`;
+      if (liveHint) liveHint.textContent = `● เวที: รอบที่ ${liveRound}`;
+      if (staffSyncBtn) {
+        staffSyncBtn.classList.toggle('hidden', !isStaffMode);
+        staffSyncBtn.textContent = `📢 ซิงค์รอบ ${round} ให้ทุกคน`;
+      }
+      if (roundSwitcher) {
+        roundSwitcher.innerHTML = [1, 2, 3, 4, 5].map(r => {
+          const active = r === round;
+          const isLive = r === liveRound;
+          const subTbl = (myInfo.assigned && !myInfo.isFixed)
+            ? `โต๊ะ ${(((myInfo.baseGroup - 1 + (r - 1)) % 5) + 1)}`
+            : (isLive ? 'รอบเวที' : '');
+          return `
+            <button type="button" onclick="selectPortalPreviewRound(${r})" class="py-1.5 px-1 rounded-xl border text-center transition ${
+              active
+                ? 'bg-indigo-700 border-indigo-700 text-white shadow-xs'
+                : 'bg-white border-slate-200 hover:border-indigo-400 text-slate-700'
+            }">
+              <div class="text-[11px] font-extrabold leading-tight">รอบ ${r}${isLive ? ' ●' : ''}</div>
+              ${subTbl ? `<div class="text-[9.5px] font-semibold ${active ? 'text-amber-200' : 'text-slate-500'}">${escapeHtml(subTbl)}</div>` : ''}
+            </button>
+          `;
+        }).join('');
+      }
       if (myStatusEl) {
         if (myInfo.assigned) {
           const myGroupObj = groups.find(g => g.groupNo === myInfo.currentGroup);
           myStatusEl.innerHTML = myInfo.isFixed
-            ? `⭐ <strong>ตำแหน่งของท่าน:</strong> ผู้เชี่ยวชาญประจำ<strong>กลุ่มที่ ${myInfo.currentGroup}</strong> (${escapeHtml(myGroupObj ? myGroupObj.topic : '')}) — อยู่ประจำกลุ่มเดิมทุกรอบ`
-            : `🎯 <strong>รอบที่ ${round} ท่านอยู่กลุ่มที่ ${myInfo.currentGroup}:</strong> ${escapeHtml(myGroupObj ? myGroupObj.topic : '')} (กลุ่มเริ่มต้น: กลุ่ม ${myInfo.baseGroup})`;
+            ? `⭐ <strong>ตำแหน่งของท่าน:</strong> ผู้เชี่ยวชาญประจำ<strong>โต๊ะที่ ${myInfo.currentGroup}</strong> (${escapeHtml(myGroupObj ? myGroupObj.topic : '')}) — อยู่ประจำโต๊ะเดิมทุกรอบ`
+            : `🔒 <strong>กลุ่มประจำตัว (ล็อก): กลุ่มที่ ${myInfo.baseGroup}</strong> • 🎯 <strong>รอบที่ ${round} ย้ายไปโต๊ะที่ ${myInfo.currentGroup}:</strong> ${escapeHtml(myGroupObj ? myGroupObj.topic : '')}`;
         } else {
           myStatusEl.textContent = '* ระบบจะระบุรายชื่อผู้เชี่ยวชาญและสมาชิกประจำแต่ละกลุ่มอีกครั้งเมื่อเจ้าหน้าที่บันทึกเรียบร้อยแล้ว';
         }
@@ -2349,8 +2442,13 @@
                 const prevStr = JSON.stringify(workshopConfig);
                 const nextStr = JSON.stringify(wJson.data);
                 if (prevStr !== nextStr) {
+                  const oldRound = getLiveWorkshopRound(workshopConfig);
+                  const newRound = getLiveWorkshopRound(wJson.data);
                   workshopConfig = wJson.data;
                   workshopChanged = true;
+                  if (newRound !== oldRound) {
+                    selectedPreviewRound = 0;
+                  }
                 }
               }
             } catch (e) {}
