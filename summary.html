@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สรุปที่พักโรงแรม &amp; ตรวจสอบเอกสาร - แชทบอท AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html, body {
+      font-family: 'Prompt', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #0f172a !important; }
+      .print-clean { box-shadow: none !important; border-color: #cbd5e1 !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-md border-b-2 border-amber-400/75">
+    <div class="max-w-[1500px] mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-white/10 border border-amber-300/60 flex items-center justify-center shrink-0">
+          <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-300"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-base font-extrabold leading-tight truncate">ศูนย์สรุปที่พักโรงแรม &amp; ตรวจสอบเอกสาร</h1>
+          <div class="flex items-center gap-2 text-[11px] text-blue-100/85">
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block"></span>
+            <span id="sync-status-text" class="truncate">กำลังเชื่อมต่อ Google Sheets...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-sm transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>กลับหน้า Dashboard</span>
+        </a>
+
+        <a href="portal.html?staff=1" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition" title="เปิดหน้าบัตร E-Pass โหมดเจ้าหน้าที่">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">หน้า Portal</span>
+        </a>
+
+        <a href="badges.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="ระบบพิมพ์ป้ายชื่อ A6">
+          <i data-lucide="id-card" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">ป้ายชื่อ</span>
+        </a>
+
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="สั่งพิมพ์ตารางปัจจุบัน">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden lg:inline">พิมพ์รายงาน</span>
+        </button>
+
+        <button type="button" onclick="fetchParticipants(true)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="รีเฟรชข้อมูลล่าสุด">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <button type="button" onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="สลับโหมดกลางวัน / กลางคืน">
+          <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <button type="button" onclick="openSettingsModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ตั้งค่า API URL">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="max-w-[1500px] w-full mx-auto px-3 sm:px-5 py-4 space-y-4 flex-1">
+
+    <!-- MAIN TAB SWITCHER -->
+    <section class="no-print grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <button type="button" id="main-tab-stay" onclick="switchMainTab('stay')" class="p-3.5 rounded-2xl border-2 text-left flex items-center justify-between gap-3 transition shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="main-tab-stay-icon" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+            <i data-lucide="bed-double" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-sm sm:text-base leading-tight truncate">สรุปข้อมูลการเข้าพักโรงแรม</p>
+            <p class="text-[11px] opacity-80 truncate">เช็กยอดคืน 30 พ.ย. / คืน 1 ธ.ค. / ไม่พัก / เลขห้อง / ผู้พักร่วม</p>
+          </div>
+        </div>
+        <span id="main-badge-stay" class="px-2.5 py-1 rounded-full font-mono text-xs font-extrabold shrink-0">0 คน</span>
+      </button>
+
+      <button type="button" id="main-tab-docs" onclick="switchMainTab('docs')" class="p-3.5 rounded-2xl border-2 text-left flex items-center justify-between gap-3 transition shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="main-tab-docs-icon" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-sm sm:text-base leading-tight truncate">ตรวจสอบความครบถ้วนเอกสาร &amp; แจ้งเตือนบัตร</p>
+            <p class="text-[11px] opacity-80 truncate">เช็กรายบุคคลว่าครบหรือขาดส่วนไหน พร้อมยิงแจ้งเตือนขึ้นหน้าบัตร E-Pass</p>
+          </div>
+        </div>
+        <span id="main-badge-docs" class="px-2.5 py-1 rounded-full font-mono text-xs font-extrabold shrink-0">0 ขาด</span>
+      </button>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--                    PANEL 1: HOTEL & ACCOMMODATION SUMMARY                 -->
+    <!-- ========================================================================= -->
+    <section id="panel-stay" class="space-y-4">
+
+      <!-- 6 Clickable KPI Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <button type="button" onclick="switchStaySubTab('any_stay')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 hover:ring-2 hover:ring-navy-700 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-navy-700 dark:text-blue-300">🏨 เข้าพักรวม (คน)</p>
+          <p id="stay-stat-any" class="font-mono text-2xl sm:text-3xl font-extrabold text-navy-800 dark:text-blue-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">อย่างน้อย 1 คืน</p>
+        </button>
+
+        <button type="button" onclick="switchStaySubTab('stay30')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 hover:ring-2 hover:ring-sky-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-sky-800 dark:text-sky-300">🛏️ พักคืน 30 พ.ย.</p>
+          <p id="stay-stat-30" class="font-mono text-2xl sm:text-3xl font-extrabold text-sky-700 dark:text-sky-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">คืนวันจันทร์</p>
+        </button>
+
+        <button type="button" onclick="switchStaySubTab('stay1')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 hover:ring-2 hover:ring-indigo-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-indigo-800 dark:text-indigo-300">🛏️ พักคืน 1 ธ.ค.</p>
+          <p id="stay-stat-1" class="font-mono text-2xl sm:text-3xl font-extrabold text-indigo-700 dark:text-indigo-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">คืนวันอังคาร</p>
+        </button>
+
+        <button type="button" onclick="switchStaySubTab('both')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:ring-2 hover:ring-emerald-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">🌙 พักทั้ง 2 คืน</p>
+          <p id="stay-stat-both" class="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">30 พ.ย. &amp; 1 ธ.ค.</p>
+        </button>
+
+        <button type="button" onclick="switchStaySubTab('none')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:ring-2 hover:ring-slate-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-slate-700 dark:text-slate-300">🚗 ไม่เข้าพัก</p>
+          <p id="stay-stat-none" class="font-mono text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">ไป-กลับทั้ง 2 คืน</p>
+        </button>
+
+        <button type="button" onclick="switchStaySubTab('unspecified')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 hover:ring-2 hover:ring-amber-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300">❓ ยังไม่ระบุ/ไม่ครบ</p>
+          <p id="stay-stat-unspec" class="font-mono text-2xl sm:text-3xl font-extrabold text-amber-700 dark:text-amber-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">รอแจ้งความประสงค์</p>
+        </button>
+      </div>
+
+      <!-- Breakdown Bar + Unit Summary Chips -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-2.5 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div id="stay-stat-breakdown" class="flex flex-wrap items-center gap-x-3 gap-y-1 font-medium text-slate-600 dark:text-slate-300"></div>
+          <label class="no-print inline-flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+            <input type="checkbox" id="stay-exclude-declined" onchange="renderStayPanel()" class="w-4 h-4 rounded text-navy-700" />
+            <span>ไม่รวมผู้แจ้งไม่สามารถเข้าร่วม</span>
+          </label>
+        </div>
+        <div id="stay-unit-chips" class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-700 text-[11px]"></div>
+      </div>
+
+      <!-- Sub-Filters & Export Toolbar -->
+      <div class="no-print bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-[11px]">
+            <button type="button" onclick="switchStaySubTab('any_stay')" id="stay-tab-any_stay" class="px-2.5 py-1.5 rounded-lg font-bold transition">🏨 เข้าพักรวม</button>
+            <button type="button" onclick="switchStaySubTab('both')" id="stay-tab-both" class="px-2.5 py-1.5 rounded-lg font-semibold transition">🌙 ทั้ง 2 คืน</button>
+            <button type="button" onclick="switchStaySubTab('stay30')" id="stay-tab-stay30" class="px-2.5 py-1.5 rounded-lg font-semibold transition">คืน 30 พ.ย.</button>
+            <button type="button" onclick="switchStaySubTab('stay1')" id="stay-tab-stay1" class="px-2.5 py-1.5 rounded-lg font-semibold transition">คืน 1 ธ.ค.</button>
+            <button type="button" onclick="switchStaySubTab('only30')" id="stay-tab-only30" class="px-2.5 py-1.5 rounded-lg font-semibold transition">เฉพาะ 30 พ.ย.</button>
+            <button type="button" onclick="switchStaySubTab('only1')" id="stay-tab-only1" class="px-2.5 py-1.5 rounded-lg font-semibold transition">เฉพาะ 1 ธ.ค.</button>
+            <button type="button" onclick="switchStaySubTab('none')" id="stay-tab-none" class="px-2.5 py-1.5 rounded-lg font-semibold transition">🚗 ไม่พัก</button>
+            <button type="button" onclick="switchStaySubTab('unspecified')" id="stay-tab-unspecified" class="px-2.5 py-1.5 rounded-lg font-semibold transition">❓ ยังไม่ระบุ</button>
+            <button type="button" onclick="switchStaySubTab('all')" id="stay-tab-all" class="px-2.5 py-1.5 rounded-lg font-semibold transition">ทั้งหมด</button>
+          </div>
+
+          <button type="button" onclick="exportStaySummaryCSV()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> ส่งออก Excel/CSV ที่พัก
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="stay-search-input" oninput="renderStayPanel()" placeholder="ค้นหารหัส, ยศ ชื่อ-สกุล, สังกัด, เลขห้องพัก, ผู้พักร่วม, เบอร์โทร..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600" />
+          </div>
+          <select id="stay-filter-unit" onchange="renderStayPanel()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm">
+            <option value="all">ทุกหน่วยหลัก</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Hotel Table -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 bg-gradient-to-r from-navy-800 to-cyan-800 text-white flex items-center justify-between gap-2">
+          <h2 id="stay-table-heading" class="font-bold text-sm sm:text-base">รายชื่อข้อมูลการเข้าพักโรงแรม</h2>
+          <span id="stay-table-count" class="px-2.5 py-0.5 rounded-full bg-white text-navy-800 font-mono text-xs font-extrabold">0 รายการ</span>
+        </div>
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
+                <th class="py-3 px-3 font-bold whitespace-nowrap">#</th>
+                <th class="py-3 px-3 font-bold whitespace-nowrap">รหัส</th>
+                <th class="py-3 px-3 font-bold">ยศ ชื่อ - สกุล / สังกัด</th>
+                <th class="py-3 px-3 font-bold text-center whitespace-nowrap">คืน 30 พ.ย.</th>
+                <th class="py-3 px-3 font-bold text-center whitespace-nowrap">คืน 1 ธ.ค.</th>
+                <th class="py-3 px-3 font-bold whitespace-nowrap">เลขห้อง / ผู้พักร่วม</th>
+                <th class="py-3 px-3 font-bold whitespace-nowrap">การตอบรับ / อาหาร / โทร</th>
+                <th class="no-print py-3 px-3 font-bold text-right whitespace-nowrap">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="stay-summary-tbody" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--                    PANEL 2: DOCUMENT AUDIT & E-PASS ALERTS                -->
+    <!-- ========================================================================= -->
+    <section id="panel-docs" class="hidden space-y-4">
+
+      <!-- 4 Clickable KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <button type="button" onclick="switchDocSubTab('complete')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:ring-2 hover:ring-emerald-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">✓ กรอกครบถ้วนแล้ว</p>
+          <p id="audit-count-complete" class="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">เอกสารและข้อมูลครบทุกข้อ</p>
+        </button>
+
+        <button type="button" onclick="switchDocSubTab('incomplete')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 hover:ring-2 hover:ring-orange-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300">⚠️ ข้อมูล/เอกสารยังไม่ครบ</p>
+          <p id="audit-count-incomplete" class="font-mono text-2xl sm:text-3xl font-extrabold text-amber-700 dark:text-amber-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">ขาดเอกสารหรือข้อมูลพื้นฐาน</p>
+        </button>
+
+        <button type="button" onclick="switchDocSubTab('alerted')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-800 hover:ring-2 hover:ring-rose-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-rose-800 dark:text-rose-300">🔔 แจ้งเตือนขึ้นบัตรแล้ว</p>
+          <p id="audit-count-alerted" class="font-mono text-2xl sm:text-3xl font-extrabold text-rose-700 dark:text-rose-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">กำลังโชว์ป้ายแดงบนบัตร E-Pass</p>
+        </button>
+
+        <button type="button" onclick="switchDocSubTab('all')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 hover:ring-2 hover:ring-navy-700 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-navy-700 dark:text-blue-300">📎 ส่งหนังสือส่งตัวแล้ว</p>
+          <p id="audit-count-letter" class="font-mono text-2xl sm:text-3xl font-extrabold text-navy-800 dark:text-blue-200 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">สถานะส่งแล้ว / แนบไฟล์ Drive</p>
+        </button>
+      </div>
+
+      <!-- Criteria Info + Filters -->
+      <div class="no-print bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs">
+            <button type="button" onclick="switchDocSubTab('incomplete')" id="audit-tab-incomplete" class="px-3 py-1.5 rounded-lg font-bold transition">⚠️ ยังไม่ครบ</button>
+            <button type="button" onclick="switchDocSubTab('alerted')" id="audit-tab-alerted" class="px-3 py-1.5 rounded-lg font-semibold transition">🔔 แจ้งเตือนแล้ว</button>
+            <button type="button" onclick="switchDocSubTab('complete')" id="audit-tab-complete" class="px-3 py-1.5 rounded-lg font-semibold transition">✓ ครบแล้ว</button>
+            <button type="button" onclick="switchDocSubTab('all')" id="audit-tab-all" class="px-3 py-1.5 rounded-lg font-semibold transition">ทั้งหมด</button>
+          </div>
+
+          <button type="button" onclick="exportDocAuditCSV()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-xs transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> ส่งออก Excel/CSV ตรวจเอกสาร
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="audit-search-input" oninput="renderDocPanel()" placeholder="ค้นหารหัส, ชื่อ, สังกัด, รายการที่ขาด, ข้อความแจ้งเตือน..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+          </div>
+          <select id="audit-filter-unit" onchange="renderDocPanel()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm">
+            <option value="all">ทุกหน่วยหลัก</option>
+          </select>
+        </div>
+
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          เกณฑ์ตรวจอัตโนมัติ: <strong>ยืนยันการตอบรับ</strong> • <strong>หนังสือส่งตัว</strong> • <strong>แจ้งความประสงค์เข้าพัก (30 พ.ย. &amp; 1 ธ.ค.)</strong> • <strong>เบอร์โทรศัพท์ติดต่อ</strong> • <strong>ชื่อผู้แทน (กรณีส่งผู้แทน)</strong>
+        </p>
+      </div>
+
+      <!-- Document Audit Cards List -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 bg-gradient-to-r from-orange-700 via-maroon-700 to-navy-800 text-white flex items-center justify-between gap-2">
+          <h2 id="doc-list-heading" class="font-bold text-sm sm:text-base">รายการตรวจสอบความครบถ้วนเอกสารและข้อมูล</h2>
+          <span id="doc-list-count" class="px-2.5 py-0.5 rounded-full bg-white text-orange-800 font-mono text-xs font-extrabold">0 รายการ</span>
+        </div>
+        <div id="doc-audit-list" class="p-3.5 sm:p-4 space-y-2.5 text-xs"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL: ส่ง/แก้ไขข้อความแจ้งเตือนเอกสารขาดขึ้นหน้าบัตร ==================== -->
+  <div id="doc-alert-quick-modal" onclick="closeDocAlertQuickModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border-2 border-orange-500 flex flex-col max-h-[88vh]">
+      <div class="px-5 py-3.5 bg-gradient-to-r from-orange-600 to-maroon-700 text-white flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <span id="qa-pid" class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-white/20">KM69-00</span>
+          <h3 id="qa-name" class="font-bold text-sm sm:text-base truncate mt-0.5">แจ้งเตือนเอกสารขาดขึ้นหน้าบัตร</h3>
+        </div>
+        <button type="button" onclick="closeDocAlertQuickModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-3.5 overflow-y-auto custom-scroll text-xs sm:text-sm">
+        <input type="hidden" id="qa-target-id" />
+
+        <div class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-1">
+          <p class="text-[11px] font-bold text-amber-900 dark:text-amber-200">ระบบตรวจพบอัตโนมัติ:</p>
+          <div id="qa-auto-missing-tags" class="flex flex-wrap gap-1"></div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">ติ๊กเลือกรายการเอกสาร/ข้อมูลที่ต้องการแจ้งเตือน:</label>
+          <div id="qa-preset-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5"></div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">ข้อความเพิ่มเติมถึงผู้เข้าร่วม (ถ้ามี):</label>
+          <textarea id="qa-custom-note" rows="2" oninput="updateQuickDocAlertPreview()" placeholder="เช่น กรุณาแนบไฟล์หนังสือส่งตัวที่มีลายเซ็นก่อนวันที่ 28 พ.ย." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 space-y-1">
+          <p class="text-[10.5px] font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">ตัวอย่างข้อความที่จะแสดงบนหน้าบัตร E-Pass:</p>
+          <p id="qa-preview-text" class="text-xs font-semibold text-rose-950 dark:text-rose-100 leading-relaxed">(ยังไม่ได้เลือกข้อความแจ้งเตือน)</p>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2">
+        <button type="button" onclick="clearDocAlertFromQuickModal()" class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition">
+          ✓ ล้างแจ้งเตือน (ครบแล้ว)
+        </button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button type="button" onclick="closeDocAlertQuickModal()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-medium">ยกเลิก</button>
+          <button type="button" id="qa-save-btn" onclick="saveQuickDocAlert()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition">
+            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ส่งแจ้งเตือนขึ้นหน้าบัตร
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: EDIT PARTICIPANT (ที่พัก + เอกสาร + ผู้แทน) ==================== -->
+  <div id="edit-modal" onclick="closeEditModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 my-auto">
+      <div class="px-5 py-4 bg-gradient-to-r from-navy-800 to-maroon-700 text-white flex items-center justify-between">
+        <div>
+          <span id="ed-id-badge" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white/20">KM69-00</span>
+          <h3 class="font-bold text-base mt-0.5">แก้ไขข้อมูลที่พัก &amp; เอกสารผู้เข้าร่วม</h3>
+        </div>
+        <button type="button" onclick="closeEditModal()" class="p-1.5 rounded-lg hover:bg-white/15">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="edit-form" onsubmit="saveParticipantEdit(event)" class="p-5 space-y-3.5 max-h-[82vh] overflow-y-auto custom-scroll text-xs sm:text-sm">
+        <input type="hidden" id="ed-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ยศ ชื่อ - สกุล *</label>
+            <input type="text" id="ed-name" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ตำแหน่ง</label>
+            <input type="text" id="ed-position" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">การตอบรับ</label>
+            <select id="ed-rsvp" onchange="toggleEditSubFields()" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900">
+              <option value="ยืนยันเข้าร่วม">ยืนยันเข้าร่วม</option>
+              <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
+              <option value="รอการยืนยัน">รอการยืนยัน</option>
+              <option value="ไม่สามารถเข้าร่วม">ไม่สามารถเข้าร่วม</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ข้อจำกัดอาหาร</label>
+            <select id="ed-food" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900">
+              <option value="อาหารทั่วไป">อาหารทั่วไป</option>
+              <option value="อาหารฮาลาล">อาหารฮาลาล</option>
+              <option value="มังสวิรัติ/อื่นๆ">มังสวิรัติ/อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">หนังสือส่งตัว</label>
+            <select id="ed-letter" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900">
+              <option value="">ยังไม่ส่ง</option>
+              <option value="ส่งแล้ว">ส่งแล้ว</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="ed-sub-box" class="hidden p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-purple-800 dark:text-purple-200 mb-1">ยศ ชื่อ - สกุล (ผู้แทน)</label>
+            <input type="text" id="ed-sub-name" class="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white dark:bg-slate-900" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-purple-800 dark:text-purple-200 mb-1">ตำแหน่ง (ผู้แทน)</label>
+            <input type="text" id="ed-sub-pos" class="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white dark:bg-slate-900" />
+          </div>
+        </div>
+
+        <!-- โซนที่พักโรงแรม -->
+        <div class="p-3.5 rounded-2xl bg-cyan-50/70 dark:bg-cyan-950/25 border border-cyan-200 dark:border-cyan-800 space-y-2.5">
+          <p class="text-xs font-bold text-cyan-900 dark:text-cyan-200 flex items-center gap-1.5">
+            <i data-lucide="bed-double" class="w-3.5 h-3.5"></i> ข้อมูลการเข้าพักโรงแรม &amp; คู่พัก (ซิงค์ 2 ทางอัตโนมัติ)
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">พักคืน 30 พ.ย.</label>
+              <select id="ed-stay30" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
+                <option value="">ยังไม่ระบุ</option>
+                <option value="พัก">พัก</option>
+                <option value="ไม่พัก">ไม่พัก</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">พักคืน 1 ธ.ค.</label>
+              <select id="ed-stay1" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
+                <option value="">ยังไม่ระบุ</option>
+                <option value="พัก">พัก</option>
+                <option value="ไม่พัก">ไม่พัก</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">เลขห้องพัก</label>
+              <input type="text" id="ed-room" placeholder="เช่น 301" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900" />
+            </div>
+            <div class="relative">
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ผู้พักร่วม</label>
+              <input type="text" id="ed-roommate" autocomplete="off" oninput="showEditRoommateSuggestions(this.value)" onfocus="showEditRoommateSuggestions(this.value)" placeholder="พิมพ์ค้นหา..." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900" />
+              <div id="ed-roommate-suggestions" class="hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-40 overflow-y-auto custom-scroll divide-y divide-slate-100"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์</label>
+            <input type="tel" id="ed-phone" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ทะเบียนรถ</label>
+            <input type="text" id="ed-plate" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900" />
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-navy-800 dark:text-blue-200">แนบไฟล์หนังสือส่งตัวขึ้น Google Drive (ไม่เกิน 5MB)</label>
+            <a id="ed-existing-letter" href="#" target="_blank" class="hidden text-xs font-bold text-emerald-700 hover:underline">📎 เปิดไฟล์เดิม ↗</a>
+          </div>
+          <input type="file" id="ed-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white" />
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-orange-50/90 dark:bg-orange-950/25 border border-orange-300 dark:border-orange-800 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-xs font-bold text-orange-900 dark:text-orange-200 flex items-center gap-1.5">
+              <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-orange-600"></i> แจ้งเตือนเอกสารขาดบนหน้าบัตร E-Pass
+            </label>
+            <button type="button" onclick="document.getElementById('ed-doc-alert').value=''" class="text-[11px] font-bold text-rose-600 hover:underline">ล้างแจ้งเตือน</button>
+          </div>
+          <textarea id="ed-doc-alert" rows="2" placeholder="ว่างไว้หากเอกสารครบแล้ว..." class="w-full px-3 py-2 rounded-xl border border-orange-300 dark:border-orange-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-semibold">ยกเลิก</button>
+          <button type="submit" id="ed-save-btn" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold shadow-sm">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS ==================== -->
+  <div id="settings-modal" onclick="closeSettingsModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+        <h3 class="font-bold text-base">ตั้งค่าการเชื่อมต่อ Google Sheets</h3>
+        <button type="button" onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="saveSettings(event)" class="p-5 space-y-4 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google Apps Script Web App URL</label>
+          <input type="url" id="set-api-url" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
+        </div>
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+          <span class="font-semibold text-xs">ซิงค์ข้อมูลอัตโนมัติทุก 15 วินาที</span>
+          <input type="checkbox" id="set-auto-refresh" class="w-4 h-4 rounded text-navy-700" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">ปิด</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold">บันทึกตั้งค่า</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const DOC_ALERT_PRESETS = [
+      { id: 'letter', label: 'ขาดหนังสือส่งตัว (กรุณาแนบไฟล์หรือนำฉบับจริงมาส่ง)', matchKey: 'หนังสือส่งตัว' },
+      { id: 'rsvp', label: 'กรุณายืนยันการตอบรับเข้าร่วมสัมมนา', matchKey: 'ยืนยันการตอบรับ' },
+      { id: 'sub', label: 'กรุณาระบุยศ ชื่อ-สกุล และตำแหน่งผู้แทน', matchKey: 'ผู้แทน' },
+      { id: 'stay', label: 'กรุณาแจ้งความประสงค์เข้าพักคืน 30 พ.ย. / 1 ธ.ค.', matchKey: 'เข้าพัก' },
+      { id: 'phone', label: 'กรุณาระบุเบอร์โทรศัพท์ติดต่อ', matchKey: 'เบอร์โทรศัพท์' },
+      { id: 'plate', label: 'กรุณาระบุเลขทะเบียนรถ (กรณีนำรถมาเอง)', matchKey: '' },
+      { id: 'order', label: 'แนบสำเนาคำสั่ง / เอกสารอนุมัติเดินทางเพิ่มเติม', matchKey: '' }
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    let API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+    let autoRefreshEnabled = safeGet('ai_seminar_auto_refresh', 'true') !== 'false';
+    let autoRefreshTimer = null;
+    let isMutatingData = false;
+    let participants = [];
+    let mainTab = 'stay';       // 'stay' | 'docs'
+    let staySubTab = 'any_stay';
+    let docSubTab = 'incomplete';
+    let pendingAlertIdFromUrl = '';
+
+    function initSummaryApp() {
+      if (safeGet('ai_seminar_dark') === 'true') {
+        document.documentElement.classList.add('dark');
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = String(params.get('tab') || '').trim().toLowerCase();
+      const subParam = String(params.get('sub') || '').trim();
+      const alertParam = String(params.get('alert') || '').trim();
+
+      if (tabParam === 'docs' || tabParam === 'doc' || alertParam) {
+        mainTab = 'docs';
+      } else {
+        mainTab = 'stay';
+      }
+      if (subParam) {
+        if (mainTab === 'stay') staySubTab = subParam;
+        else docSubTab = subParam;
+      }
+      pendingAlertIdFromUrl = alertParam;
+
+      switchMainTab(mainTab, false);
+      switchStaySubTab(staySubTab, false);
+      switchDocSubTab(docSubTab, false);
+      if (window.lucide) lucide.createIcons();
+
+      fetchParticipants(true);
+      startAutoRefresh();
+
+      document.addEventListener('click', (e) => {
+        const rmInp = document.getElementById('ed-roommate');
+        const rmBox = document.getElementById('ed-roommate-suggestions');
+        if (rmBox && rmInp && !rmBox.contains(e.target) && e.target !== rmInp) {
+          rmBox.classList.add('hidden');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDocAlertQuickModal();
+          closeEditModal();
+          closeSettingsModal();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSummaryApp);
+    } else {
+      initSummaryApp();
+    }
+
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (!autoRefreshEnabled || document.hidden || isMutatingData) return;
+        const anyModalOpen = ['doc-alert-quick-modal', 'edit-modal', 'settings-modal']
+          .some(id => !document.getElementById(id)?.classList.contains('hidden'));
+        if (!anyModalOpen) fetchParticipants(false);
+      }, 15000);
+    }
+
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
+
+    function getParticipantCompleteness(p) {
+      const missing = [];
+      if (!p) return { isComplete: true, missing: [], hasStaffAlert: false, staffAlert: '' };
+
+      const isDeclined = p.rsvp === 'ไม่สามารถเข้าร่วม';
+      const staffAlert = String(p.docAlert || '').trim();
+      const hasStaffAlert = Boolean(staffAlert);
+
+      if (!p.fullName || p.fullName.includes('รอระบุ')) {
+        missing.push('ระบุชื่อ-สกุลผู้เข้าร่วม');
+      }
+      if (!isDeclined) {
+        if (!p.rsvp || p.rsvp === 'รอการยืนยัน') {
+          missing.push('ยืนยันการตอบรับเข้าร่วม');
+        }
+        if (p.rsvp === 'ส่งผู้แทนเข้าร่วม' && !p.substituteName) {
+          missing.push('ระบุชื่อ-สกุลผู้แทน');
+        }
+        if (p.officialLetter !== 'ส่งแล้ว' && !p.letterUrl) {
+          missing.push('หนังสือส่งตัว');
+        }
+        if (!p.stay30 || !p.stay1) {
+          missing.push('แจ้งความประสงค์เข้าพัก (30 พ.ย. / 1 ธ.ค.)');
+        }
+        if (!p.phone) {
+          missing.push('เบอร์โทรศัพท์ติดต่อ');
+        }
+      }
+
+      return {
+        isComplete: missing.length === 0 && !hasStaffAlert,
+        missing,
+        hasStaffAlert,
+        staffAlert
+      };
+    }
+
+    async function fetchParticipants(showLoading = false) {
+      const syncTxt = document.getElementById('sync-status-text');
+      const syncDot = document.getElementById('sync-status-dot');
+      if (showLoading && syncTxt) syncTxt.textContent = 'กำลังโหลดข้อมูลจาก Google Sheets...';
+
+      try {
+        const res = await fetch(`${API_URL}?action=getParticipants&_t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'โหลดรายชื่อไม่สำเร็จ');
+
+        participants = (json.data || []).map(p => ({
+          ...p,
+          id: String(p.id || '').trim(),
+          fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
+          position: String(p.position || ''),
+          mainUnit: String(p.mainUnit || p.group || ''),
+          unitDetail: String(p.unitDetail || p.unit || ''),
+          role: String(p.role || 'ผู้เข้าร่วมสัมมนา'),
+          rsvp: String(p.rsvp || 'รอการยืนยัน'),
+          stay30: String(p.stay30 || '').trim(),
+          stay1: String(p.stay1 || '').trim(),
+          roomNo: String(p.roomNo || '').trim(),
+          roommate: String(p.roommate || '').trim(),
+          food: String(p.food || 'อาหารทั่วไป').trim(),
+          officialLetter: String(p.officialLetter || '').trim(),
+          phone: String(p.phone || '').trim(),
+          licensePlate: String(p.licensePlate || '').trim(),
+          substituteName: String(p.substituteName || '').trim(),
+          substitutePosition: String(p.substitutePosition || '').trim(),
+          letterUrl: String(p.letterUrl || '').trim(),
+          docAlert: String(p.docAlert || '').trim()
+        }));
+
+        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block';
+        if (syncTxt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          syncTxt.textContent = `ซิงค์แล้ว ${nowStr} น. (${participants.length} ราย)`;
+        }
+
+        populateUnitSelects();
+        renderAllPanels();
+
+        if (pendingAlertIdFromUrl) {
+          const target = participants.find(x => x.id.toUpperCase() === pendingAlertIdFromUrl.toUpperCase());
+          pendingAlertIdFromUrl = '';
+          if (target) openDocAlertQuickModal(target.id);
+        }
+      } catch (err) {
+        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block';
+        if (syncTxt) syncTxt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        showToast('ไม่สามารถโหลดข้อมูลได้: ' + err.message, 'error');
+      }
+    }
+
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    function populateUnitSelects() {
+      const units = [...new Set(participants.map(p => p.mainUnit).filter(Boolean))];
+      ['stay-filter-unit', 'audit-filter-unit'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        const prev = sel.value;
+        sel.innerHTML = '<option value="all">ทุกหน่วยหลัก</option>' +
+          units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+        if (units.includes(prev)) sel.value = prev;
+      });
+    }
+
+    function switchMainTab(tab, updateUrl = true) {
+      mainTab = tab;
+      const isStay = tab === 'stay';
+      document.getElementById('panel-stay').classList.toggle('hidden', !isStay);
+      document.getElementById('panel-docs').classList.toggle('hidden', isStay);
+
+      const stayBtn = document.getElementById('main-tab-stay');
+      const docsBtn = document.getElementById('main-tab-docs');
+      const stayIcon = document.getElementById('main-tab-stay-icon');
+      const docsIcon = document.getElementById('main-tab-docs-icon');
+      const stayBadge = document.getElementById('main-badge-stay');
+      const docsBadge = document.getElementById('main-badge-docs');
+
+      if (isStay) {
+        stayBtn.className = 'p-3.5 rounded-2xl border-2 border-cyan-600 bg-gradient-to-r from-navy-800 to-cyan-800 text-white text-left flex items-center justify-between gap-3 transition shadow-md';
+        stayIcon.className = 'w-10 h-10 rounded-xl bg-white/15 text-amber-300 flex items-center justify-center shrink-0';
+        stayBadge.className = 'px-2.5 py-1 rounded-full bg-white text-navy-800 font-mono text-xs font-extrabold shrink-0';
+
+        docsBtn.className = 'p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-orange-400 text-left flex items-center justify-between gap-3 transition';
+        docsIcon.className = 'w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 flex items-center justify-center shrink-0';
+        docsBadge.className = 'px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 font-mono text-xs font-extrabold shrink-0';
+      } else {
+        docsBtn.className = 'p-3.5 rounded-2xl border-2 border-orange-500 bg-gradient-to-r from-orange-700 via-maroon-700 to-navy-800 text-white text-left flex items-center justify-between gap-3 transition shadow-md';
+        docsIcon.className = 'w-10 h-10 rounded-xl bg-white/15 text-amber-200 flex items-center justify-center shrink-0';
+        docsBadge.className = 'px-2.5 py-1 rounded-full bg-white text-orange-800 font-mono text-xs font-extrabold shrink-0';
+
+        stayBtn.className = 'p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-cyan-500 text-left flex items-center justify-between gap-3 transition';
+        stayIcon.className = 'w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 flex items-center justify-center shrink-0';
+        stayBadge.className = 'px-2.5 py-1 rounded-full bg-cyan-100 text-cyan-900 font-mono text-xs font-extrabold shrink-0';
+      }
+
+      if (updateUrl) {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.set('tab', tab);
+          u.searchParams.delete('alert');
+          window.history.replaceState({}, '', u.toString());
+        } catch (e) {}
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderAllPanels() {
+      const stayAnyCount = participants.filter(p => p.stay30 === 'พัก' || p.stay1 === 'พัก').length;
+      const incompleteCount = participants.filter(p => !getParticipantCompleteness(p).isComplete).length;
+      document.getElementById('main-badge-stay').textContent = `${stayAnyCount} คนพัก`;
+      document.getElementById('main-badge-docs').textContent = incompleteCount > 0 ? `${incompleteCount} ยังไม่ครบ` : 'ครบแล้ว ✓';
+      renderStayPanel();
+      renderDocPanel();
+    }
+
+    // ==================== PANEL 1: HOTEL SUMMARY ====================
+    function switchStaySubTab(tab, shouldRender = true) {
+      staySubTab = tab;
+      const activeStyles = {
+        any_stay: 'px-2.5 py-1.5 rounded-lg font-bold bg-navy-700 text-white transition',
+        both: 'px-2.5 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition',
+        stay30: 'px-2.5 py-1.5 rounded-lg font-bold bg-sky-600 text-white transition',
+        stay1: 'px-2.5 py-1.5 rounded-lg font-bold bg-indigo-600 text-white transition',
+        only30: 'px-2.5 py-1.5 rounded-lg font-bold bg-cyan-700 text-white transition',
+        only1: 'px-2.5 py-1.5 rounded-lg font-bold bg-purple-700 text-white transition',
+        none: 'px-2.5 py-1.5 rounded-lg font-bold bg-slate-700 text-white transition',
+        unspecified: 'px-2.5 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition',
+        all: 'px-2.5 py-1.5 rounded-lg font-bold bg-maroon-700 text-white transition'
+      };
+      Object.keys(activeStyles).forEach(k => {
+        const el = document.getElementById(`stay-tab-${k}`);
+        if (!el) return;
+        el.className = k === tab
+          ? activeStyles[k]
+          : 'px-2.5 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition';
+      });
+      if (shouldRender) renderStayPanel();
+    }
+
+    function matchesStayFilter(p, filterKey) {
+      if (!filterKey || filterKey === 'all') return true;
+      const s30 = p.stay30 === 'พัก';
+      const s1 = p.stay1 === 'พัก';
+      const n30 = p.stay30 === 'ไม่พัก';
+      const n1 = p.stay1 === 'ไม่พัก';
+      if (filterKey === 'any_stay') return s30 || s1;
+      if (filterKey === 'both') return s30 && s1;
+      if (filterKey === 'stay30') return s30;
+      if (filterKey === 'stay1') return s1;
+      if (filterKey === 'only30') return s30 && !s1;
+      if (filterKey === 'only1') return !s30 && s1;
+      if (filterKey === 'none') return n30 && n1;
+      if (filterKey === 'unspecified') return !p.stay30 || !p.stay1;
+      return true;
+    }
+
+    function getStayCellBadge(val) {
+      if (val === 'พัก') {
+        return `<span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-[11px]">✓ พัก</span>`;
+      }
+      if (val === 'ไม่พัก') {
+        return `<span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-[11px]">ไม่พัก</span>`;
+      }
+      return `<span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold text-[11px]">ยังไม่ระบุ</span>`;
+    }
+
+    function getStayPool() {
+      const excludeDeclined = Boolean(document.getElementById('stay-exclude-declined')?.checked);
+      return excludeDeclined ? participants.filter(p => p.rsvp !== 'ไม่สามารถเข้าร่วม') : participants;
+    }
+
+    function renderStayPanel() {
+      const tbody = document.getElementById('stay-summary-tbody');
+      if (!tbody) return;
+
+      const pool = getStayPool();
+      const countAny = pool.filter(p => p.stay30 === 'พัก' || p.stay1 === 'พัก').length;
+      const count30 = pool.filter(p => p.stay30 === 'พัก').length;
+      const count1 = pool.filter(p => p.stay1 === 'พัก').length;
+      const countBoth = pool.filter(p => p.stay30 === 'พัก' && p.stay1 === 'พัก').length;
+      const countOnly30 = pool.filter(p => p.stay30 === 'พัก' && p.stay1 !== 'พัก').length;
+      const countOnly1 = pool.filter(p => p.stay30 !== 'พัก' && p.stay1 === 'พัก').length;
+      const countNone = pool.filter(p => p.stay30 === 'ไม่พัก' && p.stay1 === 'ไม่พัก').length;
+      const countUnspec = pool.filter(p => !p.stay30 || !p.stay1).length;
+      const countWithRoom = pool.filter(p => Boolean(p.roomNo)).length;
+      const countWithMate = pool.filter(p => Boolean(p.roommate)).length;
+
+      document.getElementById('stay-stat-any').textContent = countAny;
+      document.getElementById('stay-stat-30').textContent = count30;
+      document.getElementById('stay-stat-1').textContent = count1;
+      document.getElementById('stay-stat-both').textContent = countBoth;
+      document.getElementById('stay-stat-none').textContent = countNone;
+      document.getElementById('stay-stat-unspec').textContent = countUnspec;
+
+      document.getElementById('stay-stat-breakdown').innerHTML = `
+        <span>รวมในกลุ่มนับยอด: <strong class="text-navy-700 dark:text-blue-300 font-mono">${pool.length}</strong> ราย</span>
+        <span>• เฉพาะคืน 30 พ.ย.: <strong class="text-sky-700 dark:text-sky-300 font-mono">${countOnly30}</strong> คน</span>
+        <span>• เฉพาะคืน 1 ธ.ค.: <strong class="text-indigo-700 dark:text-indigo-300 font-mono">${countOnly1}</strong> คน</span>
+        <span>• ระบุเลขห้องแล้ว: <strong class="text-emerald-700 dark:text-emerald-300 font-mono">${countWithRoom}</strong> คน</span>
+        <span>• ระบุผู้พักร่วมแล้ว: <strong class="text-purple-700 dark:text-purple-300 font-mono">${countWithMate}</strong> คน</span>
+      `;
+
+      // สรุปยอดเข้าพักแยกตามหน่วยหลัก
+      const unitMap = {};
+      pool.forEach(p => {
+        const u = p.mainUnit || 'อื่นๆ';
+        if (!unitMap[u]) unitMap[u] = { total: 0, staying: 0 };
+        unitMap[u].total++;
+        if (p.stay30 === 'พัก' || p.stay1 === 'พัก') unitMap[u].staying++;
+      });
+      document.getElementById('stay-unit-chips').innerHTML =
+        `<span class="font-bold text-slate-500 self-center mr-1">เข้าพักแยกหน่วย:</span>` +
+        Object.keys(unitMap).map(u => `
+          <button type="button" onclick="quickFilterStayUnit('${escapeHtml(u)}')" class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-blue-100 dark:hover:bg-blue-900 text-slate-700 dark:text-slate-200 font-semibold transition">
+            ${escapeHtml(u)}: <strong class="font-mono text-navy-700 dark:text-blue-300">${unitMap[u].staying}/${unitMap[u].total}</strong>
+          </button>
+        `).join('');
+
+      const unitFilter = document.getElementById('stay-filter-unit')?.value || 'all';
+      const q = String(document.getElementById('stay-search-input')?.value || '').trim().toLowerCase();
+
+      const filtered = pool.filter(p => {
+        if (!matchesStayFilter(p, staySubTab)) return false;
+        if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
+        if (!q) return true;
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${p.roomNo} ${p.roommate} ${p.phone}`.toLowerCase().includes(q);
+      });
+
+      const tabNames = {
+        any_stay: 'รายชื่อผู้เข้าพักโรงแรม (อย่างน้อย 1 คืน)',
+        both: 'รายชื่อผู้เข้าพักทั้ง 2 คืน (30 พ.ย. & 1 ธ.ค.)',
+        stay30: 'รายชื่อผู้เข้าพักคืนวันที่ 30 พ.ย. 69',
+        stay1: 'รายชื่อผู้เข้าพักคืนวันที่ 1 ธ.ค. 69',
+        only30: 'รายชื่อผู้เข้าพักเฉพาะคืน 30 พ.ย. 69',
+        only1: 'รายชื่อผู้เข้าพักเฉพาะคืน 1 ธ.ค. 69',
+        none: 'รายชื่อผู้ไม่เข้าพักโรงแรม',
+        unspecified: 'รายชื่อผู้ที่ยังไม่ระบุข้อมูลที่พัก / ยังไม่ครบ 2 คืน',
+        all: 'รายชื่อทั้งหมดทุกสถานะที่พัก'
+      };
+      document.getElementById('stay-table-heading').textContent = tabNames[staySubTab] || 'รายชื่อข้อมูลการเข้าพักโรงแรม';
+      document.getElementById('stay-table-count').textContent = `${filtered.length} รายการ`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-slate-400 font-medium">ไม่พบรายชื่อในเงื่อนไขที่เลือก</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((p, idx) => {
+        const isSub = hasSubstitute(p);
+        const name = isSub ? p.substituteName : p.fullName;
+        const isDeclined = p.rsvp === 'ไม่สามารถเข้าร่วม';
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 ${isDeclined ? 'opacity-60' : ''}">
+            <td class="py-2.5 px-3 font-mono text-slate-400">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-navy-700 dark:text-blue-300 whitespace-nowrap">${escapeHtml(p.id)}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-slate-900 dark:text-white">${escapeHtml(name)}</div>
+              <div class="text-[11px] text-slate-500">${escapeHtml(p.unitDetail || p.mainUnit)}${isSub ? ` • <span class="text-purple-700 font-semibold">ผู้แทน: ${escapeHtml(p.fullName)}</span>` : ''}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center whitespace-nowrap">${getStayCellBadge(p.stay30)}</td>
+            <td class="py-2.5 px-3 text-center whitespace-nowrap">${getStayCellBadge(p.stay1)}</td>
+            <td class="py-2.5 px-3 text-[11px]">
+              ${p.roomNo ? `<span class="inline-block px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 text-sky-900 dark:text-sky-200 font-mono font-bold">ห้อง ${escapeHtml(p.roomNo)}</span>` : `<span class="text-slate-400">ยังไม่ระบุห้อง</span>`}
+              ${p.roommate ? `<div class="text-slate-600 dark:text-slate-300 mt-0.5">คู่พัก: <strong>${escapeHtml(p.roommate)}</strong></div>` : ''}
+            </td>
+            <td class="py-2.5 px-3 text-[11px] space-y-0.5">
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded-full ${isDeclined ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'} font-semibold text-[10.5px]">${escapeHtml(p.rsvp)}</span>
+                ${p.food && p.food !== 'อาหารทั่วไป' ? `<span class="inline-block px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-[10px] ml-1">${escapeHtml(p.food)}</span>` : ''}
+              </div>
+              ${p.phone ? `<div><a href="tel:${escapeHtml(p.phone)}" class="text-navy-700 dark:text-blue-300 font-mono hover:underline">📞 ${escapeHtml(p.phone)}</a></div>` : ''}
+            </td>
+            <td class="no-print py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-[11px] font-bold transition">
+                <i data-lucide="pencil" class="w-3 h-3"></i> แก้ไข
+              </button>
+              <a href="portal.html?id=${encodeURIComponent(p.id)}&staff=1" target="_blank" class="inline-flex items-center justify-center p-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 transition" title="ดูหน้าบัตร E-Pass">
+                <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function quickFilterStayUnit(unit) {
+      const sel = document.getElementById('stay-filter-unit');
+      if (!sel) return;
+      sel.value = sel.value === unit ? 'all' : unit;
+      renderStayPanel();
+    }
+
+    function exportStaySummaryCSV() {
+      const pool = getStayPool();
+      const getSummaryLabel = (p) => {
+        const s30 = p.stay30 === 'พัก';
+        const s1 = p.stay1 === 'พัก';
+        if (s30 && s1) return 'พักทั้ง 2 คืน (30 พ.ย. & 1 ธ.ค.)';
+        if (s30) return p.stay1 === 'ไม่พัก' ? 'พักเฉพาะคืน 30 พ.ย.' : 'พักคืน 30 พ.ย. (คืน 1 ธ.ค. ยังไม่ระบุ)';
+        if (s1) return p.stay30 === 'ไม่พัก' ? 'พักเฉพาะคืน 1 ธ.ค.' : 'พักคืน 1 ธ.ค. (คืน 30 พ.ย. ยังไม่ระบุ)';
+        if (p.stay30 === 'ไม่พัก' && p.stay1 === 'ไม่พัก') return 'ไม่เข้าพักโรงแรม';
+        return 'ยังไม่ระบุ / ข้อมูลไม่ครบ';
+      };
+
+      const headers = ['ลำดับ', 'ID', 'ยศ ชื่อ - สกุล', 'ผู้แทนเข้าร่วม', 'ตำแหน่ง', 'หน่วยหลัก', 'สังกัด', 'การตอบรับ', 'พักคืน 30 พ.ย.', 'พักคืน 1 ธ.ค.', 'สรุปสถานะที่พัก', 'เลขห้องพัก', 'ผู้พักร่วม (Roommate)', 'ข้อจำกัดอาหาร', 'เบอร์โทรศัพท์', 'ทะเบียนรถ'];
+      const rows = pool.map((p, idx) => [
+        idx + 1, p.id, p.fullName, p.substituteName, p.position, p.mainUnit, p.unitDetail,
+        p.rsvp, p.stay30 || 'ยังไม่ระบุ', p.stay1 || 'ยังไม่ระบุ', getSummaryLabel(p),
+        p.roomNo, p.roommate, p.food, p.phone, p.licensePlate
+      ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+
+      downloadCsv(headers, rows, `สรุปข้อมูลการเข้าพักโรงแรม_AI_คู่หูจราจร_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast('ส่งออกไฟล์รายงานสรุปที่พักโรงแรม (CSV) เรียบร้อยแล้ว', 'success');
+    }
+
+    // ==================== PANEL 2: DOCUMENT COMPLETENESS AUDIT ====================
+    function switchDocSubTab(tab, shouldRender = true) {
+      docSubTab = tab;
+      const styles = {
+        incomplete: 'px-3 py-1.5 rounded-lg font-bold bg-orange-600 text-white transition',
+        alerted: 'px-3 py-1.5 rounded-lg font-bold bg-rose-600 text-white transition',
+        complete: 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition',
+        all: 'px-3 py-1.5 rounded-lg font-bold bg-navy-700 text-white transition'
+      };
+      Object.keys(styles).forEach(k => {
+        const el = document.getElementById(`audit-tab-${k}`);
+        if (!el) return;
+        el.className = k === tab
+          ? styles[k]
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition';
+      });
+      if (shouldRender) renderDocPanel();
+    }
+
+    function renderDocPanel() {
+      const box = document.getElementById('doc-audit-list');
+      if (!box) return;
+
+      const withAudit = participants.map(p => ({ p, comp: getParticipantCompleteness(p) }));
+      const letterCount = participants.filter(p => p.officialLetter === 'ส่งแล้ว' || Boolean(p.letterUrl)).length;
+
+      document.getElementById('audit-count-complete').textContent = withAudit.filter(x => x.comp.isComplete).length;
+      document.getElementById('audit-count-incomplete').textContent = withAudit.filter(x => !x.comp.isComplete).length;
+      document.getElementById('audit-count-alerted').textContent = withAudit.filter(x => x.comp.hasStaffAlert).length;
+      document.getElementById('audit-count-letter').textContent = letterCount;
+
+      const unitFilter = document.getElementById('audit-filter-unit')?.value || 'all';
+      const q = String(document.getElementById('audit-search-input')?.value || '').trim().toLowerCase();
+
+      const filtered = withAudit.filter(({ p, comp }) => {
+        if (docSubTab === 'incomplete' && comp.isComplete) return false;
+        if (docSubTab === 'complete' && !comp.isComplete) return false;
+        if (docSubTab === 'alerted' && !comp.hasStaffAlert) return false;
+        if (unitFilter !== 'all' && p.mainUnit !== unitFilter) return false;
+        if (!q) return true;
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${comp.missing.join(' ')} ${comp.staffAlert}`.toLowerCase().includes(q);
+      });
+
+      const docTabTitles = {
+        incomplete: 'รายชื่อผู้ที่ข้อมูลหรือเอกสารยังไม่ครบถ้วน',
+        alerted: 'รายชื่อที่กำลังแสดงแจ้งเตือนบนหน้าบัตร E-Pass',
+        complete: 'รายชื่อผู้ที่กรอกข้อมูลและส่งเอกสารครบถ้วนแล้ว',
+        all: 'รายการตรวจสอบเอกสารและข้อมูลทั้งหมด'
+      };
+      document.getElementById('doc-list-heading').textContent = docTabTitles[docSubTab] || 'รายการตรวจสอบเอกสาร';
+      document.getElementById('doc-list-count').textContent = `${filtered.length} รายการ`;
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="py-12 text-center text-slate-400 font-medium">ไม่พบรายชื่อในหมวดที่เลือก</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(({ p, comp }) => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `
+          <div class="p-3.5 rounded-2xl border ${comp.hasStaffAlert ? 'bg-rose-50/60 dark:bg-rose-950/25 border-rose-300 dark:border-rose-800' : (!comp.isComplete ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800' : 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800')} flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0 flex-1 space-y-1.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-mono font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-navy-700 dark:text-blue-200">${escapeHtml(p.id)}</span>
+                <strong class="text-sm text-slate-900 dark:text-white">${escapeHtml(name)}</strong>
+                <span class="text-[11px] text-slate-500">• ${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                ${comp.isComplete
+                  ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">✓ ครบถ้วนแล้ว</span>`
+                  : `<span class="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold">⚠️ ยังไม่ครบ (${comp.missing.length} รายการ)</span>`
+                }
+                ${p.letterUrl ? `<a href="${escapeHtml(p.letterUrl)}" target="_blank" class="px-2 py-0.5 rounded-full bg-blue-100 text-navy-800 text-[10px] font-bold hover:underline">📎 เปิดหนังสือส่งตัว ↗</a>` : ''}
+              </div>
+
+              ${comp.missing.length > 0 ? `
+                <div class="flex flex-wrap gap-1">
+                  ${comp.missing.map(m => `<span class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-[11px] font-semibold">❌ ${escapeHtml(m)}</span>`).join('')}
+                </div>
+              ` : ''}
+
+              ${comp.hasStaffAlert ? `
+                <div class="px-2.5 py-1.5 rounded-xl bg-rose-100/90 dark:bg-rose-900/40 border border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-100 text-[11.5px] font-semibold">
+                  🔔 กำลังแสดงบนหน้าบัตร: ${escapeHtml(comp.staffAlert)}
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="no-print flex flex-wrap items-center gap-1.5 shrink-0">
+              <button type="button" onclick="openDocAlertQuickModal('${escapeHtml(p.id)}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl ${comp.hasStaffAlert ? 'bg-rose-600 hover:bg-rose-700' : 'bg-orange-600 hover:bg-orange-700'} text-white font-bold text-xs shadow-xs transition">
+                <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ${comp.hasStaffAlert ? 'แก้ข้อความแจ้งเตือน' : 'แจ้งเตือนขึ้นบัตร'}
+              </button>
+              ${comp.hasStaffAlert ? `
+                <button type="button" onclick="clearDocAlertImmediate('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs transition">
+                  ✓ ล้างแจ้งเตือน
+                </button>
+              ` : ''}
+              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-100 font-semibold text-xs transition">
+                แก้ไขข้อมูล
+              </button>
+              <a href="portal.html?id=${encodeURIComponent(p.id)}&staff=1" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-semibold text-xs transition">
+                ดูหน้าบัตร ↗
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function exportDocAuditCSV() {
+      const headers = ['ลำดับ', 'ID', 'ยศ ชื่อ - สกุล', 'ผู้แทนเข้าร่วม', 'หน่วยหลัก', 'สังกัด', 'การตอบรับ', 'หนังสือส่งตัว', 'ลิงก์หนังสือส่งตัว', 'พักคืน 30 พ.ย.', 'พักคืน 1 ธ.ค.', 'เบอร์โทร', 'สถานะความครบถ้วน', 'รายการที่ยังขาด', 'ข้อความแจ้งเตือนบนบัตร'];
+      const rows = participants.map((p, idx) => {
+        const comp = getParticipantCompleteness(p);
+        return [
+          idx + 1, p.id, p.fullName, p.substituteName, p.mainUnit, p.unitDetail,
+          p.rsvp, p.officialLetter || (p.letterUrl ? 'ส่งแล้ว' : 'ยังไม่ส่ง'), p.letterUrl,
+          p.stay30 || 'ยังไม่ระบุ', p.stay1 || 'ยังไม่ระบุ', p.phone,
+          comp.isComplete ? 'ครบถ้วนแล้ว' : 'ยังไม่ครบ',
+          comp.missing.join(' / '), comp.staffAlert
+        ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
+      });
+
+      downloadCsv(headers, rows, `สรุปตรวจสอบเอกสารผู้เข้าร่วม_AI_คู่หูจราจร_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast('ส่งออกไฟล์รายงานตรวจสอบเอกสาร (CSV) เรียบร้อยแล้ว', 'success');
+    }
+
+    // ==================== QUICK DOC ALERT MODAL ====================
+    function openDocAlertQuickModal(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      const comp = getParticipantCompleteness(p);
+      const displayName = hasSubstitute(p) ? p.substituteName : p.fullName;
+
+      document.getElementById('qa-target-id').value = p.id;
+      document.getElementById('qa-pid').textContent = p.id;
+      document.getElementById('qa-name').textContent = `แจ้งเตือนขึ้นหน้าบัตร: ${displayName}`;
+
+      document.getElementById('qa-auto-missing-tags').innerHTML = comp.missing.length > 0
+        ? comp.missing.map(m => `<span class="px-2 py-0.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-[11px] font-bold">❌ ${escapeHtml(m)}</span>`).join('')
+        : `<span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold">✓ ข้อมูลพื้นฐานครบถ้วนแล้ว</span>`;
+
+      const existingParts = comp.staffAlert ? comp.staffAlert.split(' • ').map(s => s.trim()).filter(Boolean) : [];
+      const customParts = [];
+      const preCheckedSet = new Set();
+
+      if (existingParts.length > 0) {
+        existingParts.forEach(part => {
+          const matchedPreset = DOC_ALERT_PRESETS.find(pr => pr.label === part);
+          if (matchedPreset) preCheckedSet.add(matchedPreset.id);
+          else customParts.push(part);
+        });
+      } else {
+        DOC_ALERT_PRESETS.forEach(pr => {
+          if (pr.matchKey && comp.missing.some(m => m.includes(pr.matchKey))) {
+            preCheckedSet.add(pr.id);
+          }
+        });
+      }
+
+      document.getElementById('qa-preset-checkboxes').innerHTML = DOC_ALERT_PRESETS.map(pr => `
+        <label class="flex items-start gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 hover:bg-orange-50/70 cursor-pointer text-xs">
+          <input type="checkbox" value="${escapeHtml(pr.label)}" ${preCheckedSet.has(pr.id) ? 'checked' : ''} onchange="updateQuickDocAlertPreview()" class="qa-preset-cb mt-0.5 w-4 h-4 rounded text-orange-600 focus:ring-orange-500 shrink-0" />
+          <span class="text-slate-800 dark:text-slate-200 leading-snug">${escapeHtml(pr.label)}</span>
+        </label>
+      `).join('');
+
+      document.getElementById('qa-custom-note').value = customParts.join(' • ');
+      updateQuickDocAlertPreview();
+      document.getElementById('doc-alert-quick-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeDocAlertQuickModal() {
+      document.getElementById('doc-alert-quick-modal')?.classList.add('hidden');
+    }
+
+    function buildQuickDocAlertText() {
+      const checkedLabels = Array.from(document.querySelectorAll('.qa-preset-cb:checked')).map(cb => cb.value.trim()).filter(Boolean);
+      const customNote = String(document.getElementById('qa-custom-note')?.value || '').trim();
+      const parts = [...checkedLabels];
+      if (customNote) parts.push(customNote);
+      return parts.join(' • ');
+    }
+
+    function updateQuickDocAlertPreview() {
+      const text = buildQuickDocAlertText();
+      const prev = document.getElementById('qa-preview-text');
+      if (prev) {
+        prev.textContent = text || '(ไม่มีข้อความแจ้งเตือน — หากกดบันทึกจะเป็นการล้างการแจ้งเตือนบนบัตร)';
+      }
+    }
+
+    async function saveQuickDocAlert() {
+      const id = document.getElementById('qa-target-id').value;
+      const alertText = buildQuickDocAlertText();
+      const btn = document.getElementById('qa-save-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      await submitDocAlertUpdate(id, alertText);
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ส่งแจ้งเตือนขึ้นหน้าบัตร';
+      if (window.lucide) lucide.createIcons();
+      closeDocAlertQuickModal();
+    }
+
+    async function clearDocAlertFromQuickModal() {
+      const id = document.getElementById('qa-target-id').value;
+      await submitDocAlertUpdate(id, '');
+      closeDocAlertQuickModal();
+    }
+
+    async function clearDocAlertImmediate(id) {
+      await submitDocAlertUpdate(id, '');
+    }
+
+    async function submitDocAlertUpdate(id, alertText) {
+      const target = participants.find(p => p.id === id);
+      if (!target) return;
+      const prevAlert = target.docAlert || '';
+
+      target.docAlert = alertText;
+      renderAllPanels();
+      showToast(alertText ? `ส่งแจ้งเตือนขึ้นหน้าบัตร ${target.id} เรียบร้อยแล้ว` : `ล้างการแจ้งเตือนของ ${target.id} แล้ว`, 'success');
+
+      isMutatingData = true;
+      try {
+        const res = await postToApi({ action: 'setDocAlert', id, docAlert: alertText });
+        if (!res || res.status !== 'success') throw new Error((res && res.message) || 'บันทึกไม่สำเร็จ');
+      } catch (err) {
+        target.docAlert = prevAlert;
+        renderAllPanels();
+        showToast('บันทึกแจ้งเตือนไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutatingData = false;
+      }
+    }
+
+    // ==================== EDIT MODAL ====================
+    function openEditModal(id) {
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+
+      document.getElementById('ed-id').value = p.id;
+      document.getElementById('ed-id-badge').textContent = p.id;
+      document.getElementById('ed-name').value = p.fullName || '';
+      document.getElementById('ed-position').value = p.position || '';
+      document.getElementById('ed-rsvp').value = p.rsvp || 'รอการยืนยัน';
+      document.getElementById('ed-food').value = p.food || 'อาหารทั่วไป';
+      document.getElementById('ed-letter').value = p.officialLetter || '';
+      document.getElementById('ed-sub-name').value = p.substituteName || '';
+      document.getElementById('ed-sub-pos').value = p.substitutePosition || '';
+      document.getElementById('ed-stay30').value = p.stay30 || '';
+      document.getElementById('ed-stay1').value = p.stay1 || '';
+      document.getElementById('ed-room').value = p.roomNo || '';
+      document.getElementById('ed-roommate').value = p.roommate || '';
+      document.getElementById('ed-phone').value = p.phone || '';
+      document.getElementById('ed-plate').value = p.licensePlate || '';
+      document.getElementById('ed-doc-alert').value = p.docAlert || '';
+      document.getElementById('ed-letter-file').value = '';
+
+      const letterLink = document.getElementById('ed-existing-letter');
+      if (p.letterUrl) {
+        letterLink.href = p.letterUrl;
+        letterLink.classList.remove('hidden');
+      } else {
+        letterLink.classList.add('hidden');
+      }
+
+      toggleEditSubFields();
+      document.getElementById('ed-roommate-suggestions').classList.add('hidden');
+      document.getElementById('edit-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal')?.classList.add('hidden');
+    }
+
+    function toggleEditSubFields() {
+      const isSub = document.getElementById('ed-rsvp').value === 'ส่งผู้แทนเข้าร่วม';
+      document.getElementById('ed-sub-box').classList.toggle('hidden', !isSub);
+    }
+
+    function showEditRoommateSuggestions(query) {
+      const box = document.getElementById('ed-roommate-suggestions');
+      const curId = document.getElementById('ed-id').value;
+      const q = String(query || '').trim().toLowerCase();
+      const matches = participants.filter(p => {
+        if (p.id === curId) return false;
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        if (!q) return true;
+        return `${p.id} ${name} ${p.mainUnit}`.toLowerCase().includes(q);
+      }).slice(0, 8);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = matches.map(p => {
+        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
+        return `
+          <button type="button" data-name="${escapeHtml(name)}" onclick="selectEditRoommate(this)" class="w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-slate-700 text-xs flex items-center justify-between gap-2">
+            <span class="font-semibold truncate">${escapeHtml(name)}</span>
+            <span class="text-[10px] text-slate-400 shrink-0">${escapeHtml(p.id)}</span>
+          </button>
+        `;
+      }).join('');
+      box.classList.remove('hidden');
+    }
+
+    function selectEditRoommate(el) {
+      document.getElementById('ed-roommate').value = el.getAttribute('data-name') || '';
+      document.getElementById('ed-roommate-suggestions').classList.add('hidden');
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          name: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          data: String(reader.result).split(',')[1]
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function saveParticipantEdit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('ed-save-btn');
+      const fileInput = document.getElementById('ed-letter-file');
+      let fileData = null;
+      if (fileInput.files && fileInput.files[0]) {
+        if (fileInput.files[0].size > 5 * 1024 * 1024) {
+          showToast('ขนาดไฟล์ต้องไม่เกิน 5MB', 'error');
+          return;
+        }
+        fileData = await readFileAsBase64(fileInput.files[0]);
+      }
+
+      const rsvp = document.getElementById('ed-rsvp').value;
+      const payload = {
+        action: 'updateParticipant',
+        id: document.getElementById('ed-id').value,
+        fullName: document.getElementById('ed-name').value.trim(),
+        position: document.getElementById('ed-position').value.trim(),
+        rsvp: rsvp,
+        food: document.getElementById('ed-food').value,
+        officialLetter: document.getElementById('ed-letter').value,
+        substituteName: rsvp === 'ส่งผู้แทนเข้าร่วม' ? document.getElementById('ed-sub-name').value.trim() : '',
+        substitutePosition: rsvp === 'ส่งผู้แทนเข้าร่วม' ? document.getElementById('ed-sub-pos').value.trim() : '',
+        stay30: document.getElementById('ed-stay30').value,
+        stay1: document.getElementById('ed-stay1').value,
+        roomNo: document.getElementById('ed-room').value.trim(),
+        roommate: document.getElementById('ed-roommate').value.trim(),
+        phone: document.getElementById('ed-phone').value.trim(),
+        licensePlate: document.getElementById('ed-plate').value.trim(),
+        docAlert: document.getElementById('ed-doc-alert').value.trim(),
+        fileData: fileData
+      };
+
+      const localTarget = participants.find(x => x.id === payload.id);
+      if (localTarget) {
+        Object.assign(localTarget, {
+          fullName: payload.fullName,
+          position: payload.position,
+          rsvp: payload.rsvp,
+          food: payload.food,
+          substituteName: payload.substituteName,
+          substitutePosition: payload.substitutePosition,
+          stay30: payload.stay30,
+          stay1: payload.stay1,
+          roomNo: payload.roomNo,
+          roommate: payload.roommate,
+          officialLetter: fileData ? 'ส่งแล้ว' : payload.officialLetter,
+          licensePlate: payload.licensePlate,
+          phone: payload.phone,
+          docAlert: payload.docAlert
+        });
+        renderAllPanels();
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+      isMutatingData = true;
+      try {
+        const res = await postToApi(payload);
+        if (res.status === 'success') {
+          showToast(res.message || 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+          closeEditModal();
+          isMutatingData = false;
+          // โหลดซ้ำเพื่อให้คู่พักสองทาง (Two-Way Sync) อัปเดตตรงกันทั้ง 2 ฝั่ง
+          await fetchParticipants(false);
+        } else {
+          showToast(res.message || 'บันทึกไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+      } finally {
+        isMutatingData = false;
+        btn.disabled = false;
+        btn.textContent = 'บันทึกข้อมูล';
+      }
+    }
+
+    // ==================== SETTINGS & UTILS ====================
+    function openSettingsModal() {
+      document.getElementById('set-api-url').value = API_URL;
+      document.getElementById('set-auto-refresh').checked = autoRefreshEnabled;
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal')?.classList.add('hidden');
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      API_URL = document.getElementById('set-api-url').value.trim() || DEFAULT_API_URL;
+      autoRefreshEnabled = document.getElementById('set-auto-refresh').checked;
+      safeSet('ai_seminar_api_url', API_URL);
+      safeSet('ai_seminar_auto_refresh', String(autoRefreshEnabled));
+      closeSettingsModal();
+      showToast('บันทึกการตั้งค่าเรียบร้อยแล้ว', 'success');
+      fetchParticipants(true);
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      safeSet('ai_seminar_dark', String(isDark));
+    }
+
+    function downloadCsv(headers, rows, filename) {
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
