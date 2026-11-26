@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบบริหารการสัมมนา & เช็กอิน Smart QR - แชทบอท AI คู่หูจราจร</title>
+  <title>ระบบบริหารการสัมมนา &amp; เช็กอิน Smart QR - แชทบอท AI คู่หูจราจร</title>
 
   <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- jsQR สำหรับสแกน QR HD ลื่นไหลไม่หน่วง -->
+  <!-- jsQR สำหรับสแกน QR Code ความเร็วสูง -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <!-- Chart.js สำหรับกราฟสรุปผลประเมิน 10 ข้อ -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -91,7 +91,7 @@
         <div class="min-w-0">
           <h1 class="text-sm sm:text-base font-extrabold leading-tight truncate">ระบบบริหารสัมมนา AI คู่หูจราจร</h1>
           <div class="flex items-center gap-2 text-[11px] text-blue-100/85">
-            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block"></span>
             <span id="sync-status-text" class="truncate">กำลังเชื่อมต่อ Google Sheets...</span>
           </div>
         </div>
@@ -117,11 +117,16 @@
           <span id="req-badge-count" class="hidden px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono text-[10px] font-extrabold">0</span>
         </button>
 
-        <button type="button" onclick="openDocAuditModal()" class="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition" title="ตรวจสอบรายชื่อที่กรอกข้อมูล/เอกสารครบหรือไม่ครบ และส่งแจ้งเตือนขึ้นหน้าบัตร">
+        <a href="summary.html?tab=docs" target="_blank" class="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition" title="เปิดหน้าตรวจสอบเอกสาร/ข้อมูลไม่ครบ และส่งแจ้งเตือนขึ้นหน้าบัตร (summary.html)">
           <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-amber-200"></i>
           <span class="hidden sm:inline">ตรวจเอกสาร</span>
           <span id="doc-incomplete-badge" class="hidden px-1.5 py-0.2 rounded-full bg-white text-orange-700 font-mono text-[10px] font-extrabold">0</span>
-        </button>
+        </a>
+
+        <a href="summary.html?tab=stay" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-cyan-700 hover:bg-cyan-600 text-white shadow-xs transition" title="เปิดหน้าสรุปยอดและตรวจสอบรายชื่อผู้เข้าพักโรงแรม (summary.html)">
+          <i data-lucide="bed-double" class="w-3.5 h-3.5 text-amber-200"></i>
+          <span class="hidden md:inline">สรุปที่พัก</span>
+        </a>
 
         <button type="button" onclick="openWorkshopManagerModal()" class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-700 hover:bg-indigo-800 text-white shadow-xs transition" title="จัดกลุ่มสัมมนา 5 กลุ่มและผู้เชี่ยวชาญประจำกลุ่ม">
           <i data-lucide="users" class="w-3.5 h-3.5 text-amber-200"></i>
@@ -148,12 +153,12 @@
           <span class="hidden 2xl:inline">ป้ายชื่อ</span>
         </a>
 
-        <a href="monitor.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="หน้าจอแสดงผล Live TV & จับเวลากลุ่ม">
+        <a href="monitor.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="หน้าจอแสดงผล Live TV &amp; จับเวลากลุ่ม">
           <i data-lucide="tv" class="w-3.5 h-3.5"></i>
           <span class="hidden 2xl:inline">จอ Live TV</span>
         </a>
 
-        <button type="button" onclick="exportParticipantsCSV()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ส่งออกไฟล์ Excel / CSV">
+        <button type="button" onclick="exportParticipantsCSV()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ส่งออกไฟล์ Excel / CSV รายชื่อทั้งหมด">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
         </button>
 
@@ -161,7 +166,7 @@
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
         </button>
 
-        <button type="button" onclick="openSettingsModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ตั้งค่า API & โหมดจอ">
+        <button type="button" onclick="openSettingsModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ตั้งค่า API &amp; โหมดจอ">
           <i data-lucide="settings" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -199,24 +204,21 @@
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2">
-        <div>
-          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">พักโรงแรม (30 พ.ย. / 1 ธ.ค.)</p>
+      <div onclick="openStaySummaryModal()" class="cursor-pointer bg-white dark:bg-slate-800 hover:border-blue-400 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2 transition" title="คลิกเพื่อเปิดหน้าสรุปยอดและรายชื่อการเข้าพักโรงแรม (summary.html)">
+        <div class="min-w-0">
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">พักโรงแรม (30 พ.ย. / 1 ธ.ค.)</p>
           <p id="kpi-stay" class="font-mono text-xl sm:text-2xl font-extrabold text-navy-700 dark:text-blue-300 leading-tight mt-0.5">0 / 0</p>
+          <p id="kpi-stay-sub" class="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">เข้าพัก 0 • ไม่พัก 0 • รอระบุ 0</p>
         </div>
-        <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-navy-700 flex items-center justify-center">
-          <i data-lucide="bed-double" class="w-4 h-4"></i>
-        </div>
+        <span class="px-2 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-navy-700 dark:text-blue-300 text-[10px] font-bold shrink-0">ดูสรุป ↗</span>
       </div>
 
-      <div class="col-span-2 md:col-span-1 bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2">
+      <div onclick="openDocAuditModal()" class="cursor-pointer col-span-2 md:col-span-1 bg-white dark:bg-slate-800 hover:border-amber-400 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2 transition" title="คลิกเพื่อเปิดหน้าตรวจสอบเอกสาร (summary.html)">
         <div>
           <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">ฮาลาล / ส่งหนังสือแล้ว</p>
           <p id="kpi-food-letter" class="font-mono text-xl sm:text-2xl font-extrabold text-amber-700 dark:text-amber-300 leading-tight mt-0.5">0 / 0</p>
         </div>
-        <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-700 flex items-center justify-center">
-          <i data-lucide="file-check-2" class="w-4 h-4"></i>
-        </div>
+        <span class="px-2 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-[10px] font-bold shrink-0">ตรวจ ↗</span>
       </div>
     </section>
 
@@ -238,6 +240,18 @@
           <option value="ส่งผู้แทนเข้าร่วม">ส่งผู้แทนเข้าร่วม</option>
           <option value="รอการยืนยัน">รอการยืนยัน</option>
           <option value="ไม่สามารถเข้าร่วม">ไม่สามารถเข้าร่วม</option>
+        </select>
+
+        <select id="filter-stay" onchange="renderCurrentView()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm">
+          <option value="all">ทุกสถานะที่พัก</option>
+          <option value="any_stay">🏨 เข้าพักโรงแรม (อย่างน้อย 1 คืน)</option>
+          <option value="both">🌙 พักทั้ง 2 คืน (30 พ.ย. &amp; 1 ธ.ค.)</option>
+          <option value="stay30">🛏️ พักคืน 30 พ.ย.</option>
+          <option value="stay1">🛏️ พักคืน 1 ธ.ค.</option>
+          <option value="only30">พักเฉพาะคืน 30 พ.ย.</option>
+          <option value="only1">พักเฉพาะคืน 1 ธ.ค.</option>
+          <option value="none">🚗 ไม่เข้าพัก</option>
+          <option value="unspecified">❓ ยังไม่ระบุที่พัก/ไม่ครบ</option>
         </select>
 
         <select id="filter-doc" onchange="renderCurrentView()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm">
@@ -296,7 +310,7 @@
               <th class="py-3 px-3 font-bold">สังกัด</th>
               <th class="py-3 px-3 font-bold whitespace-nowrap">กลุ่ม Workshop</th>
               <th class="py-3 px-3 font-bold whitespace-nowrap">การตอบรับ</th>
-              <th class="py-3 px-3 font-bold whitespace-nowrap">ที่พัก / คู่พัก</th>
+              <th class="py-3 px-3 font-bold whitespace-nowrap">ที่พัก / ห้อง / คู่พัก</th>
               <th class="py-3 px-3 font-bold">อาหาร / สถานะเอกสาร</th>
               <th class="py-3 px-3 font-bold text-center whitespace-nowrap">เช็กอิน</th>
               <th class="py-3 px-3 font-bold text-right whitespace-nowrap">จัดการ</th>
@@ -309,15 +323,15 @@
   </main>
 
   <!-- ==================== FLOATING / EXPANDABLE HD QR SCANNER PANEL ==================== -->
-  <div id="scanner-panel" class="no-print hidden fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200">
+  <div id="scanner-panel" class="no-print hidden fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] max-h-[92vh] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200">
     <!-- Header -->
-    <div class="px-4 py-2.5 bg-gradient-to-r from-navy-900 to-emerald-900 border-b border-white/15 flex items-center justify-between gap-2">
+    <div class="shrink-0 px-4 py-2.5 bg-gradient-to-r from-navy-900 to-emerald-900 border-b border-white/15 flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 min-w-0">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
         <span class="font-bold text-xs sm:text-sm truncate">สแกน QR เช็กอิน HD (<span id="scan-day-badge">30 พ.ย.</span>)</span>
       </div>
       <div class="flex items-center gap-1 shrink-0">
-        <button type="button" onclick="toggleScannerVoice()" id="btn-scan-voice" title="เปิด/ปิด เสียงพูดต้อนรับ" class="p-1.5 rounded-lg bg-emerald-500/25 text-emerald-200 hover:bg-emerald-500/40 text-xs transition">
+        <button type="button" onclick="toggleScannerVoice()" id="btn-scan-voice" title="เปิด/ปิด เสียงพูดต้อนรับภาษาไทย" class="p-1.5 rounded-lg bg-emerald-500/25 text-emerald-200 hover:bg-emerald-500/40 text-xs transition">
           <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
         </button>
         <button type="button" onclick="toggleScannerMode()" id="btn-scan-mode" title="สลับโหมดสแกนรัว / ตรวจก่อนเช็กอิน" class="px-2 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[10px] font-bold transition">
@@ -338,33 +352,37 @@
       </div>
     </div>
 
+    <!-- Camera Device Picker (แสดงอัตโนมัติเมื่อเครื่องมีหลายกล้อง) -->
+    <div id="scan-device-bar" class="hidden shrink-0 px-3 py-1.5 bg-slate-900 border-b border-white/10 flex items-center gap-2 text-[11px]">
+      <span class="text-slate-400 shrink-0">📷 กล้อง:</span>
+      <select id="scan-camera-select" onchange="selectScannerDevice(this.value)" class="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-[11px] focus:outline-none"></select>
+    </div>
+
     <!-- Camera Viewport -->
     <div id="scanner-viewport" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center">
       <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-      <!-- Full-frame subtle scan overlay (ไม่ต้องเล็งเข้ากรอบเล็ก สแกนได้ทั่วทั้งหน้าจอกล้อง) -->
       <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/35">
         <div class="scan-laser-line opacity-70"></div>
       </div>
-      <!-- กล่องแจ้งเตือนกรณีเปิดกล้องไม่ได้ พร้อมปุ่มลองใหม่ -->
-      <div id="scan-camera-error" class="hidden absolute inset-0 bg-slate-950/92 p-5 flex flex-col items-center justify-center text-center gap-3 z-10">
-        <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
-          <i data-lucide="camera-off" class="w-6 h-6"></i>
+
+      <!-- Error Overlay (แสดงเฉพาะกรณีเปิดกล้องไม่ได้จริง) -->
+      <div id="scan-camera-error-box" class="hidden absolute inset-0 bg-slate-950/90 p-5 flex flex-col items-center justify-center text-center gap-2.5 z-10">
+        <div class="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
+          <i data-lucide="camera-off" class="w-5 h-5"></i>
         </div>
-        <div class="space-y-1 max-w-xs">
-          <p id="scan-camera-error-title" class="text-xs sm:text-sm font-bold text-white">ไม่สามารถเปิดกล้องได้</p>
-          <p id="scan-camera-error-desc" class="text-[11px] text-slate-300 leading-relaxed"></p>
-        </div>
-        <button type="button" onclick="startCameraStream()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-sm transition">
+        <p id="scan-camera-error-msg" class="text-xs text-rose-200 leading-relaxed max-w-xs">ไม่สามารถเปิดกล้องได้</p>
+        <button type="button" onclick="startCameraStream()" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition">
           ลองเปิดกล้องอีกครั้ง
         </button>
       </div>
-      <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap max-w-[92%] truncate">
+
+      <div id="scan-camera-status" class="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/70 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
         กำลังเปิดกล้อง...
       </div>
     </div>
 
     <!-- Confirm Mode Banner -->
-    <div id="scan-confirm-box" class="hidden p-3 bg-indigo-950 border-t border-indigo-400/50 space-y-2 text-xs">
+    <div id="scan-confirm-box" class="hidden shrink-0 p-3 bg-indigo-950 border-t border-indigo-400/50 space-y-2 text-xs">
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
           <span id="sc-pid" class="font-mono font-bold text-amber-300">KM69-00</span>
@@ -379,7 +397,7 @@
     </div>
 
     <!-- Last Scan Result Feedback -->
-    <div id="scan-result-card" class="hidden px-3.5 py-2.5 bg-slate-900 border-t border-white/10 text-xs space-y-1">
+    <div id="scan-result-card" class="hidden shrink-0 px-3.5 py-2.5 bg-slate-900 border-t border-white/10 text-xs space-y-1">
       <div class="flex items-center justify-between gap-2">
         <strong id="scan-res-title" class="text-emerald-300 truncate"></strong>
         <button type="button" id="scan-res-edit-btn" class="hidden px-2 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[10.5px] font-semibold shrink-0">แก้ไข</button>
@@ -388,9 +406,7 @@
     </div>
 
     <!-- Manual Input & Gallery Upload -->
-    <div class="p-3 bg-slate-900 border-t border-white/10 space-y-2">
-      <!-- เมนูเลือกกล้องอัตโนมัติ (แสดงเมื่อเครื่องมีมากกว่า 1 กล้อง เช่น กล้องหน้า/หลัง หรือเว็บแคมเสริม) -->
-      <select id="scan-camera-select" onchange="onScannerDeviceChange(this.value)" class="hidden w-full px-2.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-[11px] text-emerald-200 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400"></select>
+    <div class="shrink-0 p-3 bg-slate-900 border-t border-white/10 space-y-2">
       <form onsubmit="handleManualQrSubmit(event)" class="flex gap-1.5">
         <input type="text" id="manual-qr-input" placeholder="พิมพ์รหัส เช่น KM69-01 แล้วกด Enter" class="flex-1 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-400" />
         <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shrink-0">เช็กอิน</button>
@@ -549,7 +565,6 @@
           </div>
         </div>
 
-        <!-- สถานะแบบประเมินความพึงพอใจ (สามารถติ๊กปลดล็อกให้ประเมินใหม่ได้) -->
         <label class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 cursor-pointer">
           <div>
             <span class="font-bold text-xs text-slate-800 dark:text-slate-100">สถานะทำแบบประเมินความพึงพอใจบนหน้าบัตร (คอลัมน์ R)</span>
@@ -558,16 +573,14 @@
           <input type="checkbox" id="ed-evaluated" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 shrink-0" />
         </label>
 
-        <!-- แนบไฟล์หนังสือส่งตัว -->
         <div class="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
           <div class="flex items-center justify-between">
-            <label class="text-xs font-bold text-navy-800 dark:text-blue-200">แนบไฟล์หนังสือส่งตัวขึ้น Google Drive</label>
+            <label class="text-xs font-bold text-navy-800 dark:text-blue-200">แนบไฟล์หนังสือส่งตัวขึ้น Google Drive (ไม่เกิน 5MB)</label>
             <a id="ed-existing-letter" href="#" target="_blank" class="hidden text-xs font-bold text-emerald-700 hover:underline">📎 เปิดไฟล์เดิม ↗</a>
           </div>
           <input type="file" id="ed-letter-file" accept=".pdf,image/*" class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-navy-700 file:text-white" />
         </div>
 
-        <!-- ช่องแจ้งเตือนเอกสารขาด / ข้อมูลไม่ครบ -->
         <div class="p-3.5 rounded-xl bg-orange-50/90 dark:bg-orange-950/25 border border-orange-300 dark:border-orange-800 space-y-2">
           <div class="flex items-center justify-between gap-2">
             <label class="text-xs font-bold text-orange-900 dark:text-orange-200 flex items-center gap-1.5">
@@ -606,7 +619,6 @@
         </button>
       </div>
 
-      <!-- Round & Toolbar -->
       <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2.5 shrink-0 text-xs">
         <div class="flex flex-wrap items-center gap-1.5">
           <span class="font-bold text-slate-700 dark:text-slate-200">รอบหมุนเวียนปัจจุบัน:</span>
@@ -630,7 +642,6 @@
         </div>
       </div>
 
-      <!-- Content Area -->
       <div class="p-4 sm:p-5 overflow-y-auto custom-scroll flex-1">
         <div id="wm-view-bygroup" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3.5"></div>
         <div id="wm-view-all" class="hidden space-y-2.5">
@@ -639,7 +650,6 @@
         </div>
       </div>
 
-      <!-- Footer -->
       <div class="px-5 py-3.5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <span id="wm-summary-text" class="text-xs text-slate-600 dark:text-slate-300 font-medium"></span>
         <div class="flex items-center gap-2 ml-auto">
@@ -668,112 +678,6 @@
         <button type="button" onclick="closeGroupQuickPickModal()" class="px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold shadow-xs transition">
           เสร็จสิ้น
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: ตรวจสอบความครบถ้วนเอกสาร & แจ้งเตือนขึ้นหน้าบัตร ==================== -->
-  <div id="doc-audit-modal" onclick="closeDocAuditModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-5xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
-      <div class="px-5 py-4 bg-gradient-to-r from-orange-700 via-maroon-700 to-navy-800 text-white flex items-center justify-between gap-3 shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-9 h-9 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center shrink-0">
-            <i data-lucide="clipboard-check" class="w-5 h-5 text-amber-200"></i>
-          </div>
-          <div class="min-w-0">
-            <h3 class="font-bold text-base truncate">ตรวจสอบความครบถ้วนข้อมูล &amp; เอกสารผู้เข้าร่วม</h3>
-            <p class="text-[11px] text-amber-100 truncate">เช็กรายบุคคลว่าใครกรอกครบแล้ว / ขาดส่วนไหน และส่งแจ้งเตือนขึ้นหน้าบัตร E-Pass ได้ทันที</p>
-          </div>
-        </div>
-        <button type="button" onclick="closeDocAuditModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 space-y-3 shrink-0">
-        <div class="grid grid-cols-3 gap-2.5 text-center">
-          <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
-            <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">✓ กรอกครบถ้วนแล้ว</p>
-            <p id="audit-count-complete" class="font-mono text-2xl font-extrabold text-emerald-700 dark:text-emerald-300">0</p>
-          </div>
-          <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800">
-            <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300">⚠️ ข้อมูล/เอกสารยังไม่ครบ</p>
-            <p id="audit-count-incomplete" class="font-mono text-2xl font-extrabold text-amber-700 dark:text-amber-300">0</p>
-          </div>
-          <div class="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800">
-            <p class="text-[11px] font-bold text-rose-800 dark:text-rose-300">🔔 แจ้งเตือนขึ้นบัตรแล้ว</p>
-            <p id="audit-count-alerted" class="font-mono text-2xl font-extrabold text-rose-700 dark:text-rose-300">0</p>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex flex-wrap items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-            <button type="button" onclick="switchDocAuditTab('incomplete')" id="audit-tab-incomplete" class="px-3 py-1.5 rounded-lg font-bold bg-orange-600 text-white transition">⚠️ ยังไม่ครบ</button>
-            <button type="button" onclick="switchDocAuditTab('alerted')" id="audit-tab-alerted" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">🔔 แจ้งเตือนแล้ว</button>
-            <button type="button" onclick="switchDocAuditTab('complete')" id="audit-tab-complete" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">✓ ครบแล้ว</button>
-            <button type="button" onclick="switchDocAuditTab('all')" id="audit-tab-all" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">ทั้งหมด</button>
-          </div>
-
-          <input type="text" id="audit-search-input" oninput="renderDocAuditList()" placeholder="ค้นหารหัส, ชื่อ, สังกัด..." class="flex-1 min-w-[180px] max-w-xs px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500" />
-        </div>
-      </div>
-
-      <div id="doc-audit-list" class="p-4 space-y-2.5 overflow-y-auto custom-scroll flex-1 text-xs"></div>
-
-      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
-        <span>เกณฑ์ตรวจสอบอัตโนมัติ: ยืนยันตอบรับ • หนังสือส่งตัว • แจ้งที่พัก 30 พ.ย./1 ธ.ค. • เบอร์โทรศัพท์ • ชื่อผู้แทน (กรณีส่งผู้แทน)</span>
-        <button type="button" onclick="closeDocAuditModal()" class="px-4 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold">ปิดหน้าต่าง</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== SUB-MODAL: ส่ง/แก้ไขข้อความแจ้งเตือนเอกสารขาดขึ้นหน้าบัตร ==================== -->
-  <div id="doc-alert-quick-modal" onclick="closeDocAlertQuickModal()" class="no-print fixed inset-0 z-[60] hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border-2 border-orange-500 flex flex-col max-h-[88vh]">
-      <div class="px-5 py-3.5 bg-gradient-to-r from-orange-600 to-maroon-700 text-white flex items-center justify-between gap-2">
-        <div class="min-w-0">
-          <span id="qa-pid" class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-white/20">KM69-00</span>
-          <h3 id="qa-name" class="font-bold text-sm sm:text-base truncate mt-0.5">แจ้งเตือนเอกสารขาดขึ้นหน้าบัตร</h3>
-        </div>
-        <button type="button" onclick="closeDocAlertQuickModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-4 sm:p-5 space-y-3.5 overflow-y-auto custom-scroll text-xs sm:text-sm">
-        <input type="hidden" id="qa-target-id" />
-
-        <div id="qa-auto-missing-box" class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-1">
-          <p class="text-[11px] font-bold text-amber-900 dark:text-amber-200">ระบบตรวจพบอัตโนมัติ:</p>
-          <div id="qa-auto-missing-tags" class="flex flex-wrap gap-1"></div>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">ติ๊กเลือกรายการเอกสาร/ข้อมูลที่ต้องการแจ้งเตือน:</label>
-          <div id="qa-preset-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5"></div>
-        </div>
-
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">ข้อความเพิ่มเติมถึงผู้เข้าร่วม (ถ้ามี):</label>
-          <textarea id="qa-custom-note" rows="2" oninput="updateQuickDocAlertPreview()" placeholder="เช่น กรุณาแนบไฟล์หนังสือส่งตัวที่มีลายเซ็นก่อนวันที่ 28 พ.ย." class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 space-y-1">
-          <p class="text-[10.5px] font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">ตัวอย่างข้อความที่จะแสดงบนหน้าบัตร E-Pass:</p>
-          <p id="qa-preview-text" class="text-xs font-semibold text-rose-950 dark:text-rose-100 leading-relaxed">(ยังไม่ได้เลือกข้อความแจ้งเตือน)</p>
-        </div>
-      </div>
-
-      <div class="px-5 py-3.5 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onclick="clearDocAlertFromQuickModal()" class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition">
-          ✓ ล้างแจ้งเตือน (ครบแล้ว)
-        </button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button type="button" onclick="closeDocAlertQuickModal()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-medium">ยกเลิก</button>
-          <button type="button" id="qa-save-btn" onclick="saveQuickDocAlert()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition">
-            <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ส่งแจ้งเตือนขึ้นหน้าบัตร
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -832,7 +736,6 @@
           <div id="ev-comments" class="space-y-2 max-h-48 overflow-y-auto custom-scroll"></div>
         </div>
 
-        <!-- โซนล้างข้อมูลทดสอบแบบประเมิน (ล้างทั้งแท็บ Evaluations + คอลัมน์ R ใน Participants พร้อมกัน) -->
         <div class="p-3.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div class="space-y-0.5">
             <p class="font-bold text-rose-900 dark:text-rose-200">ล้างข้อมูลทดสอบแบบประเมินทั้งหมด (ก่อนวันงานจริง)</p>
@@ -973,15 +876,6 @@
       { groupNo: 4, topic: 'การปฏิบัติงานด้านการเงินและงบประมาณ', experts: '' },
       { groupNo: 5, topic: 'ประเด็นข้อโต้แย้งจากประชาชน', experts: '' }
     ];
-    const DOC_ALERT_PRESETS = [
-      { id: 'letter', label: 'ขาดหนังสือส่งตัว (กรุณาแนบไฟล์หรือนำฉบับจริงมาส่ง)', matchKey: 'หนังสือส่งตัว' },
-      { id: 'rsvp', label: 'กรุณายืนยันการตอบรับเข้าร่วมสัมมนา', matchKey: 'ยืนยันการตอบรับ' },
-      { id: 'sub', label: 'กรุณาระบุยศ ชื่อ-สกุล และตำแหน่งผู้แทน', matchKey: 'ผู้แทน' },
-      { id: 'stay', label: 'กรุณาแจ้งความประสงค์เข้าพักคืน 30 พ.ย. / 1 ธ.ค.', matchKey: 'เข้าพัก' },
-      { id: 'phone', label: 'กรุณาระบุเบอร์โทรศัพท์ติดต่อ', matchKey: 'เบอร์โทรศัพท์' },
-      { id: 'plate', label: 'กรุณาระบุเลขทะเบียนรถ (กรณีนำรถมาเอง)', matchKey: '' },
-      { id: 'order', label: 'แนบสำเนาคำสั่ง / เอกสารอนุมัติเดินทางเพิ่มเติม', matchKey: '' }
-    ];
 
     function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -1009,14 +903,22 @@
     let wmDraftAssignments = {};
     let wmActiveTab = 'bygroup';
     let wmQuickPickGroupNo = 1;
-    let docAuditTab = 'incomplete';
 
-    // Scanner State
+    // Audio & Thai TTS State
+    let sharedAudioCtx = null;
+    let preferredThaiVoice = null;
+    let speechDelayTimer = null;
+    window.__activeSpeechUtterance = null;
+
+    // HD QR Scanner State
     let scanStream = null;
     let scanRafId = null;
     let scanActive = false;
     let scanExpanded = false;
     let scanFacingMode = 'environment';
+    let scanSelectedDeviceId = '';
+    let scanAvailableCameras = [];
+    let scanCameraSessionId = 0;
     let scanTorchOn = false;
     let scanConfirmMode = false;
     let scanVoiceEnabled = true;
@@ -1029,13 +931,6 @@
     let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
     let nativeBarcodeDetector = null;
     let isNativeDetecting = false;
-    let scanCameraSessionId = 0;
-    let scanDeviceId = '';
-    let scanAvailableCameras = [];
-    let sharedAudioCtx = null;
-    let cachedThaiVoice = null;
-    let activeSpeechUtterance = null;
-    let speakDelayTimer = null;
 
     // ตรวจสอบว่าเบราว์เซอร์รองรับ Native BarcodeDetector สำหรับ qr_code จริงหรือไม่
     (async function initNativeQrDetector() {
@@ -1050,8 +945,24 @@
             nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
           }
         }
-      } catch (e) { nativeBarcodeDetector = null; }
+      } catch (e) {
+        nativeBarcodeDetector = null;
+      }
     })();
+
+    function loadPreferredThaiVoice() {
+      try {
+        if (!window.speechSynthesis) return;
+        const voices = window.speechSynthesis.getVoices() || [];
+        preferredThaiVoice =
+          voices.find(v => /^th(-|_)?TH$/i.test(v.lang)) ||
+          voices.find(v => String(v.lang || '').toLowerCase().startsWith('th')) ||
+          voices.find(v => /thai|kanya|narisa|niwat|premwadee/i.test(v.name || '')) ||
+          null;
+      } catch (e) {
+        preferredThaiVoice = null;
+      }
+    }
 
     function detectDefaultDay() {
       const now = new Date();
@@ -1067,11 +978,19 @@
         document.documentElement.classList.add('dark');
       }
       if (window.lucide) lucide.createIcons();
-      initThaiSpeechVoices();
+
+      // โหลดรายชื่อเสียงภาษาไทยล่วงหน้าสำหรับ SpeechSynthesis
+      loadPreferredThaiVoice();
+      if (window.speechSynthesis && 'onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadPreferredThaiVoice;
+      }
+
       selectDay(currentDay, false);
       refreshAllData(true);
       startAutoRefresh();
+
       window.addEventListener('pagehide', stopCameraStream);
+      window.addEventListener('beforeunload', stopCameraStream);
 
       document.addEventListener('click', (e) => {
         const rmInp = document.getElementById('ed-roommate');
@@ -1088,13 +1007,7 @@
             closeGroupQuickPickModal();
             return;
           }
-          const qaModal = document.getElementById('doc-alert-quick-modal');
-          if (qaModal && !qaModal.classList.contains('hidden')) {
-            closeDocAlertQuickModal();
-            return;
-          }
           closeEditModal();
-          closeDocAuditModal();
           closeWorkshopManagerModal();
           closeRequestsModal();
           closeEvalSummaryModal();
@@ -1116,7 +1029,7 @@
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       autoRefreshTimer = setInterval(() => {
         if (!autoRefreshEnabled || document.hidden || isMutatingData || Date.now() < pauseAutoRefreshUntil) return;
-        const anyModalOpen = ['edit-modal', 'workshop-manager-modal', 'requests-modal', 'walkin-modal', 'doc-alert-quick-modal', 'eval-modal']
+        const anyModalOpen = ['edit-modal', 'workshop-manager-modal', 'requests-modal', 'walkin-modal', 'eval-modal']
           .some(id => !document.getElementById(id)?.classList.contains('hidden'));
         if (!anyModalOpen) {
           refreshAllData(false);
@@ -1153,6 +1066,41 @@
 
     function hasSubstitute(p) {
       return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
+
+    function matchesStayFilter(p, filterKey) {
+      if (!filterKey || filterKey === 'all') return true;
+      const s30 = p.stay30 === 'พัก';
+      const s1 = p.stay1 === 'พัก';
+      const n30 = p.stay30 === 'ไม่พัก';
+      const n1 = p.stay1 === 'ไม่พัก';
+      if (filterKey === 'any_stay') return s30 || s1;
+      if (filterKey === 'both') return s30 && s1;
+      if (filterKey === 'stay30') return s30;
+      if (filterKey === 'stay1') return s1;
+      if (filterKey === 'only30') return s30 && !s1;
+      if (filterKey === 'only1') return !s30 && s1;
+      if (filterKey === 'none') return n30 && n1;
+      if (filterKey === 'unspecified') return !p.stay30 || !p.stay1;
+      return true;
+    }
+
+    function getStayStatusBadgeHtml(p) {
+      const s30 = p.stay30 === 'พัก';
+      const s1 = p.stay1 === 'พัก';
+      if (s30 && s1) {
+        return `<span class="px-1.5 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-bold">🌙 พัก 2 คืน</span>`;
+      }
+      if (s30) {
+        return `<span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 text-[10px] font-bold">🛏️ พัก 30 พ.ย.</span>`;
+      }
+      if (s1) {
+        return `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-800 border border-indigo-200 text-[10px] font-bold">🛏️ พัก 1 ธ.ค.</span>`;
+      }
+      if (p.stay30 === 'ไม่พัก' && p.stay1 === 'ไม่พัก') {
+        return `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">ไม่พัก</span>`;
+      }
+      return `<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold">ยังไม่ระบุที่พัก</span>`;
     }
 
     function getParticipantCompleteness(p) {
@@ -1258,9 +1206,6 @@
         updateKpis();
         renderCurrentView();
         updateScannerPaceBar();
-        if (!document.getElementById('doc-audit-modal')?.classList.contains('hidden')) {
-          renderDocAuditList();
-        }
       } catch (err) {
         if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block';
         if (syncTxt) syncTxt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
@@ -1360,6 +1305,9 @@
       const subs = participants.filter(p => p.rsvp === 'ส่งผู้แทนเข้าร่วม').length;
       const stay30 = participants.filter(p => p.stay30 === 'พัก').length;
       const stay1 = participants.filter(p => p.stay1 === 'พัก').length;
+      const stayAny = participants.filter(p => p.stay30 === 'พัก' || p.stay1 === 'พัก').length;
+      const stayNone = participants.filter(p => p.stay30 === 'ไม่พัก' && p.stay1 === 'ไม่พัก').length;
+      const stayUnspec = participants.filter(p => !p.stay30 || !p.stay1).length;
       const halal = participants.filter(p => p.food && p.food.includes('ฮาลาล')).length;
       const letters = participants.filter(p => p.officialLetter === 'ส่งแล้ว' || Boolean(p.letterUrl)).length;
 
@@ -1369,6 +1317,8 @@
       document.getElementById('kpi-pct').textContent = `${pct}%`;
       document.getElementById('kpi-sub').textContent = subs;
       document.getElementById('kpi-stay').textContent = `${stay30} / ${stay1}`;
+      const staySubEl = document.getElementById('kpi-stay-sub');
+      if (staySubEl) staySubEl.textContent = `เข้าพัก ${stayAny} • ไม่พัก ${stayNone} • รอระบุ ${stayUnspec}`;
       document.getElementById('kpi-food-letter').textContent = `${halal} / ${letters}`;
 
       const incompleteCount = participants.filter(p => !getParticipantCompleteness(p).isComplete).length;
@@ -1383,11 +1333,13 @@
       const q = String(document.getElementById('search-input')?.value || '').trim().toLowerCase();
       const unit = document.getElementById('filter-unit')?.value || 'all';
       const rsvp = document.getElementById('filter-rsvp')?.value || 'all';
+      const stayFilter = document.getElementById('filter-stay')?.value || 'all';
       const docFilter = document.getElementById('filter-doc')?.value || 'all';
 
       return participants.filter(p => {
         if (unit !== 'all' && p.mainUnit !== unit) return false;
         if (rsvp !== 'all' && p.rsvp !== rsvp) return false;
+        if (!matchesStayFilter(p, stayFilter)) return false;
         if (docFilter !== 'all') {
           const comp = getParticipantCompleteness(p);
           if (docFilter === 'complete' && !comp.isComplete) return false;
@@ -1452,6 +1404,7 @@
               <span class="font-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded ${checked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-navy-700'}">${escapeHtml(p.id)}</span>
               <span class="text-[11px] font-semibold text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
               ${wsBadge}
+              ${getStayStatusBadgeHtml(p)}
               ${docStatusBadge}
               ${p.roomNo ? `<span class="px-1.5 py-0.5 rounded bg-sky-50 text-sky-800 text-[10px] font-bold">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}
               ${p.food && p.food !== 'อาหารทั่วไป' ? `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">${escapeHtml(p.food)}</span>` : ''}
@@ -1472,13 +1425,13 @@
                 เช็กอิน
               </button>
             `}
-            <button type="button" onclick="openDocAlertQuickModal('${escapeHtml(p.id)}')" title="แจ้งเตือนเอกสารขาดขึ้นหน้าบัตร" class="p-1.5 rounded-lg ${comp.hasStaffAlert ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : (!comp.isComplete ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')} transition">
+            <button type="button" onclick="openDocAlertQuickModal('${escapeHtml(p.id)}')" title="แจ้งเตือนเอกสารขาดขึ้นหน้าบัตร (summary.html)" class="p-1.5 rounded-lg ${comp.hasStaffAlert ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : (!comp.isComplete ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')} transition">
               <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
             </button>
             <a href="portal.html?id=${encodeURIComponent(p.id)}&staff=1" target="_blank" title="เปิดหน้าบัตร E-Pass รายนี้ (โหมดเจ้าหน้าที่)" class="p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition">
               <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
             </a>
-            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="แสดง QR บัตร" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+            <button type="button" onclick="openPersonQrModal('${escapeHtml(p.id)}')" title="แสดง QR บัตรเฉพาะบุคคล" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
             </button>
             <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" title="แก้ไขข้อมูล" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
@@ -1509,7 +1462,10 @@
             <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(p.unitDetail || p.mainUnit)}</td>
             <td class="py-2.5 px-3">${p.workshopGroup ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 font-bold text-[10.5px]">${String(p.workshopRole).includes('ผู้เชี่ยวชาญ') ? `⭐ ผู้เชี่ยวชาญ ก.${p.workshopGroup}` : `กลุ่ม ${p.workshopGroup}`}</span>` : '-'}</td>
             <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-[10.5px]">${escapeHtml(p.rsvp)}</span></td>
-            <td class="py-2.5 px-3 text-[11px]">${p.roomNo ? `ห้อง ${escapeHtml(p.roomNo)}` : '-'} ${p.roommate ? `<div class="text-slate-400">คู่: ${escapeHtml(p.roommate)}</div>` : ''}</td>
+            <td class="py-2.5 px-3 text-[11px] space-y-0.5">
+              <div>${getStayStatusBadgeHtml(p)} ${p.roomNo ? `<span class="font-mono font-bold text-sky-700 ml-1">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}</div>
+              ${p.roommate ? `<div class="text-slate-400">คู่: ${escapeHtml(p.roommate)}</div>` : ''}
+            </td>
             <td class="py-2.5 px-3 text-[11px] space-y-0.5">
               <div>${escapeHtml(p.food)} ${p.letterUrl ? `• <a href="${escapeHtml(p.letterUrl)}" target="_blank" class="text-emerald-700 font-bold hover:underline">📎 หนังสือส่งตัว</a>` : ''}</div>
               ${comp.isComplete
@@ -1549,7 +1505,6 @@
       const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
       const activeName = hasSubstitute(target) ? target.substituteName : target.fullName;
 
-      // อัปเดตหน้าจอทันที (Optimistic UI)
       target[currentDay] = isUndo ? '' : nowTime;
       lastParticipantsSnapshot = JSON.stringify(participants);
       pauseAutoRefreshUntil = Date.now() + 6000;
@@ -1588,13 +1543,23 @@
       }
     }
 
-    // ==================== HD QR SCANNER (OPTIMIZED CPU) ====================
+    // ==================== HD QR SCANNER (RELIABLE CAMERA + THAI VOICE) ====================
+    function unlockAudioContext() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
+        if (sharedAudioCtx.state === 'suspended') {
+          sharedAudioCtx.resume().catch(() => {});
+        }
+      } catch (e) {}
+    }
+
     function openScannerPanel() {
+      unlockAudioContext();
       document.getElementById('scanner-panel').classList.remove('hidden');
       updateScannerPaceBar();
-      // เปิดกล้องทันทีในจังหวะคลิกโดยไม่เรียก speechSynthesis ซ้อนพร้อมกัน เพื่อไม่ให้ขัดจังหวะกล้องบนมือถือ
       startCameraStream();
-      unlockScannerAudioAndSpeech();
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1607,73 +1572,83 @@
       scanExpanded = !scanExpanded;
       const panel = document.getElementById('scanner-panel');
       const vp = document.getElementById('scanner-viewport');
-      const btn = document.getElementById('btn-scan-expand');
       if (scanExpanded) {
         panel.className = 'no-print fixed inset-3 sm:inset-6 z-50 bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/80 overflow-hidden flex flex-col transition-all duration-200';
-        if (vp) vp.className = 'relative bg-black flex-1 min-h-0 w-full overflow-hidden flex items-center justify-center';
-        if (btn) btn.innerHTML = '<i data-lucide="minimize-2" class="w-3.5 h-3.5"></i>';
+        if (vp) vp.className = 'relative bg-black flex-1 min-h-[240px] w-full overflow-hidden flex items-center justify-center';
       } else {
-        panel.className = 'no-print fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200';
+        panel.className = 'no-print fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] max-h-[92vh] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200';
         if (vp) vp.className = 'relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center';
-        if (btn) btn.innerHTML = '<i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>';
       }
-      if (window.lucide) lucide.createIcons();
     }
 
-    function showCameraErrorOverlay(title, desc) {
-      const box = document.getElementById('scan-camera-error');
-      const titleEl = document.getElementById('scan-camera-error-title');
-      const descEl = document.getElementById('scan-camera-error-desc');
+    function showScannerErrorOverlay(msg) {
+      const box = document.getElementById('scan-camera-error-box');
+      const msgEl = document.getElementById('scan-camera-error-msg');
       const statusEl = document.getElementById('scan-camera-status');
-      if (titleEl) titleEl.textContent = title || 'ไม่สามารถเปิดกล้องได้';
-      if (descEl) descEl.textContent = desc || '';
+      if (msgEl) msgEl.textContent = msg;
       if (box) box.classList.remove('hidden');
-      if (statusEl) statusEl.textContent = title || 'เปิดกล้องไม่สำเร็จ';
+      if (statusEl) statusEl.textContent = 'กล้องไม่พร้อมใช้งาน';
       if (window.lucide) lucide.createIcons();
     }
 
-    function hideCameraErrorOverlay() {
-      document.getElementById('scan-camera-error')?.classList.add('hidden');
+    function hideScannerErrorOverlay() {
+      document.getElementById('scan-camera-error-box')?.classList.add('hidden');
+    }
+
+    async function refreshAvailableCameras(activeDeviceId = '') {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        scanAvailableCameras = devices.filter(d => d.kind === 'videoinput');
+        const bar = document.getElementById('scan-device-bar');
+        const sel = document.getElementById('scan-camera-select');
+        if (!bar || !sel) return;
+
+        if (scanAvailableCameras.length > 1) {
+          sel.innerHTML = scanAvailableCameras.map((d, idx) =>
+            `<option value="${escapeHtml(d.deviceId)}" ${d.deviceId === activeDeviceId ? 'selected' : ''}>${escapeHtml(d.label || `กล้องที่ ${idx + 1}`)}</option>`
+          ).join('');
+          bar.classList.remove('hidden');
+        } else {
+          bar.classList.add('hidden');
+        }
+      } catch (e) {}
+    }
+
+    function selectScannerDevice(deviceId) {
+      scanSelectedDeviceId = deviceId || '';
+      startCameraStream();
     }
 
     async function startCameraStream() {
-      stopCameraStream();
       const sessionId = ++scanCameraSessionId;
+      stopCameraStream(false);
+      hideScannerErrorOverlay();
+
       const statusEl = document.getElementById('scan-camera-status');
       const video = document.getElementById('scan-video');
-      hideCameraErrorOverlay();
       if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง...';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        const isHttps = window.location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(window.location.hostname);
-        showCameraErrorOverlay(
-          isHttps ? 'เบราว์เซอร์ไม่รองรับการเปิดกล้อง' : 'กล้องต้องเปิดผ่านลิงก์ HTTPS',
-          isHttps
-            ? 'แนะนำเปิดผ่าน Chrome / Safari โดยตรง หรือใช้พิมพ์รหัส KM69-XX และปุ่มเลือกรูปภาพด้านล่างแทน'
-            : 'กรุณาเปิดหน้าเว็บผ่าน GitHub Pages (https://...) เพื่อให้เบราว์เซอร์อนุญาตเปิดกล้อง'
-        );
+        showScannerErrorOverlay('เบราว์เซอร์ไม่รองรับกล้อง (ต้องเปิดผ่าน HTTPS เช่น GitHub Pages) — สามารถพิมพ์รหัสหรือเลือกรูปด้านล่างได้ทันที');
         return;
       }
 
-      // ลำดับการขอเปิดกล้องแบบ Fallback (ยึดรูปแบบเดิมที่เปิดติดไวสุดเป็นอันดับแรก)
-      const constraintSteps = scanDeviceId
-        ? [
-            { video: { deviceId: { exact: scanDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-            { video: { deviceId: { exact: scanDeviceId } }, audio: false },
-            { video: true, audio: false }
-          ]
-        : [
-            { video: { facingMode: scanFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
-            { video: { facingMode: { ideal: scanFacingMode } }, audio: false },
-            { video: true, audio: false }
-          ];
+      const constraintCandidates = [];
+      if (scanSelectedDeviceId) {
+        constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId } }, audio: false });
+      }
+      constraintCandidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      constraintCandidates.push({ video: { facingMode: scanFacingMode }, audio: false });
+      constraintCandidates.push({ video: true, audio: false });
 
-      let acquiredStream = null;
+      let stream = null;
       let lastErr = null;
-      for (const constraints of constraintSteps) {
+      for (const constraints of constraintCandidates) {
         try {
-          acquiredStream = await navigator.mediaDevices.getUserMedia(constraints);
-          if (acquiredStream) break;
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          if (stream) break;
         } catch (err) {
           lastErr = err;
           if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
@@ -1682,99 +1657,47 @@
         }
       }
 
-      // หากผู้ใช้ปิดหน้าต่างหรือกดสลับกล้องระหว่างรอ ให้ปิดสตรีมเก่าทิ้งทันที
+      // ป้องกันการเปิดซ้อนกรณีผู้ใช้ปิดหน้าต่างหรือกดสลับกล้องระหว่างรอ
       if (sessionId !== scanCameraSessionId) {
-        if (acquiredStream) acquiredStream.getTracks().forEach(t => t.stop());
+        if (stream) stream.getTracks().forEach(t => t.stop());
         return;
       }
 
-      if (!acquiredStream) {
-        const errName = lastErr ? lastErr.name : '';
-        if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
-          showCameraErrorOverlay(
-            'ยังไม่ได้อนุญาตสิทธิ์ใช้งานกล้อง',
-            'กรุณากดที่รูปกุญแจ/การตั้งค่าหน้าช่อง URL แล้วเลือก "อนุญาตกล้อง (Allow)" จากนั้นกดลองใหม่'
-          );
-        } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
-          showCameraErrorOverlay(
-            'ไม่พบอุปกรณ์กล้องในเครื่องนี้',
-            'กรุณาตรวจสอบการเชื่อมต่อกล้อง หรือใช้พิมพ์รหัส / เลือกรูป QR จากเครื่องด้านล่างแทน'
-          );
-        } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
-          showCameraErrorOverlay(
-            'กล้องถูกแอปหรือแท็บอื่นใช้งานอยู่',
-            'กรุณาปิดโปรแกรมหรือแท็บอื่นที่ใช้กล้องอยู่ แล้วกดลองเปิดกล้องอีกครั้ง'
-          );
-        } else {
-          showCameraErrorOverlay(
-            'เปิดกล้องไม่สำเร็จ',
-            `${errName || 'ไม่ทราบสาเหตุ'} — หากเปิดในหน้าต่างพรีวิวหรือแอป LINE แนะนำเปิดผ่าน Safari / Chrome โดยตรง`
-          );
+      if (!stream) {
+        let friendly = 'เปิดกล้องไม่สำเร็จ กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์';
+        if (lastErr) {
+          if (lastErr.name === 'NotAllowedError' || lastErr.name === 'PermissionDeniedError') {
+            friendly = 'ยังไม่ได้อนุญาตสิทธิ์เข้าถึงกล้อง กรุณากดรูปกุญแจข้างช่อง URL แล้วอนุญาตกล้อง จากนั้นกดลองใหม่';
+          } else if (lastErr.name === 'NotFoundError' || lastErr.name === 'DevicesNotFoundError') {
+            friendly = 'ไม่พบอุปกรณ์กล้องบนเครื่องนี้ (สามารถพิมพ์รหัสหรืออัปโหลดรูป QR ด้านล่างแทนได้)';
+          } else if (lastErr.name === 'NotReadableError' || lastErr.name === 'TrackStartError') {
+            friendly = 'กล้องกำลังถูกใช้งานโดยแอปหรือแท็บอื่นอยู่ กรุณาปิดแอปอื่นแล้วกดลองใหม่';
+          }
         }
+        showScannerErrorOverlay(friendly);
         return;
       }
 
-      scanStream = acquiredStream;
+      scanStream = stream;
+      video.srcObject = stream;
+      video.setAttribute('playsinline', 'true');
       video.muted = true;
-      video.playsInline = true;
-      video.srcObject = scanStream;
+      // เรียก play() ทันทีและไม่ถือว่า AbortError เป็นความล้มเหลวของกล้อง
+      video.play().catch(() => {});
 
-      // สั่งเล่นวิดีโอทันทีโดยไม่หน่วงรอ loadedmetadata และไม่แสดงหน้า Error หากเกิด AbortError จาก autoplay
-      try {
-        await video.play();
-      } catch (playErr) {
-        if (playErr && playErr.name !== 'AbortError') {
-          // ลองสั่งเล่นซ้ำอีกครั้งหลังมีข้อมูลเฟรมพร้อม
-          video.onloadedmetadata = () => {
-            video.play().catch(() => {});
-          };
-        }
-      }
+      const activeTrack = stream.getVideoTracks()[0];
+      const activeSettings = activeTrack && activeTrack.getSettings ? activeTrack.getSettings() : {};
+      refreshAvailableCameras(activeSettings.deviceId || scanSelectedDeviceId);
 
-      if (sessionId !== scanCameraSessionId) return;
       scanActive = true;
       if (statusEl) statusEl.textContent = 'สแกนได้ทั่วทั้งหน้าจอกล้อง (ไม่ต้องเล็งเข้ากรอบ)';
       scanRafId = requestAnimationFrame(scanVideoLoop);
-      populateScannerCameraList();
     }
 
-    async function populateScannerCameraList() {
-      try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        scanAvailableCameras = devices.filter(d => d.kind === 'videoinput');
-        const sel = document.getElementById('scan-camera-select');
-        if (!sel) return;
-
-        if (scanAvailableCameras.length <= 1) {
-          sel.classList.add('hidden');
-          return;
-        }
-
-        const activeTrack = scanStream ? scanStream.getVideoTracks()[0] : null;
-        const activeId = (activeTrack && activeTrack.getSettings && activeTrack.getSettings().deviceId) || scanDeviceId || '';
-
-        sel.innerHTML = scanAvailableCameras.map((cam, idx) => {
-          const label = cam.label || `กล้องตัวที่ ${idx + 1}`;
-          return `<option value="${escapeHtml(cam.deviceId)}" ${cam.deviceId === activeId ? 'selected' : ''}>📷 ${escapeHtml(label)}</option>`;
-        }).join('');
-        sel.classList.remove('hidden');
-      } catch (e) {}
-    }
-
-    function onScannerDeviceChange(newDeviceId) {
-      scanDeviceId = newDeviceId || '';
-      startCameraStream();
-    }
-
-    function stopCameraStream() {
-      scanCameraSessionId++;
+    function stopCameraStream(bumpSession = true) {
+      if (bumpSession) scanCameraSessionId++;
       scanActive = false;
       scanTorchOn = false;
-      const torchBtn = document.getElementById('btn-scan-torch');
-      if (torchBtn) {
-        torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
-      }
       if (scanRafId) {
         cancelAnimationFrame(scanRafId);
         scanRafId = null;
@@ -1782,22 +1705,22 @@
       if (scanStream) {
         scanStream.getTracks().forEach(t => t.stop());
         scanStream = null;
-        const video = document.getElementById('scan-video');
-        if (video) {
-          video.srcObject = null;
-        }
+      }
+      const video = document.getElementById('scan-video');
+      if (video) video.srcObject = null;
+      const torchBtn = document.getElementById('btn-scan-torch');
+      if (torchBtn) {
+        torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
       }
     }
 
     function switchScannerCamera() {
       if (scanAvailableCameras.length > 1) {
-        const activeTrack = scanStream ? scanStream.getVideoTracks()[0] : null;
-        const activeId = (activeTrack && activeTrack.getSettings && activeTrack.getSettings().deviceId) || scanDeviceId;
-        const curIdx = scanAvailableCameras.findIndex(c => c.deviceId === activeId);
-        const nextCam = scanAvailableCameras[(curIdx + 1) % scanAvailableCameras.length];
-        scanDeviceId = nextCam ? nextCam.deviceId : '';
+        const curIdx = scanAvailableCameras.findIndex(d => d.deviceId === scanSelectedDeviceId);
+        const nextCam = scanAvailableCameras[(curIdx + 1 + scanAvailableCameras.length) % scanAvailableCameras.length];
+        scanSelectedDeviceId = nextCam.deviceId;
       } else {
-        scanDeviceId = '';
+        scanSelectedDeviceId = '';
         scanFacingMode = scanFacingMode === 'environment' ? 'user' : 'environment';
       }
       startCameraStream();
@@ -1844,6 +1767,7 @@
     }
 
     function toggleScannerVoice() {
+      unlockAudioContext();
       scanVoiceEnabled = !scanVoiceEnabled;
       const btn = document.getElementById('btn-scan-voice');
       if (btn) {
@@ -1854,29 +1778,26 @@
         if (window.lucide) lucide.createIcons();
       }
       if (scanVoiceEnabled) {
-        unlockScannerAudioAndSpeech();
         speakWelcome('เปิดเสียงพูดต้อนรับแล้วครับ');
-      } else {
-        try { window.speechSynthesis?.cancel(); } catch (e) {}
       }
       showToast(scanVoiceEnabled ? 'เปิดเสียงพูดต้อนรับแล้ว' : 'ปิดเสียงพูดต้อนรับแล้ว', 'info');
     }
 
-    // สแกน QR ได้ทั่วทั้งหน้าจอกล้อง (ใช้ Native BarcodeDetector ของเครื่องคู่กับ jsQR เต็มเฟรมสลับซูมกลาง ไม่หน่วง CPU)
+    // ลูปสแกน QR แบบ Hybrid 3 จังหวะ (Native BarcodeDetector + jsQR เต็มเฟรม + jsQR ซูมกลาง)
     function scanVideoLoop(nowTs) {
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
 
-      if (nowTs - scanLastDecodeTs < 140) return;
+      if (nowTs - scanLastDecodeTs < 150) return;
       scanLastDecodeTs = nowTs;
 
       const video = document.getElementById('scan-video');
-      if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
+      if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight) return;
 
       scanPassToggle = (scanPassToggle + 1) % 3;
 
-      // 1. ใช้ Native BarcodeDetector ในรอบ 0 (และให้ jsQR เต็มเฟรมในรอบ 1 + ซูมกลางในรอบ 2 เพื่อให้สแกนติดไวครบทุกมุมกล้อง)
-      if (nativeBarcodeDetector && !isNativeDetecting && scanPassToggle === 0) {
+      // จังหวะที่ 0: ใช้ Native BarcodeDetector แบบไม่บล็อก jsQR
+      if (scanPassToggle === 0 && nativeBarcodeDetector && !isNativeDetecting) {
         isNativeDetecting = true;
         nativeBarcodeDetector.detect(video).then(barcodes => {
           if (scanActive && barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
@@ -1890,13 +1811,12 @@
         return;
       }
 
-      // 2. อ่านด้วย jsQR: สลับสแกนเต็มหน้าจอกล้อง 100% กับรอบเสริมซูมกลางสำหรับ QR ขนาดเล็ก
       if (typeof jsQR === 'undefined') return;
       const vw = video.videoWidth;
       const vh = video.videoHeight;
-      if (!vw || !vh) return;
 
       if (scanPassToggle !== 2) {
+        // สแกนเต็มเฟรมทุกมุมจอ
         const maxW = 540;
         const scale = Math.min(1, maxW / Math.max(vw, vh));
         const tw = Math.max(1, Math.round(vw * scale));
@@ -1911,6 +1831,7 @@
           handleDecodedQr(code.data);
         }
       } else {
+        // ซูมกลางเฟรมสำหรับ QR ขนาดเล็ก
         const cropSize = Math.min(vw, vh) * 0.72;
         const sx = (vw - cropSize) / 2;
         const sy = (vh - cropSize) / 2;
@@ -1920,7 +1841,7 @@
         scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, targetSize, targetSize);
 
         const imgData = scanOffscreenCtx.getImageData(0, 0, targetSize, targetSize);
-        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'attemptBoth' });
+        const code = jsQR(imgData.data, targetSize, targetSize, { inversionAttempts: 'dontInvert' });
         if (code && code.data) {
           handleDecodedQr(code.data);
         }
@@ -1995,7 +1916,6 @@
 
     function confirmPendingScan() {
       if (!scanPendingPerson) return;
-      unlockScannerAudioAndSpeech();
       const p = scanPendingPerson;
       scanPendingPerson = null;
       document.getElementById('scan-confirm-box').classList.add('hidden');
@@ -2031,7 +1951,7 @@
 
     function handleManualQrSubmit(e) {
       e.preventDefault();
-      unlockScannerAudioAndSpeech();
+      unlockAudioContext();
       const inp = document.getElementById('manual-qr-input');
       const val = inp.value.trim();
       if (!val) return;
@@ -2041,7 +1961,7 @@
     }
 
     function handleQrImageUpload(e) {
-      unlockScannerAudioAndSpeech();
+      unlockAudioContext();
       const file = e.target.files && e.target.files[0];
       e.target.value = '';
       if (!file || typeof jsQR === 'undefined') return;
@@ -2078,79 +1998,11 @@
       el.textContent = `เช็กอินแล้ว ${checked}/${total} ราย • เหลือ ${total - checked} ราย`;
     }
 
-    function initThaiSpeechVoices() {
-      try {
-        if (!window.speechSynthesis) return;
-        const pickVoice = () => {
-          const voices = window.speechSynthesis.getVoices() || [];
-          cachedThaiVoice =
-            voices.find(v => v.lang && v.lang.toLowerCase() === 'th-th') ||
-            voices.find(v => v.lang && v.lang.toLowerCase().startsWith('th')) ||
-            voices.find(v => v.name && /thai|ไทย|kanya|niwat|premwadee/i.test(v.name)) ||
-            null;
-        };
-        pickVoice();
-        if (typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
-          window.speechSynthesis.onvoiceschanged = pickVoice;
-        }
-      } catch (e) {}
-    }
-
-    function unlockScannerAudioAndSpeech() {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtx) {
-          if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
-          if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume().catch(() => {});
-        }
-      } catch (e) {}
-
-      try {
-        if (window.speechSynthesis) {
-          initThaiSpeechVoices();
-          window.speechSynthesis.resume();
-        }
-      } catch (e) {}
-    }
-
-    function expandThaiRanksForSpeech(text) {
-      const rankMap = [
-        [/พล\.ต\.อ\./g, 'พลตำรวจเอก '],
-        [/พล\.ต\.ท\./g, 'พลตำรวจโท '],
-        [/พล\.ต\.ต\./g, 'พลตำรวจตรี '],
-        [/พ\.ต\.อ\.หญิง/g, 'พันตำรวจเอกหญิง '],
-        [/พ\.ต\.ท\.หญิง/g, 'พันตำรวจโทหญิง '],
-        [/พ\.ต\.ต\.หญิง/g, 'พันตำรวจตรีหญิง '],
-        [/ร\.ต\.อ\.หญิง/g, 'ร้อยตำรวจเอกหญิง '],
-        [/ร\.ต\.ท\.หญิง/g, 'ร้อยตำรวจโทหญิง '],
-        [/ร\.ต\.ต\.หญิง/g, 'ร้อยตำรวจตรีหญิง '],
-        [/พ\.ต\.อ\./g, 'พันตำรวจเอก '],
-        [/พ\.ต\.ท\./g, 'พันตำรวจโท '],
-        [/พ\.ต\.ต\./g, 'พันตำรวจตรี '],
-        [/ร\.ต\.อ\./g, 'ร้อยตำรวจเอก '],
-        [/ร\.ต\.ท\./g, 'ร้อยตำรวจโท '],
-        [/ร\.ต\.ต\./g, 'ร้อยตำรวจตรี '],
-        [/ด\.ต\./g, 'ดาบตำรวจ '],
-        [/จ\.ส\.ต\./g, 'จ่าสิบตำรวจ '],
-        [/ส\.ต\.อ\./g, 'สิบตำรวจเอก '],
-        [/ส\.ต\.ท\./g, 'สิบตำรวจโท '],
-        [/ส\.ต\.ต\./g, 'สิบตำรวจตรี ']
-      ];
-      let out = String(text || '');
-      rankMap.forEach(([pattern, full]) => {
-        out = out.replace(pattern, full);
-      });
-      return out.replace(/\s+/g, ' ').trim();
-    }
-
     function playBeep(type = 'success') {
       try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
-        if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume().catch(() => {});
-
-        const ctx = sharedAudioCtx;
+        unlockAudioContext();
+        const ctx = sharedAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        sharedAudioCtx = ctx;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
@@ -2164,35 +2016,50 @@
       } catch (e) {}
     }
 
+    function expandThaiPoliceRankForSpeech(text) {
+      const rankMap = [
+        [/พล\.ต\.อ\./g, 'พลตำรวจเอก '],
+        [/พล\.ต\.ท\./g, 'พลตำรวจโท '],
+        [/พล\.ต\.ต\./g, 'พลตำรวจตรี '],
+        [/พ\.ต\.อ\./g, 'พันตำรวจเอก '],
+        [/พ\.ต\.ท\./g, 'พันตำรวจโท '],
+        [/พ\.ต\.ต\./g, 'พันตำรวจตรี '],
+        [/ร\.ต\.อ\./g, 'ร้อยตำรวจเอก '],
+        [/ร\.ต\.ท\./g, 'ร้อยตำรวจโท '],
+        [/ร\.ต\.ต\./g, 'ร้อยตำรวจตรี '],
+        [/ด\.ต\./g, 'ดาบตำรวจ '],
+        [/จ\.ส\.ต\./g, 'จ่าสิบตำรวจ '],
+        [/ส\.ต\.อ\./g, 'สิบตำรวจเอก '],
+        [/ส\.ต\.ท\./g, 'สิบตำรวจโท '],
+        [/ส\.ต\.ต\./g, 'สิบตำรวจตรี ']
+      ];
+      let out = String(text || '');
+      rankMap.forEach(([rx, full]) => { out = out.replace(rx, full); });
+      return out.replace(/\s+/g, ' ').trim();
+    }
+
     function speakWelcome(text) {
       try {
         if (!window.speechSynthesis || !text) return;
-        if (speakDelayTimer) {
-          clearTimeout(speakDelayTimer);
-          speakDelayTimer = null;
-        }
-        const synth = window.speechSynthesis;
-        if (!cachedThaiVoice) initThaiSpeechVoices();
-        if (synth.speaking || synth.pending) {
-          synth.cancel();
-        }
-        synth.resume();
+        if (!preferredThaiVoice) loadPreferredThaiVoice();
+        if (speechDelayTimer) clearTimeout(speechDelayTimer);
 
-        // หน่วง 120ms เพื่อเลี่ยงบั๊ก Chrome ที่กลืนเสียงเมื่อเรียก speak() ติดหลัง cancel() และไม่ให้ทับเสียงบี๊บ
-        const spokenText = expandThaiRanksForSpeech(text);
-        speakDelayTimer = setTimeout(() => {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+        // หน่วง 120ms หลัง cancel เพื่อแก้บั๊ก Chrome ตัดเสียงทิ้งและไม่ทับเสียงติ๊ด
+        speechDelayTimer = setTimeout(() => {
           try {
+            const spokenText = expandThaiPoliceRankForSpeech(text);
             const u = new SpeechSynthesisUtterance(spokenText);
             u.lang = 'th-TH';
-            if (cachedThaiVoice) u.voice = cachedThaiVoice;
+            if (preferredThaiVoice) u.voice = preferredThaiVoice;
             u.rate = 1.02;
-            u.pitch = 1.0;
             u.volume = 1.0;
-            activeSpeechUtterance = u; // เก็บอ้างอิงไว้กันเบราว์เซอร์ตัดเสียงก่อนพูดจบ
-            u.onend = () => { activeSpeechUtterance = null; };
-            u.onerror = () => { activeSpeechUtterance = null; };
-            synth.resume();
-            synth.speak(u);
+            window.__activeSpeechUtterance = u;
+            u.onend = () => { window.__activeSpeechUtterance = null; };
+            u.onerror = () => { window.__activeSpeechUtterance = null; };
+            window.speechSynthesis.speak(u);
           } catch (e) {}
         }, 120);
       } catch (e) {}
@@ -2344,7 +2211,6 @@
         fileData: fileData
       };
 
-      // Optimistic Update
       const localTarget = participants.find(x => x.id === payload.id);
       if (localTarget) {
         Object.assign(localTarget, {
@@ -2373,9 +2239,6 @@
         pauseAutoRefreshUntil = Date.now() + 7000;
         updateKpis();
         renderCurrentView();
-        if (!document.getElementById('doc-audit-modal')?.classList.contains('hidden')) {
-          renderDocAuditList();
-        }
       }
 
       btn.disabled = true;
@@ -2399,237 +2262,22 @@
       }
     }
 
-    // ==================== DOC COMPLETENESS AUDIT & QUICK ALERT ON E-PASS ====================
+    // ==================== DOC AUDIT & HOTEL SUMMARY (แยกไปหน้า summary.html) ====================
     function openDocAuditModal() {
-      document.getElementById('audit-search-input').value = '';
-      switchDocAuditTab(docAuditTab || 'incomplete');
-      document.getElementById('doc-audit-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function closeDocAuditModal() {
-      document.getElementById('doc-audit-modal')?.classList.add('hidden');
-    }
-
-    function switchDocAuditTab(tab) {
-      docAuditTab = tab;
-      const tabs = [
-        { key: 'incomplete', activeCls: 'px-3 py-1.5 rounded-lg font-bold bg-orange-600 text-white transition' },
-        { key: 'alerted', activeCls: 'px-3 py-1.5 rounded-lg font-bold bg-rose-600 text-white transition' },
-        { key: 'complete', activeCls: 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition' },
-        { key: 'all', activeCls: 'px-3 py-1.5 rounded-lg font-bold bg-navy-700 text-white transition' }
-      ];
-      tabs.forEach(t => {
-        const el = document.getElementById(`audit-tab-${t.key}`);
-        if (!el) return;
-        el.className = t.key === tab
-          ? t.activeCls
-          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 transition';
-      });
-      renderDocAuditList();
-    }
-
-    function renderDocAuditList() {
-      const box = document.getElementById('doc-audit-list');
-      if (!box) return;
-
-      const withAudit = participants.map(p => ({ p, comp: getParticipantCompleteness(p) }));
-      document.getElementById('audit-count-complete').textContent = withAudit.filter(x => x.comp.isComplete).length;
-      document.getElementById('audit-count-incomplete').textContent = withAudit.filter(x => !x.comp.isComplete).length;
-      document.getElementById('audit-count-alerted').textContent = withAudit.filter(x => x.comp.hasStaffAlert).length;
-
-      const q = String(document.getElementById('audit-search-input')?.value || '').trim().toLowerCase();
-      const filtered = withAudit.filter(({ p, comp }) => {
-        if (docAuditTab === 'incomplete' && comp.isComplete) return false;
-        if (docAuditTab === 'complete' && !comp.isComplete) return false;
-        if (docAuditTab === 'alerted' && !comp.hasStaffAlert) return false;
-        if (!q) return true;
-        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${comp.missing.join(' ')} ${comp.staffAlert}`.toLowerCase().includes(q);
-      });
-
-      if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-12 text-center text-slate-400 font-medium">ไม่พบรายชื่อในหมวดที่เลือก</div>`;
-        return;
-      }
-
-      box.innerHTML = filtered.map(({ p, comp }) => {
-        const name = hasSubstitute(p) ? p.substituteName : p.fullName;
-        return `
-          <div class="p-3.5 rounded-2xl border ${comp.hasStaffAlert ? 'bg-rose-50/60 dark:bg-rose-950/25 border-rose-300 dark:border-rose-800' : (!comp.isComplete ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800' : 'bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800')} flex flex-wrap items-start justify-between gap-3">
-            <div class="min-w-0 flex-1 space-y-1.5">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="font-mono font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-navy-700 dark:text-blue-200">${escapeHtml(p.id)}</span>
-                <strong class="text-sm text-slate-900 dark:text-white">${escapeHtml(name)}</strong>
-                <span class="text-[11px] text-slate-500">• ${escapeHtml(p.unitDetail || p.mainUnit)}</span>
-                ${comp.isComplete
-                  ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">✓ ครบถ้วนแล้ว</span>`
-                  : `<span class="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold">⚠️ ยังไม่ครบ (${comp.missing.length} รายการ)</span>`
-                }
-              </div>
-
-              ${comp.missing.length > 0 ? `
-                <div class="flex flex-wrap gap-1">
-                  ${comp.missing.map(m => `<span class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-[11px] font-semibold">❌ ${escapeHtml(m)}</span>`).join('')}
-                </div>
-              ` : ''}
-
-              ${comp.hasStaffAlert ? `
-                <div class="px-2.5 py-1.5 rounded-xl bg-rose-100/90 dark:bg-rose-900/40 border border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-100 text-[11.5px] font-semibold">
-                  🔔 กำลังแสดงบนหน้าบัตร: ${escapeHtml(comp.staffAlert)}
-                </div>
-              ` : ''}
-            </div>
-
-            <div class="flex flex-wrap items-center gap-1.5 shrink-0">
-              <button type="button" onclick="openDocAlertQuickModal('${escapeHtml(p.id)}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl ${comp.hasStaffAlert ? 'bg-rose-600 hover:bg-rose-700' : 'bg-orange-600 hover:bg-orange-700'} text-white font-bold text-xs shadow-xs transition">
-                <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ${comp.hasStaffAlert ? 'แก้ข้อความแจ้งเตือน' : 'แจ้งเตือนขึ้นบัตร'}
-              </button>
-              ${comp.hasStaffAlert ? `
-                <button type="button" onclick="clearDocAlertImmediate('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs transition">
-                  ✓ ล้างแจ้งเตือน
-                </button>
-              ` : ''}
-              <button type="button" onclick="openEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-100 font-semibold text-xs transition">
-                แก้ไขข้อมูล
-              </button>
-              <a href="portal.html?id=${encodeURIComponent(p.id)}&staff=1" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-semibold text-xs transition">
-                ดูหน้าบัตร ↗
-              </a>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      if (window.lucide) lucide.createIcons();
+      window.open('summary.html?tab=docs', '_blank');
     }
 
     function openDocAlertQuickModal(id) {
-      const p = participants.find(x => x.id === id);
-      if (!p) return;
-      const comp = getParticipantCompleteness(p);
-      const displayName = hasSubstitute(p) ? p.substituteName : p.fullName;
-
-      document.getElementById('qa-target-id').value = p.id;
-      document.getElementById('qa-pid').textContent = p.id;
-      document.getElementById('qa-name').textContent = `แจ้งเตือนขึ้นหน้าบัตร: ${displayName}`;
-
-      const autoTagsBox = document.getElementById('qa-auto-missing-tags');
-      autoTagsBox.innerHTML = comp.missing.length > 0
-        ? comp.missing.map(m => `<span class="px-2 py-0.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-[11px] font-bold">❌ ${escapeHtml(m)}</span>`).join('')
-        : `<span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold">✓ ข้อมูลพื้นฐานครบถ้วนแล้ว</span>`;
-
-      const existingParts = comp.staffAlert ? comp.staffAlert.split(' • ').map(s => s.trim()).filter(Boolean) : [];
-      const customParts = [];
-      const preCheckedSet = new Set();
-
-      if (existingParts.length > 0) {
-        existingParts.forEach(part => {
-          const matchedPreset = DOC_ALERT_PRESETS.find(pr => pr.label === part);
-          if (matchedPreset) preCheckedSet.add(matchedPreset.id);
-          else customParts.push(part);
-        });
-      } else {
-        DOC_ALERT_PRESETS.forEach(pr => {
-          if (pr.matchKey && comp.missing.some(m => m.includes(pr.matchKey))) {
-            preCheckedSet.add(pr.id);
-          }
-        });
-      }
-
-      document.getElementById('qa-preset-checkboxes').innerHTML = DOC_ALERT_PRESETS.map(pr => `
-        <label class="flex items-start gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 hover:bg-orange-50/70 cursor-pointer text-xs">
-          <input type="checkbox" value="${escapeHtml(pr.label)}" ${preCheckedSet.has(pr.id) ? 'checked' : ''} onchange="updateQuickDocAlertPreview()" class="qa-preset-cb mt-0.5 w-4 h-4 rounded text-orange-600 focus:ring-orange-500 shrink-0" />
-          <span class="text-slate-800 dark:text-slate-200 leading-snug">${escapeHtml(pr.label)}</span>
-        </label>
-      `).join('');
-
-      document.getElementById('qa-custom-note').value = customParts.join(' • ');
-      updateQuickDocAlertPreview();
-      document.getElementById('doc-alert-quick-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      const targetUrl = id ? `summary.html?tab=docs&alert=${encodeURIComponent(id)}` : 'summary.html?tab=docs';
+      window.open(targetUrl, '_blank');
     }
 
-    function closeDocAlertQuickModal() {
-      document.getElementById('doc-alert-quick-modal')?.classList.add('hidden');
+    function openStaySummaryModal(initialTab) {
+      const subParam = initialTab ? `&sub=${encodeURIComponent(initialTab)}` : '';
+      window.open(`summary.html?tab=stay${subParam}`, '_blank');
     }
 
-    function buildQuickDocAlertText() {
-      const checkedLabels = Array.from(document.querySelectorAll('.qa-preset-cb:checked')).map(cb => cb.value.trim()).filter(Boolean);
-      const customNote = String(document.getElementById('qa-custom-note')?.value || '').trim();
-      const parts = [...checkedLabels];
-      if (customNote) parts.push(customNote);
-      return parts.join(' • ');
-    }
-
-    function updateQuickDocAlertPreview() {
-      const text = buildQuickDocAlertText();
-      const prev = document.getElementById('qa-preview-text');
-      if (prev) {
-        prev.textContent = text || '(ไม่มีข้อความแจ้งเตือน — หากกดบันทึกจะเป็นการล้างการแจ้งเตือนบนบัตร)';
-      }
-    }
-
-    async function saveQuickDocAlert() {
-      const id = document.getElementById('qa-target-id').value;
-      const alertText = buildQuickDocAlertText();
-      const btn = document.getElementById('qa-save-btn');
-      btn.disabled = true;
-      btn.textContent = 'กำลังบันทึก...';
-
-      await submitDocAlertUpdate(id, alertText);
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="bell-ring" class="w-3.5 h-3.5"></i> ส่งแจ้งเตือนขึ้นหน้าบัตร';
-      if (window.lucide) lucide.createIcons();
-      closeDocAlertQuickModal();
-    }
-
-    async function clearDocAlertFromQuickModal() {
-      const id = document.getElementById('qa-target-id').value;
-      await submitDocAlertUpdate(id, '');
-      closeDocAlertQuickModal();
-    }
-
-    async function clearDocAlertImmediate(id) {
-      await submitDocAlertUpdate(id, '');
-    }
-
-    async function submitDocAlertUpdate(id, alertText) {
-      const target = participants.find(p => p.id === id);
-      if (!target) return;
-      const prevAlert = target.docAlert || '';
-
-      target.docAlert = alertText;
-      lastParticipantsSnapshot = JSON.stringify(participants);
-      pauseAutoRefreshUntil = Date.now() + 6000;
-      updateKpis();
-      renderCurrentView();
-      if (!document.getElementById('doc-audit-modal')?.classList.contains('hidden')) {
-        renderDocAuditList();
-      }
-      showToast(alertText ? `ส่งแจ้งเตือนขึ้นหน้าบัตร ${target.id} เรียบร้อยแล้ว` : `ล้างการแจ้งเตือนของ ${target.id} แล้ว`, 'success');
-
-      isMutatingData = true;
-      try {
-        const res = await postToApi({ action: 'setDocAlert', id, docAlert: alertText });
-        if (!res || res.status !== 'success') {
-          throw new Error((res && res.message) || 'บันทึกไม่สำเร็จ');
-        }
-      } catch (err) {
-        target.docAlert = prevAlert;
-        lastParticipantsSnapshot = JSON.stringify(participants);
-        updateKpis();
-        renderCurrentView();
-        if (!document.getElementById('doc-audit-modal')?.classList.contains('hidden')) {
-          renderDocAuditList();
-        }
-        showToast('บันทึกแจ้งเตือนไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        isMutatingData = false;
-      }
-    }
-
-    // ==================== WORKSHOP 5-GROUP MANAGER (ID-BOUND, NO JUMPING) ====================
+    // ==================== WORKSHOP 5-GROUP MANAGER (ID-BOUND) ====================
     function isWmFixedRole(roleStr) {
       const r = String(roleStr || '');
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
@@ -2789,7 +2437,6 @@
               <input type="text" value="${escapeHtml(g.topic)}" oninput="onWmTopicInput(${gNum}, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold" />
             </div>
 
-            <!-- วิทยากร/ผู้เชี่ยวชาญประจำกลุ่ม (อยู่ฐานเดิม) -->
             <div class="p-3 bg-amber-50/70 dark:bg-amber-950/20 border-b border-amber-200/70 dark:border-amber-900 space-y-1.5 text-xs">
               <p class="font-bold text-amber-900 dark:text-amber-300 text-[11px]">⭐ วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (อยู่ฐานเดิมตลอดทุกรอบ):</p>
               <select onchange="onWmExpertSelect(${gNum}, 1, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-xs font-semibold">
@@ -2800,7 +2447,6 @@
               </select>
             </div>
 
-            <!-- สมาชิกผู้เข้าร่วมสัมมนาในกลุ่มเริ่มต้นนี้ -->
             <div class="p-3 space-y-2 flex-1 flex flex-col justify-between">
               <div class="space-y-1.5">
                 <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">👥 สมาชิกเริ่มต้นกลุ่มที่ ${gNum} (${members.length} ราย • หมุนเวียนตามรอบ):</p>
@@ -3007,7 +2653,6 @@
       btn.disabled = true;
       btn.textContent = 'กำลังบันทึกและซิงค์...';
 
-      // สร้างข้อความรายชื่อผู้เชี่ยวชาญประจำแต่ละกลุ่มให้ตรงกับ Participants 100%
       const finalGroups = wmDraftGroups.map(g => {
         const gStr = String(g.groupNo);
         const expNames = participants
@@ -3164,7 +2809,7 @@
         toggleResetEvalConfirm(false);
         await fetchAndRenderEvalSummary();
       } catch (err) {
-        showToast('รีเซ็ตไม่สำเร็จ: ' + err.message + ' (กรุณาอัปเดตและ Deploy Code.gs เวอร์ชันล่าสุด)', 'error');
+        showToast('รีเซ็ตไม่สำเร็จ: ' + err.message, 'error');
       } finally {
         isMutatingData = false;
         btn.disabled = false;
@@ -3278,6 +2923,7 @@
           portalBase = new URL('portal.html', window.location.href).href;
         }
       } catch (e) {}
+      // ลิงก์สำหรับผู้เข้าร่วมสแกน (ไม่แนบ staff=1 เพื่อให้ดูได้เฉพาะบัตรของตนเอง)
       currentQrModalLink = `${portalBase}?id=${encodeURIComponent(p.id)}`;
 
       document.getElementById('pqr-id').textContent = p.id;
