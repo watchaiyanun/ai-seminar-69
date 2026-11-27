@@ -879,11 +879,11 @@
             <div id="hub-slot-review" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2.5 transition">
               <div class="min-w-0 flex-1 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="px-2 py-0.5 rounded-md bg-teal-700 text-white text-[10px] font-bold">2 ธ.ค. (บ่าย) &amp; คัดกรอง DGA</span>
+                  <span class="px-2 py-0.5 rounded-md bg-teal-700 text-white text-[10px] font-bold">2 ธ.ค. (บ่าย) &amp; คลังความรู้ Q&amp;A</span>
                   <span id="hub-now-review" class="hidden px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[9.5px] font-extrabold">● ช่วงเวลาปัจจุบัน</span>
                 </div>
                 <p id="hub-title-review" class="font-bold text-slate-900 leading-snug">คลัง Q&amp;A ทั้ง 5 หมวด &amp; ข้อเสนอแนะ</p>
-                <p id="hub-desc-review" class="text-[11px] text-slate-500 leading-snug">อ่านคำถาม–คำตอบครบทุกหมวด (ผู้ทรงคุณวุฒิ/DGA บันทึกความเห็นได้)</p>
+                <p id="hub-desc-review" class="text-[11px] text-slate-500 leading-snug">อ่านคำถาม–คำตอบครบทุกหมวด (ผู้ทรงคุณวุฒิ/วิทยากรบันทึกความเห็นได้)</p>
               </div>
               <a id="hub-link-review" href="review.html" class="shrink-0 py-2 px-3 rounded-xl bg-teal-700 hover:bg-teal-800 active:scale-[0.98] text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition">
                 <span id="hub-btn-review-text">คลัง Q&amp;A</span>
@@ -1448,7 +1448,7 @@
     }
 
     // ==================== ROLE LEVEL & 3-FILE WORKSHOP ROUTING ====================
-    // ระดับสิทธิ์ 3 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร/ผู้แทน DGA) | 'participant' (ผู้เข้าร่วมสัมมนา)
+    // ระดับสิทธิ์ 4 ระดับ: 'admin' (คณะทำงาน) | 'dga_viewer' (ผู้แทน DGA ดูอย่างเดียว) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร) | 'participant' (ผู้เข้าร่วมสัมมนา)
     function detectPortalRoleLevel(p) {
       if (isStaffMode) return 'admin';
       if (!p) return 'participant';
@@ -1456,11 +1456,16 @@
       const unit = String(p.mainUnit || p.unitDetail || '').trim();
       if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
       if (
-        role.includes('ผู้ทรงคุณวุฒิ') ||
-        role.includes('วิทยากร') ||
         role.toUpperCase().includes('DGA') ||
         unit.toUpperCase().includes('DGA') ||
-        unit.includes('สพร.') ||
+        role.includes('สพร.') ||
+        unit.includes('สพร.')
+      ) {
+        return 'dga_viewer';
+      }
+      if (
+        role.includes('ผู้ทรงคุณวุฒิ') ||
+        role.includes('วิทยากร') ||
         isPersonFixedExpert(p)
       ) {
         return 'reviewer';
@@ -1492,6 +1497,8 @@
       if (roleLevel === 'admin') {
         params.set('staff', '1');
         params.set('userType', 'staff');
+      } else if (roleLevel === 'dga_viewer') {
+        params.set('userType', 'dga_viewer');
       } else if (roleLevel === 'reviewer') {
         params.set('userType', 'expert');
       } else {
@@ -1547,9 +1554,13 @@
       const titleReview = document.getElementById('hub-title-review');
       const descReview = document.getElementById('hub-desc-review');
       const btnReviewTxt = document.getElementById('hub-btn-review-text');
-      if (roleLevel === 'reviewer' || roleLevel === 'admin') {
+      if (roleLevel === 'dga_viewer') {
+        if (titleReview) titleReview.textContent = 'คลัง Q&A ทั้ง 5 หมวด (โหมดสังเกตการณ์ DGA)';
+        if (descReview) descReview.textContent = 'เรียกดูคำถาม–คำตอบ แหล่งอ้างอิงกฎหมาย และข้อเสนอแนะครบทุกหมวด (ดูอย่างเดียว)';
+        if (btnReviewTxt) btnReviewTxt.textContent = 'เปิดดูคลัง Q&A';
+      } else if (roleLevel === 'reviewer' || roleLevel === 'admin') {
         if (titleReview) titleReview.textContent = 'คัดกรองคลัง Q&A ทั้ง 5 หมวด & บันทึกข้อเสนอแนะ';
-        if (descReview) descReview.textContent = 'เลือกอ่านทุกหมวด พร้อมบันทึกข้อเสนอแนะเพิ่มเติม (ผู้ทรงคุณวุฒิ / วิทยากร / DGA)';
+        if (descReview) descReview.textContent = 'เลือกอ่านทุกหมวด พร้อมบันทึกข้อเสนอแนะเพิ่มเติม (ผู้ทรงคุณวุฒิ / วิทยากร)';
         if (btnReviewTxt) btnReviewTxt.textContent = 'คัดกรอง / เมนต์';
       } else {
         if (titleReview) titleReview.textContent = 'คลัง Q&A ทั้ง 5 หมวด & สรุปผลนำเสนอ';
@@ -1590,9 +1601,21 @@
 
       smartSecondaryEvalMode = false;
 
-      if (roleLevel === 'reviewer') {
-        // ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA: เน้นปุ่มคัดกรอง & ให้ข้อเสนอแนะเป็นปุ่มหลักทันที
-        ctxText.textContent = '⭐ สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA';
+      if (roleLevel === 'dga_viewer') {
+        // ผู้แทน DGA / สพร.: โหมดสังเกตการณ์ ดูข้อมูลได้อย่างเดียวครบ 5 หมวด
+        ctxText.textContent = '👁️ ผู้แทน DGA / สพร. (ดูข้อมูลอย่างเดียว • ครบ 5 หมวด)';
+        btn1.href = reviewUrl;
+        btn1.className = 'py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-600 hover:to-teal-700 active:scale-[0.98] text-white shadow-xs text-xs font-extrabold flex items-center justify-center gap-1.5 transition';
+        lbl1.textContent = 'ดูคลัง Q&A (5 หมวด)';
+        ico1.setAttribute('data-lucide', 'library');
+
+        btn2.href = (isDay2 && !isAfternoonTime) ? morningUrl : afternoonUrl;
+        btn2.className = 'py-2.5 px-3 rounded-xl bg-gradient-to-r from-navy-800 to-navy-700 hover:from-navy-700 hover:to-blue-800 active:scale-[0.98] text-white shadow-xs border border-amber-300/40 text-xs font-extrabold flex items-center justify-center gap-1.5 transition';
+        lbl2.textContent = (isDay2 && !isAfternoonTime) ? 'ดูประเด็นช่วงเช้า' : 'ดูคิวใบงานบ่าย';
+        ico2.setAttribute('data-lucide', (isDay2 && !isAfternoonTime) ? 'sun' : 'eye');
+      } else if (roleLevel === 'reviewer') {
+        // ผู้ทรงคุณวุฒิ / วิทยากร: เน้นปุ่มคัดกรอง & ให้ข้อเสนอแนะเป็นปุ่มหลักทันที
+        ctxText.textContent = '⭐ สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร (คัดกรอง & ข้อเสนอแนะ)';
         btn1.href = reviewUrl;
         btn1.className = 'py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-600 hover:to-teal-700 active:scale-[0.98] text-white shadow-xs text-xs font-extrabold flex items-center justify-center gap-1.5 transition';
         lbl1.textContent = 'คัดกรอง Q&A & ให้ข้อเสนอแนะ';
@@ -2138,7 +2161,7 @@
         return {
           tierClass: 'tier-vip',
           kicker: isDga ? 'DGA • STRATEGIC PARTNER' : 'ROYAL THAI POLICE • VIP',
-          subtitle: isDga ? 'DGA REVIEWER AI E-PASS' : (role.includes('วิทยากร') ? 'SPEAKER AI E-PASS' : 'HONORARY VIP AI E-PASS'),
+          subtitle: isDga ? 'DGA OBSERVER AI E-PASS' : (role.includes('วิทยากร') ? 'SPEAKER AI E-PASS' : 'HONORARY VIP AI E-PASS'),
           pillText: isDga ? '★ ผู้แทน DGA' : (role.includes('วิทยากร') ? '★ วิทยากร' : '★ ผู้ทรงคุณวุฒิ'),
           pillClass: 'px-2 py-0.5 rounded-full text-[8.5px] font-extrabold tracking-wider uppercase bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 text-slate-950 border border-amber-100 shadow-sm',
           shieldClass: 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-amber-300/35 to-amber-600/20 border border-amber-300/85 flex items-center justify-center shadow-inner shrink-0',
@@ -2279,8 +2302,10 @@
       const roleLevel = detectPortalRoleLevel(p);
 
       msgs.push(`สวัสดีครับ ${shortName}! ยินดีต้อนรับสู่บัตรประจำตัว AI E-Pass แตะตัวบัตรเพื่อพลิกดู QR เช็กอิน ห้องพัก และข้อมูลกลุ่มสัมมนาได้เลยครับ`);
-      if (roleLevel === 'reviewer') {
-        msgs.push(`⭐ ท่านมีสิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA สามารถกดปุ่ม “คัดกรอง Q&A & ให้ข้อเสนอแนะ” ใต้บัตรเพื่ออ่านและแสดงความเห็นได้ครบทั้ง 5 หมวดครับ`);
+      if (roleLevel === 'dga_viewer') {
+        msgs.push(`👁️ ยินดีต้อนรับผู้แทน DGA / สพร. ครับ ท่านสามารถกดปุ่ม “ดูคลัง Q&A (5 หมวด)” ใต้บัตรเพื่อศึกษาคำถาม–คำตอบและประเด็นงานจราจรทั้งหมดได้เลยครับ`);
+      } else if (roleLevel === 'reviewer') {
+        msgs.push(`⭐ ท่านมีสิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร สามารถกดปุ่ม “คัดกรอง Q&A & ให้ข้อเสนอแนะ” ใต้บัตรเพื่ออ่านและแสดงความเห็นได้ครบทั้ง 5 หมวดครับ`);
       } else if (wsInfo.assigned) {
         msgs.push(`🎯 กลุ่มประจำตัวของท่านคือ กลุ่มที่ ${wsInfo.baseGroup} (ช่วงเช้าหมุนเวียนครบ 5 หมวด รอบปัจจุบันอยู่โต๊ะที่ ${wsInfo.currentGroup} • ช่วงบ่ายรับผิดชอบตอบเฉพาะหมวดที่ ${wsInfo.baseGroup} ครับ)`);
       }
