@@ -210,7 +210,7 @@
               <i data-lucide="list-todo" class="w-4 h-4 text-maroon-700 shrink-0"></i>
               <span id="queue-title">คิวคำถามช่วงเช้าของทุกกลุ่ม ในหมวดที่ 1 (<span id="queue-count" class="font-mono text-maroon-700">0</span> ข้อ)</span>
             </h2>
-            <p class="text-xs text-slate-600 mt-0.5">รวมประเด็นที่กลุ่มที่ 1–5 ช่วยกันระดมสมองไว้เมื่อเช้า — คลิก <strong>“เลือกทำ Q&amp;A →”</strong> หรือเลือกจาก Dropdown ในข้อ 1 เพื่อดึงมาตอบอัตโนมัติ</p>
+            <p id="queue-sub-hint" class="text-xs text-slate-600 mt-0.5">รวมประเด็นที่กลุ่มที่ 1–5 ช่วยกันระดมสมองไว้เมื่อเช้า — คลิก <strong>“เลือกทำ Q&amp;A →”</strong> หรือเลือกจาก Dropdown ในข้อ 1 เพื่อดึงมาตอบอัตโนมัติ</p>
           </div>
           <button type="button" onclick="toggleQueueCollapse()" id="btn-toggle-queue" class="px-3 py-1 rounded-xl bg-white border border-amber-300 text-xs font-bold text-navy-800 hover:bg-amber-100 transition shrink-0">
             ซ่อนรายการคิว
@@ -246,6 +246,22 @@
       </div>
 
       <div id="morning-queue-list" class="p-4 space-y-2 max-h-80 overflow-y-auto custom-scroll"></div>
+    </section>
+
+    <!-- กล่องแจ้งสิทธิ์ดูอย่างเดียว + บันทึกข้อเสนอแนะสำหรับผู้ทรงคุณวุฒิ / วิทยากร -->
+    <section id="reviewer-readonly-notice" class="hidden bg-amber-50/90 rounded-3xl p-4 sm:p-5 border-2 border-amber-300 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-amber-950">
+      <div class="flex items-start gap-3 min-w-0 flex-1">
+        <div class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0">
+          <i data-lucide="message-square-text" class="w-5 h-5"></i>
+        </div>
+        <div class="space-y-1">
+          <p class="font-extrabold text-amber-950">โหมดผู้ทรงคุณวุฒิ / วิทยากร (ดูข้อมูลอย่างเดียว &amp; บันทึกข้อเสนอแนะเพิ่มเติมได้)</p>
+          <p class="leading-relaxed text-amber-900">ท่านสามารถเรียกดูคิวคำถามช่วงเช้าและคำตอบ Q&amp;A ได้ครบทั้ง 5 หมวด (ระบบปิดฟอร์มตอบคำถามและปุ่มแก้ไขของกลุ่มเพื่อไม่ให้ทับเนื้อหา) โดยสามารถกดปุ่ม <strong>“💬 เพิ่มข้อเสนอแนะ”</strong> ในรายการคำตอบด้านล่าง หรือเปิดหน้าคัดกรองเพื่อบันทึกความเห็นได้ทันทีครับ</p>
+        </div>
+      </div>
+      <a id="reviewer-notice-jump-btn" href="review.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold shadow-xs transition shrink-0">
+        <i data-lucide="library" class="w-3.5 h-3.5 text-gold-400"></i> เปิดหน้าคัดกรอง &amp; เมนต์เต็มจอ →
+      </a>
     </section>
 
     <!-- กล่องแจ้งสิทธิ์ดูอย่างเดียวสำหรับผู้แทน DGA / สพร. -->
@@ -605,6 +621,7 @@
     let morningIssues = [];
     let afternoonQAs = [];
     let pendingDeleteQAId = '';
+    let pendingDeleteComment = null;
     let readerActiveQAId = '';
 
     // ==================== HELPER FUNCTIONS ====================
@@ -651,15 +668,16 @@
       return userCtx.roleLevel === 'participant' && userCtx.baseGroup >= 1 && userCtx.baseGroup <= 5;
     }
 
-    // สิทธิ์ในการแก้ไข/ลบ Q&A
+    // สิทธิ์ในการกรอก/ตอบคำถาม Q&A — เฉพาะผู้เข้าร่วมสัมมนา และคณะทำงาน (Admin) เท่านั้น (วิทยากร/ผู้ทรงคุณวุฒิ และ DGA ดูอย่างเดียว)
+    function canAnswerQA() {
+      return userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'participant';
+    }
+
+    // สิทธิ์ในการแก้ไข/ลบ Q&A — เฉพาะคณะทำงาน (Admin) และผู้เข้าร่วมสัมมนาในหมวดของกลุ่มตนเองเท่านั้น
     function canModifyQA(qa) {
       if (!qa) return false;
-      if (userCtx.roleLevel === 'dga_viewer') return false;
+      if (!canAnswerQA()) return false;
       if (userCtx.roleLevel === 'admin') return true;
-      if (userCtx.roleLevel === 'reviewer') {
-        if (userCtx.baseGroup && Number(qa.categoryNo) === userCtx.baseGroup) return true;
-        return Boolean(userCtx.name && (qa.recorder === userCtx.name || qa.reviewer === userCtx.name));
-      }
       if (userCtx.baseGroup) {
         return Number(qa.categoryNo) === userCtx.baseGroup;
       }
@@ -669,6 +687,16 @@
     // สิทธิ์ในการบันทึกข้อเสนอแนะ (Comment) — เฉพาะคณะทำงานและผู้ทรงคุณวุฒิ/วิทยากรตำรวจ (ผู้แทน DGA ดูอย่างเดียว)
     function canAddComment() {
       return userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'reviewer';
+    }
+
+    // สิทธิ์ในการลบข้อเสนอแนะ (Admin ลบได้ทั้งหมด / ผู้ทรงคุณวุฒิ-วิทยากร ลบเฉพาะของตนเอง)
+    function canDeleteComment(commentObj) {
+      if (userCtx.roleLevel === 'admin') return true;
+      if (userCtx.roleLevel === 'reviewer') {
+        const myName = userCtx.name || 'ผู้ทรงคุณวุฒิ / วิทยากร';
+        return Boolean(commentObj && commentObj.author === myName);
+      }
+      return false;
     }
 
     function getUrgencyBadge(urgency) {
@@ -777,6 +805,8 @@
       if (toReview) toReview.href = `review.html${qStr}`;
       const revJump = document.getElementById('reviewer-jump-btn');
       if (revJump) revJump.href = `review.html${qStr}`;
+      const revNoticeJump = document.getElementById('reviewer-notice-jump-btn');
+      if (revNoticeJump) revNoticeJump.href = `review.html${qStr}`;
 
       const toDisplay = document.getElementById('nav-to-display');
       if (toDisplay) toDisplay.classList.toggle('hidden', userCtx.roleLevel !== 'admin');
@@ -930,6 +960,7 @@
       const isAdmin = userCtx.roleLevel === 'admin';
       const isReviewer = userCtx.roleLevel === 'reviewer';
       const isDga = userCtx.roleLevel === 'dga_viewer';
+      const canAnswer = canAnswerQA();
       const locked = isCategoryLockedToGroup();
       const cat = getCategory(activeCategory);
 
@@ -937,8 +968,20 @@
       nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isDga ? 'ผู้แทน DGA (สพร.)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร' : 'ผู้เข้าร่วมสัมมนา')));
       document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
       document.getElementById('dga-readonly-notice')?.classList.toggle('hidden', !isDga);
-      document.getElementById('qa-form-card')?.classList.toggle('hidden', isDga);
-      document.getElementById('btn-standalone-qa')?.classList.toggle('hidden', isDga);
+      document.getElementById('reviewer-readonly-notice')?.classList.toggle('hidden', !isReviewer);
+      document.getElementById('qa-form-card')?.classList.toggle('hidden', !canAnswer);
+      document.getElementById('btn-standalone-qa')?.classList.toggle('hidden', !canAnswer);
+
+      const queueSubHint = document.getElementById('queue-sub-hint');
+      if (queueSubHint) {
+        if (isReviewer) {
+          queueSubHint.innerHTML = 'รวมประเด็นที่กลุ่มที่ 1–5 ระดมสมองไว้เมื่อเช้า — แตะ <strong>“👁️ ดูคำตอบ / เมนต์”</strong> ในข้อที่ตอบแล้วเพื่ออ่านและบันทึกข้อเสนอแนะเพิ่มเติม';
+        } else if (isDga) {
+          queueSubHint.innerHTML = 'รวมประเด็นที่กลุ่มที่ 1–5 ระดมสมองไว้เมื่อเช้า — แสดงในโหมดสังเกตการณ์ (ดูข้อมูลอย่างเดียว)';
+        } else {
+          queueSubHint.innerHTML = 'รวมประเด็นที่กลุ่มที่ 1–5 ช่วยกันระดมสมองไว้เมื่อเช้า — คลิก <strong>“เลือกทำ Q&amp;A →”</strong> หรือเลือกจาก Dropdown ในข้อ 1 เพื่อดึงมาตอบอัตโนมัติ';
+        }
+      }
 
       if (isAdmin) {
         badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
@@ -954,7 +997,7 @@
         badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
         badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ / วิทยากร หมวด ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร';
         guideEl.className = 'p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
-        guideEl.innerHTML = `<strong>⭐ สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร:</strong> สามารถเลือกดูคำถาม–คำตอบได้ครบทุกหมวด (1–5), ช่วยจัดทำ/ตรวจทาน Q&amp;A และ <strong>บันทึกข้อเสนอแนะ (Comment)</strong> เพิ่มเติมได้ทันที — หรือกดปุ่ม <strong>“คลัง Q&amp;A / ข้อเสนอแนะ”</strong> ด้านบนเพื่อใช้หน้าจอคัดกรองอ่านและแสดงความเห็นโดยเฉพาะ`;
+        guideEl.innerHTML = `<strong>⭐ สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร (ดูอย่างเดียว &amp; บันทึกข้อเสนอแนะ):</strong> ท่านสามารถเลือกดูคำถามช่วงเช้าและคำตอบ Q&amp;A ของกลุ่มต่างๆ ได้ครบทั้ง <strong>5 หมวด</strong> พร้อมกดปุ่ม <strong>“💬 เพิ่มข้อเสนอแนะ”</strong> ในแต่ละข้อเพื่อแสดงความคิดเห็นเพิ่มเติมโดยไม่ทับคำตอบเดิมของกลุ่มครับ`;
       } else {
         badgeEl.className = 'px-3 py-1 rounded-full bg-maroon-700 text-white text-xs font-extrabold shrink-0';
         badgeEl.textContent = locked ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup} (หมวด ${userCtx.baseGroup})` : '👥 ผู้เข้าร่วมสัมมนา';
@@ -1160,7 +1203,8 @@
         return;
       }
 
-      const isDga = userCtx.roleLevel === 'dga_viewer';
+      const canAnswer = canAnswerQA();
+      const reviewerCommentMode = canAddComment() && !canAnswer;
 
       box.innerHTML = list.map(item => {
         const urg = getUrgencyBadge(item.urgency);
@@ -1185,10 +1229,10 @@
 
             <div class="shrink-0 flex items-center gap-1.5">
               ${isDone && linkedQa ? `
-                <button type="button" onclick="openReaderModal('${escapeHtml(linkedQa.qaId)}')" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
-                  👁️ ดูคำตอบ
+                <button type="button" onclick="openReaderModal('${escapeHtml(linkedQa.qaId)}', ${reviewerCommentMode ? 'true' : 'false'})" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
+                  ${reviewerCommentMode ? '💬 ดูคำตอบ / เมนต์' : '👁️ ดูคำตอบ'}
                 </button>
-              ` : (!isDga ? `
+              ` : (canAnswer ? `
                 <button type="button" onclick="pickMorningIssueForQA('${escapeHtml(item.issueId)}', true)" class="px-3.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-extrabold shadow-2xs transition">
                   ✍️ เลือกทำ Q&amp;A →
                 </button>
@@ -1213,7 +1257,8 @@
       if (pill) pill.textContent = `รอตอบ ${pending.length} ข้อ (ทั้งหมด ${inCat.length})`;
 
       const makeOpt = (m) => {
-        const shortTxt = m.issueText.length > 78 ? m.issueText.slice(0, 78) + '...' : m.issueText;
+        const issueTxt = String(m.issueText || '');
+        const shortTxt = issueTxt.length > 78 ? issueTxt.slice(0, 78) + '...' : issueTxt;
         const statusTag = m.qaStatus === 'ทำ Q&A แล้ว' ? '✅ ' : '⏳ ';
         return `<option value="${escapeHtml(m.issueId)}">${statusTag}[${escapeHtml(m.issueId)} • กลุ่ม ${m.groupNo}] ${escapeHtml(shortTxt)}</option>`;
       };
@@ -1238,7 +1283,10 @@
     }
 
     function pickMorningIssueForQA(issueId, shouldScroll = true) {
-      if (userCtx.roleLevel === 'dga_viewer') return;
+      if (!canAnswerQA()) {
+        showToast('สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร และผู้แทน DGA อยู่ในโหมดดูข้อมูล ไม่สามารถตอบใบงานแทนกลุ่มได้', 'warning');
+        return;
+      }
       const item = morningIssues.find(m => m.issueId === issueId);
       if (!item) return;
 
@@ -1270,7 +1318,10 @@
     }
 
     function startStandaloneQA() {
-      if (userCtx.roleLevel === 'dga_viewer') return;
+      if (!canAnswerQA()) {
+        showToast('สิทธิ์นี้ไม่สามารถเพิ่มหรือแก้ไขคำตอบ Q&A ได้', 'warning');
+        return;
+      }
       cancelQAEdit(true);
       document.getElementById('qa-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => document.getElementById('qa-question')?.focus(), 250);
@@ -1311,15 +1362,18 @@
       }
 
       box.innerHTML = `⚠️ <strong>พบคำตอบ Q&amp;A ที่คล้ายกันอยู่แล้วในหมวดที่ ${activeCategory}:</strong> ` +
-        matches.map(m => `<button type="button" onclick="openReaderModal('${escapeHtml(m.qaId)}')" class="underline font-extrabold text-maroon-800 hover:text-navy-700">[${escapeHtml(m.qaId)}: “${escapeHtml(m.question.slice(0, 60))}${m.question.length > 60 ? '...' : ''}”]</button>`).join(' / ');
+        matches.map(m => {
+          const qTxt = String(m.question || '');
+          return `<button type="button" onclick="openReaderModal('${escapeHtml(m.qaId)}')" class="underline font-extrabold text-maroon-800 hover:text-navy-700">[${escapeHtml(m.qaId)}: “${escapeHtml(qTxt.slice(0, 60))}${qTxt.length > 60 ? '...' : ''}”]</button>`;
+        }).join(' / ');
       box.classList.remove('hidden');
     }
 
     // ==================== CRUD AFTERNOON Q&A ====================
     async function submitQAForm(e) {
       e.preventDefault();
-      if (userCtx.roleLevel === 'dga_viewer') {
-        showToast('ผู้แทน DGA อยู่ในโหมดดูอย่างเดียว ไม่สามารถบันทึก Q&A ได้', 'warning');
+      if (!canAnswerQA()) {
+        showToast('สิทธิ์นี้ไม่สามารถบันทึกหรือแก้ไขคำตอบ Q&A ได้ (ดูข้อมูลและให้ข้อเสนอแนะเท่านั้น)', 'warning');
         return;
       }
       const editId = document.getElementById('qa-edit-id').value.trim();
@@ -1450,31 +1504,54 @@
     function openDeleteModal(qaId) {
       const qa = afternoonQAs.find(q => q.qaId === qaId);
       if (!qa || !canModifyQA(qa)) return;
+      pendingDeleteComment = null;
       pendingDeleteQAId = qa.qaId;
+      const qTxt = String(qa.question || '');
       document.getElementById('delete-modal-desc').textContent =
-        `ต้องการลบใบงาน ${qa.qaId} (“${qa.question.slice(0, 65)}${qa.question.length > 65 ? '...' : ''}”) ใช่หรือไม่?${qa.refIssueId ? ` (สถานะข้อช่วงเช้า ${qa.refIssueId} จะกลับเป็นรอทำคำตอบ)` : ''}`;
+        `ต้องการลบใบงาน ${qa.qaId} (“${qTxt.slice(0, 65)}${qTxt.length > 65 ? '...' : ''}”) ใช่หรือไม่?${qa.refIssueId ? ` (สถานะข้อช่วงเช้า ${qa.refIssueId} จะกลับเป็นรอทำคำตอบ)` : ''}`;
+      document.getElementById('delete-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openDeleteCommentModal(qaId, commentId) {
+      pendingDeleteQAId = '';
+      pendingDeleteComment = { qaId, commentId };
+      document.getElementById('delete-modal-desc').textContent = 'ต้องการลบข้อเสนอแนะนี้ใช่หรือไม่?';
       document.getElementById('delete-modal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
     function closeDeleteModal() {
       pendingDeleteQAId = '';
+      pendingDeleteComment = null;
       document.getElementById('delete-modal')?.classList.add('hidden');
     }
 
     async function executeDeleteQA() {
-      if (!pendingDeleteQAId) return;
+      if (!pendingDeleteQAId && !pendingDeleteComment) return;
       const btn = document.getElementById('delete-confirm-btn');
       btn.disabled = true;
       btn.textContent = 'กำลังลบ...';
       isMutating = true;
       try {
-        const res = await postToApi({ action: 'deleteAfternoonQA', qaId: pendingDeleteQAId });
-        if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
-        showToast(res.message || 'ลบใบงาน Q&A เรียบร้อยแล้ว', 'success');
-        if (document.getElementById('qa-edit-id').value === pendingDeleteQAId) cancelQAEdit(true);
-        closeDeleteModal();
-        await fetchAllData(false);
+        if (pendingDeleteComment) {
+          const res = await postToApi({
+            action: 'deleteQAComment',
+            qaId: pendingDeleteComment.qaId,
+            commentId: pendingDeleteComment.commentId
+          });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบข้อเสนอแนะไม่สำเร็จ');
+          showToast(res.message || 'ลบข้อเสนอแนะเรียบร้อยแล้ว', 'success');
+          closeDeleteModal();
+          await fetchAllData(false);
+        } else {
+          const res = await postToApi({ action: 'deleteAfternoonQA', qaId: pendingDeleteQAId });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
+          showToast(res.message || 'ลบใบงาน Q&A เรียบร้อยแล้ว', 'success');
+          if (document.getElementById('qa-edit-id').value === pendingDeleteQAId) cancelQAEdit(true);
+          closeDeleteModal();
+          await fetchAllData(false);
+        }
       } catch (err) {
         showToast('ลบไม่สำเร็จ: ' + err.message, 'error');
       } finally {
@@ -1530,6 +1607,7 @@
       box.innerHTML = list.map(q => {
         const cObj = getCategory(q.categoryNo);
         const editable = canModifyQA(q);
+        const allowComment = canAddComment();
         const comments = Array.isArray(q.expertComments) ? q.expertComments : [];
 
         return `
@@ -1544,10 +1622,15 @@
                 ${comments.length > 0 ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-extrabold">💬 ข้อเสนอแนะ ${comments.length}</span>` : ''}
               </div>
 
-              <div class="flex items-center gap-1 shrink-0">
-                <button type="button" onclick="openReaderModal('${escapeHtml(q.qaId)}')" class="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
+              <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                <button type="button" onclick="openReaderModal('${escapeHtml(q.qaId)}', false)" class="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
                   🔍 อ่านเต็ม
                 </button>
+                ${allowComment ? `
+                  <button type="button" onclick="openReaderModal('${escapeHtml(q.qaId)}', true)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition">
+                    <i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i> เพิ่มข้อเสนอแนะ
+                  </button>
+                ` : ''}
                 ${editable ? `
                   <button type="button" onclick="editQA('${escapeHtml(q.qaId)}')" title="แก้ไข Q&A" class="p-1.5 rounded-lg bg-white hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
                     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
@@ -1584,11 +1667,20 @@
     }
 
     // ==================== READER MODAL (+ QUICK COMMENT FOR REVIEWER / ADMIN) ====================
-    function openReaderModal(qaId) {
+    function openReaderModal(qaId, focusComment = false) {
       readerActiveQAId = qaId;
       renderReaderModalContent();
       document.getElementById('qa-reader-modal')?.classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
+      if (focusComment && canAddComment()) {
+        setTimeout(() => {
+          const inp = document.getElementById('rd-comment-input');
+          if (inp) {
+            inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            inp.focus();
+          }
+        }, 120);
+      }
     }
 
     function closeReaderModal() {
@@ -1645,9 +1737,12 @@
             ? `<p class="text-xs text-slate-400 italic">ยังไม่มีข้อเสนอแนะเพิ่มเติมในข้อนี้</p>`
             : `<div class="space-y-2">${comments.map(c => `
                 <div class="p-3 rounded-xl bg-teal-50/70 border border-teal-200 text-xs space-y-1">
-                  <div class="flex items-center justify-between gap-2">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
                     <span class="font-extrabold text-teal-950">⭐ ${escapeHtml(c.author)} <span class="font-normal text-teal-700">(${escapeHtml(c.role || 'ผู้ทรงคุณวุฒิ')})</span></span>
-                    <span class="font-mono text-[10.5px] text-slate-500">${escapeHtml(c.timestamp || '')}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-[10.5px] text-slate-500">${escapeHtml(c.timestamp || '')}</span>
+                      ${canDeleteComment(c) ? `<button type="button" onclick="openDeleteCommentModal('${escapeHtml(q.qaId)}', '${escapeHtml(c.commentId)}')" class="text-rose-600 hover:underline text-[11px] font-bold">ลบ</button>` : ''}
+                    </div>
                   </div>
                   <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(c.text)}</p>
                 </div>
