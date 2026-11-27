@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ใบงานที่ 1 ช่วงเช้า (ระดมสมองครบ 5 หมวด) - AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Sarabun', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html, body {
+      font-family: 'Sarabun', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .gold-line {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.2) 100%);
+    }
+
+    /* รูปแบบสำหรับสั่งพิมพ์ / บันทึกเป็น PDF สำหรับคณะทำงาน (Admin) */
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      body { background: #ffffff !important; color: #0f172a !important; }
+      .no-print { display: none !important; }
+      #print-report-container { display: block !important; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ==================== TOP HEADER BAR ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-3.5 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-white/10 border border-gold-400/75 flex items-center justify-center shrink-0">
+          <i data-lucide="sun" class="w-5 h-5 text-gold-400"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold tracking-wider uppercase text-gold-400 leading-none truncate">ศูนย์บริหารงานจราจร ตร. (ศจร.ตร.) • วันที่ 2 (1 ธ.ค. 2569)</p>
+          <h1 class="text-base sm:text-lg font-extrabold leading-tight truncate mt-0.5">ใบงานที่ 1 ช่วงเช้า : ระดมสมองครบทั้ง 5 หมวด</h1>
+          <div class="flex items-center gap-1.5 text-[11px] text-blue-100/90 mt-0.5">
+            <span id="sync-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
+            <span id="sync-text" class="truncate">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงบ่าย, คัดกรอง/DGA และจอเวที) -->
+      <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+        <a id="nav-back-portal" href="portal.html" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>กลับบัตร</span>
+        </a>
+        <a id="nav-to-afternoon" href="afternoon.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-rose-300/40 text-xs font-bold text-white transition" title="สลับไปหน้าใบงานช่วงบ่าย (จัดทำคำตอบ Q&A)">
+          <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span>ช่วงบ่าย (Q&amp;A)</span>
+        </a>
+        <a id="nav-to-review" href="review.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 border border-teal-300/40 text-xs font-bold text-white transition" title="เปิดหน้าคัดกรองคลังคำถาม-คำตอบและข้อเสนอแนะ">
+          <i data-lucide="library" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span class="hidden sm:inline">คลัง Q&amp;A</span>
+        </a>
+        <a id="nav-to-display" href="display.html" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition" title="เปิดจอแสดงผลโปรเจกเตอร์หน้าเวที">
+          <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">จอเวที</span>
+        </a>
+        <button type="button" onclick="fetchAllData(true)" title="รีเฟรชข้อมูลล่าสุด" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <div class="gold-line"></div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="no-print max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
+
+    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ (3 ระดับ) และคำชี้แจงกิจกรรมช่วงเช้า -->
+    <section id="role-banner-card" class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-navy-700/20 shadow-xs space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="ctx-code" class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-mono text-xs font-extrabold shrink-0">KM69</span>
+          <strong id="ctx-name" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">ผู้เข้าร่วมสัมมนา</strong>
+        </div>
+        <span id="ctx-role-badge" class="px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0">👥 ผู้เข้าร่วมสัมมนา</span>
+      </div>
+
+      <div id="ctx-role-guide" class="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
+
+      <!-- แถบความคืบหน้าหมุนเวียนครบ 5 หมวดของกลุ่มปัจจุบัน -->
+      <div id="group-5cat-progress-box" class="space-y-1.5 pt-1">
+        <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
+          <span id="group-5cat-label" class="font-extrabold text-navy-900">ความคืบหน้าการระดมสมองครบ 5 หมวด (กลุ่มที่ 1):</span>
+          <span id="group-5cat-count" class="font-mono font-extrabold text-emerald-700">0 / 5 หมวด</span>
+        </div>
+        <div id="group-5cat-pills" class="grid grid-cols-5 gap-1.5"></div>
+      </div>
+    </section>
+
+    <!-- 2. แผงควบคุมสำหรับคณะทำงาน (ADMIN PANEL: คุมรอบ + Matrix 5×5 + Export Excel/Text/PDF) -->
+    <section id="admin-control-panel" class="hidden bg-white rounded-3xl border-2 border-indigo-300 shadow-sm overflow-hidden">
+      <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-indigo-900 via-navy-800 to-navy-900 text-white flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i>
+          <h2 class="font-extrabold text-sm sm:text-base">แผงควบคุมคณะทำงาน (Admin) — คุมรอบหมุนเวียน • ภาพรวม 5×5 • ส่งออกข้อมูล</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" onclick="exportMorningExcelCsv()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel (CSV)
+          </button>
+          <button type="button" onclick="exportMorningText()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Text (.txt)
+          </button>
+          <button type="button" onclick="exportMorningPdfPrint()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-gold-400/50 text-white text-xs font-extrabold transition">
+            <i data-lucide="printer" class="w-3.5 h-3.5 text-gold-400"></i> PDF / พิมพ์
+          </button>
+          <button type="button" onclick="toggleAdminMatrix()" id="btn-toggle-matrix" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+            ซ่อนตารางสรุป
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-panel-body" class="p-4 sm:p-5 space-y-4 text-xs sm:text-sm">
+        <!-- ควบคุมรอบหมุนเวียนกลาง (ซิงค์ขึ้นเวทีและบัตรทุกคน) -->
+        <div class="p-3.5 rounded-2xl bg-indigo-50/75 border border-indigo-200 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="font-extrabold text-indigo-950">🔄 ควบคุมรอบหมุนเวียน World Café (รอบที่ 1–5)</p>
+              <p class="text-[11px] text-indigo-700">กดเลือกรอบแล้วกด “ซิงค์รอบให้ทุกคน” เพื่อย้ายโต๊ะทั้ง 5 กลุ่มบนหน้าบัตร E-Pass และหน้าใบงานอัตโนมัติ</p>
+            </div>
+            <button type="button" id="btn-admin-sync-round" onclick="syncAdminRoundToServer()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold shadow-xs transition">
+              <i data-lucide="radio" class="w-3.5 h-3.5 text-gold-400"></i>
+              <span id="btn-admin-sync-round-text">ซิงค์รอบ 1 ให้ทุกคน</span>
+            </button>
+          </div>
+          <div id="admin-round-buttons" class="grid grid-cols-5 gap-2"></div>
+        </div>
+
+        <!-- ตารางภาพรวม Matrix 5 กลุ่ม × 5 หมวด -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-extrabold text-navy-900">📊 สรุปจำนวนประเด็นช่วงเช้า (Matrix 5 กลุ่ม × 5 หมวด) — แตะตัวเลขเพื่อกรองดูรายการ</p>
+            <span id="admin-total-issues-pill" class="px-2.5 py-0.5 rounded-full bg-navy-800 text-gold-400 font-mono text-xs font-extrabold">รวม 0 ข้อ</span>
+          </div>
+          <div class="overflow-x-auto custom-scroll rounded-2xl border border-slate-200">
+            <table class="w-full text-center border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 text-navy-900 border-b border-slate-200">
+                  <th class="py-2 px-2.5 text-left font-extrabold">กลุ่ม / หมวด</th>
+                  <th class="py-2 px-2 font-extrabold">หมวด 1<br><span class="font-normal text-[10px] text-slate-500">กฎหมาย</span></th>
+                  <th class="py-2 px-2 font-extrabold">หมวด 2<br><span class="font-normal text-[10px] text-slate-500">SOP</span></th>
+                  <th class="py-2 px-2 font-extrabold">หมวด 3<br><span class="font-normal text-[10px] text-slate-500">PTM/TPCC</span></th>
+                  <th class="py-2 px-2 font-extrabold">หมวด 4<br><span class="font-normal text-[10px] text-slate-500">การเงิน</span></th>
+                  <th class="py-2 px-2 font-extrabold">หมวด 5<br><span class="font-normal text-[10px] text-slate-500">ข้อโต้แย้ง</span></th>
+                  <th class="py-2 px-2.5 font-extrabold bg-blue-50 text-navy-800">รวม</th>
+                </tr>
+              </thead>
+              <tbody id="admin-matrix-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. แถบแจ้งเตือนเมื่อเจ้าหน้าที่เปลี่ยนรอบระหว่างที่กำลังพิมพ์ค้างอยู่ -->
+    <section id="round-change-banner" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-2 border-amber-400 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 animate-bounce">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </span>
+        <p id="round-change-text" class="text-xs sm:text-sm font-extrabold text-amber-950 leading-snug"></p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" id="btn-jump-station" onclick="jumpToLiveStation()" class="px-3.5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-extrabold shadow-xs transition">
+          ย้ายโต๊ะทั้งกลุ่ม →
+        </button>
+        <button type="button" onclick="dismissRoundChangeBanner()" class="px-2.5 py-2 rounded-xl bg-white/85 hover:bg-white border border-amber-300 text-amber-900 text-xs font-bold transition">
+          อยู่โต๊ะเดิมก่อน
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. การ์ดแสดงผู้เชี่ยวชาญประจำโต๊ะ & สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน -->
+    <section class="bg-white rounded-3xl border border-indigo-200 shadow-xs overflow-hidden">
+      <button type="button" onclick="toggleRosterCard()" class="w-full px-4 sm:px-5 py-3 bg-indigo-50/75 hover:bg-indigo-100/70 flex flex-wrap items-center justify-between gap-2 text-left transition">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-8 h-8 rounded-xl bg-indigo-700 text-gold-400 flex items-center justify-center shrink-0">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </span>
+          <div class="min-w-0">
+            <p id="roster-title" class="text-xs sm:text-sm font-extrabold text-navy-900 truncate">รายชื่อประจำโต๊ะที่ 1 — ผู้เชี่ยวชาญ + สมาชิกกลุ่มที่ 1</p>
+            <p id="roster-sub" class="text-[11px] text-indigo-800 truncate">รอบเวทีปัจจุบัน: รอบที่ 1 / 5 (ควบคุมโดยเจ้าหน้าที่)</p>
+          </div>
+        </div>
+        <span id="roster-toggle-text" class="px-2.5 py-1 rounded-lg bg-white border border-indigo-200 text-indigo-800 text-[11px] font-bold shrink-0">ซ่อนรายชื่อ</span>
+      </button>
+
+      <div id="roster-body" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs border-t border-indigo-100">
+        <div class="p-3 rounded-2xl bg-amber-50/75 border border-amber-200 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span id="roster-exp-title" class="font-extrabold text-amber-950">⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ 1 (นั่งประจำไม่ย้ายโต๊ะ)</span>
+            <span id="roster-exp-cnt" class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 font-mono text-[10.5px] font-extrabold">0 ราย</span>
+          </div>
+          <div id="roster-exp-chips" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div class="p-3 rounded-2xl bg-blue-50/75 border border-blue-200 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span id="roster-mem-title" class="font-extrabold text-navy-900">👥 สมาชิกกลุ่มที่ 1 (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)</span>
+            <span id="roster-mem-cnt" class="px-2 py-0.5 rounded-full bg-blue-200 text-navy-900 font-mono text-[10.5px] font-extrabold">0 ราย</span>
+          </div>
+          <div id="roster-mem-chips" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ฟอร์มบันทึกใบงานที่ 1 (ช่วงเช้า — ส่งทีละ 1 ประเด็น) -->
+    <section id="morning-form-card" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-5 py-3.5 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-700 text-white flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 class="font-extrabold text-base sm:text-lg leading-tight">บันทึกประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย</h2>
+          <p class="text-xs text-blue-100 mt-0.5">ส่งทีละ 1 ประเด็นให้กระชับชัดเจน เพื่อใช้เป็นข้อมูลตั้งต้นจัดทำคำตอบ Q&amp;A ในช่วงบ่าย</p>
+        </div>
+        <span id="edit-mode-badge" class="hidden px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">✏️ กำลังแก้ไขประเด็น</span>
+      </div>
+
+      <form id="morning-form" onsubmit="submitMorningIssue(event)" class="p-4 sm:p-6 space-y-4 text-sm sm:text-base">
+        <input type="hidden" id="m-edit-id" value="" />
+
+        <!-- 5.1 เลือกหมวดหมู่ / โต๊ะฐาน (1–5) -->
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <label class="font-extrabold text-navy-900">1. เลือกหมวดหมู่ / โต๊ะฐาน (หมวด 1–5) <span class="text-rose-600">*</span></label>
+            <span id="cat-status-pill" class="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-navy-800 text-xs font-extrabold">รอบที่ 1 / 5</span>
+          </div>
+          <p class="text-xs text-slate-500">แตะเลือกโต๊ะได้เองอิสระ ทั้งโต๊ะรอบปัจจุบันหรือกดย้อนกลับไปเพิ่มประเด็นในโต๊ะที่ผ่านมาแล้ว</p>
+          <div id="category-buttons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>
+          <div id="category-scope-box" class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
+        </div>
+
+        <!-- 5.2 กลุ่มผู้ส่งประเด็น (ล็อกตามบัตรสำหรับผู้เข้าร่วม / เลือกได้สำหรับ Admin & ผู้เชี่ยวชาญ) -->
+        <div class="space-y-2 pt-1">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <label class="font-extrabold text-navy-900">2. กลุ่มผู้ส่งประเด็น <span class="text-rose-600">*</span></label>
+            <span id="group-status-pill" class="px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-maroon-800 text-xs font-extrabold">กลุ่มที่ 1</span>
+          </div>
+          <div id="group-selector-area"></div>
+        </div>
+
+        <!-- กล่องดูประเด็นที่เพื่อนในกลุ่มส่งแล้วในหมวดนี้ (กันถามซ้ำ) -->
+        <div class="p-3.5 rounded-2xl bg-emerald-50/75 border border-emerald-200 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <p id="teammate-panel-title" class="text-xs sm:text-sm font-extrabold text-emerald-950 flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i>
+              <span>ประเด็นที่เพื่อนในกลุ่มส่งแล้วในหมวดนี้ (ดูเพื่อกันถามซ้ำ)</span>
+            </p>
+            <span id="teammate-panel-count" class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono text-[11px] font-extrabold">0 ข้อ</span>
+          </div>
+          <div id="teammate-panel-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll text-xs"></div>
+        </div>
+
+        <!-- 5.3 ผู้บันทึกข้อมูล -->
+        <div class="space-y-1">
+          <label for="m-recorder" class="block font-extrabold text-navy-900">3. ผู้บันทึกข้อมูล <span class="text-rose-600">*</span></label>
+          <input type="text" id="m-recorder" required oninput="safeSet('ws2_recorder_name', this.value)" placeholder="ระบุยศ ชื่อ - สกุล ผู้บันทึกข้อมูล" class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-700 text-base" />
+        </div>
+
+        <!-- 5.4 ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย -->
+        <div class="space-y-1">
+          <label for="m-issue-text" class="block font-extrabold text-navy-900">4. ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย <span class="text-rose-600">*</span></label>
+          <p class="text-xs text-slate-500">เขียนให้กระชับชัดเจน 1 ประเด็นต่อ 1 รายการ (ระบบช่วยตรวจสอบประเด็นคล้ายกันในหมวดนี้อัตโนมัติ)</p>
+          <textarea id="m-issue-text" rows="3" required oninput="checkDuplicateHint(this.value)" placeholder="พิมพ์ประเด็นปัญหา ข้อขัดข้องในการปฏิบัติงาน หรือคำถามที่ประชาชน/ตำรวจหน้างานถามบ่อย..." class="w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-700 text-base leading-relaxed"></textarea>
+          <div id="m-duplicate-warning" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-950 font-semibold leading-snug"></div>
+        </div>
+
+        <!-- 5.5 ระดับความเร่งด่วน (Radio Card 3 สี) -->
+        <div class="space-y-2">
+          <label class="block font-extrabold text-navy-900">5. ระดับความเร่งด่วน <span class="text-rose-600">*</span></label>
+          <div class="grid grid-cols-3 gap-2.5">
+            <label class="cursor-pointer">
+              <input type="radio" name="m-urgency" value="เร่งด่วนมาก" class="peer sr-only" />
+              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-rose-600 peer-checked:bg-rose-50 text-center transition">
+                <span class="block text-base sm:text-lg leading-none">🔴</span>
+                <span class="block font-extrabold text-xs sm:text-sm text-rose-800 mt-1">เร่งด่วนมาก</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="m-urgency" value="เร่งด่วน" class="peer sr-only" checked />
+              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-amber-500 peer-checked:bg-amber-50 text-center transition">
+                <span class="block text-base sm:text-lg leading-none">🟠</span>
+                <span class="block font-extrabold text-xs sm:text-sm text-amber-800 mt-1">เร่งด่วน</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="m-urgency" value="ทั่วไป" class="peer sr-only" />
+              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-50 text-center transition">
+                <span class="block text-base sm:text-lg leading-none">🟢</span>
+                <span class="block font-extrabold text-xs sm:text-sm text-emerald-800 mt-1">ทั่วไป</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ปุ่มส่งข้อมูล -->
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" id="m-cancel-edit-btn" onclick="cancelEdit()" class="hidden px-4 py-2.5 rounded-2xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition">
+            ยกเลิกการแก้ไข
+          </button>
+          <button type="submit" id="m-submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.99] text-white font-extrabold text-base shadow-md transition">
+            <i data-lucide="send" class="w-4 h-4 text-gold-400"></i>
+            <span id="m-submit-label">บันทึกประเด็นปัญหา</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 6. รายการประเด็นปัญหาที่ส่งแล้วแบบเรียลไทม์ -->
+    <section class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">รายการประเด็นปัญหาช่วงเช้า (<span id="list-count" class="font-mono text-navy-700">0</span> ข้อ)</h3>
+            <p id="list-subtitle" class="text-xs text-slate-500">แสดงรายการตามตัวกรองที่เลือก</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-xs">
+            <button type="button" id="scope-btn-match" onclick="setListScope('match')" class="px-2.5 py-1 rounded-lg font-bold transition">กลุ่ม+หมวดนี้</button>
+            <button type="button" id="scope-btn-cat" onclick="setListScope('cat')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทุกกลุ่มหมวดนี้</button>
+            <button type="button" id="scope-btn-group" onclick="setListScope('group')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทั้งกลุ่มนี้</button>
+            <button type="button" id="scope-btn-all" onclick="setListScope('all')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทั้งหมด</button>
+          </div>
+        </div>
+
+        <!-- ช่องค้นหา + กรองความเร่งด่วน -->
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <div class="relative flex-1 min-w-[180px]">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="list-search" oninput="renderIssuesList()" placeholder="ค้นหารหัส ISS, คำสำคัญ, ชื่อผู้บันทึก..." class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-navy-700" />
+          </div>
+          <select id="list-filter-urgency" onchange="renderIssuesList()" class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-bold">
+            <option value="all">ทุกระดับความเร่งด่วน</option>
+            <option value="เร่งด่วนมาก">🔴 เร่งด่วนมาก</option>
+            <option value="เร่งด่วน">🟠 เร่งด่วน</option>
+            <option value="ทั่วไป">🟢 ทั่วไป</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="issues-list-container" class="p-4 space-y-2.5"></div>
+    </section>
+
+    <!-- Footer พร้อมปุ่มปลดล็อกคณะทำงาน (Admin) -->
+    <footer class="text-center pt-2 text-xs text-slate-400 space-y-1">
+      <p>โครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI “คู่หูจราจร” • ศจร.ตร.</p>
+      <p id="footer-admin-trigger">
+        <button type="button" onclick="openAdminUnlockModal()" class="text-slate-400 hover:text-navy-700 underline transition">สำหรับคณะทำงาน (Admin): ปลดล็อกคุมรอบและส่งออกข้อมูล</button>
+      </p>
+    </footer>
+  </main>
+
+  <!-- ==================== พื้นที่รายงานสำหรับพิมพ์ / บันทึก PDF (Admin) ==================== -->
+  <section id="print-report-container" class="hidden p-4 bg-white text-slate-900"></section>
+
+  <!-- ==================== MODAL: ยืนยันการลบ (แทน confirm) ==================== -->
+  <div id="delete-modal" onclick="closeDeleteModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-rose-500">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="trash-2" class="w-6 h-6"></i>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-extrabold text-base text-slate-900">ยืนยันการลบประเด็นปัญหา?</h3>
+        <p id="delete-modal-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">ยกเลิก</button>
+        <button type="button" id="delete-confirm-btn" onclick="executeDeleteIssue()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm">ยืนยันลบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ปลดล็อกโหมดคณะทำงาน (Admin PIN) ==================== -->
+  <div id="admin-unlock-modal" onclick="closeAdminUnlockModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-indigo-600">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center mx-auto">
+        <i data-lucide="shield-check" class="w-6 h-6"></i>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-extrabold text-base text-slate-900">ปลดล็อกโหมดคณะทำงาน (Admin)</h3>
+        <p class="text-xs text-slate-500">กรอกรหัสผ่านคณะทำงานเพื่อเปิดแผงควบคุมรอบหมุนเวียน ตารางสรุป Matrix 5×5 แก้ไข/ลบทุกกลุ่ม และส่งออกไฟล์</p>
+      </div>
+      <form onsubmit="submitAdminPin(event)" class="space-y-3">
+        <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="10" placeholder="กรอกรหัส (2569)" required class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+        <div class="flex gap-2">
+          <button type="button" onclick="closeAdminUnlockModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">ยกเลิก</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold">ปลดล็อก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const ADMIN_PASSCODE = "2569";
+
+    // โครงสร้าง 5 หมวดหมู่หลักและขอบเขตเนื้อหา
+    const CATEGORIES = [
+      {
+        no: 1,
+        short: 'กฎหมายจราจร',
+        name: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
+        scope: 'พ.ร.บ.จราจรทางบก, พ.ร.บ.รถยนต์, การตีความข้อกฎหมาย, อำนาจหน้าที่, การเปรียบเทียบปรับ และข้อกฎหมายใหม่',
+        color: '#1E3A8A'
+      },
+      {
+        no: 2,
+        short: 'คู่มือ / SOP',
+        name: 'คู่มือแนวทาง ข้อสั่งการ และมาตรฐานการปฏิบัติงาน (SOP)',
+        scope: 'การตั้งจุดตรวจ/จุดสกัด, การตรวจวัดแอลกอฮอล์, การจัดการจราจร/อุบัติเหตุ, ขั้นตอนปฏิบัติ และหนังสือสั่งการ ตร./ศจร.ตร.',
+        color: '#0F766E'
+      },
+      {
+        no: 3,
+        short: 'ไอที (PTM / TPCC)',
+        name: 'การใช้งานระบบเทคโนโลยีสารสนเทศงานจราจร (PTM / TPCC)',
+        scope: 'ระบบใบสั่งจราจร PTM, ระบบบริหารจุดตรวจ TPCC, ระบบตัดคะแนนความประพฤติ, การเชื่อมโยงข้อมูล และปัญหาการใช้งานอุปกรณ์',
+        color: '#4338CA'
+      },
+      {
+        no: 4,
+        short: 'การเงินและงบประมาณ',
+        name: 'ด้านการเงินและงบประมาณงานจราจร',
+        scope: 'เงินรางวัลค่าปรับจราจร, การจัดสรรและเบิกจ่ายงบประมาณ, ค่าตอบแทน/เบี้ยเลี้ยง, การจัดซื้อจัดจ้าง และระเบียบการเงิน',
+        color: '#B45309'
+      },
+      {
+        no: 5,
+        short: 'ข้อโต้แย้งจากประชาชน',
+        name: 'ประเด็นข้อโต้แย้งจากประชาชนในระหว่างปฏิบัติหน้าที่',
+        scope: 'การโต้เถียงเรื่องอำนาจตรวจค้น/ออกใบสั่ง, การถ่ายคลิปเผยแพร่, ข้อร้องเรียนที่พบบ่อย และแนวทางสื่อสารลดความขัดแย้ง',
+        color: '#881337'
+      }
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function safeSessionGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+    function safeSessionSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+    const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+
+    // สถานะสิทธิ์ 3 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร/DGA) | 'participant' (ผู้เข้าร่วมสัมมนา)
+    let userCtx = {
+      id: '',
+      name: '',
+      roleLevel: 'participant',
+      rawRoleText: '',
+      baseGroup: 0,       // กลุ่มประจำตัว (1–5) ของผู้เข้าร่วม หรือโต๊ะประจำของวิทยากร
+      liveRound: 1        // รอบปัจจุบันจากเวที (1–5)
+    };
+
+    let adminSelectedRound = 1;
+    let selectedCategory = Number(safeGet('ws2_last_cat', '1')) || 1;
+    let selectedGroup = Number(safeGet('ws2_last_group', '1')) || 1;
+    let listScope = 'match'; // 'match' | 'cat' | 'group' | 'all'
+    let rosterHidden = false;
+    let adminMatrixHidden = false;
+    let hasLoadedOnce = false;
+    let lastKnownRound = 0;
+
+    let participants = [];
+    let workshopConfig = { currentRound: 1, groups: [] };
+    let morningIssues = [];
+    let pendingDeleteIssueId = '';
+    let isMutating = false;
+
+    // ==================== HELPER FUNCTIONS ====================
+    function getCategory(no) {
+      return CATEGORIES.find(c => c.no === Number(no)) || CATEGORIES[0];
+    }
+
+    function parseGroupNo(val) {
+      const m = String(val || '').trim().match(/[1-5]/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
+    function isFixedExpertRole(p) {
+      const wr = String(p?.workshopRole || '');
+      return wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร');
+    }
+
+    function detectRoleLevelFromParticipant(p) {
+      const role = String(p?.role || '').trim();
+      const unit = String(p?.mainUnit || p?.unitDetail || '').trim();
+      const wr = String(p?.workshopRole || '').trim();
+      if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || unit.includes('สพร.') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
+        return 'reviewer';
+      }
+      return 'participant';
+    }
+
+    function getActiveDisplayName(p) {
+      if (!p) return '';
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(String(p.substituteName || '').trim());
+      return isSub ? String(p.substituteName).trim() : String(p.fullName || '').trim();
+    }
+
+    function getRotatingStationForGroup(baseGrp, round) {
+      if (!baseGrp || baseGrp < 1 || baseGrp > 5) return 0;
+      const r = Math.max(1, Math.min(5, Number(round) || 1));
+      return (((baseGrp - 1 + (r - 1)) % 5) + 1);
+    }
+
+    function getVisitingGroupAtStation(stationNo, round) {
+      if (!stationNo || stationNo < 1 || stationNo > 5) return 0;
+      const r = Math.max(1, Math.min(5, Number(round) || 1));
+      return (((stationNo - 1 - (r - 1) + 5) % 5) + 1);
+    }
+
+    function isStationAlreadyVisited(baseGrp, stationNo, currentRound) {
+      if (!baseGrp || currentRound <= 1) return false;
+      for (let r = 1; r < currentRound; r++) {
+        if (getRotatingStationForGroup(baseGrp, r) === stationNo) return true;
+      }
+      return false;
+    }
+
+    function isGroupLocked() {
+      return userCtx.roleLevel === 'participant' && userCtx.baseGroup >= 1 && userCtx.baseGroup <= 5;
+    }
+
+    function canModifyIssue(item) {
+      if (!item) return false;
+      if (userCtx.roleLevel === 'admin') return true;
+      if (userCtx.roleLevel === 'reviewer') {
+        if (!userCtx.baseGroup) return true;
+        return Number(item.categoryNo) === userCtx.baseGroup || (userCtx.name && item.recorder === userCtx.name);
+      }
+      // ผู้เข้าร่วมสัมมนา: แก้ไข/ลบได้เฉพาะรายการของกลุ่มตนเองหรือที่ตนเองบันทึก
+      if (userCtx.name && item.recorder === userCtx.name) return true;
+      return !userCtx.baseGroup || Number(item.groupNo) === userCtx.baseGroup;
+    }
+
+    function getUrgencyBadge(urgency) {
+      if (urgency === 'เร่งด่วนมาก') return { cls: 'bg-rose-100 text-rose-800 border-rose-300', label: '🔴 เร่งด่วนมาก' };
+      if (urgency === 'เร่งด่วน') return { cls: 'bg-amber-100 text-amber-900 border-amber-300', label: '🟠 เร่งด่วน' };
+      return { cls: 'bg-emerald-100 text-emerald-800 border-emerald-300', label: '🟢 ทั่วไป' };
+    }
+
+    // ==================== INITIALIZATION ====================
+    function initMorningApp() {
+      const params = new URLSearchParams(window.location.search);
+      const urlId = String(params.get('id') || '').trim();
+      const urlName = String(params.get('name') || '').trim();
+      const urlGroup = parseGroupNo(params.get('group'));
+      const urlCat = parseGroupNo(params.get('cat'));
+      const urlRound = parseGroupNo(params.get('round')) || 1;
+      const urlStaff = String(params.get('staff') || '').trim().toLowerCase();
+      const urlUserType = String(params.get('userType') || params.get('role') || '').trim().toLowerCase();
+
+      userCtx.id = urlId;
+      userCtx.name = urlName || safeGet('ws2_recorder_name', '');
+      userCtx.liveRound = Math.max(1, Math.min(5, urlRound));
+      adminSelectedRound = userCtx.liveRound;
+      lastKnownRound = userCtx.liveRound;
+
+      if (urlStaff === '1' || urlStaff === 'true' || urlUserType === 'staff' || urlUserType === 'admin' || safeSessionGet('ai_seminar_ws_admin') === 'true') {
+        userCtx.roleLevel = 'admin';
+      } else if (urlUserType === 'expert' || urlUserType === 'reviewer') {
+        userCtx.roleLevel = 'reviewer';
+      } else {
+        userCtx.roleLevel = 'participant';
+      }
+
+      if (userCtx.roleLevel === 'reviewer' && urlCat) {
+        userCtx.baseGroup = urlCat;
+        selectedCategory = urlCat;
+        selectedGroup = getVisitingGroupAtStation(urlCat, userCtx.liveRound) || 1;
+      } else if (urlGroup) {
+        userCtx.baseGroup = urlGroup;
+        selectedGroup = urlGroup;
+        selectedCategory = urlCat || getRotatingStationForGroup(urlGroup, userCtx.liveRound) || 1;
+      } else if (urlCat) {
+        selectedCategory = urlCat;
+      }
+
+      document.getElementById('m-recorder').value = userCtx.name || safeGet('ws2_recorder_name', '');
+
+      updateCrossPageLinks();
+      setListScope(userCtx.roleLevel === 'admin' ? 'all' : 'match', false);
+      renderEverything();
+      if (window.lucide) lucide.createIcons();
+
+      fetchAllData(true);
+
+      // ซิงค์ข้อมูลอัตโนมัติทุก 10 วินาที
+      setInterval(() => {
+        if (!document.hidden && !isMutating) fetchAllData(false);
+      }, 10000);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDeleteModal();
+          closeAdminUnlockModal();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMorningApp);
+    } else {
+      initMorningApp();
+    }
+
+    function updateCrossPageLinks() {
+      const qs = new URLSearchParams();
+      if (userCtx.id) qs.set('id', userCtx.id);
+      if (userCtx.name) qs.set('name', userCtx.name);
+      if (userCtx.baseGroup) qs.set('group', String(userCtx.baseGroup));
+      if (userCtx.roleLevel === 'admin') {
+        qs.set('staff', '1');
+        qs.set('userType', 'staff');
+      } else if (userCtx.roleLevel === 'reviewer') {
+        qs.set('userType', 'expert');
+      }
+      const queryStr = qs.toString() ? `?${qs.toString()}` : '';
+
+      const backPortal = document.getElementById('nav-back-portal');
+      if (backPortal && userCtx.id) {
+        backPortal.href = `portal.html?id=${encodeURIComponent(userCtx.id)}${userCtx.roleLevel === 'admin' ? '&staff=1' : ''}`;
+        backPortal.classList.remove('hidden');
+      }
+      const toAfternoon = document.getElementById('nav-to-afternoon');
+      if (toAfternoon) toAfternoon.href = `afternoon.html${queryStr}`;
+      const toReview = document.getElementById('nav-to-review');
+      if (toReview) toReview.href = `review.html${queryStr}`;
+
+      const toDisplay = document.getElementById('nav-to-display');
+      if (toDisplay) toDisplay.classList.toggle('hidden', userCtx.roleLevel !== 'admin');
+    }
+
+    // ==================== DATA SYNC ====================
+    async function fetchAllData(showLoading = false) {
+      const dot = document.getElementById('sync-dot');
+      const txt = document.getElementById('sync-text');
+      if (showLoading && txt) txt.textContent = 'กำลังโหลดข้อมูลล่าสุด...';
+
+      const ts = Date.now();
+      try {
+        const reqs = [fetch(`${API_URL}?action=getWorkshopData&_t=${ts}`, { cache: 'no-store' })];
+        if (!hasLoadedOnce || showLoading || participants.length === 0) {
+          reqs.push(fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }).catch(() => null));
+        }
+
+        const [wRes, pRes] = await Promise.all(reqs);
+        if (!wRes.ok) throw new Error(`HTTP ${wRes.status}`);
+        const wJson = await wRes.json();
+        if (wJson.status !== 'success') throw new Error(wJson.message || 'โหลดข้อมูลไม่สำเร็จ');
+
+        morningIssues = Array.isArray(wJson.data?.issues) ? wJson.data.issues : [];
+
+        if (pRes && pRes.ok) {
+          try {
+            const pJson = await pRes.json();
+            if (pJson.status === 'success' && Array.isArray(pJson.data)) {
+              participants = pJson.data;
+              hydrateUserFromParticipants();
+            }
+          } catch (e) {}
+        }
+
+        const cfg = wJson.data?.workshopConfig;
+        if (cfg) {
+          workshopConfig = cfg;
+          const srvRound = Number(cfg.currentRound);
+          if (srvRound >= 1 && srvRound <= 5) {
+            const roundChanged = hasLoadedOnce && lastKnownRound > 0 && srvRound !== lastKnownRound;
+            userCtx.liveRound = srvRound;
+            if (!hasLoadedOnce || userCtx.roleLevel !== 'admin') {
+              adminSelectedRound = srvRound;
+            }
+            lastKnownRound = srvRound;
+
+            if (!hasLoadedOnce) {
+              const urlCat = parseGroupNo(new URLSearchParams(window.location.search).get('cat'));
+              if (isGroupLocked()) {
+                selectedGroup = userCtx.baseGroup;
+                selectedCategory = urlCat || getRotatingStationForGroup(userCtx.baseGroup, srvRound) || 1;
+              } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
+                selectedCategory = userCtx.baseGroup;
+                selectedGroup = getVisitingGroupAtStation(userCtx.baseGroup, srvRound) || 1;
+              }
+            } else if (roundChanged && userCtx.roleLevel !== 'admin') {
+              handleLiveRoundChanged(srvRound);
+            }
+          }
+        }
+
+        hasLoadedOnce = true;
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        if (txt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          txt.textContent = `ซิงค์ล่าสุด ${nowStr} น. (รวม ${morningIssues.length} ประเด็น)`;
+        }
+
+        updateCrossPageLinks();
+        renderEverything();
+      } catch (err) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-400 inline-block shrink-0';
+        if (txt) txt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        if (showLoading) showToast('ไม่สามารถโหลดข้อมูลได้: ' + err.message, 'error');
+      }
+    }
+
+    function hydrateUserFromParticipants() {
+      if (!userCtx.id || participants.length === 0) return;
+      const found = participants.find(p => String(p.id || '').trim().toUpperCase() === userCtx.id.toUpperCase());
+      if (!found) return;
+
+      const name = getActiveDisplayName(found);
+      if (name) {
+        userCtx.name = name;
+        const recInp = document.getElementById('m-recorder');
+        if (recInp && !recInp.value) recInp.value = name;
+      }
+      userCtx.rawRoleText = String(found.role || '').trim();
+
+      const grp = parseGroupNo(found.workshopGroup);
+      if (grp) userCtx.baseGroup = grp;
+
+      if (userCtx.roleLevel !== 'admin') {
+        userCtx.roleLevel = detectRoleLevelFromParticipant(found);
+      }
+      if (isGroupLocked()) {
+        selectedGroup = userCtx.baseGroup;
+      }
+    }
+
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    // ==================== LIVE ROUND ROTATION ====================
+    function isDraftingText() {
+      const txt = String(document.getElementById('m-issue-text')?.value || '').trim();
+      const editId = String(document.getElementById('m-edit-id')?.value || '').trim();
+      return Boolean(txt || editId);
+    }
+
+    function handleLiveRoundChanged(newRound) {
+      if (!isDraftingText()) {
+        applyLiveStationForRound(newRound, true);
+        dismissRoundChangeBanner();
+        return;
+      }
+      const banner = document.getElementById('round-change-banner');
+      const msgEl = document.getElementById('round-change-text');
+      const btn = document.getElementById('btn-jump-station');
+      if (!banner || !msgEl) return;
+
+      if (isGroupLocked()) {
+        const nextCat = getRotatingStationForGroup(userCtx.baseGroup, newRound);
+        msgEl.textContent = `🔔 เจ้าหน้าที่เปลี่ยนเป็นรอบที่ ${newRound}/5 แล้ว! กลุ่มที่ ${userCtx.baseGroup} ย้ายไปหมวดที่ ${nextCat} (${getCategory(nextCat).short})`;
+        if (btn) btn.textContent = `ย้ายไปหมวด ${nextCat} →`;
+        banner.classList.remove('hidden');
+      } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
+        const nextGrp = getVisitingGroupAtStation(userCtx.baseGroup, newRound);
+        msgEl.textContent = `🔔 รอบที่ ${newRound}/5 แล้ว! กลุ่มที่ ${nextGrp} เดินมาที่โต๊ะหมวดที่ ${userCtx.baseGroup} ของท่าน`;
+        if (btn) btn.textContent = `สลับรับกลุ่ม ${nextGrp} →`;
+        banner.classList.remove('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function applyLiveStationForRound(roundNo, toastMsg = false) {
+      if (isGroupLocked()) {
+        selectedGroup = userCtx.baseGroup;
+        const nextCat = getRotatingStationForGroup(userCtx.baseGroup, roundNo) || 1;
+        selectedCategory = nextCat;
+        safeSet('ws2_last_cat', String(selectedCategory));
+        if (toastMsg) showToast(`🔔 รอบที่ ${roundNo}/5: ย้ายกลุ่มที่ ${userCtx.baseGroup} ไปหมวดที่ ${nextCat} (${getCategory(nextCat).short}) อัตโนมัติ`, 'success');
+      } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
+        selectedCategory = userCtx.baseGroup;
+        selectedGroup = getVisitingGroupAtStation(userCtx.baseGroup, roundNo) || 1;
+        if (toastMsg) showToast(`🔔 รอบที่ ${roundNo}/5: กลุ่มที่ ${selectedGroup} มาที่โต๊ะหมวดที่ ${userCtx.baseGroup} ของท่าน`, 'success');
+      }
+      renderEverything();
+    }
+
+    function jumpToLiveStation() {
+      applyLiveStationForRound(userCtx.liveRound, true);
+      dismissRoundChangeBanner();
+    }
+
+    function dismissRoundChangeBanner() {
+      document.getElementById('round-change-banner')?.classList.add('hidden');
+    }
+
+    // ==================== RENDER ALL UI ====================
+    function renderEverything() {
+      renderRoleBanner();
+      renderAdminControlPanel();
+      renderRosterCard();
+      renderCategoryAndGroupSelectors();
+      renderTeammatePanel();
+      renderIssuesList();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderRoleBanner() {
+      const codeEl = document.getElementById('ctx-code');
+      const nameEl = document.getElementById('ctx-name');
+      const badgeEl = document.getElementById('ctx-role-badge');
+      const guideEl = document.getElementById('ctx-role-guide');
+      const progBox = document.getElementById('group-5cat-progress-box');
+      const progLbl = document.getElementById('group-5cat-label');
+      const progCnt = document.getElementById('group-5cat-count');
+      const progPills = document.getElementById('group-5cat-pills');
+
+      const isAdmin = userCtx.roleLevel === 'admin';
+      const isReviewer = userCtx.roleLevel === 'reviewer';
+
+      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isReviewer ? 'EXPERT' : 'GUEST'));
+      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA' : 'ผู้เข้าร่วมสัมมนา'));
+
+      document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
+
+      if (isAdmin) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
+        badgeEl.textContent = '🛡️ คณะทำงาน (Admin)';
+        guideEl.className = 'p-3 rounded-2xl bg-indigo-50/85 border border-indigo-200 text-xs sm:text-sm text-indigo-950 leading-relaxed';
+        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> ควบคุมรอบหมุนเวียนกลาง (รอบปัจจุบัน: <strong>รอบที่ ${userCtx.liveRound}/5</strong>), ดูตารางภาพรวมครบทั้ง 5 กลุ่ม × 5 หมวด, บันทึก แก้ไข ลบประเด็นได้ทั้งหมด และส่งออกข้อมูลเป็นไฟล์ <strong>Excel / Text / PDF</strong>`;
+      } else if (isReviewer) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
+        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ/วิทยากร โต๊ะ ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร / DGA';
+        guideEl.className = 'p-3 rounded-2xl bg-amber-50/85 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
+        const visitGrp = userCtx.baseGroup ? getVisitingGroupAtStation(userCtx.baseGroup, userCtx.liveRound) : 0;
+        guideEl.innerHTML = userCtx.baseGroup
+          ? `<strong>⭐ ท่านประจำฐานหมวดที่ ${userCtx.baseGroup} (${escapeHtml(getCategory(userCtx.baseGroup).short)}):</strong> นั่งประจำฐานไม่ย้ายโต๊ะ • รอบเวทีปัจจุบัน (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) <strong>กลุ่มที่ ${visitGrp}</strong> กำลังร่วมระดมสมองที่โต๊ะของท่าน (สามารถช่วยบันทึกหรือตรวจประเด็นช่วงเช้าได้)`
+          : `<strong>⭐ ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA:</strong> สามารถเรียกดูและช่วยบันทึกประเด็นปัญหาช่วงเช้าได้ครบทุกหมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5)`;
+      } else {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0';
+        badgeEl.textContent = userCtx.baseGroup ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup}` : '👥 ผู้เข้าร่วมสัมมนา';
+        guideEl.className = 'p-3 rounded-2xl bg-blue-50/85 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed';
+        if (userCtx.baseGroup) {
+          const curSt = getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound);
+          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ท่านอยู่ <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> • รอบปัจจุบันจากเวที (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) คือ <strong>หมวดที่ ${curSt}: ${escapeHtml(getCategory(curSt).short)}</strong> (สามารถกดสลับหมวดเพื่อย้อนกลับไปเพิ่มประเด็นได้ตลอด — ช่วงบ่ายกลุ่มที่ ${userCtx.baseGroup} จะกลับไปทำคำตอบเฉพาะหมวดที่ ${userCtx.baseGroup})`;
+        } else {
+          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ร่วมกันบันทึกประเด็นปัญหาและข้อขัดข้องให้ครบทั้ง 5 หมวด (รอบปัจจุบันจากเวที: รอบที่ ${userCtx.liveRound}/5)`;
+        }
+      }
+
+      // แสดงแถบความคืบหน้าครบ 5 หมวดของกลุ่มที่กำลังทำงานอยู่
+      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
+      if (progBox && progPills) {
+        let doneCats = 0;
+        progPills.innerHTML = CATEGORIES.map(c => {
+          const cnt = morningIssues.filter(m => Number(m.groupNo) === targetGrp && Number(m.categoryNo) === c.no).length;
+          if (cnt > 0) doneCats++;
+          const isCur = c.no === selectedCategory;
+          return `
+            <button type="button" onclick="selectCategory(${c.no})" class="py-1.5 px-1 rounded-xl border text-center transition ${
+              cnt > 0
+                ? (isCur ? 'bg-emerald-600 border-emerald-700 text-white shadow-xs' : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100')
+                : (isCur ? 'bg-navy-700 border-navy-800 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-navy-700/40')
+            }">
+              <div class="text-[10.5px] font-extrabold leading-tight">หมวด ${c.no}</div>
+              <div class="font-mono text-[10px] font-bold mt-0.5">${cnt > 0 ? `✓ ${cnt} ข้อ` : 'รอส่ง'}</div>
+            </button>
+          `;
+        }).join('');
+        if (progLbl) progLbl.textContent = `ความคืบหน้าการระดมสมองครบทั้ง 5 หมวดของกลุ่มที่ ${targetGrp}:`;
+        if (progCnt) progCnt.textContent = `${doneCats} / 5 หมวด`;
+      }
+    }
+
+    // ==================== ADMIN PANEL (ROUND SYNC + 5×5 MATRIX + EXPORTS) ====================
+    function renderAdminControlPanel() {
+      const panel = document.getElementById('admin-control-panel');
+      if (!panel) return;
+      const isAdmin = userCtx.roleLevel === 'admin';
+      panel.classList.toggle('hidden', !isAdmin);
+      if (!isAdmin) return;
+
+      const btnTxt = document.getElementById('btn-admin-sync-round-text');
+      if (btnTxt) btnTxt.textContent = `ซิงค์รอบ ${adminSelectedRound} ให้ทุกคน`;
+
+      const roundBox = document.getElementById('admin-round-buttons');
+      if (roundBox) {
+        roundBox.innerHTML = [1, 2, 3, 4, 5].map(r => {
+          const active = r === adminSelectedRound;
+          const isLive = r === userCtx.liveRound;
+          return `
+            <button type="button" onclick="selectAdminRound(${r})" class="py-2 px-1 rounded-xl border-2 text-center transition ${
+              active
+                ? 'border-indigo-700 bg-indigo-700 text-white shadow-xs'
+                : 'border-indigo-200 bg-white hover:border-indigo-500 text-slate-800'
+            }">
+              <div class="text-[10px] font-bold ${active ? 'text-gold-400' : (isLive ? 'text-emerald-700' : 'text-slate-400')}">${isLive ? '● รอบเวที' : 'รอบที่'}</div>
+              <div class="font-mono text-base font-extrabold leading-tight">${r}</div>
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Matrix 5×5
+      const tbody = document.getElementById('admin-matrix-tbody');
+      const totalPill = document.getElementById('admin-total-issues-pill');
+      if (totalPill) totalPill.textContent = `รวมทั้งหมด ${morningIssues.length} ข้อ`;
+      if (!tbody) return;
+
+      const colTotals = [0, 0, 0, 0, 0];
+      const rowsHtml = [1, 2, 3, 4, 5].map(g => {
+        let rowSum = 0;
+        const cells = [1, 2, 3, 4, 5].map((c, idx) => {
+          const cnt = morningIssues.filter(m => Number(m.groupNo) === g && Number(m.categoryNo) === c).length;
+          rowSum += cnt;
+          colTotals[idx] += cnt;
+          return `
+            <td class="py-2 px-1.5">
+              <button type="button" onclick="jumpToMatrixCell(${g}, ${c})" class="w-full py-1 rounded-lg font-mono font-extrabold text-xs transition ${
+                cnt > 0
+                  ? 'bg-emerald-50 hover:bg-emerald-200 text-emerald-800 border border-emerald-200'
+                  : 'bg-slate-50 hover:bg-slate-200 text-slate-400 border border-slate-200/70'
+              }">${cnt}</button>
+            </td>
+          `;
+        }).join('');
+        return `
+          <tr>
+            <td class="py-2 px-2.5 text-left font-extrabold text-navy-900 whitespace-nowrap">กลุ่มที่ ${g}</td>
+            ${cells}
+            <td class="py-2 px-2.5 font-mono font-extrabold bg-blue-50/70 text-navy-800">${rowSum}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const footerRow = `
+        <tr class="bg-slate-100 font-extrabold text-navy-900 border-t-2 border-slate-300">
+          <td class="py-2 px-2.5 text-left">รวมทุกกลุ่ม</td>
+          ${colTotals.map(v => `<td class="py-2 px-1.5 font-mono">${v}</td>`).join('')}
+          <td class="py-2 px-2.5 font-mono bg-navy-800 text-gold-400">${morningIssues.length}</td>
+        </tr>
+      `;
+      tbody.innerHTML = rowsHtml + footerRow;
+    }
+
+    function toggleAdminMatrix() {
+      adminMatrixHidden = !adminMatrixHidden;
+      document.getElementById('admin-panel-body')?.classList.toggle('hidden', adminMatrixHidden);
+      const btn = document.getElementById('btn-toggle-matrix');
+      if (btn) btn.textContent = adminMatrixHidden ? 'แสดงแผงควบคุม' : 'ซ่อนตารางสรุป';
+    }
+
+    function selectAdminRound(r) {
+      adminSelectedRound = Math.max(1, Math.min(5, Number(r) || 1));
+      renderAdminControlPanel();
+    }
+
+    async function syncAdminRoundToServer() {
+      if (userCtx.roleLevel !== 'admin') return;
+      const btn = document.getElementById('btn-admin-sync-round');
+      const txt = document.getElementById('btn-admin-sync-round-text');
+      btn.disabled = true;
+      txt.textContent = 'กำลังซิงค์...';
+      isMutating = true;
+      try {
+        const res = await postToApi({ action: 'setWorkshopRound', currentRound: adminSelectedRound });
+        if (res.status !== 'success') throw new Error(res.message || 'ซิงค์รอบไม่สำเร็จ');
+        userCtx.liveRound = adminSelectedRound;
+        lastKnownRound = adminSelectedRound;
+        showToast(`📢 ซิงค์เปลี่ยนเป็นรอบที่ ${adminSelectedRound}/5 ขึ้นเวทีและบัตรทุกคนเรียบร้อยแล้ว`, 'success');
+        renderEverything();
+      } catch (err) {
+        showToast('ซิงค์รอบไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        txt.textContent = `ซิงค์รอบ ${adminSelectedRound} ให้ทุกคน`;
+      }
+    }
+
+    function jumpToMatrixCell(g, c) {
+      selectedGroup = g;
+      selectedCategory = c;
+      setListScope('match', false);
+      renderEverything();
+      document.getElementById('issues-list-container')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ==================== ROSTER CARD ====================
+    function toggleRosterCard() {
+      rosterHidden = !rosterHidden;
+      document.getElementById('roster-body')?.classList.toggle('hidden', rosterHidden);
+      const t = document.getElementById('roster-toggle-text');
+      if (t) t.textContent = rosterHidden ? 'แสดงรายชื่อ' : 'ซ่อนรายชื่อ';
+    }
+
+    function renderRosterCard() {
+      const catNo = selectedCategory;
+      const grpNo = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
+      const cat = getCategory(catNo);
+
+      const experts = participants.filter(p => parseGroupNo(p.workshopGroup) === catNo && isFixedExpertRole(p));
+      const members = participants.filter(p => parseGroupNo(p.workshopGroup) === grpNo && !isFixedExpertRole(p));
+
+      document.getElementById('roster-title').textContent =
+        `โต๊ะหมวดที่ ${catNo} (${cat.short}) — ⭐ ผู้เชี่ยวชาญ (${experts.length}) + 👥 กลุ่มที่ ${grpNo} (${members.length} ราย)`;
+      document.getElementById('roster-sub').textContent =
+        `รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound} / 5 (ควบคุมโดยเจ้าหน้าที่)`;
+      document.getElementById('roster-exp-title').textContent = `⭐ ผู้เชี่ยวชาญประจำหมวดที่ ${catNo} (นั่งประจำไม่ย้ายโต๊ะ)`;
+      document.getElementById('roster-exp-cnt').textContent = `${experts.length} ราย`;
+      document.getElementById('roster-mem-title').textContent = `👥 สมาชิกกลุ่มที่ ${grpNo} (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)`;
+      document.getElementById('roster-mem-cnt').textContent = `${members.length} ราย`;
+
+      const expChips = document.getElementById('roster-exp-chips');
+      const memChips = document.getElementById('roster-mem-chips');
+
+      if (expChips) {
+        if (experts.length > 0) {
+          expChips.innerHTML = experts.map(p => {
+            const name = getActiveDisplayName(p);
+            const isMe = userCtx.id && String(p.id).toUpperCase() === userCtx.id.toUpperCase();
+            return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-bold ${isMe ? 'bg-amber-400 border-amber-500 text-slate-950' : 'bg-white border-amber-300 text-amber-950'}">⭐ ${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
+          }).join('');
+        } else {
+          const cfgGrp = (workshopConfig.groups || []).find(g => Number(g.groupNo) === catNo);
+          const fallback = cfgGrp && cfgGrp.experts ? String(cfgGrp.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean) : [];
+          expChips.innerHTML = fallback.length > 0
+            ? fallback.map(n => `<span class="px-2.5 py-1 rounded-xl bg-white border border-amber-300 text-amber-950 text-[11px] font-bold">⭐ ${escapeHtml(n)}</span>`).join('')
+            : `<span class="text-[11px] text-amber-800/70 italic">ยังไม่ได้ระบุผู้เชี่ยวชาญประจำหมวดที่ ${catNo}</span>`;
+        }
+      }
+
+      if (memChips) {
+        memChips.innerHTML = members.length > 0
+          ? members.map(p => {
+              const name = getActiveDisplayName(p);
+              const isMe = userCtx.id && String(p.id).toUpperCase() === userCtx.id.toUpperCase();
+              return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-semibold ${isMe ? 'bg-navy-700 border-navy-800 text-white font-extrabold' : 'bg-white border-blue-200 text-navy-900'}">${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
+            }).join('')
+          : `<span class="text-[11px] text-navy-800/60 italic">ยังไม่มีรายชื่อสมาชิกในกลุ่มที่ ${grpNo}</span>`;
+      }
+    }
+
+    // ==================== CATEGORY & GROUP SELECTORS ====================
+    function selectCategory(catNo) {
+      selectedCategory = Math.max(1, Math.min(5, Number(catNo) || 1));
+      safeSet('ws2_last_cat', String(selectedCategory));
+      renderEverything();
+      checkDuplicateHint(document.getElementById('m-issue-text')?.value || '');
+    }
+
+    function selectGroup(grpNo) {
+      if (isGroupLocked()) return;
+      selectedGroup = Math.max(1, Math.min(5, Number(grpNo) || 1));
+      safeSet('ws2_last_group', String(selectedGroup));
+      renderEverything();
+    }
+
+    function renderCategoryAndGroupSelectors() {
+      const catGrid = document.getElementById('category-buttons-grid');
+      const scopeBox = document.getElementById('category-scope-box');
+      const catPill = document.getElementById('cat-status-pill');
+      const grpPill = document.getElementById('group-status-pill');
+      const grpArea = document.getElementById('group-selector-area');
+      if (!catGrid || !grpArea) return;
+
+      const locked = isGroupLocked();
+      const targetGrp = locked ? userCtx.baseGroup : selectedGroup;
+      const curStationForMember = locked ? getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound) : 0;
+      const visitingGrpForExpert = (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) ? getVisitingGroupAtStation(userCtx.baseGroup, userCtx.liveRound) : 0;
+
+      if (catPill) {
+        catPill.textContent = locked
+          ? `📍 รอบ ${userCtx.liveRound}/5: โต๊ะของกลุ่ม ${userCtx.baseGroup} คือ หมวด ${curStationForMember}`
+          : `รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound} / 5`;
+      }
+
+      catGrid.innerHTML = CATEGORIES.map(c => {
+        const active = c.no === selectedCategory;
+        const isCurrentTable = curStationForMember === c.no;
+        const isPrev = locked && !isCurrentTable && isStationAlreadyVisited(userCtx.baseGroup, c.no, userCtx.liveRound);
+        const isExpHome = userCtx.roleLevel === 'reviewer' && userCtx.baseGroup === c.no;
+        const cnt = morningIssues.filter(m => Number(m.categoryNo) === c.no && Number(m.groupNo) === targetGrp).length;
+
+        return `
+          <button type="button" onclick="selectCategory(${c.no})" class="p-3 rounded-2xl border-2 text-left transition ${
+            active
+              ? 'border-navy-700 bg-navy-700 text-white shadow-sm'
+              : 'border-slate-200 bg-white hover:border-navy-700/60 text-slate-800'
+          }">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-navy-700'}">หมวดที่ ${c.no}</span>
+              <div class="flex items-center gap-1">
+                ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบนี้</span>` : ''}
+                ${isPrev ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">↩️ ผ่านมาแล้ว</span>` : ''}
+                ${isExpHome ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
+              </div>
+            </div>
+            <span class="block text-sm font-extrabold leading-snug mt-0.5 truncate">${escapeHtml(c.short)}</span>
+            <span class="block text-[11px] mt-0.5 ${active ? 'text-blue-100' : 'text-slate-500'}">กลุ่ม ${targetGrp} ส่งแล้ว ${cnt} ข้อ</span>
+          </button>
+        `;
+      }).join('');
+
+      const curCat = getCategory(selectedCategory);
+      if (scopeBox) {
+        scopeBox.innerHTML = `<strong class="text-navy-800">ขอบเขตหมวดที่ ${curCat.no} (${escapeHtml(curCat.name)}):</strong> ${escapeHtml(curCat.scope)}`;
+      }
+
+      // โซนกลุ่มผู้ส่งประเด็น
+      if (locked) {
+        if (grpPill) grpPill.textContent = `🔒 ล็อกกลุ่มที่ ${userCtx.baseGroup}`;
+        grpArea.innerHTML = `
+          <div class="p-3.5 rounded-2xl border-2 border-maroon-700 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white flex flex-wrap items-center justify-between gap-2 shadow-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-10 h-10 rounded-xl bg-white/15 border border-gold-400/60 text-gold-400 font-mono text-xl font-extrabold flex items-center justify-center shrink-0">${userCtx.baseGroup}</span>
+              <div>
+                <p class="font-extrabold text-sm sm:text-base leading-tight">กลุ่มที่ ${userCtx.baseGroup} (กลุ่มประจำตัวของท่าน)</p>
+                <p class="text-[11px] text-rose-100 mt-0.5">🔒 ล็อกกลุ่มตามบัตรประจำตัวอัตโนมัติ ไม่ต้องกดเลือกกลุ่ม</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-gold-500 text-slate-950 text-xs font-extrabold shrink-0">🔒 ล็อกกลุ่มแล้ว</span>
+          </div>
+        `;
+      } else {
+        if (grpPill) {
+          grpPill.textContent = visitingGrpForExpert
+            ? `📍 รอบ ${userCtx.liveRound}/5: กลุ่มที่ ${visitingGrpForExpert} อยู่ที่โต๊ะท่าน`
+            : `กำลังเลือกกลุ่มที่ ${selectedGroup}`;
+        }
+        grpArea.innerHTML = `
+          <div class="grid grid-cols-5 gap-2">
+            ${[1, 2, 3, 4, 5].map(g => {
+              const active = g === selectedGroup;
+              const isVisiting = visitingGrpForExpert === g;
+              return `
+                <button type="button" onclick="selectGroup(${g})" class="py-2.5 px-1.5 rounded-2xl border-2 font-extrabold text-center transition ${
+                  active
+                    ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
+                    : 'border-slate-200 bg-white hover:border-maroon-600/60 text-slate-700'
+                }">
+                  ${isVisiting ? `<span class="block text-[9.5px] font-bold ${active ? 'text-gold-400' : 'text-emerald-700'} leading-none mb-0.5">📍 รอบนี้</span>` : ''}
+                  <span class="block text-[11px] font-semibold opacity-85">กลุ่มที่</span>
+                  <span class="block font-mono text-lg leading-tight">${g}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    }
+
+    // ==================== TEAMMATE DUPLICATE PREVENTION ====================
+    function renderTeammatePanel() {
+      const titleEl = document.getElementById('teammate-panel-title');
+      const cntEl = document.getElementById('teammate-panel-count');
+      const listEl = document.getElementById('teammate-panel-list');
+      if (!listEl) return;
+
+      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
+      const items = morningIssues
+        .filter(m => Number(m.groupNo) === targetGrp && Number(m.categoryNo) === selectedCategory)
+        .slice()
+        .reverse();
+
+      if (titleEl) {
+        titleEl.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i><span>ประเด็นที่เพื่อนในกลุ่มที่ ${targetGrp} ส่งแล้วในหมวดที่ ${selectedCategory} (ดูเพื่อกันถามซ้ำ)</span>`;
+      }
+      if (cntEl) cntEl.textContent = `${items.length} ข้อ`;
+
+      if (items.length === 0) {
+        listEl.innerHTML = `<p class="text-emerald-800/75 italic py-1">ยังไม่มีเพื่อนในกลุ่มที่ ${targetGrp} ส่งประเด็นในหมวดที่ ${selectedCategory} — ท่านสามารถพิมพ์ส่งข้อแรกได้เลยครับ</p>`;
+        return;
+      }
+
+      listEl.innerHTML = items.map(item => {
+        const u = getUrgencyBadge(item.urgency);
+        return `
+          <div class="p-2 rounded-xl bg-white border border-emerald-200 flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-mono font-extrabold text-navy-700">${escapeHtml(item.issueId)}</span>
+                <span class="px-1.5 py-0.2 rounded-full border text-[10px] font-bold ${u.cls}">${u.label}</span>
+                <span class="text-[10.5px] text-slate-500">โดย ${escapeHtml(item.recorder || '-')}</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function checkDuplicateHint(rawText) {
+      const box = document.getElementById('m-duplicate-warning');
+      if (!box) return;
+      const q = String(rawText || '').trim().toLowerCase();
+      const editId = document.getElementById('m-edit-id').value;
+      if (q.length < 6) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const words = q.split(/\s+/).filter(w => w.length >= 3);
+      const matches = morningIssues.filter(m => {
+        if (m.issueId === editId) return false;
+        if (Number(m.categoryNo) !== selectedCategory) return false;
+        const txt = String(m.issueText || '').toLowerCase();
+        if (txt.includes(q) || q.includes(txt.slice(0, 14))) return true;
+        if (words.length >= 2) {
+          return words.filter(w => txt.includes(w)).length >= Math.min(2, words.length);
+        }
+        return false;
+      }).slice(0, 2);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = `⚠️ <strong>พบประเด็นคล้ายกันในหมวดที่ ${selectedCategory}:</strong> ` +
+        matches.map(m => `[${escapeHtml(m.issueId)} • กลุ่ม ${m.groupNo}] “${escapeHtml(m.issueText.slice(0, 75))}${m.issueText.length > 75 ? '...' : ''}”`).join(' / ');
+      box.classList.remove('hidden');
+    }
+
+    // ==================== CRUD MORNING ISSUES ====================
+    async function submitMorningIssue(e) {
+      e.preventDefault();
+      const editId = document.getElementById('m-edit-id').value.trim();
+      const recorder = document.getElementById('m-recorder').value.trim();
+      const issueText = document.getElementById('m-issue-text').value.trim();
+      const urgEl = document.querySelector('input[name="m-urgency"]:checked');
+      const urgency = urgEl ? urgEl.value : 'เร่งด่วน';
+      const finalGroup = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
+      const cat = getCategory(selectedCategory);
+
+      if (!recorder || !issueText) {
+        showToast('กรุณากรอกชื่อผู้บันทึกและประเด็นปัญหาให้ครบถ้วน', 'warning');
+        return;
+      }
+
+      safeSet('ws2_recorder_name', recorder);
+      const btn = document.getElementById('m-submit-btn');
+      const lbl = document.getElementById('m-submit-label');
+      btn.disabled = true;
+      lbl.textContent = 'กำลังบันทึก...';
+      isMutating = true;
+
+      try {
+        const payload = editId
+          ? {
+              action: 'updateMorningIssue',
+              issueId: editId,
+              groupNo: finalGroup,
+              categoryNo: cat.no,
+              categoryName: cat.name,
+              recorder,
+              issueText,
+              urgency
+            }
+          : {
+              action: 'addMorningIssue',
+              groupNo: finalGroup,
+              categoryNo: cat.no,
+              categoryName: cat.name,
+              recorder,
+              issueText,
+              urgency
+            };
+
+        const res = await postToApi(payload);
+        if (res.status !== 'success') throw new Error(res.message || 'บันทึกไม่สำเร็จ');
+
+        showToast(res.message || 'บันทึกประเด็นปัญหาเรียบร้อยแล้ว', 'success');
+        cancelEdit();
+        await fetchAllData(false);
+      } catch (err) {
+        showToast('บันทึกไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        lbl.textContent = document.getElementById('m-edit-id').value ? 'บันทึกการแก้ไขประเด็น' : 'บันทึกประเด็นปัญหา';
+      }
+    }
+
+    function editIssue(issueId) {
+      const item = morningIssues.find(m => m.issueId === issueId);
+      if (!item || !canModifyIssue(item)) return;
+
+      document.getElementById('m-edit-id').value = item.issueId;
+      selectedCategory = Number(item.categoryNo) || 1;
+      if (!isGroupLocked()) selectedGroup = Number(item.groupNo) || 1;
+
+      document.getElementById('m-recorder').value = item.recorder || userCtx.name || '';
+      document.getElementById('m-issue-text').value = item.issueText || '';
+      document.querySelectorAll('input[name="m-urgency"]').forEach(r => { r.checked = r.value === item.urgency; });
+
+      document.getElementById('edit-mode-badge').classList.remove('hidden');
+      document.getElementById('m-cancel-edit-btn').classList.remove('hidden');
+      document.getElementById('m-submit-label').textContent = 'บันทึกการแก้ไขประเด็น';
+
+      renderEverything();
+      document.getElementById('morning-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('m-edit-id').value = '';
+      document.getElementById('m-issue-text').value = '';
+      document.getElementById('m-duplicate-warning')?.classList.add('hidden');
+      document.getElementById('edit-mode-badge')?.classList.add('hidden');
+      document.getElementById('m-cancel-edit-btn')?.classList.add('hidden');
+      document.getElementById('m-submit-label').textContent = 'บันทึกประเด็นปัญหา';
+    }
+
+    function openDeleteModal(issueId) {
+      const item = morningIssues.find(m => m.issueId === issueId);
+      if (!item || !canModifyIssue(item)) return;
+      pendingDeleteIssueId = item.issueId;
+      document.getElementById('delete-modal-desc').textContent =
+        `ต้องการลบประเด็น ${item.issueId} (“${item.issueText.slice(0, 70)}${item.issueText.length > 70 ? '...' : ''}”) ใช่หรือไม่?`;
+      document.getElementById('delete-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeDeleteModal() {
+      pendingDeleteIssueId = '';
+      document.getElementById('delete-modal')?.classList.add('hidden');
+    }
+
+    async function executeDeleteIssue() {
+      if (!pendingDeleteIssueId) return;
+      const btn = document.getElementById('delete-confirm-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังลบ...';
+      isMutating = true;
+      try {
+        const res = await postToApi({ action: 'deleteMorningIssue', issueId: pendingDeleteIssueId });
+        if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
+        showToast(res.message || 'ลบประเด็นปัญหาเรียบร้อยแล้ว', 'success');
+        if (document.getElementById('m-edit-id').value === pendingDeleteIssueId) cancelEdit();
+        closeDeleteModal();
+        await fetchAllData(false);
+      } catch (err) {
+        showToast('ลบไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันลบ';
+      }
+    }
+
+    // ==================== ISSUES LIST ====================
+    function setListScope(scope, shouldRender = true) {
+      listScope = scope;
+      ['match', 'cat', 'group', 'all'].forEach(k => {
+        const btn = document.getElementById(`scope-btn-${k}`);
+        if (!btn) return;
+        btn.className = k === scope
+          ? 'px-2.5 py-1 rounded-lg font-bold bg-navy-700 text-white transition'
+          : 'px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:bg-slate-100 transition';
+      });
+      if (shouldRender) renderIssuesList();
+    }
+
+    function renderIssuesList() {
+      const box = document.getElementById('issues-list-container');
+      const cntEl = document.getElementById('list-count');
+      const subEl = document.getElementById('list-subtitle');
+      if (!box) return;
+
+      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
+      const search = String(document.getElementById('list-search')?.value || '').trim().toLowerCase();
+      const urgFilter = document.getElementById('list-filter-urgency')?.value || 'all';
+
+      const filtered = morningIssues.filter(item => {
+        if (listScope === 'match' && !(Number(item.groupNo) === targetGrp && Number(item.categoryNo) === selectedCategory)) return false;
+        if (listScope === 'cat' && Number(item.categoryNo) !== selectedCategory) return false;
+        if (listScope === 'group' && Number(item.groupNo) !== targetGrp) return false;
+        if (urgFilter !== 'all' && item.urgency !== urgFilter) return false;
+        if (search) {
+          const hay = `${item.issueId} ${item.issueText} ${item.recorder} ${item.categoryName}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        return true;
+      }).slice().reverse();
+
+      const subTextMap = {
+        match: `แสดงเฉพาะ กลุ่มที่ ${targetGrp} ในหมวดที่ ${selectedCategory}`,
+        cat: `แสดงทุกกลุ่ม (1–5) ในหมวดที่ ${selectedCategory}`,
+        group: `แสดงครบทุกหมวด (1–5) ของกลุ่มที่ ${targetGrp}`,
+        all: 'แสดงประเด็นทั้งหมดทุกกลุ่มและทุกหมวด'
+      };
+      if (cntEl) cntEl.textContent = filtered.length;
+      if (subEl) subEl.textContent = subTextMap[listScope] || '';
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="py-10 text-center text-xs sm:text-sm text-slate-400">ยังไม่มีรายการประเด็นปัญหาในเงื่อนไขที่เลือก</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(item => {
+        const cat = getCategory(item.categoryNo);
+        const urg = getUrgencyBadge(item.urgency);
+        const editable = canModifyIssue(item);
+        const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
+
+        return `
+          <div class="p-3.5 rounded-2xl border ${isDone ? 'border-emerald-200 bg-emerald-50/35' : 'border-slate-200 bg-slate-50/75'} space-y-2" style="border-left: 5px solid ${cat.color};">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${item.groupNo}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-blue-100 text-navy-800 font-bold">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-full border font-bold text-[11px] ${urg.cls}">${urg.label}</span>
+                ${isDone ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10.5px]">✅ ทำ Q&amp;A แล้ว (${escapeHtml(item.qaId || '')})</span>` : ''}
+              </div>
+
+              ${editable ? `
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" onclick="editIssue('${escapeHtml(item.issueId)}')" title="แก้ไขประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button type="button" onclick="openDeleteModal('${escapeHtml(item.issueId)}')" title="ลบประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-rose-100 border border-slate-200 text-rose-600 transition">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <p class="text-sm sm:text-base font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1 border-t border-slate-200/70">
+              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(item.recorder || '-')}</strong></span>
+              <span class="font-mono">${escapeHtml(item.timestamp || '')}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ==================== ADMIN EXPORTS: EXCEL (CSV), TEXT (.TXT), PDF (PRINT) ====================
+    function exportMorningExcelCsv() {
+      const headers = ['Issue_ID', 'Timestamp', 'Group_No', 'Category_No', 'Category_Name', 'Recorder', 'Issue_Text', 'Urgency', 'QA_Status', 'QA_ID'];
+      const rows = morningIssues.map(x => [
+        x.issueId, x.timestamp, x.groupNo, x.categoryNo, x.categoryName,
+        x.recorder, x.issueText, x.urgency, x.qaStatus, x.qaId
+      ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      triggerFileDownload(csv, 'text/csv;charset=utf-8;', `ใบงานช่วงเช้า_ประเด็นปัญหา5หมวด_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast('ส่งออกไฟล์ Excel (CSV) เรียบร้อยแล้ว', 'success');
+    }
+
+    function exportMorningText() {
+      const lines = [
+        '========================================================================',
+        'ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)',
+        'สรุปผลใบงานที่ 1 ช่วงเช้า : การระดมสมองรวบรวมประเด็นปัญหาและข้อขัดข้อง (5 หมวด)',
+        `โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI "คู่หูจราจร") — รวมทั้งหมด ${morningIssues.length} ประเด็น`,
+        '========================================================================',
+        ''
+      ];
+
+      CATEGORIES.forEach(cat => {
+        const items = morningIssues.filter(m => Number(m.categoryNo) === cat.no);
+        lines.push(`【หมวดที่ ${cat.no} : ${cat.name}】 (${items.length} ประเด็น)`);
+        lines.push(`ขอบเขต: ${cat.scope}`);
+        lines.push('------------------------------------------------------------------------');
+        if (items.length === 0) {
+          lines.push('  (ยังไม่มีข้อมูลประเด็นปัญหาในหมวดนี้)');
+        } else {
+          items.forEach((m, i) => {
+            lines.push(`  ${i + 1}. [${m.issueId} | กลุ่ม ${m.groupNo} | ${m.urgency} | ${m.qaStatus}]`);
+            lines.push(`     ประเด็น: ${m.issueText}`);
+            lines.push(`     ผู้บันทึก: ${m.recorder || '-'} (${m.timestamp || '-'})`);
+          });
+        }
+        lines.push('');
+      });
+
+      triggerFileDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `สรุปใบงานช่วงเช้า_5หมวด_${new Date().toISOString().slice(0, 10)}.txt`);
+      showToast('ส่งออกไฟล์ Text (.txt) เรียบร้อยแล้ว', 'success');
+    }
+
+    function exportMorningPdfPrint() {
+      const container = document.getElementById('print-report-container');
+      if (!container) return;
+
+      const sectionsHtml = CATEGORIES.map(cat => {
+        const items = morningIssues.filter(m => Number(m.categoryNo) === cat.no);
+        return `
+          <div style="margin-bottom: 18px;">
+            <h3 style="font-size: 15px; font-weight: 800; color: #1E3A8A; border-bottom: 2px solid #1E3A8A; padding-bottom: 4px; margin-bottom: 6px;">
+              หมวดที่ ${cat.no} : ${escapeHtml(cat.name)} (${items.length} ประเด็น)
+            </h3>
+            ${items.length === 0
+              ? `<p style="font-size: 12px; color: #64748b; font-style: italic;">— ยังไม่มีรายการในหมวดนี้ —</p>`
+              : `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                  <thead>
+                    <tr style="background: #f1f5f9;">
+                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 70px;">รหัส</th>
+                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 55px;">กลุ่ม</th>
+                      <th style="border: 1px solid #cbd5e1; padding: 5px; text-align: left;">ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย</th>
+                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 85px;">ความเร่งด่วน</th>
+                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 120px;">ผู้บันทึก</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${items.map(m => `
+                      <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center; font-weight: 700;">${escapeHtml(m.issueId)}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center;">กลุ่ม ${m.groupNo}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${escapeHtml(m.issueText)}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center; font-weight: 700;">${escapeHtml(m.urgency)}</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${escapeHtml(m.recorder || '-')}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>`
+            }
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 16px;">
+          <p style="font-size: 12px; font-weight: 700; color: #881337;">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานสรุปใบงานที่ 1 ช่วงเช้า : ระดมสมองรวบรวมประเด็นปัญหา 5 หมวด</h2>
+          <p style="font-size: 12px; color: #475569;">โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI “คู่หูจราจร”) • รวมทั้งสิ้น ${morningIssues.length} ประเด็น</p>
+        </div>
+        ${sectionsHtml}
+      `;
+
+      window.print();
+    }
+
+    function triggerFileDownload(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ==================== ADMIN PIN UNLOCK ====================
+    function openAdminUnlockModal() {
+      const inp = document.getElementById('admin-pin-input');
+      if (inp) inp.value = '';
+      document.getElementById('admin-unlock-modal')?.classList.remove('hidden');
+      setTimeout(() => inp?.focus(), 60);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeAdminUnlockModal() {
+      document.getElementById('admin-unlock-modal')?.classList.add('hidden');
+    }
+
+    function submitAdminPin(e) {
+      e.preventDefault();
+      const pin = String(document.getElementById('admin-pin-input')?.value || '').trim();
+      if (pin !== ADMIN_PASSCODE) {
+        showToast('รหัสผ่านคณะทำงานไม่ถูกต้อง', 'error');
+        return;
+      }
+      userCtx.roleLevel = 'admin';
+      safeSessionSet('ai_seminar_ws_admin', 'true');
+      closeAdminUnlockModal();
+      updateCrossPageLinks();
+      setListScope('all', false);
+      renderEverything();
+      showToast('ปลดล็อกโหมดคณะทำงาน (Admin) เรียบร้อยแล้ว', 'success');
+    }
+
+    // ==================== TOAST & ESCAPE ====================
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3300);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
