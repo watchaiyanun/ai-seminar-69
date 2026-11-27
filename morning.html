@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงบ่าย, คัดกรอง/DGA และจอเวที) -->
+      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงบ่าย, คลังคัดกรอง และจอเวที) -->
       <div class="flex flex-wrap items-center gap-1.5 shrink-0">
         <a id="nav-back-portal" href="portal.html" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
@@ -103,7 +103,7 @@
   <!-- ==================== MAIN WORKSPACE ==================== -->
   <main class="no-print max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
 
-    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ (3 ระดับ) และคำชี้แจงกิจกรรมช่วงเช้า -->
+    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ และคำชี้แจงกิจกรรมช่วงเช้า -->
     <section id="role-banner-card" class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-navy-700/20 shadow-xs space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
@@ -125,13 +125,33 @@
       </div>
     </section>
 
-    <!-- 2. แผงควบคุมสำหรับคณะทำงาน (ADMIN PANEL: คุมรอบ + Matrix 5×5 + Export Excel/Text/PDF) -->
+    <!-- 2. แผงควบคุมสำหรับคณะทำงาน (ADMIN PANEL: คุมรอบ + Matrix 5×5 + เลือกขอบเขต Export) -->
     <section id="admin-control-panel" class="hidden bg-white rounded-3xl border-2 border-indigo-300 shadow-sm overflow-hidden">
       <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-indigo-900 via-navy-800 to-navy-900 text-white flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i>
           <h2 class="font-extrabold text-sm sm:text-base">แผงควบคุมคณะทำงาน (Admin) — คุมรอบหมุนเวียน • ภาพรวม 5×5 • ส่งออกข้อมูล</h2>
         </div>
+        <button type="button" onclick="toggleAdminMatrix()" id="btn-toggle-matrix" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+          ซ่อนตารางสรุป
+        </button>
+      </div>
+
+      <!-- แถบเลือกขอบเขตการ Export ข้อมูล (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) -->
+      <div class="px-4 sm:px-5 py-3 bg-slate-50 border-b border-indigo-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-extrabold text-navy-900 flex items-center gap-1">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-indigo-700"></i> ขอบเขตส่งออก:
+          </span>
+          <select id="export-scope-mode" onchange="onExportScopeModeChange()" class="px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <option value="all">ทั้งหมด (ทุกกลุ่ม • ทุกหมวด)</option>
+            <option value="by_group">เฉพาะกลุ่มที่เลือก (ครบ 5 หมวดของกลุ่ม)</option>
+            <option value="by_cat">เฉพาะหมวดที่เลือก (ทุกกลุ่มในหมวดนั้น)</option>
+          </select>
+          <select id="export-scope-value" onchange="updateExportScopePreview()" class="hidden px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-maroon-800 focus:outline-none focus:ring-2 focus:ring-indigo-600"></select>
+          <span id="export-scope-count" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-900 font-mono font-extrabold">พร้อมส่งออก 0 ข้อ</span>
+        </div>
+
         <div class="flex flex-wrap items-center gap-1.5">
           <button type="button" onclick="exportMorningExcelCsv()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel (CSV)
@@ -142,9 +162,6 @@
           <button type="button" onclick="exportMorningPdfPrint()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-gold-400/50 text-white text-xs font-extrabold transition">
             <i data-lucide="printer" class="w-3.5 h-3.5 text-gold-400"></i> PDF / พิมพ์
           </button>
-          <button type="button" onclick="toggleAdminMatrix()" id="btn-toggle-matrix" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
-            ซ่อนตารางสรุป
-          </button>
         </div>
       </div>
 
@@ -154,7 +171,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p class="font-extrabold text-indigo-950">🔄 ควบคุมรอบหมุนเวียน World Café (รอบที่ 1–5)</p>
-              <p class="text-[11px] text-indigo-700">กดเลือกรอบแล้วกด “ซิงค์รอบให้ทุกคน” เพื่อย้ายโต๊ะทั้ง 5 กลุ่มบนหน้าบัตร E-Pass และหน้าใบงานอัตโนมัติ</p>
+              <p class="text-[11px] text-indigo-700">กดเลือกรอบแล้วกด “ซิงค์รอบให้ทุกคน” เพื่อย้ายโต๊ะและปลดล็อกหมวดถัดไปให้ผู้เข้าร่วมทุกคนอัตโนมัติ</p>
             </div>
             <button type="button" id="btn-admin-sync-round" onclick="syncAdminRoundToServer()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold shadow-xs transition">
               <i data-lucide="radio" class="w-3.5 h-3.5 text-gold-400"></i>
@@ -231,6 +248,7 @@
           </div>
           <div id="roster-exp-chips" class="flex flex-wrap gap-1.5"></div>
         </div>
+
         <div class="p-3 rounded-2xl bg-blue-50/75 border border-blue-200 space-y-1.5">
           <div class="flex items-center justify-between gap-2">
             <span id="roster-mem-title" class="font-extrabold text-navy-900">👥 สมาชิกกลุ่มที่ 1 (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)</span>
@@ -238,6 +256,17 @@
           </div>
           <div id="roster-mem-chips" class="flex flex-wrap gap-1.5"></div>
         </div>
+      </div>
+    </section>
+
+    <!-- กล่องแจ้งสิทธิ์อ่านอย่างเดียวสำหรับผู้แทน DGA -->
+    <section id="dga-readonly-notice" class="hidden bg-slate-50 rounded-3xl p-4 sm:p-5 border-2 border-slate-300 shadow-xs flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+      <div class="w-10 h-10 rounded-2xl bg-slate-800 text-gold-400 flex items-center justify-center shrink-0">
+        <i data-lucide="eye" class="w-5 h-5"></i>
+      </div>
+      <div class="space-y-1">
+        <p class="font-extrabold text-slate-900">โหมดผู้แทน DGA / สพร. (ดูข้อมูลอย่างเดียว — Read-Only)</p>
+        <p class="leading-relaxed">ท่านสามารถเรียกดูและค้นหาประเด็นปัญหาช่วงเช้าของทุกกลุ่มและทุกหมวดได้ด้านล่างครับ (สิทธิ์การบันทึก แก้ไข และแสดงความคิดเห็นสงวนไว้สำหรับข้าราชการตำรวจผู้เข้าร่วมสัมมนา ผู้ทรงคุณวุฒิ วิทยากร และคณะทำงาน)</p>
       </div>
     </section>
 
@@ -260,7 +289,7 @@
             <label class="font-extrabold text-navy-900">1. เลือกหมวดหมู่ / โต๊ะฐาน (หมวด 1–5) <span class="text-rose-600">*</span></label>
             <span id="cat-status-pill" class="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-navy-800 text-xs font-extrabold">รอบที่ 1 / 5</span>
           </div>
-          <p class="text-xs text-slate-500">แตะเลือกโต๊ะได้เองอิสระ ทั้งโต๊ะรอบปัจจุบันหรือกดย้อนกลับไปเพิ่มประเด็นในโต๊ะที่ผ่านมาแล้ว</p>
+          <p id="cat-lock-hint" class="text-xs text-slate-500">ตอบได้เฉพาะหมวดรอบปัจจุบันและหมวดที่กลุ่มของท่านผ่านมาแล้วเท่านั้น (หมวดถัดไปจะปลดล็อกเมื่อเจ้าหน้าที่เปลี่ยนรอบ)</p>
           <div id="category-buttons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>
           <div id="category-scope-box" class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
         </div>
@@ -477,14 +506,14 @@
 
     const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
 
-    // สถานะสิทธิ์ 3 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร/DGA) | 'participant' (ผู้เข้าร่วมสัมมนา)
+    // สถานะสิทธิ์ 4 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร) | 'dga_viewer' (ผู้แทน DGA ดูอย่างเดียว) | 'participant' (ผู้เข้าร่วมสัมมนา)
     let userCtx = {
       id: '',
       name: '',
       roleLevel: 'participant',
       rawRoleText: '',
-      baseGroup: 0,       // กลุ่มประจำตัว (1–5) ของผู้เข้าร่วม หรือโต๊ะประจำของวิทยากร
-      liveRound: 1        // รอบปัจจุบันจากเวที (1–5)
+      baseGroup: 0,
+      liveRound: 1
     };
 
     let adminSelectedRound = 1;
@@ -522,7 +551,11 @@
       const unit = String(p?.mainUnit || p?.unitDetail || '').trim();
       const wr = String(p?.workshopRole || '').trim();
       if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
-      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || unit.includes('สพร.') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
+      // ผู้แทน DGA / สพร. เป็นบุคคลภายนอก ดูข้อมูลได้อย่างเดียว (ไม่สามารถบันทึกหรือคอมเมนต์ได้)
+      if (role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || role.includes('สพร.') || unit.includes('สพร.')) {
+        return 'dga_viewer';
+      }
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
         return 'reviewer';
       }
       return 'participant';
@@ -554,18 +587,48 @@
       return false;
     }
 
+    function getScheduledRoundForCategory(baseGrp, catNo) {
+      if (!baseGrp || !catNo) return 1;
+      return ((Number(catNo) - Number(baseGrp) + 5) % 5) + 1;
+    }
+
+    // คืนค่ารายการหมวดที่ผู้ใช้งานปัจจุบันได้รับอนุญาตให้กรอกได้ (ล็อกหมวดล่วงหน้าสำหรับผู้เข้าร่วม)
+    function getAllowedCategoriesForCurrentUser() {
+      if (!isGroupLocked()) return [1, 2, 3, 4, 5];
+      const allowed = [];
+      const maxRound = Math.max(1, Math.min(5, Number(userCtx.liveRound) || 1));
+      for (let r = 1; r <= maxRound; r++) {
+        const st = getRotatingStationForGroup(userCtx.baseGroup, r);
+        if (st && !allowed.includes(st)) allowed.push(st);
+      }
+      return allowed;
+    }
+
+    function isCategoryUnlockedForUser(catNo) {
+      return getAllowedCategoriesForCurrentUser().includes(Number(catNo));
+    }
+
+    function enforceAllowedCategory() {
+      if (!isGroupLocked()) return;
+      if (!isCategoryUnlockedForUser(selectedCategory)) {
+        const currentSt = getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound) || 1;
+        selectedCategory = currentSt;
+        safeSet('ws2_last_cat', String(selectedCategory));
+      }
+    }
+
     function isGroupLocked() {
       return userCtx.roleLevel === 'participant' && userCtx.baseGroup >= 1 && userCtx.baseGroup <= 5;
     }
 
     function canModifyIssue(item) {
       if (!item) return false;
+      if (userCtx.roleLevel === 'dga_viewer') return false;
       if (userCtx.roleLevel === 'admin') return true;
       if (userCtx.roleLevel === 'reviewer') {
         if (!userCtx.baseGroup) return true;
         return Number(item.categoryNo) === userCtx.baseGroup || (userCtx.name && item.recorder === userCtx.name);
       }
-      // ผู้เข้าร่วมสัมมนา: แก้ไข/ลบได้เฉพาะรายการของกลุ่มตนเองหรือที่ตนเองบันทึก
       if (userCtx.name && item.recorder === userCtx.name) return true;
       return !userCtx.baseGroup || Number(item.groupNo) === userCtx.baseGroup;
     }
@@ -595,6 +658,8 @@
 
       if (urlStaff === '1' || urlStaff === 'true' || urlUserType === 'staff' || urlUserType === 'admin' || safeSessionGet('ai_seminar_ws_admin') === 'true') {
         userCtx.roleLevel = 'admin';
+      } else if (urlUserType === 'dga' || urlUserType === 'dga_viewer') {
+        userCtx.roleLevel = 'dga_viewer';
       } else if (urlUserType === 'expert' || urlUserType === 'reviewer') {
         userCtx.roleLevel = 'reviewer';
       } else {
@@ -613,10 +678,12 @@
         selectedCategory = urlCat;
       }
 
+      enforceAllowedCategory();
       document.getElementById('m-recorder').value = userCtx.name || safeGet('ws2_recorder_name', '');
 
+      onExportScopeModeChange();
       updateCrossPageLinks();
-      setListScope(userCtx.roleLevel === 'admin' ? 'all' : 'match', false);
+      setListScope((userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'dga_viewer') ? 'all' : 'match', false);
       renderEverything();
       if (window.lucide) lucide.createIcons();
 
@@ -649,6 +716,8 @@
       if (userCtx.roleLevel === 'admin') {
         qs.set('staff', '1');
         qs.set('userType', 'staff');
+      } else if (userCtx.roleLevel === 'dga_viewer') {
+        qs.set('userType', 'dga_viewer');
       } else if (userCtx.roleLevel === 'reviewer') {
         qs.set('userType', 'expert');
       }
@@ -714,12 +783,14 @@
               const urlCat = parseGroupNo(new URLSearchParams(window.location.search).get('cat'));
               if (isGroupLocked()) {
                 selectedGroup = userCtx.baseGroup;
-                selectedCategory = urlCat || getRotatingStationForGroup(userCtx.baseGroup, srvRound) || 1;
+                const liveSt = getRotatingStationForGroup(userCtx.baseGroup, srvRound) || 1;
+                selectedCategory = (urlCat && isCategoryUnlockedForUser(urlCat)) ? urlCat : liveSt;
               } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
                 selectedCategory = userCtx.baseGroup;
                 selectedGroup = getVisitingGroupAtStation(userCtx.baseGroup, srvRound) || 1;
               }
-            } else if (roundChanged && userCtx.roleLevel !== 'admin') {
+              enforceAllowedCategory();
+            } else if (roundChanged && userCtx.roleLevel !== 'admin' && userCtx.roleLevel !== 'dga_viewer') {
               handleLiveRoundChanged(srvRound);
             }
           }
@@ -760,8 +831,12 @@
       if (userCtx.roleLevel !== 'admin') {
         userCtx.roleLevel = detectRoleLevelFromParticipant(found);
       }
+      if (userCtx.roleLevel === 'dga_viewer' && !hasLoadedOnce) {
+        setListScope('all', false);
+      }
       if (isGroupLocked()) {
         selectedGroup = userCtx.baseGroup;
+        enforceAllowedCategory();
       }
     }
 
@@ -833,6 +908,7 @@
 
     // ==================== RENDER ALL UI ====================
     function renderEverything() {
+      enforceAllowedCategory();
       renderRoleBanner();
       renderAdminControlPanel();
       renderRosterCard();
@@ -854,45 +930,65 @@
 
       const isAdmin = userCtx.roleLevel === 'admin';
       const isReviewer = userCtx.roleLevel === 'reviewer';
+      const isDga = userCtx.roleLevel === 'dga_viewer';
 
-      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isReviewer ? 'EXPERT' : 'GUEST'));
-      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA' : 'ผู้เข้าร่วมสัมมนา'));
+      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isDga ? 'DGA' : (isReviewer ? 'EXPERT' : 'GUEST')));
+      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isDga ? 'ผู้แทน DGA (สพร.)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร' : 'ผู้เข้าร่วมสัมมนา')));
 
       document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
+      document.getElementById('dga-readonly-notice')?.classList.toggle('hidden', !isDga);
+      document.getElementById('morning-form-card')?.classList.toggle('hidden', isDga);
 
       if (isAdmin) {
         badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
         badgeEl.textContent = '🛡️ คณะทำงาน (Admin)';
         guideEl.className = 'p-3 rounded-2xl bg-indigo-50/85 border border-indigo-200 text-xs sm:text-sm text-indigo-950 leading-relaxed';
-        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> ควบคุมรอบหมุนเวียนกลาง (รอบปัจจุบัน: <strong>รอบที่ ${userCtx.liveRound}/5</strong>), ดูตารางภาพรวมครบทั้ง 5 กลุ่ม × 5 หมวด, บันทึก แก้ไข ลบประเด็นได้ทั้งหมด และส่งออกข้อมูลเป็นไฟล์ <strong>Excel / Text / PDF</strong>`;
+        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> ควบคุมรอบหมุนเวียนกลาง (รอบปัจจุบัน: <strong>รอบที่ ${userCtx.liveRound}/5</strong>), ดูตารางภาพรวมครบทั้ง 5 กลุ่ม × 5 หมวด, บันทึก แก้ไข ลบประเด็นได้ทั้งหมด และเลือกส่งออกข้อมูลเฉพาะกลุ่ม/เฉพาะหมวดเป็นไฟล์ <strong>Excel / Text / PDF</strong>`;
+      } else if (isDga) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-slate-800 text-gold-400 text-xs font-extrabold shrink-0';
+        badgeEl.textContent = '👁️ ผู้แทน DGA (ดูอย่างเดียว)';
+        guideEl.className = 'p-3 rounded-2xl bg-slate-100 border border-slate-300 text-xs sm:text-sm text-slate-800 leading-relaxed';
+        guideEl.innerHTML = `<strong>👁️ ผู้แทน DGA / สพร. (โหมดสังเกตการณ์):</strong> สามารถเรียกดูและติดตามประเด็นปัญหาช่วงเช้าได้ครบทั้ง 5 หมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5) โดยไม่สามารถบันทึก แก้ไข หรือลบข้อมูลได้`;
       } else if (isReviewer) {
         badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
-        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ/วิทยากร โต๊ะ ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร / DGA';
+        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ/วิทยากร โต๊ะ ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร';
         guideEl.className = 'p-3 rounded-2xl bg-amber-50/85 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
         const visitGrp = userCtx.baseGroup ? getVisitingGroupAtStation(userCtx.baseGroup, userCtx.liveRound) : 0;
         guideEl.innerHTML = userCtx.baseGroup
           ? `<strong>⭐ ท่านประจำฐานหมวดที่ ${userCtx.baseGroup} (${escapeHtml(getCategory(userCtx.baseGroup).short)}):</strong> นั่งประจำฐานไม่ย้ายโต๊ะ • รอบเวทีปัจจุบัน (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) <strong>กลุ่มที่ ${visitGrp}</strong> กำลังร่วมระดมสมองที่โต๊ะของท่าน (สามารถช่วยบันทึกหรือตรวจประเด็นช่วงเช้าได้)`
-          : `<strong>⭐ ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA:</strong> สามารถเรียกดูและช่วยบันทึกประเด็นปัญหาช่วงเช้าได้ครบทุกหมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5)`;
+          : `<strong>⭐ ผู้ทรงคุณวุฒิ / วิทยากร:</strong> สามารถเรียกดูและช่วยบันทึกประเด็นปัญหาช่วงเช้าได้ครบทุกหมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5)`;
       } else {
         badgeEl.className = 'px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0';
         badgeEl.textContent = userCtx.baseGroup ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup}` : '👥 ผู้เข้าร่วมสัมมนา';
         guideEl.className = 'p-3 rounded-2xl bg-blue-50/85 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed';
         if (userCtx.baseGroup) {
           const curSt = getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound);
-          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ท่านอยู่ <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> • รอบปัจจุบันจากเวที (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) คือ <strong>หมวดที่ ${curSt}: ${escapeHtml(getCategory(curSt).short)}</strong> (สามารถกดสลับหมวดเพื่อย้อนกลับไปเพิ่มประเด็นได้ตลอด — ช่วงบ่ายกลุ่มที่ ${userCtx.baseGroup} จะกลับไปทำคำตอบเฉพาะหมวดที่ ${userCtx.baseGroup})`;
+          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ท่านอยู่ <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> • รอบปัจจุบันจากเวที (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) คือ <strong>หมวดที่ ${curSt}: ${escapeHtml(getCategory(curSt).short)}</strong> — ตอบได้เฉพาะหมวดรอบนี้และหมวดที่กลุ่มผ่านมาแล้วเท่านั้น (หมวดถัดไปจะปลดล็อกเมื่อเจ้าหน้าที่เปลี่ยนรอบ)`;
         } else {
           guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ร่วมกันบันทึกประเด็นปัญหาและข้อขัดข้องให้ครบทั้ง 5 หมวด (รอบปัจจุบันจากเวที: รอบที่ ${userCtx.liveRound}/5)`;
         }
       }
 
-      // แสดงแถบความคืบหน้าครบ 5 หมวดของกลุ่มที่กำลังทำงานอยู่
+      if (progBox) progBox.classList.toggle('hidden', isDga);
       const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      if (progBox && progPills) {
+      if (!isDga && progBox && progPills) {
         let doneCats = 0;
         progPills.innerHTML = CATEGORIES.map(c => {
           const cnt = morningIssues.filter(m => Number(m.groupNo) === targetGrp && Number(m.categoryNo) === c.no).length;
           if (cnt > 0) doneCats++;
+          const unlocked = isCategoryUnlockedForUser(c.no);
+          const schedRound = isGroupLocked() ? getScheduledRoundForCategory(userCtx.baseGroup, c.no) : c.no;
           const isCur = c.no === selectedCategory;
+
+          if (!unlocked) {
+            return `
+              <button type="button" onclick="selectCategory(${c.no})" class="py-1.5 px-1 rounded-xl border border-dashed border-slate-300 bg-slate-100 text-slate-400 text-center cursor-not-allowed opacity-75">
+                <div class="text-[10.5px] font-bold leading-tight">หมวด ${c.no}</div>
+                <div class="font-mono text-[9.5px] font-bold mt-0.5">🔒 รอบ ${schedRound}</div>
+              </button>
+            `;
+          }
+
           return `
             <button type="button" onclick="selectCategory(${c.no})" class="py-1.5 px-1 rounded-xl border text-center transition ${
               cnt > 0
@@ -917,6 +1013,8 @@
       panel.classList.toggle('hidden', !isAdmin);
       if (!isAdmin) return;
 
+      updateExportScopePreview();
+
       const btnTxt = document.getElementById('btn-admin-sync-round-text');
       if (btnTxt) btnTxt.textContent = `ซิงค์รอบ ${adminSelectedRound} ให้ทุกคน`;
 
@@ -938,7 +1036,6 @@
         }).join('');
       }
 
-      // Matrix 5×5
       const tbody = document.getElementById('admin-matrix-tbody');
       const totalPill = document.getElementById('admin-total-issues-pill');
       if (totalPill) totalPill.textContent = `รวมทั้งหมด ${morningIssues.length} ข้อ`;
@@ -1080,7 +1177,13 @@
 
     // ==================== CATEGORY & GROUP SELECTORS ====================
     function selectCategory(catNo) {
-      selectedCategory = Math.max(1, Math.min(5, Number(catNo) || 1));
+      const targetCat = Math.max(1, Math.min(5, Number(catNo) || 1));
+      if (!isCategoryUnlockedForUser(targetCat)) {
+        const schedRound = getScheduledRoundForCategory(userCtx.baseGroup, targetCat);
+        showToast(`🔒 ยังไม่สามารถเข้าหมวดที่ ${targetCat} ได้ — กลุ่มที่ ${userCtx.baseGroup} จะเวียนเข้าหมวดนี้ในรอบที่ ${schedRound} (ตอบได้เฉพาะหมวดรอบปัจจุบันและหมวดที่ผ่านมาแล้วเท่านั้น)`, 'warning');
+        return;
+      }
+      selectedCategory = targetCat;
       safeSet('ws2_last_cat', String(selectedCategory));
       renderEverything();
       checkDuplicateHint(document.getElementById('m-issue-text')?.value || '');
@@ -1097,6 +1200,7 @@
       const catGrid = document.getElementById('category-buttons-grid');
       const scopeBox = document.getElementById('category-scope-box');
       const catPill = document.getElementById('cat-status-pill');
+      const catLockHint = document.getElementById('cat-lock-hint');
       const grpPill = document.getElementById('group-status-pill');
       const grpArea = document.getElementById('group-selector-area');
       if (!catGrid || !grpArea) return;
@@ -1108,16 +1212,36 @@
 
       if (catPill) {
         catPill.textContent = locked
-          ? `📍 รอบ ${userCtx.liveRound}/5: โต๊ะของกลุ่ม ${userCtx.baseGroup} คือ หมวด ${curStationForMember}`
+          ? `📍 รอบ ${userCtx.liveRound}/5: กลุ่ม ${userCtx.baseGroup} อยู่หมวด ${curStationForMember}`
           : `รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound} / 5`;
+      }
+      if (catLockHint) {
+        catLockHint.textContent = locked
+          ? `ตอบได้เฉพาะหมวดรอบปัจจุบัน (หมวด ${curStationForMember}) และหมวดที่กลุ่มที่ ${userCtx.baseGroup} ผ่านมาแล้วเท่านั้น — หมวดถัดไปจะปลดล็อกอัตโนมัติเมื่อเจ้าหน้าที่เปลี่ยนรอบ`
+          : 'สามารถแตะเลือกหมวดหมู่ที่ต้องการบันทึกได้อย่างอิสระ (ครบทั้ง 5 หมวด)';
       }
 
       catGrid.innerHTML = CATEGORIES.map(c => {
         const active = c.no === selectedCategory;
+        const unlocked = isCategoryUnlockedForUser(c.no);
+        const schedRound = locked ? getScheduledRoundForCategory(userCtx.baseGroup, c.no) : c.no;
         const isCurrentTable = curStationForMember === c.no;
         const isPrev = locked && !isCurrentTable && isStationAlreadyVisited(userCtx.baseGroup, c.no, userCtx.liveRound);
         const isExpHome = userCtx.roleLevel === 'reviewer' && userCtx.baseGroup === c.no;
         const cnt = morningIssues.filter(m => Number(m.categoryNo) === c.no && Number(m.groupNo) === targetGrp).length;
+
+        if (!unlocked) {
+          return `
+            <button type="button" onclick="selectCategory(${c.no})" class="p-3 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-100 text-slate-400 text-left cursor-not-allowed opacity-75 transition">
+              <div class="flex items-center justify-between gap-1">
+                <span class="font-mono text-xs font-bold text-slate-500">หมวดที่ ${c.no}</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold bg-slate-200 text-slate-600">🔒 รอบที่ ${schedRound}</span>
+              </div>
+              <span class="block text-sm font-bold leading-snug mt-0.5 truncate">${escapeHtml(c.short)}</span>
+              <span class="block text-[10.5px] mt-0.5 text-slate-400">ปลดล็อกเมื่อถึงรอบที่ ${schedRound}</span>
+            </button>
+          `;
+        }
 
         return `
           <button type="button" onclick="selectCategory(${c.no})" class="p-3 rounded-2xl border-2 text-left transition ${
@@ -1129,7 +1253,7 @@
               <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-navy-700'}">หมวดที่ ${c.no}</span>
               <div class="flex items-center gap-1">
                 ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบนี้</span>` : ''}
-                ${isPrev ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">↩️ ผ่านมาแล้ว</span>` : ''}
+                ${isPrev ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'}">↩️ ผ่านมาแล้ว</span>` : ''}
                 ${isExpHome ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
               </div>
             </div>
@@ -1144,7 +1268,6 @@
         scopeBox.innerHTML = `<strong class="text-navy-800">ขอบเขตหมวดที่ ${curCat.no} (${escapeHtml(curCat.name)}):</strong> ${escapeHtml(curCat.scope)}`;
       }
 
-      // โซนกลุ่มผู้ส่งประเด็น
       if (locked) {
         if (grpPill) grpPill.textContent = `🔒 ล็อกกลุ่มที่ ${userCtx.baseGroup}`;
         grpArea.innerHTML = `
@@ -1262,6 +1385,15 @@
     // ==================== CRUD MORNING ISSUES ====================
     async function submitMorningIssue(e) {
       e.preventDefault();
+      if (userCtx.roleLevel === 'dga_viewer') {
+        showToast('ผู้แทน DGA อยู่ในโหมดดูอย่างเดียว ไม่สามารถบันทึกข้อมูลได้', 'warning');
+        return;
+      }
+      if (!isCategoryUnlockedForUser(selectedCategory)) {
+        const schedRound = getScheduledRoundForCategory(userCtx.baseGroup, selectedCategory);
+        showToast(`🔒 ยังไม่สามารถบันทึกหมวดที่ ${selectedCategory} ได้ (จะปลดล็อกในรอบที่ ${schedRound})`, 'warning');
+        return;
+      }
       const editId = document.getElementById('m-edit-id').value.trim();
       const recorder = document.getElementById('m-recorder').value.trim();
       const issueText = document.getElementById('m-issue-text').value.trim();
@@ -1323,8 +1455,14 @@
       const item = morningIssues.find(m => m.issueId === issueId);
       if (!item || !canModifyIssue(item)) return;
 
+      const targetCat = Number(item.categoryNo) || 1;
+      if (!isCategoryUnlockedForUser(targetCat)) {
+        showToast('ไม่สามารถแก้ไขประเด็นในหมวดที่ยังไม่ถึงรอบได้', 'warning');
+        return;
+      }
+
       document.getElementById('m-edit-id').value = item.issueId;
-      selectedCategory = Number(item.categoryNo) || 1;
+      selectedCategory = targetCat;
       if (!isGroupLocked()) selectedGroup = Number(item.groupNo) || 1;
 
       document.getElementById('m-recorder').value = item.recorder || userCtx.name || '';
@@ -1409,7 +1547,7 @@
       const urgFilter = document.getElementById('list-filter-urgency')?.value || 'all';
 
       const filtered = morningIssues.filter(item => {
-        if (listScope === 'match' && !(Number(item.groupNo) === targetGrp && Number(item.categoryNo) === selectedCategory)) return false;
+        if (listScope === 'match' && (Number(item.groupNo) !== targetGrp || Number(item.categoryNo) !== selectedCategory)) return false;
         if (listScope === 'cat' && Number(item.categoryNo) !== selectedCategory) return false;
         if (listScope === 'group' && Number(item.groupNo) !== targetGrp) return false;
         if (urgFilter !== 'all' && item.urgency !== urgFilter) return false;
@@ -1420,23 +1558,23 @@
         return true;
       }).slice().reverse();
 
-      const subTextMap = {
-        match: `แสดงเฉพาะ กลุ่มที่ ${targetGrp} ในหมวดที่ ${selectedCategory}`,
-        cat: `แสดงทุกกลุ่ม (1–5) ในหมวดที่ ${selectedCategory}`,
-        group: `แสดงครบทุกหมวด (1–5) ของกลุ่มที่ ${targetGrp}`,
-        all: 'แสดงประเด็นทั้งหมดทุกกลุ่มและทุกหมวด'
+      const subMap = {
+        match: `แสดงเฉพาะ กลุ่มที่ ${targetGrp} ใน หมวดที่ ${selectedCategory} (${getCategory(selectedCategory).short})`,
+        cat: `แสดงทุกกลุ่ม (1–5) ใน หมวดที่ ${selectedCategory} (${getCategory(selectedCategory).short})`,
+        group: `แสดงครบทุกหมวด (1–5) ของ กลุ่มที่ ${targetGrp}`,
+        all: 'แสดงประเด็นปัญหาช่วงเช้าทั้งหมดครบทั้ง 5 กลุ่มและ 5 หมวด'
       };
       if (cntEl) cntEl.textContent = filtered.length;
-      if (subEl) subEl.textContent = subTextMap[listScope] || '';
+      if (subEl) subEl.textContent = subMap[listScope] || '';
 
       if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-10 text-center text-xs sm:text-sm text-slate-400">ยังไม่มีรายการประเด็นปัญหาในเงื่อนไขที่เลือก</div>`;
+        box.innerHTML = `<div class="py-10 text-center text-xs sm:text-sm text-slate-400">ยังไม่มีรายการประเด็นปัญหาในตัวกรองที่เลือก</div>`;
         return;
       }
 
       box.innerHTML = filtered.map(item => {
         const cat = getCategory(item.categoryNo);
-        const urg = getUrgencyBadge(item.urgency);
+        const u = getUrgencyBadge(item.urgency);
         const editable = canModifyIssue(item);
         const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
 
@@ -1446,9 +1584,12 @@
               <div class="flex flex-wrap items-center gap-1.5 text-xs">
                 <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
                 <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${item.groupNo}</span>
-                <span class="px-2 py-0.5 rounded-lg bg-blue-100 text-navy-800 font-bold">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
-                <span class="px-2 py-0.5 rounded-full border font-bold text-[11px] ${urg.cls}">${urg.label}</span>
-                ${isDone ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10.5px]">✅ ทำ Q&amp;A แล้ว (${escapeHtml(item.qaId || '')})</span>` : ''}
+                <span class="px-2 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-full border font-bold text-[11px] ${u.cls}">${u.label}</span>
+                ${isDone
+                  ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10.5px]">✅ ทำ Q&amp;A แล้ว (${escapeHtml(item.qaId || '')})</span>`
+                  : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[10.5px]">⏳ รอทำคำตอบช่วงบ่าย</span>`
+                }
               </div>
 
               ${editable ? `
@@ -1475,31 +1616,107 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // ==================== ADMIN EXPORTS: EXCEL (CSV), TEXT (.TXT), PDF (PRINT) ====================
+    // ==================== ADMIN EXPORTS: เลือกขอบเขต (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) ====================
+    function onExportScopeModeChange() {
+      const modeSel = document.getElementById('export-scope-mode');
+      const valSel = document.getElementById('export-scope-value');
+      if (!modeSel || !valSel) return;
+      const mode = modeSel.value;
+
+      if (mode === 'all') {
+        valSel.classList.add('hidden');
+        valSel.innerHTML = '';
+      } else if (mode === 'by_group') {
+        valSel.classList.remove('hidden');
+        valSel.innerHTML = [1, 2, 3, 4, 5].map(g => `<option value="${g}">กลุ่มที่ ${g}</option>`).join('');
+      } else if (mode === 'by_cat') {
+        valSel.classList.remove('hidden');
+        valSel.innerHTML = CATEGORIES.map(c => `<option value="${c.no}">หมวดที่ ${c.no} : ${escapeHtml(c.short)}</option>`).join('');
+      }
+      updateExportScopePreview();
+    }
+
+    function getExportScopeConfig() {
+      const mode = document.getElementById('export-scope-mode')?.value || 'all';
+      const val = Number(document.getElementById('export-scope-value')?.value) || 1;
+
+      if (mode === 'by_group') {
+        const items = morningIssues.filter(m => Number(m.groupNo) === val);
+        return {
+          mode,
+          value: val,
+          label: `เฉพาะกลุ่มที่ ${val} (ครบทุกหมวดของกลุ่มที่ ${val})`,
+          fileTag: `เฉพาะกลุ่ม${val}`,
+          items
+        };
+      }
+      if (mode === 'by_cat') {
+        const cat = getCategory(val);
+        const items = morningIssues.filter(m => Number(m.categoryNo) === val);
+        return {
+          mode,
+          value: val,
+          label: `เฉพาะหมวดที่ ${cat.no} : ${cat.name} (ทุกกลุ่ม 1–5)`,
+          fileTag: `เฉพาะหมวด${cat.no}`,
+          items
+        };
+      }
+      return {
+        mode: 'all',
+        value: 0,
+        label: 'ทั้งหมดทุกกลุ่ม (กลุ่ม 1–5) และทุกหมวด (หมวด 1–5)',
+        fileTag: 'ทั้งหมด5หมวด',
+        items: morningIssues.slice()
+      };
+    }
+
+    function updateExportScopePreview() {
+      const pill = document.getElementById('export-scope-count');
+      if (!pill) return;
+      const cfg = getExportScopeConfig();
+      pill.textContent = `พร้อมส่งออก ${cfg.items.length} ข้อ`;
+    }
+
     function exportMorningExcelCsv() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
       const headers = ['Issue_ID', 'Timestamp', 'Group_No', 'Category_No', 'Category_Name', 'Recorder', 'Issue_Text', 'Urgency', 'QA_Status', 'QA_ID'];
-      const rows = morningIssues.map(x => [
+      const rows = cfg.items.map(x => [
         x.issueId, x.timestamp, x.groupNo, x.categoryNo, x.categoryName,
         x.recorder, x.issueText, x.urgency, x.qaStatus, x.qaId
       ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
 
       const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-      triggerFileDownload(csv, 'text/csv;charset=utf-8;', `ใบงานช่วงเช้า_ประเด็นปัญหา5หมวด_${new Date().toISOString().slice(0, 10)}.csv`);
-      showToast('ส่งออกไฟล์ Excel (CSV) เรียบร้อยแล้ว', 'success');
+      triggerFileDownload(csv, 'text/csv;charset=utf-8;', `ใบงานช่วงเช้า_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast(`ส่งออกไฟล์ Excel (CSV) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
     }
 
     function exportMorningText() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
+
       const lines = [
         '========================================================================',
         'ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)',
-        'สรุปผลใบงานที่ 1 ช่วงเช้า : การระดมสมองรวบรวมประเด็นปัญหาและข้อขัดข้อง (5 หมวด)',
-        `โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI "คู่หูจราจร") — รวมทั้งหมด ${morningIssues.length} ประเด็น`,
+        'สรุปผลใบงานที่ 1 ช่วงเช้า : การระดมสมองรวบรวมประเด็นปัญหาและข้อขัดข้อง',
+        `ขอบเขตข้อมูล: ${cfg.label}`,
+        `โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI "คู่หูจราจร") — รวม ${cfg.items.length} ประเด็น`,
         '========================================================================',
         ''
       ];
 
-      CATEGORIES.forEach(cat => {
-        const items = morningIssues.filter(m => Number(m.categoryNo) === cat.no);
+      const catsToRender = cfg.mode === 'by_cat'
+        ? CATEGORIES.filter(c => c.no === cfg.value)
+        : CATEGORIES;
+
+      catsToRender.forEach(cat => {
+        const items = cfg.items.filter(m => Number(m.categoryNo) === cat.no);
         lines.push(`【หมวดที่ ${cat.no} : ${cat.name}】 (${items.length} ประเด็น)`);
         lines.push(`ขอบเขต: ${cat.scope}`);
         lines.push('------------------------------------------------------------------------');
@@ -1515,16 +1732,25 @@
         lines.push('');
       });
 
-      triggerFileDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `สรุปใบงานช่วงเช้า_5หมวด_${new Date().toISOString().slice(0, 10)}.txt`);
-      showToast('ส่งออกไฟล์ Text (.txt) เรียบร้อยแล้ว', 'success');
+      triggerFileDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `สรุปใบงานช่วงเช้า_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.txt`);
+      showToast(`ส่งออกไฟล์ Text (.txt) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
     }
 
     function exportMorningPdfPrint() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
       const container = document.getElementById('print-report-container');
       if (!container) return;
 
-      const sectionsHtml = CATEGORIES.map(cat => {
-        const items = morningIssues.filter(m => Number(m.categoryNo) === cat.no);
+      const catsToRender = cfg.mode === 'by_cat'
+        ? CATEGORIES.filter(c => c.no === cfg.value)
+        : CATEGORIES;
+
+      const sectionsHtml = catsToRender.map(cat => {
+        const items = cfg.items.filter(m => Number(m.categoryNo) === cat.no);
         return `
           <div style="margin-bottom: 18px;">
             <h3 style="font-size: 15px; font-weight: 800; color: #1E3A8A; border-bottom: 2px solid #1E3A8A; padding-bottom: 4px; margin-bottom: 6px;">
@@ -1562,8 +1788,8 @@
       container.innerHTML = `
         <div style="text-align: center; margin-bottom: 16px;">
           <p style="font-size: 12px; font-weight: 700; color: #881337;">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
-          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานสรุปใบงานที่ 1 ช่วงเช้า : ระดมสมองรวบรวมประเด็นปัญหา 5 หมวด</h2>
-          <p style="font-size: 12px; color: #475569;">โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI “คู่หูจราจร”) • รวมทั้งสิ้น ${morningIssues.length} ประเด็น</p>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานสรุปใบงานที่ 1 ช่วงเช้า : ระดมสมองรวบรวมประเด็นปัญหา</h2>
+          <p style="font-size: 12px; color: #1E3A8A; font-weight: 700; margin: 2px 0;">ขอบเขตข้อมูล: ${escapeHtml(cfg.label)} • รวม ${cfg.items.length} ประเด็น</p>
         </div>
         ${sectionsHtml}
       `;
