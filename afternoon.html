@@ -73,7 +73,7 @@
         </div>
       </div>
 
-      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงเช้า, คลังคัดกรอง/DGA และจอเวที) -->
+      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงเช้า, คลังคัดกรอง และจอเวที) -->
       <div class="flex flex-wrap items-center gap-1.5 shrink-0">
         <a id="nav-back-portal" href="portal.html" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
@@ -83,7 +83,7 @@
           <i data-lucide="sun" class="w-3.5 h-3.5 text-gold-400"></i>
           <span>ช่วงเช้า</span>
         </a>
-        <a id="nav-to-review" href="review.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 border border-teal-300/40 text-xs font-bold text-white transition" title="เปิดหน้าคัดกรองคลัง Q&A ทั้ง 5 หมวด และบันทึกข้อเสนอแนะ">
+        <a id="nav-to-review" href="review.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 border border-teal-300/40 text-xs font-bold text-white transition" title="เปิดหน้าคัดกรองคลัง Q&A ทั้ง 5 หมวด และข้อเสนอแนะ">
           <i data-lucide="library" class="w-3.5 h-3.5 text-gold-400"></i>
           <span>คลัง Q&amp;A / ข้อเสนอแนะ</span>
         </a>
@@ -102,7 +102,7 @@
   <!-- ==================== MAIN WORKSPACE ==================== -->
   <main class="no-print max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
 
-    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ (3 ระดับ) และหมวดรับผิดชอบช่วงบ่าย -->
+    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ และหมวดรับผิดชอบช่วงบ่าย -->
     <section id="role-banner-card" class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-maroon-700/25 shadow-xs space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
@@ -117,7 +117,7 @@
       <!-- การ์ดหมวดรับผิดชอบหลัก + Progress Bar ประจำหมวด -->
       <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p id="active-cat-title" class="text-sm sm:text-base font-extrabold text-navy-900 leading-snug">หมวดที่ 1 : ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง</p>
             <p id="active-cat-scope" class="text-xs text-slate-600 mt-0.5 leading-relaxed"></p>
           </div>
@@ -131,26 +131,44 @@
           </div>
         </div>
 
-        <!-- Progress Bar ของหมวดปัจจุบัน -->
-        <div class="space-y-1">
+        <!-- แถบความคืบหน้าของหมวดปัจจุบัน -->
+        <div class="space-y-1 pt-1">
           <div class="flex items-center justify-between text-xs font-bold">
-            <span id="cat-progress-label" class="text-navy-800">ความคืบหน้าการทำคำตอบในหมวดนี้: 0 / 0 ข้อ</span>
-            <span id="cat-progress-pct" class="font-mono text-emerald-700">0%</span>
+            <span id="cat-progress-label" class="text-navy-900">ความคืบหน้าหมวดที่ 1: ตอบประเด็นช่วงเช้าแล้ว 0 / 0 ข้อ</span>
+            <span id="cat-progress-pct" class="font-mono font-extrabold text-emerald-700">0%</span>
           </div>
-          <div class="w-full h-3 bg-white rounded-full overflow-hidden border border-slate-200">
+          <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
             <div id="cat-progress-bar" class="h-full rounded-full bg-gradient-to-r from-maroon-700 via-navy-700 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. แผงควบคุมคณะทำงาน (ADMIN PANEL: ภาพรวม 5 หมวด + Export Excel/Text/PDF) -->
+    <!-- 2. แผงควบคุมคณะทำงาน (ADMIN PANEL: ภาพรวม 5 หมวด + เลือกขอบเขต Export Excel/Text/PDF) -->
     <section id="admin-panel" class="hidden bg-white rounded-3xl border-2 border-indigo-300 shadow-sm overflow-hidden">
       <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-indigo-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i>
           <h2 class="font-extrabold text-sm sm:text-base">แผงควบคุมคณะทำงาน (Admin) — ภาพรวม Q&amp;A ทั้ง 5 หมวด &amp; ส่งออกข้อมูล</h2>
         </div>
+        <span id="admin-overall-qa-pill" class="px-2.5 py-0.5 rounded-full bg-white/15 border border-gold-400/50 text-gold-400 font-mono text-xs font-extrabold">รวม Q&amp;A 0 ข้อ</span>
+      </div>
+
+      <!-- แถบเลือกขอบเขตการส่งออกข้อมูล (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) -->
+      <div class="px-4 sm:px-5 py-3 bg-slate-50 border-b border-indigo-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-extrabold text-navy-900 flex items-center gap-1">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-indigo-700"></i> ขอบเขตส่งออก:
+          </span>
+          <select id="export-scope-mode" onchange="onExportScopeModeChange()" class="px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+            <option value="all">ทั้งหมด (ทุกกลุ่ม • ทุกหมวด)</option>
+            <option value="by_group">เฉพาะกลุ่มที่เลือก (คำถาม–คำตอบของกลุ่ม)</option>
+            <option value="by_cat">เฉพาะหมวดที่เลือก (คำถาม–คำตอบในหมวดนั้น)</option>
+          </select>
+          <select id="export-scope-value" onchange="updateExportScopePreview()" class="hidden px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-maroon-800 focus:outline-none focus:ring-2 focus:ring-indigo-600"></select>
+          <span id="export-scope-count" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-900 font-mono font-extrabold">พร้อมส่งออก 0 ข้อ</span>
+        </div>
+
         <div class="flex flex-wrap items-center gap-1.5">
           <button type="button" onclick="exportQAExcelCsv()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition">
             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel (CSV)
@@ -167,18 +185,17 @@
       <div class="p-4 space-y-2.5">
         <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
           <span class="font-extrabold text-navy-900">📊 สรุปความคืบหน้าคลังความรู้ Q&amp;A แยกทั้ง 5 หมวด (แตะการ์ดเพื่อสลับจัดการหมวดนั้น)</span>
-          <span id="admin-overall-qa-pill" class="px-2.5 py-0.5 rounded-full bg-navy-800 text-gold-400 font-mono font-extrabold">รวม Q&amp;A 0 ข้อ</span>
         </div>
         <div id="admin-5cat-overview" class="grid grid-cols-1 sm:grid-cols-5 gap-2"></div>
       </div>
     </section>
 
-    <!-- 3. แถบสลับหมวด (แสดงสำหรับคณะทำงาน, ผู้ทรงคุณวุฒิ/วิทยากร/DGA หรือผู้เข้าร่วมที่ยังไม่ได้ระบุกลุ่ม) -->
+    <!-- 3. แถบสลับหมวด (แสดงสำหรับผู้ทรงคุณวุฒิ/วิทยากร, ผู้แทน DGA หรือผู้เข้าร่วมที่ยังไม่ได้ระบุกลุ่ม) -->
     <section id="category-switcher-section" class="hidden bg-white rounded-3xl p-4 border border-slate-200 shadow-xs space-y-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <p id="switcher-title" class="text-xs sm:text-sm font-extrabold text-navy-900">เลือกหมวดหมู่ที่ต้องการดูคิวคำถามและจัดทำ Q&amp;A (หมวด 1–5):</p>
+        <p id="switcher-title" class="text-xs sm:text-sm font-extrabold text-navy-900">เลือกหมวดหมู่ที่ต้องการดูคิวคำถามและคลัง Q&amp;A (หมวด 1–5):</p>
         <a id="reviewer-jump-btn" href="review.html" class="hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold transition">
-          <i data-lucide="message-square-plus" class="w-3.5 h-3.5 text-gold-400"></i> ไปหน้าคัดกรอง &amp; ให้ข้อเสนอแนะ (DGA / ผู้ทรงคุณวุฒิ) →
+          <i data-lucide="message-square-plus" class="w-3.5 h-3.5 text-gold-400"></i> ไปหน้าคัดกรอง &amp; ให้ข้อเสนอแนะ (ผู้ทรงคุณวุฒิ / วิทยากร) →
         </a>
       </div>
       <div id="category-switcher-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2"></div>
@@ -193,7 +210,7 @@
               <i data-lucide="list-todo" class="w-4 h-4 text-maroon-700 shrink-0"></i>
               <span id="queue-title">คิวคำถามช่วงเช้าของทุกกลุ่ม ในหมวดที่ 1 (<span id="queue-count" class="font-mono text-maroon-700">0</span> ข้อ)</span>
             </h2>
-            <p class="text-xs text-slate-600 mt-0.5">รวมประเด็นที่กลุ่มที่ 1–5 ช่วยกันระดมสมองไว้เมื่อเช้า — คลิก <strong>“เลือกทำ Q&amp;A →”</strong> เพื่อดึงมาจัดทำคำตอบมาตรฐาน</p>
+            <p class="text-xs text-slate-600 mt-0.5">รวมประเด็นที่กลุ่มที่ 1–5 ช่วยกันระดมสมองไว้เมื่อเช้า — คลิก <strong>“เลือกทำ Q&amp;A →”</strong> หรือเลือกจาก Dropdown ในข้อ 1 เพื่อดึงมาตอบอัตโนมัติ</p>
           </div>
           <button type="button" onclick="toggleQueueCollapse()" id="btn-toggle-queue" class="px-3 py-1 rounded-xl bg-white border border-amber-300 text-xs font-bold text-navy-800 hover:bg-amber-100 transition shrink-0">
             ซ่อนรายการคิว
@@ -229,6 +246,17 @@
       </div>
 
       <div id="morning-queue-list" class="p-4 space-y-2 max-h-80 overflow-y-auto custom-scroll"></div>
+    </section>
+
+    <!-- กล่องแจ้งสิทธิ์ดูอย่างเดียวสำหรับผู้แทน DGA / สพร. -->
+    <section id="dga-readonly-notice" class="hidden bg-slate-50 rounded-3xl p-4 sm:p-5 border-2 border-slate-300 shadow-xs flex items-start gap-3 text-xs sm:text-sm text-slate-700">
+      <div class="w-10 h-10 rounded-2xl bg-slate-800 text-gold-400 flex items-center justify-center shrink-0">
+        <i data-lucide="eye" class="w-5 h-5"></i>
+      </div>
+      <div class="space-y-1">
+        <p class="font-extrabold text-slate-900">โหมดผู้แทน DGA / สพร. (ดูข้อมูลอย่างเดียว — Read-Only)</p>
+        <p class="leading-relaxed">ท่านสามารถเลือกดูคิวคำถามช่วงเช้าและคำตอบ Q&amp;A ของทุกหมวด (1–5) เพื่อใช้ประกอบการพัฒนาระบบแชทบอท AI ได้ครบถ้วนครับ (สิทธิ์การบันทึก แก้ไข และให้ข้อเสนอแนะสงวนไว้สำหรับข้าราชการตำรวจผู้เข้าร่วมสัมมนา ผู้ทรงคุณวุฒิ วิทยากร และคณะทำงาน)</p>
+      </div>
     </section>
 
     <!-- 5. ฟอร์มกรอกใบงานที่ 2 (จัดทำคำตอบ Q&A 1 ข้อต่อ 1 การส่ง) -->
@@ -285,8 +313,9 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label for="qa-sheet-no" class="block font-extrabold text-navy-900 text-sm mb-1">ใบงานข้อที่</label>
+            <label for="qa-sheet-no" class="block font-extrabold text-navy-900 text-sm mb-1" title="เลขลำดับข้อใบงาน Q&A ในหมวดนี้ (ตรงกับช่องใบงานข้อที่บนเอกสารกระดาษ 1 ข้อ/แผ่น)">ใบงานข้อที่</label>
             <input type="text" id="qa-sheet-no" oninput="this.dataset.manual='1'" placeholder="อัตโนมัติ" class="w-full px-3 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-center font-mono font-extrabold text-base" />
+            <p class="text-[10.5px] text-slate-500 mt-0.5 leading-tight text-center">ลำดับข้อในหมวดนี้ (รันอัตโนมัติ)</p>
           </div>
 
           <div class="sm:col-span-2">
@@ -295,10 +324,26 @@
           </div>
         </div>
 
-        <!-- 1. คำถาม / ประเด็นปัญหา -->
-        <div class="space-y-1">
+        <!-- 1. คำถาม / ประเด็นปัญหา (รองรับเลือกจากตอนเช้าแบบออโต้ หรือพิมพ์/เกลาสำนวนใหม่) -->
+        <div class="space-y-2">
           <label for="qa-question" class="block font-extrabold text-navy-900">1. คำถาม / ประเด็นปัญหา <span class="text-rose-600">*</span></label>
-          <p class="text-xs text-slate-500">เขียนด้วยภาษาที่ตำรวจหน้างานหรือประชาชนถามจริง (สามารถเกลาสำนวนจากข้อช่วงเช้าได้)</p>
+
+          <!-- ช่องเลือกดึงคำถามจากช่วงเช้าแบบออโต้ (ไม่ต้องพิมพ์ใหม่) -->
+          <div class="p-3 rounded-2xl bg-amber-50/85 border border-amber-300 space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-1">
+              <label for="qa-morning-picker" class="text-xs font-extrabold text-amber-950 flex items-center gap-1">
+                <i data-lucide="wand-sparkles" class="w-3.5 h-3.5 text-amber-700"></i> เลือกดึงคำถามจากช่วงเช้าแบบอัตโนมัติ (ไม่ต้องพิมพ์ใหม่):
+              </label>
+              <span id="qa-picker-pending-pill" class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 font-mono text-[10.5px] font-extrabold">รอตอบ 0 ข้อ</span>
+            </div>
+            <select id="qa-morning-picker" onchange="onMorningPickerSelected(this.value)" class="w-full px-3 py-2 rounded-xl border border-amber-300 bg-white text-xs sm:text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-maroon-700">
+              <option value="">-- เลือกคำถามช่วงเช้าเพื่อดึงลงช่องอัตโนมัติ (หรือพิมพ์คำถามใหม่เองด้านล่าง) --</option>
+            </select>
+            <p class="text-[11px] text-amber-900/90 leading-snug">
+              💡 <strong>ทิป:</strong> เลือกดึงจากด้านบนแล้วระบบจะเติมข้อความและผูกเลขรหัส <code class="font-mono font-bold">ISS</code> ให้อัตโนมัติ หรือท่านสามารถ <strong>เกลาสำนวน/พิมพ์ใหม่</strong> ให้เป็นประโยคคำถามจริง (เช่น รวมหลายข้อที่ซ้ำกัน) เพื่อป้อนให้ AI คู่หูจราจรตอบได้แม่นยำขึ้นครับ
+            </p>
+          </div>
+
           <textarea id="qa-question" rows="2" required oninput="checkQaDuplicateHint(this.value)" placeholder="เช่น ประชาชนไม่พกใบขับขี่ตัวจริง แต่เปิดรูปถ่ายใบขับขี่ในมือถือให้ดูแทน ใช้ได้หรือไม่?" class="w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-maroon-700 text-base leading-relaxed"></textarea>
           <div id="qa-duplicate-warning" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-950 font-semibold leading-snug"></div>
         </div>
@@ -364,7 +409,7 @@
               <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i>
               <span id="saved-qa-title">รายการคำตอบ Q&amp;A ที่บันทึกแล้วในหมวดที่ 1 (<span id="saved-qa-count" class="font-mono text-emerald-800">0</span> ข้อ)</span>
             </h3>
-            <p class="text-xs text-emerald-900/80 mt-0.5">ดูคำตอบที่เพื่อนในกลุ่มส่งแล้วเพื่อป้องกันการตอบซ้ำ รวมถึงอ่านข้อเสนอแนะจากผู้ทรงคุณวุฒิ / DGA</p>
+            <p class="text-xs text-emerald-900/80 mt-0.5">ดูคำตอบที่เพื่อนในกลุ่มส่งแล้วเพื่อป้องกันการตอบซ้ำ รวมถึงอ่านข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร</p>
           </div>
           <div id="saved-qa-scope-bar" class="flex items-center gap-1 bg-white p-1 rounded-xl border border-emerald-200 text-xs">
             <button type="button" id="qa-scope-cat" onclick="setQaListScope('cat')" class="px-2.5 py-1 rounded-lg font-bold transition">เฉพาะหมวดนี้</button>
@@ -435,7 +480,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: ขยายอ่าน Q&A เต็มจอ (+ ข้อเสนอแนะผู้ทรงคุณวุฒิ/DGA) ==================== -->
+  <!-- ==================== MODAL: ขยายอ่าน Q&A เต็มจอ (+ ข้อเสนอแนะผู้ทรงคุณวุฒิ/วิทยากร) ==================== -->
   <div id="qa-reader-modal" onclick="closeReaderModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
     <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] shadow-2xl overflow-hidden border-2 border-gold-500 flex flex-col">
       <div class="shrink-0 px-5 py-4 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2">
@@ -541,7 +586,7 @@
 
     const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
 
-    // สถานะสิทธิ์ 3 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร/DGA) | 'participant' (ผู้เข้าร่วมสัมมนา)
+    // สถานะสิทธิ์ 4 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร) | 'dga_viewer' (ผู้แทน DGA ดูอย่างเดียว) | 'participant' (ผู้เข้าร่วมสัมมนา)
     let userCtx = {
       id: '',
       name: '',
@@ -591,7 +636,11 @@
       const unit = String(p?.mainUnit || p?.unitDetail || '').trim();
       const wr = String(p?.workshopRole || '').trim();
       if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
-      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || unit.includes('สพร.') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
+      // ผู้แทน DGA / สพร. เป็นบุคคลภายนอก ดูข้อมูลได้อย่างเดียว (ไม่สามารถบันทึกหรือให้ข้อเสนอแนะได้)
+      if (role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || role.includes('สพร.') || unit.includes('สพร.')) {
+        return 'dga_viewer';
+      }
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
         return 'reviewer';
       }
       return 'participant';
@@ -605,19 +654,19 @@
     // สิทธิ์ในการแก้ไข/ลบ Q&A
     function canModifyQA(qa) {
       if (!qa) return false;
+      if (userCtx.roleLevel === 'dga_viewer') return false;
       if (userCtx.roleLevel === 'admin') return true;
       if (userCtx.roleLevel === 'reviewer') {
         if (userCtx.baseGroup && Number(qa.categoryNo) === userCtx.baseGroup) return true;
         return Boolean(userCtx.name && (qa.recorder === userCtx.name || qa.reviewer === userCtx.name));
       }
-      // ผู้เข้าร่วม: แก้ไข/ลบได้เฉพาะ Q&A ในหมวดหลักของกลุ่มตนเอง
       if (userCtx.baseGroup) {
         return Number(qa.categoryNo) === userCtx.baseGroup;
       }
       return true;
     }
 
-    // สิทธิ์ในการบันทึกข้อเสนอแนะ (Comment)
+    // สิทธิ์ในการบันทึกข้อเสนอแนะ (Comment) — เฉพาะคณะทำงานและผู้ทรงคุณวุฒิ/วิทยากรตำรวจ (ผู้แทน DGA ดูอย่างเดียว)
     function canAddComment() {
       return userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'reviewer';
     }
@@ -643,6 +692,8 @@
 
       if (urlStaff === '1' || urlStaff === 'true' || urlUserType === 'staff' || urlUserType === 'admin' || safeSessionGet('ai_seminar_ws_admin') === 'true') {
         userCtx.roleLevel = 'admin';
+      } else if (urlUserType === 'dga' || urlUserType === 'dga_viewer') {
+        userCtx.roleLevel = 'dga_viewer';
       } else if (urlUserType === 'expert' || urlUserType === 'reviewer') {
         userCtx.roleLevel = 'reviewer';
       } else {
@@ -657,12 +708,18 @@
         if (userCtx.roleLevel === 'reviewer') userCtx.baseGroup = urlCat;
       }
 
-      document.getElementById('qa-recorder').value = userCtx.name || safeGet('ws2_recorder_name', '');
-      document.getElementById('qa-reviewer').value = (userCtx.roleLevel === 'reviewer' && userCtx.name)
-        ? userCtx.name
-        : safeGet('ws2_reviewer_name', '');
-      document.getElementById('qa-date-th').value = getTodayThaiDate();
+      const recEl = document.getElementById('qa-recorder');
+      const revEl = document.getElementById('qa-reviewer');
+      const dateEl = document.getElementById('qa-date-th');
+      if (recEl) recEl.value = userCtx.name || safeGet('ws2_recorder_name', '');
+      if (revEl) {
+        revEl.value = (userCtx.roleLevel === 'reviewer' && userCtx.name)
+          ? userCtx.name
+          : safeGet('ws2_reviewer_name', '');
+      }
+      if (dateEl) dateEl.value = getTodayThaiDate();
 
+      onExportScopeModeChange();
       updateCrossPageLinks();
       setQaListScope('cat', false);
       renderEverything();
@@ -690,6 +747,9 @@
     } else {
       initAfternoonApp();
     }
+    window.addEventListener('load', () => {
+      if (window.lucide) lucide.createIcons();
+    });
 
     function updateCrossPageLinks() {
       const qs = new URLSearchParams();
@@ -699,6 +759,8 @@
       if (userCtx.roleLevel === 'admin') {
         qs.set('staff', '1');
         qs.set('userType', 'staff');
+      } else if (userCtx.roleLevel === 'dga_viewer') {
+        qs.set('userType', 'dga_viewer');
       } else if (userCtx.roleLevel === 'reviewer') {
         qs.set('userType', 'expert');
       }
@@ -849,6 +911,7 @@
       renderCategorySwitcher();
       syncFormLocksAndAutoSheetNo();
       renderMorningQueue();
+      renderMorningPickerDropdown();
       renderSavedQAList();
       if (window.lucide) lucide.createIcons();
     }
@@ -866,29 +929,38 @@
 
       const isAdmin = userCtx.roleLevel === 'admin';
       const isReviewer = userCtx.roleLevel === 'reviewer';
+      const isDga = userCtx.roleLevel === 'dga_viewer';
       const locked = isCategoryLockedToGroup();
       const cat = getCategory(activeCategory);
 
-      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isReviewer ? 'EXPERT' : 'GUEST'));
-      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA' : 'ผู้เข้าร่วมสัมมนา'));
+      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isDga ? 'DGA' : (isReviewer ? 'EXPERT' : 'GUEST')));
+      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isDga ? 'ผู้แทน DGA (สพร.)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร' : 'ผู้เข้าร่วมสัมมนา')));
       document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
+      document.getElementById('dga-readonly-notice')?.classList.toggle('hidden', !isDga);
+      document.getElementById('qa-form-card')?.classList.toggle('hidden', isDga);
+      document.getElementById('btn-standalone-qa')?.classList.toggle('hidden', isDga);
 
       if (isAdmin) {
         badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
         badgeEl.textContent = '🛡️ คณะทำงาน (Admin)';
         guideEl.className = 'p-3.5 rounded-2xl bg-indigo-50/85 border border-indigo-200 text-xs sm:text-sm text-indigo-950 leading-relaxed';
-        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> สามารถเลือกตรวจสอบ เพิ่ม แก้ไข ลบคำตอบ Q&amp;A ได้ครบทั้ง <strong>5 หมวด</strong>, ดูภาพรวมทุกกลุ่ม และส่งออกข้อมูลคลังความรู้เป็นไฟล์ <strong>Excel (CSV) / Text (.txt) / PDF</strong>`;
+        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> สามารถเลือกตรวจสอบ เพิ่ม แก้ไข ลบคำตอบ Q&amp;A ได้ครบทั้ง <strong>5 หมวด</strong>, ดูภาพรวมทุกกลุ่ม และเลือกส่งออกข้อมูลเฉพาะกลุ่มหรือเฉพาะหมวดเป็นไฟล์ <strong>Excel (CSV) / Text (.txt) / PDF</strong>`;
+      } else if (isDga) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-slate-800 text-gold-400 text-xs font-extrabold shrink-0';
+        badgeEl.textContent = '👁️ ผู้แทน DGA (ดูอย่างเดียว)';
+        guideEl.className = 'p-3.5 rounded-2xl bg-slate-100 border border-slate-300 text-xs sm:text-sm text-slate-800 leading-relaxed';
+        guideEl.innerHTML = `<strong>👁️ ผู้แทน DGA / สพร. (โหมดสังเกตการณ์):</strong> ท่านสามารถสลับเลือกดูคิวคำถามช่วงเช้าและคำตอบ Q&amp;A ได้ครบทั้ง <strong>5 หมวด</strong> โดยไม่สามารถบันทึก แก้ไข หรือให้ข้อเสนอแนะได้ครับ`;
       } else if (isReviewer) {
         badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
-        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ / วิทยากร หมวด ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร / DGA';
+        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ / วิทยากร หมวด ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร';
         guideEl.className = 'p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
-        guideEl.innerHTML = `<strong>⭐ สิทธิ์ผู้ทรงคุณวุฒิ วิทยากร / ผู้แทน DGA:</strong> สามารถเลือกดูคำถาม–คำตอบได้ครบทุกหมวด (1–5), ช่วยจัดทำ/ตรวจทาน Q&amp;A และ <strong>บันทึกข้อเสนอแนะ (Comment)</strong> เพิ่มเติมได้ทันที — หรือกดปุ่ม <strong>“คลัง Q&amp;A / ข้อเสนอแนะ”</strong> ด้านบนเพื่อใช้หน้าจอคัดกรองอ่านและแสดงความเห็นโดยเฉพาะ`;
+        guideEl.innerHTML = `<strong>⭐ สิทธิ์ผู้ทรงคุณวุฒิ / วิทยากร:</strong> สามารถเลือกดูคำถาม–คำตอบได้ครบทุกหมวด (1–5), ช่วยจัดทำ/ตรวจทาน Q&amp;A และ <strong>บันทึกข้อเสนอแนะ (Comment)</strong> เพิ่มเติมได้ทันที — หรือกดปุ่ม <strong>“คลัง Q&amp;A / ข้อเสนอแนะ”</strong> ด้านบนเพื่อใช้หน้าจอคัดกรองอ่านและแสดงความเห็นโดยเฉพาะ`;
       } else {
         badgeEl.className = 'px-3 py-1 rounded-full bg-maroon-700 text-white text-xs font-extrabold shrink-0';
         badgeEl.textContent = locked ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup} (หมวด ${userCtx.baseGroup})` : '👥 ผู้เข้าร่วมสัมมนา';
         guideEl.className = 'p-3.5 rounded-2xl bg-rose-50/85 border border-rose-200 text-xs sm:text-sm text-maroon-950 leading-relaxed';
         if (locked) {
-          guideEl.innerHTML = `<strong>📘 กิจกรรมช่วงบ่าย (จัดทำคำตอบเฉพาะหมวดหลัก):</strong> ท่านประจำอยู่ <span class="px-2 py-0.5 rounded bg-navy-800 text-gold-400 font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> รับผิดชอบจัดทำคำตอบ <strong>เฉพาะหมวดที่ ${cat.no} (${escapeHtml(cat.short)}) เพียงหมวดเดียว</strong> โดยระบบได้รวบรวมคำถามช่วงเช้าของ <strong>ทุกกลุ่ม (กลุ่ม 1–5)</strong> ที่ถามเข้ามาในหมวดที่ ${cat.no} มาให้เลือกดึงไปตอบด้านล่างแล้วครับ`;
+          guideEl.innerHTML = `<strong>📘 กิจกรรมช่วงบ่าย (จัดทำคำตอบเฉพาะหมวดหลัก):</strong> ท่านประจำอยู่ <span class="px-2 py-0.5 rounded bg-navy-800 text-gold-400 font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> รับผิดชอบจัดทำคำตอบ <strong>เฉพาะหมวดที่ ${cat.no} (${escapeHtml(cat.short)}) เพียงหมวดเดียว</strong> โดยระบบได้รวบรวมคำถามช่วงเช้าของ <strong>ทุกกลุ่ม (กลุ่ม 1–5)</strong> ที่ถามเข้ามาในหมวดที่ ${cat.no} มาให้เลือกดึงไปตอบแบบอัตโนมัติได้ทันทีครับ`;
         } else {
           guideEl.innerHTML = `<strong>📘 กิจกรรมช่วงบ่าย (จัดทำคำตอบเฉพาะหมวดหลัก):</strong> เลือกหมวดหลักของกลุ่มท่าน เพื่อนำคำถามช่วงเช้าของทุกกลุ่มในหมวดนั้นมาจัดทำคำตอบมาตรฐาน (Q&amp;A)`;
         }
@@ -922,11 +994,10 @@
       panel.classList.toggle('hidden', !isAdmin);
       if (!isAdmin) return;
 
+      updateExportScopePreview();
+
       const totalPill = document.getElementById('admin-overall-qa-pill');
-      if (totalPill) {
-        const totalComments = afternoonQAs.reduce((sum, q) => sum + (Array.isArray(q.expertComments) ? q.expertComments.length : 0), 0);
-        totalPill.textContent = `รวม Q&A ${afternoonQAs.length} ข้อ • ข้อเสนอแนะ ${totalComments}`;
-      }
+      if (totalPill) totalPill.textContent = `รวม Q&A ${afternoonQAs.length} ข้อ`;
 
       const grid = document.getElementById('admin-5cat-overview');
       if (!grid) return;
@@ -963,7 +1034,7 @@
       const revJump = document.getElementById('reviewer-jump-btn');
       if (!sec || !grid) return;
 
-      // ซ่อนแถบสลับหมวดสำหรับผู้เข้าร่วมที่ถูกล็อกกลุ่มแล้ว และซ่อนสำหรับ Admin เพราะ Admin มีการ์ด 5 หมวดใน Admin Panel แล้ว
+      // ซ่อนแถบสลับหมวดสำหรับผู้เข้าร่วมที่ถูกล็อกกลุ่มแล้ว และซ่อนสำหรับ Admin (มีใน Admin Panel แล้ว)
       const showSwitcher = !isCategoryLockedToGroup() && userCtx.roleLevel !== 'admin';
       sec.classList.toggle('hidden', !showSwitcher);
       if (!showSwitcher) return;
@@ -999,6 +1070,7 @@
       const catLock = document.getElementById('qa-cat-lock-badge');
       const grpLock = document.getElementById('qa-group-lock-badge');
       const sheetInp = document.getElementById('qa-sheet-no');
+      if (!catSel || !grpSel) return;
 
       const locked = isCategoryLockedToGroup();
       const isEditing = Boolean(document.getElementById('qa-edit-id').value);
@@ -1041,7 +1113,7 @@
       }
     }
 
-    // ==================== MORNING QUEUE LIST (ทุกกลุ่ม 1–5 ในหมวดที่รับผิดชอบ) ====================
+    // ==================== MORNING QUEUE LIST & AUTO-PICKER DROPDOWN ====================
     function toggleQueueCollapse() {
       queueCollapsed = !queueCollapsed;
       document.getElementById('morning-queue-list')?.classList.toggle('hidden', queueCollapsed);
@@ -1088,6 +1160,8 @@
         return;
       }
 
+      const isDga = userCtx.roleLevel === 'dga_viewer';
+
       box.innerHTML = list.map(item => {
         const urg = getUrgencyBadge(item.urgency);
         const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
@@ -1114,18 +1188,57 @@
                 <button type="button" onclick="openReaderModal('${escapeHtml(linkedQa.qaId)}')" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition">
                   👁️ ดูคำตอบ
                 </button>
-              ` : `
-                <button type="button" onclick="pickMorningIssueForQA('${escapeHtml(item.issueId)}')" class="px-3.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-extrabold shadow-2xs transition">
+              ` : (!isDga ? `
+                <button type="button" onclick="pickMorningIssueForQA('${escapeHtml(item.issueId)}', true)" class="px-3.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-800 text-white text-xs font-extrabold shadow-2xs transition">
                   ✍️ เลือกทำ Q&amp;A →
                 </button>
-              `}
+              ` : '')}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function pickMorningIssueForQA(issueId) {
+    // เติมรายการ Dropdown ในข้อ 1 สำหรับดึงคำถามช่วงเช้าแบบออโต้
+    function renderMorningPickerDropdown() {
+      const picker = document.getElementById('qa-morning-picker');
+      const pill = document.getElementById('qa-picker-pending-pill');
+      if (!picker) return;
+
+      const curRefId = document.getElementById('qa-ref-issue-id')?.value || '';
+      const inCat = morningIssues.filter(m => Number(m.categoryNo) === activeCategory);
+      const pending = inCat.filter(m => m.qaStatus !== 'ทำ Q&A แล้ว');
+      const done = inCat.filter(m => m.qaStatus === 'ทำ Q&A แล้ว');
+
+      if (pill) pill.textContent = `รอตอบ ${pending.length} ข้อ (ทั้งหมด ${inCat.length})`;
+
+      const makeOpt = (m) => {
+        const shortTxt = m.issueText.length > 78 ? m.issueText.slice(0, 78) + '...' : m.issueText;
+        const statusTag = m.qaStatus === 'ทำ Q&A แล้ว' ? '✅ ' : '⏳ ';
+        return `<option value="${escapeHtml(m.issueId)}">${statusTag}[${escapeHtml(m.issueId)} • กลุ่ม ${m.groupNo}] ${escapeHtml(shortTxt)}</option>`;
+      };
+
+      let html = `<option value="">-- เลือกคำถามช่วงเช้าในหมวดที่ ${activeCategory} เพื่อดึงลงช่องอัตโนมัติ (หรือพิมพ์ใหม่เองด้านล่าง) --</option>`;
+      if (pending.length > 0) {
+        html += `<optgroup label="⏳ คำถามช่วงเช้าที่รอทำคำตอบ (${pending.length} ข้อ)">${pending.map(makeOpt).join('')}</optgroup>`;
+      }
+      if (done.length > 0) {
+        html += `<optgroup label="✅ คำถามที่ทำ Q&A แล้ว (${done.length} ข้อ — ดูอ้างอิง/ทำเพิ่ม)">${done.map(makeOpt).join('')}</optgroup>`;
+      }
+      picker.innerHTML = html;
+      picker.value = (curRefId && inCat.some(m => m.issueId === curRefId)) ? curRefId : '';
+    }
+
+    function onMorningPickerSelected(issueId) {
+      if (!issueId) {
+        clearRefIssueLink();
+        return;
+      }
+      pickMorningIssueForQA(issueId, false);
+    }
+
+    function pickMorningIssueForQA(issueId, shouldScroll = true) {
+      if (userCtx.roleLevel === 'dga_viewer') return;
       const item = morningIssues.find(m => m.issueId === issueId);
       if (!item) return;
 
@@ -1140,16 +1253,24 @@
         document.getElementById('qa-group').value = String(activeCategory);
       }
 
+      const picker = document.getElementById('qa-morning-picker');
+      if (picker) picker.value = item.issueId;
+
       document.getElementById('qa-question').value = item.issueText || '';
       syncFormLocksAndAutoSheetNo();
       checkQaDuplicateHint(item.issueText || '');
 
-      document.getElementById('qa-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => document.getElementById('qa-answer')?.focus(), 320);
-      showToast(`ดึงประเด็น ${item.issueId} เข้าฟอร์มใบงานเรียบร้อยแล้ว`, 'info');
+      if (shouldScroll) {
+        document.getElementById('qa-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => document.getElementById('qa-answer')?.focus(), 320);
+      } else {
+        document.getElementById('qa-answer')?.focus();
+      }
+      showToast(`ดึงคำถาม ${item.issueId} ลงในข้อ 1 อัตโนมัติแล้ว (สามารถเกลาสำนวนเพิ่มได้)`, 'info');
     }
 
     function startStandaloneQA() {
+      if (userCtx.roleLevel === 'dga_viewer') return;
       cancelQAEdit(true);
       document.getElementById('qa-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => document.getElementById('qa-question')?.focus(), 250);
@@ -1158,6 +1279,8 @@
     function clearRefIssueLink() {
       document.getElementById('qa-ref-issue-id').value = '';
       document.getElementById('qa-ref-banner')?.classList.add('hidden');
+      const picker = document.getElementById('qa-morning-picker');
+      if (picker) picker.value = '';
     }
 
     function checkQaDuplicateHint(rawText) {
@@ -1195,6 +1318,10 @@
     // ==================== CRUD AFTERNOON Q&A ====================
     async function submitQAForm(e) {
       e.preventDefault();
+      if (userCtx.roleLevel === 'dga_viewer') {
+        showToast('ผู้แทน DGA อยู่ในโหมดดูอย่างเดียว ไม่สามารถบันทึก Q&A ได้', 'warning');
+        return;
+      }
       const editId = document.getElementById('qa-edit-id').value.trim();
       const refIssueId = document.getElementById('qa-ref-issue-id').value.trim();
       const locked = isCategoryLockedToGroup();
@@ -1299,6 +1426,8 @@
       document.getElementById('qa-edit-id').value = '';
       document.getElementById('qa-ref-issue-id').value = '';
       document.getElementById('qa-ref-banner')?.classList.add('hidden');
+      const picker = document.getElementById('qa-morning-picker');
+      if (picker) picker.value = '';
       document.getElementById('qa-edit-badge')?.classList.add('hidden');
       document.getElementById('qa-cancel-edit-btn')?.classList.add('hidden');
       document.getElementById('qa-duplicate-warning')?.classList.add('hidden');
@@ -1437,7 +1566,7 @@
 
             ${comments.length > 0 ? `
               <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-300 space-y-1 text-xs">
-                <p class="font-extrabold text-amber-950">💬 ข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร / DGA:</p>
+                <p class="font-extrabold text-amber-950">💬 ข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร:</p>
                 ${comments.map(c => `
                   <p class="text-amber-900 leading-snug">• <strong>${escapeHtml(c.author)}:</strong> ${escapeHtml(c.text)}</p>
                 `).join('')}
@@ -1506,11 +1635,11 @@
           </div>
         ` : ''}
 
-        <!-- โซนข้อเสนอแนะของผู้ทรงคุณวุฒิ / วิทยากร / DGA -->
+        <!-- โซนข้อเสนอแนะของผู้ทรงคุณวุฒิ / วิทยากร -->
         <div class="p-4 rounded-2xl bg-white border-2 border-teal-300 space-y-2.5">
           <p class="text-xs sm:text-sm font-extrabold text-teal-900 flex items-center gap-1.5">
             <i data-lucide="message-square-text" class="w-4 h-4 text-teal-700"></i>
-            ข้อเสนอแนะเพิ่มเติมจากผู้ทรงคุณวุฒิ / วิทยากร / DGA (${comments.length})
+            ข้อเสนอแนะเพิ่มเติมจากผู้ทรงคุณวุฒิ / วิทยากร (${comments.length})
           </p>
           ${comments.length === 0
             ? `<p class="text-xs text-slate-400 italic">ยังไม่มีข้อเสนอแนะเพิ่มเติมในข้อนี้</p>`
@@ -1547,6 +1676,10 @@
 
     async function submitQuickComment(e, qaId) {
       e.preventDefault();
+      if (!canAddComment()) {
+        showToast('สิทธิ์นี้ไม่สามารถบันทึกข้อเสนอแนะได้', 'warning');
+        return;
+      }
       const inp = document.getElementById('rd-comment-input');
       const btn = document.getElementById('rd-comment-btn');
       const text = String(inp?.value || '').trim();
@@ -1559,8 +1692,9 @@
         const res = await postToApi({
           action: 'addQAComment',
           qaId,
+          roleLevel: userCtx.roleLevel,
           author: userCtx.name || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร'),
-          role: userCtx.rawRoleText || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA'),
+          role: userCtx.rawRoleText || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร'),
           text
         });
         if (res.status !== 'success') throw new Error(res.message || 'บันทึกข้อเสนอแนะไม่สำเร็จ');
@@ -1577,40 +1711,117 @@
       }
     }
 
-    // ==================== ADMIN EXPORTS: EXCEL (CSV), TEXT (.TXT), PDF (PRINT) ====================
+    // ==================== ADMIN EXPORTS: เลือกขอบเขต (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) ====================
+    function onExportScopeModeChange() {
+      const modeSel = document.getElementById('export-scope-mode');
+      const valSel = document.getElementById('export-scope-value');
+      if (!modeSel || !valSel) return;
+      const mode = modeSel.value;
+
+      if (mode === 'all') {
+        valSel.classList.add('hidden');
+        valSel.innerHTML = '';
+      } else if (mode === 'by_group') {
+        valSel.classList.remove('hidden');
+        valSel.innerHTML = [1, 2, 3, 4, 5].map(g => `<option value="${g}">กลุ่มที่ ${g}</option>`).join('');
+      } else if (mode === 'by_cat') {
+        valSel.classList.remove('hidden');
+        valSel.innerHTML = CATEGORIES.map(c => `<option value="${c.no}">หมวดที่ ${c.no} : ${escapeHtml(c.short)}</option>`).join('');
+      }
+      updateExportScopePreview();
+    }
+
+    function getExportScopeConfig() {
+      const mode = document.getElementById('export-scope-mode')?.value || 'all';
+      const val = Number(document.getElementById('export-scope-value')?.value) || 1;
+
+      if (mode === 'by_group') {
+        const items = afternoonQAs.filter(q => Number(q.groupNo) === val);
+        return {
+          mode,
+          value: val,
+          label: `เฉพาะกลุ่มที่ ${val} (คำถาม–คำตอบที่จัดทำโดยกลุ่มที่ ${val})`,
+          fileTag: `เฉพาะกลุ่ม${val}`,
+          items
+        };
+      }
+      if (mode === 'by_cat') {
+        const cat = getCategory(val);
+        const items = afternoonQAs.filter(q => Number(q.categoryNo) === val);
+        return {
+          mode,
+          value: val,
+          label: `เฉพาะหมวดที่ ${cat.no} : ${cat.name}`,
+          fileTag: `เฉพาะหมวด${cat.no}`,
+          items
+        };
+      }
+      return {
+        mode: 'all',
+        value: 0,
+        label: 'ทั้งหมดทุกกลุ่ม (กลุ่ม 1–5) และทุกหมวด (หมวด 1–5)',
+        fileTag: 'ทั้งหมด5หมวด',
+        items: afternoonQAs.slice()
+      };
+    }
+
+    function updateExportScopePreview() {
+      const pill = document.getElementById('export-scope-count');
+      if (!pill) return;
+      const cfg = getExportScopeConfig();
+      pill.textContent = `พร้อมส่งออก ${cfg.items.length} ข้อ`;
+    }
+
     function formatCommentsPlain(comments) {
       if (!Array.isArray(comments) || comments.length === 0) return '';
       return comments.map(c => `[${c.author}]: ${c.text}`).join(' | ');
     }
 
     function exportQAExcelCsv() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูล Q&A ในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
       const headers = [
         'QA_ID', 'Ref_Issue_ID', 'Sheet_No', 'Date_TH', 'Group_No', 'Category_No', 'Category_Name',
         'Question', 'Standard_Answer', 'Ref_Media', 'Ref_Law', 'Caution', 'Recorder', 'Reviewer', 'Timestamp', 'Expert_Comments'
       ];
-      const rows = afternoonQAs.map(q => [
+      const rows = cfg.items.map(q => [
         q.qaId, q.refIssueId, q.sheetNo, q.dateTh, q.groupNo, q.categoryNo, q.categoryName,
         q.question, q.standardAnswer, q.refMedia, q.refLaw, q.caution, q.recorder, q.reviewer, q.timestamp,
         formatCommentsPlain(q.expertComments)
       ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
 
       const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-      triggerDownload(csv, 'text/csv;charset=utf-8;', `คลังความรู้QA_ใบงานช่วงบ่าย_5หมวด_${new Date().toISOString().slice(0, 10)}.csv`);
-      showToast('ส่งออกไฟล์ Excel (CSV) เรียบร้อยแล้ว', 'success');
+      triggerDownload(csv, 'text/csv;charset=utf-8;', `คลังความรู้QA_ใบงานช่วงบ่าย_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast(`ส่งออกไฟล์ Excel (CSV) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
     }
 
     function exportQAText() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูล Q&A ในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
       const lines = [
         '========================================================================',
         'ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)',
         'คลังความรู้งานจราจร (รูปแบบถาม-ตอบ / Q&A) เพื่อระบบแชทบอท AI "คู่หูจราจร"',
-        `สรุปผลใบงานที่ 2 ช่วงบ่าย (ครบทั้ง 5 หมวด) — รวมทั้งสิ้น ${afternoonQAs.length} ข้อ`,
+        `ขอบเขตข้อมูล: ${cfg.label}`,
+        `สรุปผลใบงานที่ 2 ช่วงบ่าย — รวมทั้งสิ้น ${cfg.items.length} ข้อ`,
         '========================================================================',
         ''
       ];
 
-      CATEGORIES.forEach(cat => {
-        const items = afternoonQAs.filter(q => Number(q.categoryNo) === cat.no);
+      const catsToRender = cfg.mode === 'by_cat'
+        ? CATEGORIES.filter(c => c.no === cfg.value)
+        : (cfg.mode === 'by_group'
+            ? CATEGORIES.filter(c => cfg.items.some(q => Number(q.categoryNo) === c.no))
+            : CATEGORIES);
+
+      catsToRender.forEach(cat => {
+        const items = cfg.items.filter(q => Number(q.categoryNo) === cat.no);
         lines.push(`【หมวดที่ ${cat.no} : ${cat.name}】 (${items.length} ข้อ)`);
         lines.push(`ขอบเขต: ${cat.scope}`);
         lines.push('------------------------------------------------------------------------');
@@ -1625,7 +1836,7 @@
             if (q.refLaw) lines.push(`  3.2 ระเบียบ/กฎหมาย: ${q.refLaw}`);
             if (q.caution) lines.push(`  4. ข้อควรระวัง: ${q.caution}`);
             if (Array.isArray(q.expertComments) && q.expertComments.length > 0) {
-              lines.push(`  * ข้อเสนอแนะผู้ทรงคุณวุฒิ/DGA: ${formatCommentsPlain(q.expertComments)}`);
+              lines.push(`  * ข้อเสนอแนะผู้ทรงคุณวุฒิ/วิทยากร: ${formatCommentsPlain(q.expertComments)}`);
             }
             lines.push(`  ผู้บันทึก: ${q.recorder || '-'} | ผู้ตรวจสอบ: ${q.reviewer || '-'} | วันที่: ${q.dateTh || '-'}`);
             lines.push('');
@@ -1634,16 +1845,27 @@
         lines.push('');
       });
 
-      triggerDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `คลังความรู้QA_AIคู่หูจราจร_5หมวด_${new Date().toISOString().slice(0, 10)}.txt`);
-      showToast('ส่งออกไฟล์ Text (.txt) เรียบร้อยแล้ว', 'success');
+      triggerDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `คลังความรู้QA_AIคู่หูจราจร_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.txt`);
+      showToast(`ส่งออกไฟล์ Text (.txt) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
     }
 
     function exportQAPdfPrint() {
+      const cfg = getExportScopeConfig();
+      if (cfg.items.length === 0) {
+        showToast(`ไม่มีข้อมูล Q&A ในขอบเขต “${cfg.label}”`, 'warning');
+        return;
+      }
       const container = document.getElementById('print-report-container');
       if (!container) return;
 
-      const sectionsHtml = CATEGORIES.map(cat => {
-        const items = afternoonQAs.filter(q => Number(q.categoryNo) === cat.no);
+      const catsToRender = cfg.mode === 'by_cat'
+        ? CATEGORIES.filter(c => c.no === cfg.value)
+        : (cfg.mode === 'by_group'
+            ? CATEGORIES.filter(c => cfg.items.some(q => Number(q.categoryNo) === c.no))
+            : CATEGORIES);
+
+      const sectionsHtml = catsToRender.map(cat => {
+        const items = cfg.items.filter(q => Number(q.categoryNo) === cat.no);
         return `
           <div style="margin-bottom: 20px;">
             <h3 style="font-size: 15px; font-weight: 800; color: #881337; border-bottom: 2px solid #881337; padding-bottom: 4px; margin-bottom: 8px;">
@@ -1656,7 +1878,7 @@
                   return `
                     <div class="print-qa-card" style="border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; background: #fff;">
                       <div style="font-weight: 800; color: #1E3A8A; margin-bottom: 4px;">
-                        ข้อที่ ${idx + 1} [${escapeHtml(q.qaId)} • กลุ่ม ${q.groupNo}] : ${escapeHtml(q.question)}
+                        ข้อที่ ${idx + 1} [${escapeHtml(q.qaId)} • ใบงานข้อ ${escapeHtml(q.sheetNo || '-')} • กลุ่ม ${q.groupNo}] : ${escapeHtml(q.question)}
                       </div>
                       <div style="margin-bottom: 5px; white-space: pre-line;">
                         <strong style="color: #065f46;">คำตอบมาตรฐาน:</strong> ${escapeHtml(q.standardAnswer)}
@@ -1668,7 +1890,7 @@
                         </div>
                       ` : ''}
                       ${q.caution ? `<div style="font-size: 11px; color: #92400e; background: #fffbeb; padding: 4px 8px; border-radius: 6px; margin-bottom: 4px;"><strong>ข้อควรระวัง:</strong> ${escapeHtml(q.caution)}</div>` : ''}
-                      ${cmts.length > 0 ? `<div style="font-size: 11px; color: #115e59; background: #f0fdfa; padding: 4px 8px; border-radius: 6px; margin-bottom: 4px;"><strong>ข้อเสนอแนะผู้ทรงคุณวุฒิ/DGA:</strong> ${escapeHtml(formatCommentsPlain(cmts))}</div>` : ''}
+                      ${cmts.length > 0 ? `<div style="font-size: 11px; color: #115e59; background: #f0fdfa; padding: 4px 8px; border-radius: 6px; margin-bottom: 4px;"><strong>ข้อเสนอแนะผู้ทรงคุณวุฒิ/วิทยากร:</strong> ${escapeHtml(formatCommentsPlain(cmts))}</div>` : ''}
                       <div style="font-size: 10.5px; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
                         ผู้บันทึก: ${escapeHtml(q.recorder || '-')} • ผู้ตรวจสอบ: ${escapeHtml(q.reviewer || '-')} • วันที่: ${escapeHtml(q.dateTh || '-')}
                       </div>
@@ -1683,8 +1905,8 @@
       container.innerHTML = `
         <div style="text-align: center; margin-bottom: 16px;">
           <p style="font-size: 12px; font-weight: 700; color: #881337;">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
-          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานคลังความรู้งานจราจร (รูปแบบถาม-ตอบ / Q&amp;A) ครบทั้ง 5 หมวด</h2>
-          <p style="font-size: 12px; color: #475569;">โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI “คู่หูจราจร”) • รวมทั้งสิ้น ${afternoonQAs.length} ข้อ</p>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานคลังความรู้งานจราจร (รูปแบบถาม-ตอบ / Q&amp;A)</h2>
+          <p style="font-size: 12px; color: #1E3A8A; font-weight: 700; margin: 2px 0;">ขอบเขตข้อมูล: ${escapeHtml(cfg.label)} • รวมทั้งสิ้น ${cfg.items.length} ข้อ</p>
         </div>
         ${sectionsHtml}
       `;
