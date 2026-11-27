@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คัดกรองคลังความรู้ Q&amp;A &amp; บันทึกข้อเสนอแนะ (ผู้ทรงคุณวุฒิ / DGA) - AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Sarabun', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html, body {
+      font-family: 'Sarabun', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .gold-line {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.2) 100%);
+    }
+
+    /* โหมดปรับขนาดตัวอักษรเพื่อความสบายตาของผู้ทรงคุณวุฒิ / ผู้แทน DGA */
+    .read-scale-lg .qa-q-text { font-size: 1.25rem !important; line-height: 1.5 !important; }
+    .read-scale-lg .qa-a-text { font-size: 1.125rem !important; line-height: 1.7 !important; }
+    .read-scale-xl .qa-q-text { font-size: 1.5rem !important; line-height: 1.45 !important; }
+    .read-scale-xl .qa-a-text { font-size: 1.25rem !important; line-height: 1.75 !important; }
+
+    /* สไตล์สำหรับการพิมพ์ / ส่งออก PDF (สำหรับคณะทำงาน Admin) */
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      body { background: #ffffff !important; color: #0f172a !important; }
+      .no-print { display: none !important; }
+      #print-report-container { display: block !important; }
+      .print-qa-card { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ==================== TOP HEADER BAR ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-teal-900 via-navy-800 to-navy-900 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-3.5 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-white/10 border border-gold-400/75 flex items-center justify-center shrink-0">
+          <i data-lucide="library" class="w-5 h-5 text-gold-400"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold tracking-wider uppercase text-gold-400 leading-none truncate">ศูนย์บริหารงานจราจร ตร. (ศจร.ตร.) • คลังความรู้ AI “คู่หูจราจร”</p>
+          <h1 class="text-base sm:text-lg font-extrabold leading-tight truncate mt-0.5">หน้าจอคัดกรองคลังคำถาม–คำตอบ (Q&amp;A) &amp; ข้อเสนอแนะ</h1>
+          <div class="flex items-center gap-1.5 text-[11px] text-teal-100/90 mt-0.5">
+            <span id="sync-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
+            <span id="sync-text" class="truncate">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ปุ่มนำทางข้ามหน้า -->
+      <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+        <a id="nav-back-portal" href="portal.html" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>กลับบัตร</span>
+        </a>
+        <a id="nav-to-morning" href="morning.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-navy-700 hover:bg-blue-800 border border-blue-300/40 text-xs font-bold text-white transition">
+          <i data-lucide="sun" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span>ช่วงเช้า</span>
+        </a>
+        <a id="nav-to-afternoon" href="afternoon.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-rose-300/40 text-xs font-bold text-white transition">
+          <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span>ช่วงบ่าย (Q&amp;A)</span>
+        </a>
+        <a id="nav-to-display" href="display.html" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition">
+          <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">จอเวที</span>
+        </a>
+        <button type="button" onclick="fetchAllData(true)" title="รีเฟรชข้อมูลล่าสุด" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <div class="gold-line"></div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main id="review-workspace" class="no-print max-w-6xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
+
+    <!-- 1. การ์ดแสดงตัวตนและสิทธิ์การใช้งาน 3 ระดับ -->
+    <section class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-teal-700/20 shadow-xs space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="ctx-code" class="px-2.5 py-0.5 rounded-lg bg-teal-900 text-gold-400 font-mono text-xs font-extrabold shrink-0">READ</span>
+          <strong id="ctx-name" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">ผู้ใช้งานระบบ</strong>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+          <span id="ctx-role-badge" class="px-3 py-1 rounded-full bg-teal-700 text-white text-xs font-extrabold">📖 โหมดอ่านคลังความรู้</span>
+          <!-- ปุ่มเปิดโหมดแสดงความเห็นสำหรับผู้ทรงคุณวุฒิ/DGA ที่เข้าลิงก์ตรง -->
+          <button type="button" id="btn-open-reviewer-login" onclick="openRoleUnlockModal('reviewer')" class="hidden inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-950 text-xs font-extrabold transition">
+            <i data-lucide="message-square-plus" class="w-3.5 h-3.5 text-amber-700"></i> ผู้ทรงคุณวุฒิ / DGA ยืนยันตัวตน
+          </button>
+        </div>
+      </div>
+
+      <div id="ctx-role-guide" class="p-3.5 rounded-2xl bg-teal-50/80 border border-teal-200 text-xs sm:text-sm text-teal-950 leading-relaxed"></div>
+
+      <!-- แถบกำหนดชื่อผู้แสดงความเห็น (แสดงเฉพาะ ผู้ทรงคุณวุฒิ / วิทยากร / DGA / Admin) -->
+      <div id="reviewer-identity-bar" class="hidden p-3 rounded-2xl bg-amber-50/80 border border-amber-300 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center text-xs">
+        <div class="sm:col-span-5 flex items-center gap-2">
+          <label for="rev-author-name" class="font-extrabold text-amber-950 whitespace-nowrap">ชื่อผู้ให้ข้อเสนอแนะ:</label>
+          <input type="text" id="rev-author-name" oninput="persistReviewerProfile()" placeholder="ระบุยศ ชื่อ - สกุล" class="flex-1 min-w-0 px-3 py-1.5 rounded-xl border border-amber-300 bg-white font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div class="sm:col-span-5 flex items-center gap-2">
+          <label for="rev-author-role" class="font-extrabold text-amber-950 whitespace-nowrap">บทบาท/สังกัด:</label>
+          <input type="text" id="rev-author-role" oninput="persistReviewerProfile()" placeholder="เช่น ผู้ทรงคุณวุฒิ / วิทยากร ศวปถ. / ผู้แทน DGA" class="flex-1 min-w-0 px-3 py-1.5 rounded-xl border border-amber-300 bg-white font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div class="sm:col-span-2 text-right">
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-600 text-white font-extrabold text-[11px]">✓ พร้อมให้ข้อเสนอแนะ</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. แผงส่งออกข้อมูลสำหรับคณะทำงาน (ADMIN EXPORT & CONTROL PANEL) -->
+    <section id="admin-export-panel" class="hidden bg-white rounded-3xl border-2 border-indigo-300 shadow-sm overflow-hidden">
+      <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-indigo-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i>
+          <h2 class="font-extrabold text-sm sm:text-base">แผงควบคุมคณะทำงาน (Admin) — ส่งออกคลังความรู้ครบทุกหมวด (รวมข้อเสนอแนะ DGA / ผู้ทรงคุณวุฒิ)</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" onclick="exportAllExcelCsv()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel (CSV)
+          </button>
+          <button type="button" onclick="exportAllText()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Text (.txt)
+          </button>
+          <button type="button" onclick="exportAllPdfPrint()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-gold-400/50 text-white text-xs font-extrabold transition">
+            <i data-lucide="printer" class="w-3.5 h-3.5 text-gold-400"></i> PDF / พิมพ์รายงาน
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. การ์ด KPI สรุปภาพรวม (กดเพื่อคัดกรองได้ทันที) -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+      <button type="button" onclick="quickFilterByKpi('all_qa')" class="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-navy-700 text-left shadow-2xs transition">
+        <p class="text-xs font-bold text-navy-700">📘 คลังความรู้ Q&amp;A ทั้งหมด</p>
+        <p id="kpi-qa-total" class="font-mono text-2xl sm:text-3xl font-extrabold text-navy-900 leading-tight mt-0.5">0</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">ครบทั้ง 5 หมวดหมู่หลัก</p>
+      </button>
+
+      <button type="button" onclick="quickFilterByKpi('uncommented')" class="p-3.5 rounded-2xl bg-white border border-amber-300 hover:border-amber-500 text-left shadow-2xs transition">
+        <p class="text-xs font-bold text-amber-800">📝 รอตรวจสอบ / ยังไม่มีความเห็น</p>
+        <p id="kpi-qa-uncommented" class="font-mono text-2xl sm:text-3xl font-extrabold text-amber-700 leading-tight mt-0.5">0</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">แตะเพื่อคัดกรองข้อที่ยังไม่ตรวจ</p>
+      </button>
+
+      <button type="button" onclick="quickFilterByKpi('commented')" class="p-3.5 rounded-2xl bg-white border border-teal-300 hover:border-teal-600 text-left shadow-2xs transition">
+        <p class="text-xs font-bold text-teal-800">💬 มีข้อเสนอแนะแล้ว</p>
+        <p id="kpi-qa-commented" class="font-mono text-2xl sm:text-3xl font-extrabold text-teal-700 leading-tight mt-0.5">0</p>
+        <p id="kpi-comment-total-sub" class="text-[11px] text-slate-500 mt-0.5">รวม 0 ข้อเสนอแนะ</p>
+      </button>
+
+      <button type="button" onclick="quickFilterByKpi('morning_issues')" class="p-3.5 rounded-2xl bg-white border border-rose-200 hover:border-maroon-700 text-left shadow-2xs transition">
+        <p class="text-xs font-bold text-maroon-800">☀️ ประเด็นปัญหาช่วงเช้า</p>
+        <p id="kpi-morning-total" class="font-mono text-2xl sm:text-3xl font-extrabold text-maroon-700 leading-tight mt-0.5">0</p>
+        <p id="kpi-morning-pending-sub" class="text-[11px] text-slate-500 mt-0.5">รอทำคำตอบ 0 ข้อ</p>
+      </button>
+    </section>
+
+    <!-- 4. แผงคัดกรองอัจฉริยะ (เลือกหมวด 1–5 + มุมมอง + ตัวกรองสถานะ + ปรับขนาดตัวอักษร) -->
+    <section class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-navy-900 via-navy-800 to-teal-900 text-white space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- สลับชุดข้อมูล: คลัง Q&A (ช่วงบ่าย) vs ประเด็นช่วงเช้า -->
+          <div class="flex items-center bg-black/30 p-1 rounded-xl border border-white/15 text-xs sm:text-sm">
+            <button type="button" id="view-btn-qa" onclick="setDatasetView('qa')" class="px-3.5 py-1.5 rounded-lg font-extrabold transition">📘 คลังคำถาม–คำตอบ (Q&amp;A)</button>
+            <button type="button" id="view-btn-morning" onclick="setDatasetView('morning')" class="px-3.5 py-1.5 rounded-lg font-bold transition">☀️ ประเด็นปัญหาช่วงเช้า</button>
+          </div>
+
+          <!-- ปรับขนาดตัวอักษรเพื่อความสะดวกในการอ่าน + เปิดโหมดอ่านทีละข้อ -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-1 bg-white/10 p-1 rounded-xl border border-white/15 text-[11px]">
+              <span class="px-1.5 text-blue-100 font-bold">ขนาดอักษร:</span>
+              <button type="button" id="font-btn-normal" onclick="setFontScale('normal')" class="px-2 py-1 rounded-lg font-bold transition">ปกติ</button>
+              <button type="button" id="font-btn-lg" onclick="setFontScale('lg')" class="px-2 py-1 rounded-lg font-bold transition">ใหญ่</button>
+              <button type="button" id="font-btn-xl" onclick="setFontScale('xl')" class="px-2 py-1 rounded-lg font-bold transition">ใหญ่มาก</button>
+            </div>
+            <button type="button" id="btn-start-focus-review" onclick="startFocusReviewFromFirst()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> อ่านทีละข้อเต็มจอ
+            </button>
+          </div>
+        </div>
+
+        <!-- ปุ่มคัดกรองหมวด 1–5 พร้อมจำนวนข้อ -->
+        <div id="category-filter-pills" class="flex flex-wrap gap-1.5"></div>
+        <div id="selected-cat-scope-bar" class="hidden p-2.5 rounded-xl bg-white/10 border border-white/15 text-xs text-blue-50 leading-relaxed"></div>
+      </div>
+
+      <!-- แถบค้นหาและตัวกรองย่อย -->
+      <div class="p-3.5 sm:p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs sm:text-sm">
+        <div class="sm:col-span-5 relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="filter-search" oninput="renderList()" placeholder="ค้นหาคำถาม, คำตอบ, กฎหมาย, สื่อ, ผู้บันทึก, ข้อเสนอแนะ..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-700" />
+        </div>
+
+        <select id="filter-group" onchange="renderList()" class="sm:col-span-2 px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold text-xs">
+          <option value="all">ทุกกลุ่ม (1–5)</option>
+          <option value="1">กลุ่มที่ 1</option>
+          <option value="2">กลุ่มที่ 2</option>
+          <option value="3">กลุ่มที่ 3</option>
+          <option value="4">กลุ่มที่ 4</option>
+          <option value="5">กลุ่มที่ 5</option>
+        </select>
+
+        <select id="filter-comment-status" onchange="renderList()" class="sm:col-span-3 px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold text-xs">
+          <option value="all">ทุกสถานะข้อเสนอแนะ</option>
+          <option value="uncommented">📝 ยังไม่มีข้อเสนอแนะ (รอตรวจ)</option>
+          <option value="commented">💬 มีข้อเสนอแนะแล้ว</option>
+          <option value="missing_law">⚖️ ยังไม่ได้ระบุระเบียบ/กฎหมาย</option>
+          <option value="has_caution">⚠️ มีข้อควรระวัง/ข้อยกเว้น</option>
+        </select>
+
+        <select id="filter-morning-status" onchange="renderList()" class="hidden sm:col-span-3 px-3 py-2 rounded-xl border border-slate-300 bg-white font-bold text-xs">
+          <option value="all">ทุกสถานะประเด็นช่วงเช้า</option>
+          <option value="รอทำคำตอบ">⏳ รอทำคำตอบช่วงบ่าย</option>
+          <option value="ทำ Q&A แล้ว">✅ ทำ Q&amp;A แล้ว</option>
+          <option value="เร่งด่วนมาก">🔴 เฉพาะเร่งด่วนมาก</option>
+        </select>
+
+        <div class="sm:col-span-2 flex items-center justify-end">
+          <span id="filtered-count-pill" class="w-full text-center px-3 py-2 rounded-xl bg-navy-800 text-gold-400 font-mono text-xs font-extrabold">แสดง 0 ข้อ</span>
+        </div>
+      </div>
+
+      <!-- รายการ Q&A หรือ ประเด็นปัญหาช่วงเช้า -->
+      <div id="review-list-container" class="p-4 sm:p-5 space-y-4"></div>
+    </section>
+
+    <!-- Footer พร้อมปุ่มปลดล็อกสิทธิ์ผู้ทรงคุณวุฒิ/DGA และ คณะทำงาน Admin -->
+    <footer class="text-center pt-2 text-xs text-slate-400 space-y-1.5">
+      <p>โครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI “คู่หูจราจร” • ศจร.ตร.</p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <button type="button" id="footer-reviewer-trigger" onclick="openRoleUnlockModal('reviewer')" class="text-teal-700 hover:underline font-semibold transition">สำหรับผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA: เปิดโหมดให้ข้อเสนอแนะ</button>
+        <span id="footer-sep" class="text-slate-300">|</span>
+        <button type="button" id="footer-admin-trigger" onclick="openRoleUnlockModal('admin')" class="text-slate-400 hover:text-navy-700 underline transition">สำหรับคณะทำงาน (Admin): ปลดล็อกจัดการทั้งหมด &amp; ส่งออกข้อมูล</button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ==================== พื้นที่รายงานสำหรับพิมพ์ / ส่งออก PDF (Admin) ==================== -->
+  <section id="print-report-container" class="hidden p-4 bg-white text-slate-900"></section>
+
+  <!-- ==================== MODAL: FOCUS REVIEW (อ่านทีละข้อเต็มจอ + ให้ข้อเสนอแนะสะดวกมาก) ==================== -->
+  <div id="focus-review-modal" onclick="closeFocusModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-4xl w-full max-h-[94vh] shadow-2xl overflow-hidden border-2 border-gold-500 flex flex-col">
+      <!-- Header -->
+      <div class="shrink-0 px-4 sm:px-6 py-3.5 bg-gradient-to-r from-teal-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+          <span id="fm-id" class="px-2.5 py-0.5 rounded-lg bg-gold-500 text-slate-950 font-mono text-xs font-extrabold">QA-001</span>
+          <span id="fm-cat" class="px-2.5 py-0.5 rounded-lg bg-white/15 text-xs font-bold truncate">หมวดที่ 1</span>
+          <span id="fm-grp" class="px-2.5 py-0.5 rounded-lg bg-maroon-700 text-xs font-bold">กลุ่มที่ 1</span>
+          <span id="fm-counter" class="font-mono text-xs font-extrabold text-gold-400 ml-1">1 / 1</span>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" onclick="stepFocus(-1)" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold transition">← ข้อก่อนหน้า</button>
+          <button type="button" onclick="stepFocus(1)" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold transition">ข้อถัดไป →</button>
+          <button type="button" onclick="closeFocusModal()" class="p-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white transition" title="ปิด (Esc)">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div id="fm-body" class="flex-1 overflow-y-auto custom-scroll p-5 sm:p-7 space-y-5 bg-slate-50"></div>
+
+      <!-- Footer -->
+      <div id="fm-footer" class="shrink-0 px-5 py-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADMIN QUICK EDIT Q&A ==================== -->
+  <div id="admin-edit-modal" onclick="closeAdminEditModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border-2 border-indigo-600 my-auto">
+      <div class="px-5 py-4 bg-gradient-to-r from-indigo-900 to-navy-800 text-white flex items-center justify-between gap-2">
+        <div>
+          <span id="ae-id-badge" class="px-2 py-0.5 rounded bg-gold-500 text-slate-950 font-mono text-xs font-extrabold">QA-001</span>
+          <h3 class="font-extrabold text-base mt-0.5">แก้ไขคำถาม–คำตอบ (สิทธิ์คณะทำงาน Admin)</h3>
+        </div>
+        <button type="button" onclick="closeAdminEditModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="submitAdminEditQA(event)" class="p-5 space-y-3.5 max-h-[80vh] overflow-y-auto custom-scroll text-xs sm:text-sm">
+        <input type="hidden" id="ae-qa-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <label class="block font-bold text-navy-900 mb-1">หมวดหมู่ (1–5)</label>
+            <select id="ae-cat" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold">
+              <option value="1">หมวดที่ 1 : กฎหมายจราจร</option>
+              <option value="2">หมวดที่ 2 : คู่มือ / SOP</option>
+              <option value="3">หมวดที่ 3 : ไอที PTM / TPCC</option>
+              <option value="4">หมวดที่ 4 : การเงิน / งบประมาณ</option>
+              <option value="5">หมวดที่ 5 : ข้อโต้แย้งประชาชน</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-navy-900 mb-1">กลุ่มผู้จัดทำ</label>
+            <select id="ae-group" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold">
+              <option value="1">กลุ่มที่ 1</option>
+              <option value="2">กลุ่มที่ 2</option>
+              <option value="3">กลุ่มที่ 3</option>
+              <option value="4">กลุ่มที่ 4</option>
+              <option value="5">กลุ่มที่ 5</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-navy-900 mb-1">1. คำถาม / ประเด็นปัญหา *</label>
+          <textarea id="ae-question" rows="2" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white"></textarea>
+        </div>
+        <div>
+          <label class="block font-bold text-navy-900 mb-1">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ *</label>
+          <textarea id="ae-answer" rows="4" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white"></textarea>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-navy-800 mb-1">3.1 สื่อ / อินโฟกราฟิก / PowerPoint</label>
+            <textarea id="ae-ref-media" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white"></textarea>
+          </div>
+          <div>
+            <label class="block font-bold text-maroon-800 mb-1">3.2 ระเบียบ / กฎหมาย</label>
+            <textarea id="ae-ref-law" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white"></textarea>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-amber-900 mb-1">4. ข้อควรระวัง / ข้อยกเว้น</label>
+          <textarea id="ae-caution" rows="2" class="w-full px-3 py-2 rounded-xl border border-amber-300 bg-amber-50/50 focus:bg-white"></textarea>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-navy-900 mb-1">ผู้บันทึกข้อมูล</label>
+            <input type="text" id="ae-recorder" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50" />
+          </div>
+          <div>
+            <label class="block font-bold text-navy-900 mb-1">ผู้ตรวจสอบความถูกต้อง</label>
+            <input type="text" id="ae-reviewer" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeAdminEditModal()" class="px-4 py-2 rounded-xl border border-slate-300 font-bold text-slate-600">ยกเลิก</button>
+          <button type="submit" id="ae-save-btn" class="px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold">บันทึกการแก้ไข</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ยืนยันการลบ (แทน confirm) ==================== -->
+  <div id="confirm-modal" onclick="closeConfirmModal()" class="no-print hidden fixed inset-0 z-[60] bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-rose-500">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="trash-2" class="w-6 h-6"></i>
+      </div>
+      <div class="space-y-1">
+        <h3 id="cm-title" class="font-extrabold text-base text-slate-900">ยืนยันการลบ?</h3>
+        <p id="cm-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">ยกเลิก</button>
+        <button type="button" id="cm-confirm-btn" onclick="executePendingConfirm()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm">ยืนยันลบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ปลดล็อกสิทธิ์ ผู้ทรงคุณวุฒิ/DGA หรือ คณะทำงาน Admin ==================== -->
+  <div id="role-unlock-modal" onclick="closeRoleUnlockModal()" class="no-print hidden fixed inset-0 z-[60] bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border-2 border-teal-600">
+      <div class="text-center space-y-1">
+        <div id="ru-icon-box" class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mx-auto">
+          <i data-lucide="award" class="w-6 h-6"></i>
+        </div>
+        <h3 id="ru-title" class="font-extrabold text-base text-slate-900">ยืนยันตัวตนผู้ทรงคุณวุฒิ / ผู้แทน DGA</h3>
+        <p id="ru-desc" class="text-xs text-slate-500">ระบุชื่อและรหัสยืนยันเพื่อเปิดใช้งานระบบบันทึกข้อเสนอแนะ (Comment)</p>
+      </div>
+
+      <form onsubmit="submitRoleUnlock(event)" class="space-y-3 text-xs sm:text-sm">
+        <input type="hidden" id="ru-target-mode" value="reviewer" />
+        <div id="ru-name-fields" class="space-y-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">ยศ ชื่อ - สกุล *</label>
+            <input type="text" id="ru-name-input" placeholder="เช่น ผศ.ดร.สมชาย ... / นาย... (ผู้แทน DGA)" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">บทบาท / หน่วยงาน</label>
+            <select id="ru-role-select" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-semibold">
+              <option value="ผู้ทรงคุณวุฒิ">ผู้ทรงคุณวุฒิ</option>
+              <option value="วิทยากร (ศวปถ.)">วิทยากร (ศวปถ.)</option>
+              <option value="ผู้แทน DGA (สพร.)">ผู้แทน DGA (สพร.)</option>
+              <option value="ผู้เชี่ยวชาญประจำกลุ่ม">ผู้เชี่ยวชาญประจำกลุ่ม</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label id="ru-pin-label" class="block text-xs font-bold text-slate-700 mb-1">รหัสยืนยันสิทธิ์ *</label>
+          <input type="password" id="ru-pin-input" maxlength="12" placeholder="กรอกรหัส (DGA หรือ 2569)" required class="w-full px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="closeRoleUnlockModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">ยกเลิก</button>
+          <button type="submit" id="ru-submit-btn" class="flex-1 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold">เปิดใช้งาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const ADMIN_PASSCODE = "2569";
+    const REVIEWER_PASSCODES = ["2569", "DGA", "EXPERT"];
+
+    // โครงสร้าง 5 หมวดหมู่หลักและขอบเขตเนื้อหา
+    const CATEGORIES = [
+      {
+        no: 1,
+        short: 'กฎหมายจราจร',
+        name: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
+        scope: 'พ.ร.บ.จราจรทางบก, พ.ร.บ.รถยนต์, การตีความข้อกฎหมาย, อำนาจหน้าที่, การเปรียบเทียบปรับ และข้อกฎหมายใหม่',
+        color: '#1E3A8A'
+      },
+      {
+        no: 2,
+        short: 'คู่มือ / SOP',
+        name: 'คู่มือแนวทาง ข้อสั่งการ และมาตรฐานการปฏิบัติงาน (SOP)',
+        scope: 'การตั้งจุดตรวจ/จุดสกัด, การตรวจวัดแอลกอฮอล์, การจัดการจราจร/อุบัติเหตุ, ขั้นตอนปฏิบัติ และหนังสือสั่งการ ตร./ศจร.ตร.',
+        color: '#0F766E'
+      },
+      {
+        no: 3,
+        short: 'ไอที (PTM / TPCC)',
+        name: 'การใช้งานระบบเทคโนโลยีสารสนเทศงานจราจร (PTM / TPCC)',
+        scope: 'ระบบใบสั่งจราจร PTM, ระบบบริหารจุดตรวจ TPCC, ระบบตัดคะแนนความประพฤติ, การเชื่อมโยงข้อมูล และปัญหาการใช้งานอุปกรณ์',
+        color: '#4338CA'
+      },
+      {
+        no: 4,
+        short: 'การเงินและงบประมาณ',
+        name: 'ด้านการเงินและงบประมาณงานจราจร',
+        scope: 'เงินรางวัลค่าปรับจราจร, การจัดสรรและเบิกจ่ายงบประมาณ, ค่าตอบแทน/เบี้ยเลี้ยง, การจัดซื้อจัดจ้าง และระเบียบการเงิน',
+        color: '#B45309'
+      },
+      {
+        no: 5,
+        short: 'ข้อโต้แย้งจากประชาชน',
+        name: 'ประเด็นข้อโต้แย้งจากประชาชนในระหว่างปฏิบัติหน้าที่',
+        scope: 'การโต้เถียงเรื่องอำนาจตรวจค้น/ออกใบสั่ง, การถ่ายคลิปเผยแพร่, ข้อร้องเรียนที่พบบ่อย และแนวทางสื่อสารลดความขัดแย้ง',
+        color: '#881337'
+      }
+    ];
+
+    // ข้อความข้อเสนอแนะสำเร็จรูป (Quick Comment Chips สำหรับผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA)
+    const QUICK_COMMENT_TEMPLATES = [
+      'คำตอบถูกต้องชัดเจน เหมาะสมสำหรับนำไปใช้ในระบบ AI คู่หูจราจร',
+      'ควรระบุเลขมาตรา พ.ร.บ. หรือเลขหนังสือสั่งการอ้างอิงเพิ่มเติมให้ครบถ้วน',
+      'ควรปรับสำนวนคำตอบให้สั้น กระชับ แบ่งเป็นข้อๆ เพื่อให้อ่านง่ายบนแชทบอท AI',
+      'ควรเพิ่มเติมข้อควรระวังหรือข้อยกเว้นทางกฎหมายในข้อ 4 ให้ชัดเจนขึ้น',
+      'แนะนำแนบสื่ออินโฟกราฟิกหรือไฟล์คู่มือประกอบในหัวข้อ 3.1 เพิ่มเติม'
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function safeSessionGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+    function safeSessionSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+    const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+
+    // สถานะสิทธิ์ 3 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร/DGA) | 'participant' (อ่านอย่างเดียว)
+    let userCtx = {
+      id: '',
+      name: '',
+      roleLevel: 'participant',
+      rawRoleText: '',
+      baseGroup: 0
+    };
+
+    let datasetView = 'qa';      // 'qa' | 'morning'
+    let selectedCatFilter = 'all'; // 'all' | '1'..'5'
+    let fontScale = safeGet('ws2_review_font_scale', 'normal') || 'normal';
+    let hasLoadedOnce = false;
+    let isMutating = false;
+
+    let participants = [];
+    let morningIssues = [];
+    let afternoonQAs = [];
+    let filteredQAs = [];
+    let filteredMorning = [];
+    let openInlineCommentIds = new Set();
+
+    // Focus Review Modal State
+    let focusIndex = -1;
+    let pendingConfirmAction = null;
+
+    // ==================== HELPER FUNCTIONS ====================
+    function getCategory(no) {
+      return CATEGORIES.find(c => c.no === Number(no)) || CATEGORIES[0];
+    }
+
+    function parseGroupNo(val) {
+      const m = String(val || '').trim().match(/[1-5]/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
+    function getActiveDisplayName(p) {
+      if (!p) return '';
+      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(String(p.substituteName || '').trim());
+      return isSub ? String(p.substituteName).trim() : String(p.fullName || '').trim();
+    }
+
+    function detectRoleLevelFromParticipant(p) {
+      const role = String(p?.role || '').trim();
+      const unit = String(p?.mainUnit || p?.unitDetail || '').trim();
+      const wr = String(p?.workshopRole || '').trim();
+      if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
+      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || unit.includes('สพร.') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
+        return 'reviewer';
+      }
+      return 'participant';
+    }
+
+    function canComment() {
+      return userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'reviewer';
+    }
+
+    function canDeleteComment(commentObj) {
+      if (userCtx.roleLevel === 'admin') return true;
+      if (userCtx.roleLevel === 'reviewer') {
+        const myName = getReviewerAuthorName();
+        return Boolean(myName && commentObj && commentObj.author === myName);
+      }
+      return false;
+    }
+
+    function getReviewerAuthorName() {
+      const inp = document.getElementById('rev-author-name');
+      const v = String(inp?.value || userCtx.name || safeGet('ws2_reviewer_author', '')).trim();
+      return v || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร');
+    }
+
+    function getReviewerAuthorRole() {
+      const inp = document.getElementById('rev-author-role');
+      const v = String(inp?.value || userCtx.rawRoleText || safeGet('ws2_reviewer_role', '')).trim();
+      return v || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA');
+    }
+
+    function persistReviewerProfile() {
+      const n = document.getElementById('rev-author-name')?.value || '';
+      const r = document.getElementById('rev-author-role')?.value || '';
+      safeSet('ws2_reviewer_author', n);
+      safeSet('ws2_reviewer_role', r);
+    }
+
+    function getUrgencyBadge(urgency) {
+      if (urgency === 'เร่งด่วนมาก') return { cls: 'bg-rose-100 text-rose-800 border-rose-300', label: '🔴 เร่งด่วนมาก' };
+      if (urgency === 'เร่งด่วน') return { cls: 'bg-amber-100 text-amber-900 border-amber-300', label: '🟠 เร่งด่วน' };
+      return { cls: 'bg-emerald-100 text-emerald-800 border-emerald-300', label: '🟢 ทั่วไป' };
+    }
+
+    // ==================== INITIALIZATION ====================
+    function initReviewApp() {
+      const params = new URLSearchParams(window.location.search);
+      const urlId = String(params.get('id') || '').trim();
+      const urlName = String(params.get('name') || '').trim();
+      const urlGroup = parseGroupNo(params.get('group'));
+      const urlCat = parseGroupNo(params.get('cat'));
+      const urlStaff = String(params.get('staff') || '').trim().toLowerCase();
+      const urlUserType = String(params.get('userType') || params.get('role') || '').trim().toLowerCase();
+
+      userCtx.id = urlId;
+      userCtx.name = urlName || safeGet('ws2_reviewer_author', '') || safeGet('ws2_recorder_name', '');
+      userCtx.baseGroup = urlGroup || urlCat || 0;
+
+      if (urlStaff === '1' || urlStaff === 'true' || urlUserType === 'staff' || urlUserType === 'admin' || safeSessionGet('ai_seminar_ws_admin') === 'true') {
+        userCtx.roleLevel = 'admin';
+      } else if (urlUserType === 'expert' || urlUserType === 'reviewer' || urlUserType === 'dga' || safeSessionGet('ai_seminar_ws_reviewer') === 'true') {
+        userCtx.roleLevel = 'reviewer';
+      } else {
+        userCtx.roleLevel = 'participant';
+      }
+
+      if (urlCat) selectedCatFilter = String(urlCat);
+
+      const savedRevName = userCtx.name || safeGet('ws2_reviewer_author', '');
+      const savedRevRole = safeGet('ws2_reviewer_role', '') || (userCtx.roleLevel === 'admin' ? 'คณะทำงาน (Admin)' : 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA');
+      document.getElementById('rev-author-name').value = savedRevName;
+      document.getElementById('rev-author-role').value = savedRevRole;
+
+      setFontScale(fontScale, false);
+      setDatasetView('qa', false);
+      updateCrossPageLinks();
+      renderEverything();
+      if (window.lucide) lucide.createIcons();
+
+      fetchAllData(true);
+
+      // ซิงค์ข้อมูลอัตโนมัติทุก 12 วินาที
+      setInterval(() => {
+        if (!document.hidden && !isMutating) fetchAllData(false);
+      }, 12000);
+
+      document.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+          if (e.key === 'Escape') {
+            closeConfirmModal();
+            closeRoleUnlockModal();
+            closeAdminEditModal();
+          }
+          return;
+        }
+        const focusOpen = !document.getElementById('focus-review-modal')?.classList.contains('hidden');
+        if (e.key === 'Escape') {
+          closeConfirmModal();
+          closeRoleUnlockModal();
+          closeAdminEditModal();
+          closeFocusModal();
+        } else if (focusOpen && e.key === 'ArrowLeft') {
+          e.preventDefault();
+          stepFocus(-1);
+        } else if (focusOpen && e.key === 'ArrowRight') {
+          e.preventDefault();
+          stepFocus(1);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initReviewApp);
+    } else {
+      initReviewApp();
+    }
+
+    function updateCrossPageLinks() {
+      const qs = new URLSearchParams();
+      if (userCtx.id) qs.set('id', userCtx.id);
+      if (userCtx.name) qs.set('name', userCtx.name);
+      if (userCtx.baseGroup) qs.set('group', String(userCtx.baseGroup));
+      if (userCtx.roleLevel === 'admin') {
+        qs.set('staff', '1');
+        qs.set('userType', 'staff');
+      } else if (userCtx.roleLevel === 'reviewer') {
+        qs.set('userType', 'expert');
+      }
+      const qStr = qs.toString() ? `?${qs.toString()}` : '';
+
+      const backPortal = document.getElementById('nav-back-portal');
+      if (backPortal && userCtx.id) {
+        backPortal.href = `portal.html?id=${encodeURIComponent(userCtx.id)}${userCtx.roleLevel === 'admin' ? '&staff=1' : ''}`;
+        backPortal.classList.remove('hidden');
+      }
+      const toMorning = document.getElementById('nav-to-morning');
+      if (toMorning) toMorning.href = `morning.html${qStr}`;
+      const toAfternoon = document.getElementById('nav-to-afternoon');
+      if (toAfternoon) toAfternoon.href = `afternoon.html${qStr}`;
+      const toDisplay = document.getElementById('nav-to-display');
+      if (toDisplay) toDisplay.classList.toggle('hidden', userCtx.roleLevel !== 'admin');
+    }
+
+    // ==================== DATA FETCH ====================
+    async function fetchAllData(showLoading = false) {
+      const dot = document.getElementById('sync-dot');
+      const txt = document.getElementById('sync-text');
+      if (showLoading && txt) txt.textContent = 'กำลังโหลดข้อมูลล่าสุด...';
+
+      const ts = Date.now();
+      try {
+        const reqs = [fetch(`${API_URL}?action=getWorkshopData&_t=${ts}`, { cache: 'no-store' })];
+        if (!hasLoadedOnce || showLoading || participants.length === 0) {
+          reqs.push(fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }).catch(() => null));
+        }
+
+        const [wRes, pRes] = await Promise.all(reqs);
+        if (!wRes.ok) throw new Error(`HTTP ${wRes.status}`);
+        const wJson = await wRes.json();
+        if (wJson.status !== 'success') throw new Error(wJson.message || 'โหลดข้อมูลไม่สำเร็จ');
+
+        morningIssues = Array.isArray(wJson.data?.issues) ? wJson.data.issues : [];
+        afternoonQAs = Array.isArray(wJson.data?.qas) ? wJson.data.qas : [];
+
+        if (pRes && pRes.ok) {
+          try {
+            const pJson = await pRes.json();
+            if (pJson.status === 'success' && Array.isArray(pJson.data)) {
+              participants = pJson.data;
+              hydrateUserFromParticipants();
+            }
+          } catch (e) {}
+        }
+
+        hasLoadedOnce = true;
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        if (txt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          txt.textContent = `ซิงค์ล่าสุด ${nowStr} น. (Q&A ${afternoonQAs.length} ข้อ • เช้า ${morningIssues.length} ข้อ)`;
+        }
+
+        updateCrossPageLinks();
+        renderEverything();
+
+        // อัปเดต Focus Modal หากเปิดค้างอยู่
+        if (focusIndex !== -1 && !document.getElementById('focus-review-modal')?.classList.contains('hidden')) {
+          renderFocusModal();
+        }
+      } catch (err) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-400 inline-block shrink-0';
+        if (txt) txt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        if (showLoading) showToast('ไม่สามารถโหลดข้อมูลได้: ' + err.message, 'error');
+      }
+    }
+
+    function hydrateUserFromParticipants() {
+      if (!userCtx.id || participants.length === 0) return;
+      const found = participants.find(p => String(p.id || '').trim().toUpperCase() === userCtx.id.toUpperCase());
+      if (!found) return;
+
+      const name = getActiveDisplayName(found);
+      if (name) {
+        userCtx.name = name;
+        const nameInp = document.getElementById('rev-author-name');
+        if (nameInp && !nameInp.value) nameInp.value = name;
+      }
+
+      const roleTxt = String(found.role || '').trim();
+      const unitTxt = String(found.unitDetail || found.mainUnit || '').trim();
+      userCtx.rawRoleText = roleTxt ? `${roleTxt}${unitTxt ? ` (${unitTxt})` : ''}` : unitTxt;
+
+      const roleInp = document.getElementById('rev-author-role');
+      if (roleInp && userCtx.rawRoleText && (!safeGet('ws2_reviewer_role') || roleInp.value === 'ผู้ทรงคุณวุฒิ / วิทยากร / DGA')) {
+        roleInp.value = userCtx.rawRoleText;
+      }
+
+      const grp = parseGroupNo(found.workshopGroup);
+      if (grp) userCtx.baseGroup = grp;
+
+      if (userCtx.roleLevel !== 'admin') {
+        const detected = detectRoleLevelFromParticipant(found);
+        if (detected === 'admin' || detected === 'reviewer') {
+          userCtx.roleLevel = detected;
+        }
+      }
+    }
+
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    // ==================== VIEW & FILTER CONTROLS ====================
+    function setDatasetView(view, shouldRender = true) {
+      datasetView = view;
+      const isQA = view === 'qa';
+
+      document.getElementById('view-btn-qa').className = isQA
+        ? 'px-3.5 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 shadow-xs transition'
+        : 'px-3.5 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+      document.getElementById('view-btn-morning').className = !isQA
+        ? 'px-3.5 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 shadow-xs transition'
+        : 'px-3.5 py-1.5 rounded-lg font-bold text-white/80 hover:text-white transition';
+
+      document.getElementById('filter-comment-status')?.classList.toggle('hidden', !isQA);
+      document.getElementById('filter-morning-status')?.classList.toggle('hidden', isQA);
+      document.getElementById('btn-start-focus-review')?.classList.toggle('hidden', !isQA);
+
+      if (shouldRender) renderEverything();
+    }
+
+    function setFontScale(scale, shouldPersist = true) {
+      fontScale = scale;
+      if (shouldPersist) safeSet('ws2_review_font_scale', scale);
+
+      const ws = document.getElementById('review-workspace');
+      if (ws) {
+        ws.classList.remove('read-scale-lg', 'read-scale-xl');
+        if (scale === 'lg') ws.classList.add('read-scale-lg');
+        if (scale === 'xl') ws.classList.add('read-scale-xl');
+      }
+
+      ['normal', 'lg', 'xl'].forEach(k => {
+        const btn = document.getElementById(`font-btn-${k}`);
+        if (!btn) return;
+        btn.className = k === scale
+          ? 'px-2 py-1 rounded-lg font-extrabold bg-gold-500 text-slate-950 transition'
+          : 'px-2 py-1 rounded-lg font-semibold text-white/85 hover:bg-white/15 transition';
+      });
+    }
+
+    function setCategoryFilter(catKey) {
+      selectedCatFilter = String(catKey);
+      renderCategoryPills();
+      renderList();
+    }
+
+    function quickFilterByKpi(mode) {
+      if (mode === 'morning_issues') {
+        setDatasetView('morning', false);
+        selectedCatFilter = 'all';
+        document.getElementById('filter-morning-status').value = 'all';
+        renderEverything();
+        return;
+      }
+      setDatasetView('qa', false);
+      selectedCatFilter = 'all';
+      if (mode === 'all_qa') document.getElementById('filter-comment-status').value = 'all';
+      else if (mode === 'uncommented') document.getElementById('filter-comment-status').value = 'uncommented';
+      else if (mode === 'commented') document.getElementById('filter-comment-status').value = 'commented';
+      renderEverything();
+    }
+
+    // ==================== RENDER EVERYTHING ====================
+    function renderEverything() {
+      renderRoleBanner();
+      renderKpis();
+      renderCategoryPills();
+      renderList();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderRoleBanner() {
+      const codeEl = document.getElementById('ctx-code');
+      const nameEl = document.getElementById('ctx-name');
+      const badgeEl = document.getElementById('ctx-role-badge');
+      const guideEl = document.getElementById('ctx-role-guide');
+      const revBar = document.getElementById('reviewer-identity-bar');
+      const adminPanel = document.getElementById('admin-export-panel');
+      const btnRevLogin = document.getElementById('btn-open-reviewer-login');
+
+      const isAdmin = userCtx.roleLevel === 'admin';
+      const isReviewer = userCtx.roleLevel === 'reviewer';
+
+      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isReviewer ? 'REVIEWER' : 'VIEWER'));
+      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA' : 'ผู้เข้าร่วมสัมมนา (โหมดอ่าน)'));
+
+      if (adminPanel) adminPanel.classList.toggle('hidden', !isAdmin);
+      if (revBar) revBar.classList.toggle('hidden', !canComment());
+      if (btnRevLogin) btnRevLogin.classList.toggle('hidden', canComment());
+
+      document.getElementById('footer-reviewer-trigger')?.classList.toggle('hidden', canComment());
+      document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
+      document.getElementById('footer-sep')?.classList.toggle('hidden', canComment() || isAdmin);
+
+      if (isAdmin) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold';
+        badgeEl.textContent = '🛡️ คณะทำงาน (Admin)';
+        guideEl.className = 'p-3.5 rounded-2xl bg-indigo-50/85 border border-indigo-200 text-xs sm:text-sm text-indigo-950 leading-relaxed';
+        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> สามารถเรียกดู คัดกรอง แก้ไข ลบข้อมูล Q&amp;A และข้อเสนอแนะได้ครบทั้ง 5 หมวด รวมถึงส่งออกข้อมูลคลังความรู้ฉบับสมบูรณ์เป็นไฟล์ <strong>Excel (CSV) / Text (.txt) / PDF</strong>`;
+      } else if (isReviewer) {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold';
+        badgeEl.textContent = '⭐ ผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA';
+        guideEl.className = 'p-3.5 rounded-2xl bg-amber-50/85 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
+        guideEl.innerHTML = `<strong>⭐ ยินดีต้อนรับผู้ทรงคุณวุฒิ วิทยากร และผู้แทน DGA:</strong> ท่านสามารถคัดกรองอ่านคำถาม–คำตอบได้ครบทั้ง <strong>5 หมวด</strong>, ปรับขนาดตัวอักษร หรือกด <strong>“อ่านทีละข้อเต็มจอ”</strong> พร้อมบันทึก <strong>ข้อเสนอแนะ (Comment)</strong> เพิ่มเติมในแต่ละข้อได้ทันทีโดยไม่ทับคำตอบเดิมของกลุ่มครับ`;
+      } else {
+        badgeEl.className = 'px-3 py-1 rounded-full bg-teal-700 text-white text-xs font-extrabold';
+        badgeEl.textContent = userCtx.baseGroup ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup} (อ่านอย่างเดียว)` : '📖 โหมดอ่านคลังความรู้ (Read-Only)';
+        guideEl.className = 'p-3.5 rounded-2xl bg-teal-50/85 border border-teal-200 text-xs sm:text-sm text-teal-950 leading-relaxed';
+        guideEl.innerHTML = `<strong>📖 คลังคำถาม–คำตอบ (Q&amp;A) ครบทั้ง 5 หมวด:</strong> ท่านสามารถเลือกอ่านคำถาม คำตอบมาตรฐาน แหล่งอ้างอิงกฎหมาย และข้อเสนอแนะจากผู้ทรงคุณวุฒิ/DGA ของทุกหมวดได้อย่างสะดวก (หากต้องการแก้ไขคำตอบในหมวดของกลุ่มท่าน ให้กดปุ่ม <strong>“ช่วงบ่าย (Q&amp;A)”</strong> ด้านบนครับ)`;
+      }
+    }
+
+    function renderKpis() {
+      const totalQA = afternoonQAs.length;
+      const commentedQA = afternoonQAs.filter(q => Array.isArray(q.expertComments) && q.expertComments.length > 0).length;
+      const uncommentedQA = totalQA - commentedQA;
+      const totalComments = afternoonQAs.reduce((sum, q) => sum + (Array.isArray(q.expertComments) ? q.expertComments.length : 0), 0);
+      const pendingMorning = morningIssues.filter(m => m.qaStatus !== 'ทำ Q&A แล้ว').length;
+
+      document.getElementById('kpi-qa-total').textContent = totalQA;
+      document.getElementById('kpi-qa-uncommented').textContent = uncommentedQA;
+      document.getElementById('kpi-qa-commented').textContent = commentedQA;
+      document.getElementById('kpi-comment-total-sub').textContent = `รวม ${totalComments} ข้อเสนอแนะ`;
+      document.getElementById('kpi-morning-total').textContent = morningIssues.length;
+      document.getElementById('kpi-morning-pending-sub').textContent = `รอทำคำตอบ ${pendingMorning} ข้อ`;
+    }
+
+    function renderCategoryPills() {
+      const box = document.getElementById('category-filter-pills');
+      const scopeBar = document.getElementById('selected-cat-scope-bar');
+      if (!box) return;
+
+      const src = datasetView === 'qa' ? afternoonQAs : morningIssues;
+      const isAll = selectedCatFilter === 'all';
+
+      box.innerHTML = [
+        `<button type="button" onclick="setCategoryFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+          isAll ? 'bg-gold-500 text-slate-950 shadow-xs' : 'bg-white/10 hover:bg-white/20 text-white border border-white/15'
+        }">ทุกหมวด (${src.length})</button>`,
+        ...CATEGORIES.map(c => {
+          const cnt = src.filter(x => Number(x.categoryNo) === c.no).length;
+          const act = selectedCatFilter === String(c.no);
+          return `<button type="button" onclick="setCategoryFilter('${c.no}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            act ? 'bg-gold-500 text-slate-950 font-extrabold shadow-xs' : 'bg-white/10 hover:bg-white/20 text-white border border-white/15'
+          }">หมวด ${c.no}: ${escapeHtml(c.short)} (${cnt})</button>`;
+        })
+      ].join('');
+
+      if (scopeBar) {
+        if (!isAll) {
+          const c = getCategory(selectedCatFilter);
+          scopeBar.innerHTML = `<strong class="text-gold-400">ขอบเขตหมวดที่ ${c.no} (${escapeHtml(c.name)}):</strong> ${escapeHtml(c.scope)}`;
+          scopeBar.classList.remove('hidden');
+        } else {
+          scopeBar.classList.add('hidden');
+        }
+      }
+    }
+
+    // ==================== RENDER MAIN LIST ====================
+    function renderList() {
+      if (datasetView === 'qa') renderQAList();
+      else renderMorningList();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderQAList() {
+      const box = document.getElementById('review-list-container');
+      const cntPill = document.getElementById('filtered-count-pill');
+      if (!box) return;
+
+      const search = String(document.getElementById('filter-search')?.value || '').trim().toLowerCase();
+      const grp = document.getElementById('filter-group')?.value || 'all';
+      const cStatus = document.getElementById('filter-comment-status')?.value || 'all';
+
+      filteredQAs = afternoonQAs.filter(q => {
+        if (selectedCatFilter !== 'all' && String(q.categoryNo) !== selectedCatFilter) return false;
+        if (grp !== 'all' && String(q.groupNo) !== grp) return false;
+
+        const cmts = Array.isArray(q.expertComments) ? q.expertComments : [];
+        if (cStatus === 'uncommented' && cmts.length > 0) return false;
+        if (cStatus === 'commented' && cmts.length === 0) return false;
+        if (cStatus === 'missing_law' && String(q.refLaw || '').trim() !== '') return false;
+        if (cStatus === 'has_caution' && String(q.caution || '').trim() === '') return false;
+
+        if (search) {
+          const cmtText = cmts.map(c => `${c.author} ${c.role} ${c.text}`).join(' ');
+          const hay = `${q.qaId} ${q.refIssueId} ${q.sheetNo} ${q.question} ${q.standardAnswer} ${q.refMedia} ${q.refLaw} ${q.caution} ${q.categoryName} ${q.recorder} ${q.reviewer} ${cmtText}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        return true;
+      });
+
+      if (cntPill) cntPill.textContent = `แสดง ${filteredQAs.length} ข้อ`;
+
+      if (filteredQAs.length === 0) {
+        box.innerHTML = `<div class="py-14 text-center text-sm text-slate-400 font-semibold">ไม่พบรายการ Q&amp;A ตามเงื่อนไขการคัดกรองที่เลือก</div>`;
+        return;
+      }
+
+      const reviewerCanComment = canComment();
+      const isAdmin = userCtx.roleLevel === 'admin';
+
+      box.innerHTML = filteredQAs.map((q, idx) => {
+        const cat = getCategory(q.categoryNo);
+        const cmts = Array.isArray(q.expertComments) ? q.expertComments : [];
+        const isComposerOpen = openInlineCommentIds.has(q.qaId);
+
+        return `
+          <article class="rounded-3xl p-4 sm:p-5 bg-white border-2 ${cmts.length > 0 ? 'border-teal-200' : 'border-slate-200'} shadow-2xs space-y-3.5" style="border-left: 6px solid ${cat.color};">
+            <!-- แถบหัวการ์ด -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-extrabold">ข้อที่ ${idx + 1}</span>
+                <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-maroon-700 text-white">${escapeHtml(q.qaId)}</span>
+                <span class="px-2.5 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-bold">กลุ่ม ${q.groupNo}</span>
+                ${q.refIssueId ? `<span class="font-mono px-2 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">อ้างอิง ${escapeHtml(q.refIssueId)}</span>` : ''}
+                ${cmts.length > 0
+                  ? `<span class="px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-extrabold">💬 ข้อเสนอแนะ ${cmts.length}</span>`
+                  : `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">📝 รอข้อเสนอแนะ</span>`
+                }
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                <button type="button" onclick="openFocusModal(${idx})" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-extrabold transition">
+                  <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-gold-400"></i> อ่านเต็มจอ
+                </button>
+                ${reviewerCanComment ? `
+                  <button type="button" onclick="toggleInlineCommentBox('${escapeHtml(q.qaId)}')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold transition">
+                    <i data-lucide="message-square-plus" class="w-3.5 h-3.5 text-gold-400"></i> ${isComposerOpen ? 'ซ่อนช่องความเห็น' : 'เพิ่มข้อเสนอแนะ'}
+                  </button>
+                ` : ''}
+                ${isAdmin ? `
+                  <button type="button" onclick="openAdminEditModal('${escapeHtml(q.qaId)}')" title="แก้ไข Q&A (Admin)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button type="button" onclick="askAdminDeleteQA('${escapeHtml(q.qaId)}')" title="ลบ Q&A (Admin)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-rose-100 border border-slate-200 text-rose-600 transition">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- 1. คำถาม -->
+            <div class="space-y-1">
+              <p class="text-[11px] font-extrabold uppercase tracking-wider text-navy-700">1. คำถาม / ประเด็นปัญหา</p>
+              <h3 class="qa-q-text text-base sm:text-lg font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(q.question)}</h3>
+            </div>
+
+            <!-- 2. คำตอบมาตรฐาน -->
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/75 border border-emerald-200 space-y-1">
+              <p class="text-[11px] font-extrabold text-emerald-800">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ</p>
+              <p class="qa-a-text text-sm sm:text-base text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
+            </div>
+
+            <!-- 3. แหล่งอ้างอิง & 4. ข้อควรระวัง -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs sm:text-sm">
+              <div class="p-3 rounded-2xl bg-blue-50/65 border border-blue-200 space-y-0.5">
+                <p class="text-[11px] font-extrabold text-navy-800">📊 3.1 สื่อ / อินโฟกราฟิก / PowerPoint</p>
+                <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refMedia || '— ยังไม่ระบุ —')}</p>
+              </div>
+              <div class="p-3 rounded-2xl bg-rose-50/65 border border-rose-200 space-y-0.5">
+                <p class="text-[11px] font-extrabold text-maroon-800">⚖️ 3.2 ระเบียบ / กฎหมาย</p>
+                <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refLaw || '— ยังไม่ระบุ —')}</p>
+              </div>
+            </div>
+
+            ${q.caution ? `
+              <div class="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-xs sm:text-sm space-y-0.5">
+                <p class="text-[11px] font-extrabold text-amber-900">⚠️ 4. ข้อควรระวัง / ข้อยกเว้น</p>
+                <p class="font-semibold text-amber-950 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.caution)}</p>
+              </div>
+            ` : ''}
+
+            <!-- โซนแสดงข้อเสนอแนะ (Expert / DGA Comments) -->
+            ${cmts.length > 0 ? `
+              <div class="p-3.5 rounded-2xl bg-teal-50/80 border border-teal-200 space-y-2">
+                <p class="text-xs font-extrabold text-teal-950 flex items-center gap-1.5">
+                  <i data-lucide="message-square-text" class="w-4 h-4 text-teal-700"></i>
+                  ข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA (${cmts.length})
+                </p>
+                <div class="space-y-2">
+                  ${cmts.map(c => `
+                    <div class="p-2.5 rounded-xl bg-white border border-teal-200/90 text-xs sm:text-sm space-y-1">
+                      <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="font-extrabold text-teal-950">⭐ ${escapeHtml(c.author)} <span class="font-semibold text-teal-700 text-[11px]">(${escapeHtml(c.role || 'ผู้ทรงคุณวุฒิ')})</span></span>
+                        <div class="flex items-center gap-2">
+                          <span class="font-mono text-[10.5px] text-slate-400">${escapeHtml(c.timestamp || '')}</span>
+                          ${canDeleteComment(c) ? `
+                            <button type="button" onclick="askDeleteComment('${escapeHtml(q.qaId)}', '${escapeHtml(c.commentId)}')" title="ลบข้อเสนอแนะนี้" class="text-rose-500 hover:text-rose-700 text-[11px] font-bold">ลบ</button>
+                          ` : ''}
+                        </div>
+                      </div>
+                      <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(c.text)}</p>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- กล่องพิมพ์ข้อเสนอแนะแบบ Inline (เปิดเมื่อกดปุ่ม “เพิ่มข้อเสนอแนะ”) -->
+            ${reviewerCanComment && isComposerOpen ? `
+              <form onsubmit="submitInlineComment(event, '${escapeHtml(q.qaId)}')" class="p-3.5 rounded-2xl bg-amber-50/90 border-2 border-amber-300 space-y-2.5 text-xs">
+                <p class="font-extrabold text-amber-950">✍️ บันทึกข้อเสนอแนะเพิ่มเติมสำหรับข้อ ${escapeHtml(q.qaId)} (เลือกข้อความด่วนหรือพิมพ์เอง):</p>
+                <div class="flex flex-wrap gap-1">
+                  ${QUICK_COMMENT_TEMPLATES.map(tpl => `
+                    <button type="button" onclick="appendCommentTemplate('inline-cmt-${escapeHtml(q.qaId)}', '${escapeHtml(tpl)}')" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-100 border border-amber-300 text-amber-950 text-[11px] font-semibold transition text-left">
+                      + ${escapeHtml(tpl.slice(0, 38))}${tpl.length > 38 ? '...' : ''}
+                    </button>
+                  `).join('')}
+                </div>
+                <textarea id="inline-cmt-${escapeHtml(q.qaId)}" rows="2" required placeholder="พิมพ์ข้อเสนอแนะ แนวทางปรับปรุง หรือข้อมูลเสริมจากผู้ทรงคุณวุฒิ / DGA..." class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-700"></textarea>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[11px] text-amber-900">บันทึกในนาม: <strong>${escapeHtml(getReviewerAuthorName())}</strong></span>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="toggleInlineCommentBox('${escapeHtml(q.qaId)}')" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold">ปิด</button>
+                    <button type="submit" id="inline-cmt-btn-${escapeHtml(q.qaId)}" class="px-4 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-extrabold shadow-xs transition">บันทึกข้อเสนอแนะ</button>
+                  </div>
+                </div>
+              </form>
+            ` : ''}
+
+            <!-- Footer การ์ด -->
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(q.recorder || '-')}</strong>${q.reviewer ? ` • หัวหน้ากลุ่ม/ผู้ตรวจ: <strong class="text-slate-700">${escapeHtml(q.reviewer)}</strong>` : ''}</span>
+              <span class="font-mono">ใบงานข้อที่ ${escapeHtml(q.sheetNo || '-')} • ${escapeHtml(q.dateTh || '')}</span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderMorningList() {
+      const box = document.getElementById('review-list-container');
+      const cntPill = document.getElementById('filtered-count-pill');
+      if (!box) return;
+
+      const search = String(document.getElementById('filter-search')?.value || '').trim().toLowerCase();
+      const grp = document.getElementById('filter-group')?.value || 'all';
+      const mStatus = document.getElementById('filter-morning-status')?.value || 'all';
+
+      filteredMorning = morningIssues.filter(item => {
+        if (selectedCatFilter !== 'all' && String(item.categoryNo) !== selectedCatFilter) return false;
+        if (grp !== 'all' && String(item.groupNo) !== grp) return false;
+        if (mStatus === 'รอทำคำตอบ' && item.qaStatus !== 'รอทำคำตอบ') return false;
+        if (mStatus === 'ทำ Q&A แล้ว' && item.qaStatus !== 'ทำ Q&A แล้ว') return false;
+        if (mStatus === 'เร่งด่วนมาก' && item.urgency !== 'เร่งด่วนมาก') return false;
+        if (search) {
+          const hay = `${item.issueId} ${item.issueText} ${item.recorder} ${item.categoryName}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        return true;
+      });
+
+      if (cntPill) cntPill.textContent = `แสดง ${filteredMorning.length} ข้อ`;
+
+      if (filteredMorning.length === 0) {
+        box.innerHTML = `<div class="py-14 text-center text-sm text-slate-400 font-semibold">ไม่พบประเด็นปัญหาช่วงเช้าตามเงื่อนไขที่เลือก</div>`;
+        return;
+      }
+
+      box.innerHTML = filteredMorning.map((item, idx) => {
+        const cat = getCategory(item.categoryNo);
+        const urg = getUrgencyBadge(item.urgency);
+        const linkedQa = item.qaId ? afternoonQAs.find(q => q.qaId === item.qaId) : null;
+
+        return `
+          <article class="rounded-2xl p-4 bg-white border border-slate-200 shadow-2xs space-y-2" style="border-left: 5px solid ${cat.color};">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-lg bg-slate-800 text-white font-mono font-bold">#${idx + 1}</span>
+                <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
+                <span class="px-2 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-bold">กลุ่ม ${item.groupNo}</span>
+                <span class="px-2 py-0.5 rounded-full border font-bold ${urg.cls}">${urg.label}</span>
+              </div>
+              <div>
+                ${linkedQa
+                  ? `<button type="button" onclick="openFocusByQAId('${escapeHtml(linkedQa.qaId)}')" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition">✅ ดูคำตอบ ${escapeHtml(linkedQa.qaId)} →</button>`
+                  : `<span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-bold">⏳ รอทำคำตอบช่วงบ่าย</span>`
+                }
+              </div>
+            </div>
+            <p class="qa-q-text text-base font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+            <p class="text-[11px] text-slate-500">ผู้บันทึกช่วงเช้า: <strong>${escapeHtml(item.recorder || '-')}</strong> • ${escapeHtml(item.timestamp || '')}</p>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ==================== COMMENT ACTIONS ====================
+    function toggleInlineCommentBox(qaId) {
+      if (openInlineCommentIds.has(qaId)) openInlineCommentIds.delete(qaId);
+      else openInlineCommentIds.add(qaId);
+      renderQAList();
+      if (openInlineCommentIds.has(qaId)) {
+        setTimeout(() => document.getElementById(`inline-cmt-${qaId}`)?.focus(), 60);
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function appendCommentTemplate(textareaId, text) {
+      const ta = document.getElementById(textareaId);
+      if (!ta) return;
+      const cur = ta.value.trim();
+      ta.value = cur ? `${cur}\n• ${text}` : text;
+      ta.focus();
+    }
+
+    async function submitInlineComment(e, qaId) {
+      e.preventDefault();
+      const ta = document.getElementById(`inline-cmt-${qaId}`);
+      const btn = document.getElementById(`inline-cmt-btn-${qaId}`);
+      const text = String(ta?.value || '').trim();
+      if (!text) return;
+
+      await saveCommentRequest(qaId, text, btn, () => {
+        openInlineCommentIds.delete(qaId);
+      });
+    }
+
+    async function submitFocusComment(e, qaId) {
+      e.preventDefault();
+      const ta = document.getElementById('fm-comment-input');
+      const btn = document.getElementById('fm-comment-btn');
+      const text = String(ta?.value || '').trim();
+      if (!text) return;
+
+      await saveCommentRequest(qaId, text, btn, () => {
+        if (ta) ta.value = '';
+      });
+    }
+
+    async function saveCommentRequest(qaId, text, btnEl, onSuccess) {
+      const author = getReviewerAuthorName();
+      const role = getReviewerAuthorRole();
+      safeSet('ws2_reviewer_author', author);
+      safeSet('ws2_reviewer_role', role);
+
+      const prevText = btnEl ? btnEl.textContent : '';
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = 'กำลังบันทึก...';
+      }
+      isMutating = true;
+
+      try {
+        const res = await postToApi({ action: 'addQAComment', qaId, author, role, text });
+        if (res.status !== 'success') throw new Error(res.message || 'บันทึกข้อเสนอแนะไม่สำเร็จ');
+        showToast(res.message || 'บันทึกข้อเสนอแนะเรียบร้อยแล้ว', 'success');
+        if (typeof onSuccess === 'function') onSuccess();
+        await fetchAllData(false);
+      } catch (err) {
+        showToast('บันทึกข้อเสนอแนะไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = prevText || 'บันทึกข้อเสนอแนะ';
+        }
+      }
+    }
+
+    function askDeleteComment(qaId, commentId) {
+      openConfirmModal(
+        'ยืนยันการลบข้อเสนอแนะ?',
+        'ต้องการลบข้อเสนอแนะนี้ใช่หรือไม่? (ไม่กระทบกับเนื้อหาคำถาม–คำตอบหลัก)',
+        async () => {
+          const res = await postToApi({ action: 'deleteQAComment', qaId, commentId });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบข้อเสนอแนะไม่สำเร็จ');
+          showToast('ลบข้อเสนอแนะเรียบร้อยแล้ว', 'success');
+          await fetchAllData(false);
+        }
+      );
+    }
+
+    // ==================== FOCUS REVIEW MODAL ====================
+    function startFocusReviewFromFirst() {
+      if (datasetView !== 'qa') setDatasetView('qa');
+      if (filteredQAs.length === 0) {
+        showToast('ไม่มีรายการ Q&A ในตัวกรองปัจจุบัน', 'warning');
+        return;
+      }
+      openFocusModal(0);
+    }
+
+    function openFocusByQAId(qaId) {
+      setDatasetView('qa', false);
+      selectedCatFilter = 'all';
+      document.getElementById('filter-search').value = '';
+      document.getElementById('filter-group').value = 'all';
+      document.getElementById('filter-comment-status').value = 'all';
+      renderEverything();
+      const idx = filteredQAs.findIndex(q => q.qaId === qaId);
+      if (idx !== -1) openFocusModal(idx);
+    }
+
+    function openFocusModal(idx) {
+      if (idx < 0 || idx >= filteredQAs.length) return;
+      focusIndex = idx;
+      renderFocusModal();
+      document.getElementById('focus-review-modal')?.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeFocusModal() {
+      focusIndex = -1;
+      document.getElementById('focus-review-modal')?.classList.add('hidden');
+    }
+
+    function stepFocus(delta) {
+      if (filteredQAs.length === 0) return;
+      focusIndex = (focusIndex + delta + filteredQAs.length) % filteredQAs.length;
+      renderFocusModal();
+    }
+
+    function renderFocusModal() {
+      if (focusIndex < 0 || focusIndex >= filteredQAs.length) {
+        closeFocusModal();
+        return;
+      }
+      const q = filteredQAs[focusIndex];
+      const cat = getCategory(q.categoryNo);
+      const cmts = Array.isArray(q.expertComments) ? q.expertComments : [];
+      const reviewerCanComment = canComment();
+
+      document.getElementById('fm-id').textContent = `${q.qaId} • ใบงานข้อที่ ${q.sheetNo || '-'}`;
+      document.getElementById('fm-cat').textContent = `หมวดที่ ${cat.no}: ${cat.short}`;
+      document.getElementById('fm-grp').textContent = `กลุ่มที่ ${q.groupNo}`;
+      document.getElementById('fm-counter').textContent = `${focusIndex + 1} / ${filteredQAs.length}`;
+
+      document.getElementById('fm-body').innerHTML = `
+        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-navy-700/20 space-y-1.5">
+          <p class="text-xs font-extrabold text-navy-700">1. คำถาม / ประเด็นปัญหา (หมวดที่ ${cat.no} : ${escapeHtml(cat.name)})</p>
+          <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug break-words">${escapeHtml(q.question)}</h3>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 space-y-1.5">
+          <p class="text-xs font-extrabold text-emerald-800">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ</p>
+          <p class="text-base sm:text-lg font-medium text-slate-900 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.standardAnswer)}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div class="p-4 rounded-2xl bg-white border border-blue-200 space-y-1">
+            <p class="text-xs font-extrabold text-navy-800">📊 3.1 สื่อ / อินโฟกราฟิก / PowerPoint</p>
+            <p class="text-sm sm:text-base text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refMedia || '— ไม่ระบุ —')}</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-white border border-rose-200 space-y-1">
+            <p class="text-xs font-extrabold text-maroon-800">⚖️ 3.2 ระเบียบ / กฎหมาย</p>
+            <p class="text-sm sm:text-base text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.refLaw || '— ไม่ระบุ —')}</p>
+          </div>
+        </div>
+
+        ${q.caution ? `
+          <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 space-y-1">
+            <p class="text-xs font-extrabold text-amber-900">⚠️ 4. ข้อควรระวัง / ข้อยกเว้น</p>
+            <p class="text-sm sm:text-base font-bold text-amber-950 leading-relaxed whitespace-pre-line break-words">${escapeHtml(q.caution)}</p>
+          </div>
+        ` : ''}
+
+        <!-- โซนข้อเสนอแนะของผู้ทรงคุณวุฒิ / วิทยากร / DGA -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-teal-400 space-y-3">
+          <p class="text-sm font-extrabold text-teal-950 flex items-center gap-1.5">
+            <i data-lucide="message-square-text" class="w-4 h-4 text-teal-700"></i>
+            ข้อเสนอแนะเพิ่มเติมจากผู้ทรงคุณวุฒิ / วิทยากร / ผู้แทน DGA (${cmts.length})
+          </p>
+
+          ${cmts.length === 0
+            ? `<p class="text-xs text-slate-400 italic">ยังไม่มีข้อเสนอแนะเพิ่มเติมในข้อนี้</p>`
+            : `<div class="space-y-2">${cmts.map(c => `
+                <div class="p-3 rounded-xl bg-teal-50/75 border border-teal-200 text-xs sm:text-sm space-y-1">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="font-extrabold text-teal-950">⭐ ${escapeHtml(c.author)} <span class="font-normal text-teal-700">(${escapeHtml(c.role || 'ผู้ทรงคุณวุฒิ')})</span></span>
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-[10.5px] text-slate-500">${escapeHtml(c.timestamp || '')}</span>
+                      ${canDeleteComment(c) ? `<button type="button" onclick="askDeleteComment('${escapeHtml(q.qaId)}', '${escapeHtml(c.commentId)}')" class="text-rose-600 hover:underline text-[11px] font-bold">ลบ</button>` : ''}
+                    </div>
+                  </div>
+                  <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${escapeHtml(c.text)}</p>
+                </div>
+              `).join('')}</div>`
+          }
+
+          ${reviewerCanComment ? `
+            <form onsubmit="submitFocusComment(event, '${escapeHtml(q.qaId)}')" class="pt-3 border-t border-teal-100 space-y-2.5">
+              <p class="text-xs font-extrabold text-teal-900">✍️ เพิ่มข้อเสนอแนะ (เลือกข้อความแนะนำด่วน หรือพิมพ์เพิ่มเติม):</p>
+              <div class="flex flex-wrap gap-1">
+                ${QUICK_COMMENT_TEMPLATES.map(tpl => `
+                  <button type="button" onclick="appendCommentTemplate('fm-comment-input', '${escapeHtml(tpl)}')" class="px-2 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-950 text-[11px] font-semibold transition text-left">
+                    + ${escapeHtml(tpl.slice(0, 38))}${tpl.length > 38 ? '...' : ''}
+                  </button>
+                `).join('')}
+              </div>
+              <textarea id="fm-comment-input" rows="3" required placeholder="พิมพ์ข้อเสนอแนะของท่านสำหรับข้อ ${escapeHtml(q.qaId)}..." class="w-full px-3.5 py-2.5 rounded-xl border border-teal-300 bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-700"></textarea>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs text-slate-500">ในนาม: <strong class="text-slate-800">${escapeHtml(getReviewerAuthorName())}</strong></span>
+                <button type="submit" id="fm-comment-btn" class="px-5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs sm:text-sm font-extrabold shadow-xs transition">
+                  + บันทึกข้อเสนอแนะ
+                </button>
+              </div>
+            </form>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('fm-footer').innerHTML = `
+        <span>ผู้บันทึก: <strong class="text-slate-900">${escapeHtml(q.recorder || '-')}</strong>${q.reviewer ? ` • ผู้ตรวจสอบ: <strong class="text-slate-900">${escapeHtml(q.reviewer)}</strong>` : ''}</span>
+        <span class="font-mono">${q.refIssueId ? `อ้างอิง ${escapeHtml(q.refIssueId)} • ` : ''}${escapeHtml(q.dateTh || '')}</span>
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ==================== ADMIN QUICK EDIT / DELETE Q&A ====================
+    function openAdminEditModal(qaId) {
+      if (userCtx.roleLevel !== 'admin') return;
+      const q = afternoonQAs.find(x => x.qaId === qaId);
+      if (!q) return;
+
+      document.getElementById('ae-qa-id').value = q.qaId;
+      document.getElementById('ae-id-badge').textContent = `${q.qaId} • ใบงานข้อที่ ${q.sheetNo || '-'}`;
+      document.getElementById('ae-cat').value = String(q.categoryNo || 1);
+      document.getElementById('ae-group').value = String(q.groupNo || 1);
+      document.getElementById('ae-question').value = q.question || '';
+      document.getElementById('ae-answer').value = q.standardAnswer || '';
+      document.getElementById('ae-ref-media').value = q.refMedia || '';
+      document.getElementById('ae-ref-law').value = q.refLaw || '';
+      document.getElementById('ae-caution').value = q.caution || '';
+      document.getElementById('ae-recorder').value = q.recorder || '';
+      document.getElementById('ae-reviewer').value = q.reviewer || '';
+
+      document.getElementById('admin-edit-modal')?.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeAdminEditModal() {
+      document.getElementById('admin-edit-modal')?.classList.add('hidden');
+    }
+
+    async function submitAdminEditQA(e) {
+      e.preventDefault();
+      const qaId = document.getElementById('ae-qa-id').value;
+      const categoryNo = Number(document.getElementById('ae-cat').value) || 1;
+      const groupNo = Number(document.getElementById('ae-group').value) || 1;
+      const cat = getCategory(categoryNo);
+      const btn = document.getElementById('ae-save-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+      isMutating = true;
+
+      try {
+        const res = await postToApi({
+          action: 'updateAfternoonQA',
+          qaId,
+          groupNo,
+          categoryNo,
+          categoryName: cat.name,
+          question: document.getElementById('ae-question').value.trim(),
+          standardAnswer: document.getElementById('ae-answer').value.trim(),
+          refMedia: document.getElementById('ae-ref-media').value.trim(),
+          refLaw: document.getElementById('ae-ref-law').value.trim(),
+          caution: document.getElementById('ae-caution').value.trim(),
+          recorder: document.getElementById('ae-recorder').value.trim(),
+          reviewer: document.getElementById('ae-reviewer').value.trim()
+        });
+        if (res.status !== 'success') throw new Error(res.message || 'แก้ไขไม่สำเร็จ');
+        showToast(res.message || 'แก้ไข Q&A เรียบร้อยแล้ว', 'success');
+        closeAdminEditModal();
+        await fetchAllData(false);
+      } catch (err) {
+        showToast('แก้ไขไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        btn.textContent = 'บันทึกการแก้ไข';
+      }
+    }
+
+    function askAdminDeleteQA(qaId) {
+      if (userCtx.roleLevel !== 'admin') return;
+      const q = afternoonQAs.find(x => x.qaId === qaId);
+      if (!q) return;
+      openConfirmModal(
+        'ยืนยันการลบใบงาน Q&A?',
+        `ต้องการลบ ${q.qaId} (“${q.question.slice(0, 65)}${q.question.length > 65 ? '...' : ''}”) ใช่หรือไม่?`,
+        async () => {
+          const res = await postToApi({ action: 'deleteAfternoonQA', qaId: q.qaId });
+          if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
+          showToast(res.message || 'ลบ Q&A เรียบร้อยแล้ว', 'success');
+          await fetchAllData(false);
+        }
+      );
+    }
+
+    // ==================== ADMIN EXPORTS: EXCEL (CSV), TEXT (.TXT), PDF (PRINT) ====================
+    function formatCommentsText(comments) {
+      if (!Array.isArray(comments) || comments.length === 0) return '';
+      return comments.map(c => `[${c.author}${c.role ? ` (${c.role})` : ''}]: ${c.text}`).join(' | ');
+    }
+
+    function exportAllExcelCsv() {
+      const headers = [
+        'QA_ID', 'Ref_Issue_ID', 'Sheet_No', 'Date_TH', 'Group_No', 'Category_No', 'Category_Name',
+        'Question', 'Standard_Answer', 'Ref_Media', 'Ref_Law', 'Caution', 'Recorder', 'Reviewer', 'Timestamp', 'Expert_Comments'
+      ];
+      const rows = afternoonQAs.map(q => [
+        q.qaId, q.refIssueId, q.sheetNo, q.dateTh, q.groupNo, q.categoryNo, q.categoryName,
+        q.question, q.standardAnswer, q.refMedia, q.refLaw, q.caution, q.recorder, q.reviewer, q.timestamp,
+        formatCommentsText(q.expertComments)
+      ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      triggerDownload(csv, 'text/csv;charset=utf-8;', `คลังความรู้QA_รวมข้อเสนอแนะDGA_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast('ส่งออกไฟล์ Excel (CSV) ครบทุกหมวดพร้อมข้อเสนอแนะเรียบร้อยแล้ว', 'success');
+    }
+
+    function exportAllText() {
+      const lines = [
+        '========================================================================',
+        'ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)',
+        'คลังความรู้งานจราจร (รูปแบบถาม-ตอบ / Q&A) และข้อเสนอแนะผู้ทรงคุณวุฒิ / DGA',
+        `โครงการสัมมนาจัดทำคลังความรู้งานจราจร AI "คู่หูจราจร" — รวมทั้งสิ้น ${afternoonQAs.length} ข้อ`,
+        '========================================================================',
+        ''
+      ];
+
+      CATEGORIES.forEach(cat => {
+        const items = afternoonQAs.filter(q => Number(q.categoryNo) === cat.no);
+        lines.push(`【หมวดที่ ${cat.no} : ${cat.name}】 (${items.length} ข้อ)`);
+        lines.push(`ขอบเขต: ${cat.scope}`);
+        lines.push('------------------------------------------------------------------------');
+        if (items.length === 0) {
+          lines.push('  (ยังไม่มีข้อมูล Q&A ในหมวดนี้)');
+        } else {
+          items.forEach((q, idx) => {
+            lines.push(`ข้อที่ ${idx + 1} [${q.qaId} | ใบงานข้อ ${q.sheetNo || '-'} | กลุ่ม ${q.groupNo}]`);
+            lines.push(`  1. คำถาม: ${q.question}`);
+            lines.push(`  2. คำตอบมาตรฐาน: ${q.standardAnswer}`);
+            if (q.refMedia) lines.push(`  3.1 สื่อ/PowerPoint: ${q.refMedia}`);
+            if (q.refLaw) lines.push(`  3.2 ระเบียบ/กฎหมาย: ${q.refLaw}`);
+            if (q.caution) lines.push(`  4. ข้อควรระวัง: ${q.caution}`);
+            if (Array.isArray(q.expertComments) && q.expertComments.length > 0) {
+              lines.push('  * ข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร / DGA:');
+              q.expertComments.forEach(c => {
+                lines.push(`     - ${c.author} (${c.role || 'ผู้ทรงคุณวุฒิ'}): ${c.text}`);
+              });
+            }
+            lines.push(`  ผู้บันทึก: ${q.recorder || '-'} | ผู้ตรวจสอบ: ${q.reviewer || '-'} | วันที่: ${q.dateTh || '-'}`);
+            lines.push('');
+          });
+        }
+        lines.push('');
+      });
+
+      triggerDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `คลังความรู้QA_รวมข้อเสนอแนะDGA_${new Date().toISOString().slice(0, 10)}.txt`);
+      showToast('ส่งออกไฟล์ Text (.txt) เรียบร้อยแล้ว', 'success');
+    }
+
+    function exportAllPdfPrint() {
+      const container = document.getElementById('print-report-container');
+      if (!container) return;
+
+      const sectionsHtml = CATEGORIES.map(cat => {
+        const items = afternoonQAs.filter(q => Number(q.categoryNo) === cat.no);
+        return `
+          <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 15px; font-weight: 800; color: #0F766E; border-bottom: 2px solid #0F766E; padding-bottom: 4px; margin-bottom: 8px;">
+              หมวดที่ ${cat.no} : ${escapeHtml(cat.name)} (${items.length} ข้อ)
+            </h3>
+            ${items.length === 0
+              ? `<p style="font-size: 12px; color: #64748b; font-style: italic;">— ยังไม่มีรายการ Q&amp;A ในหมวดนี้ —</p>`
+              : items.map((q, idx) => {
+                  const cmts = Array.isArray(q.expertComments) ? q.expertComments : [];
+                  return `
+                    <div class="print-qa-card" style="border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; background: #fff;">
+                      <div style="font-weight: 800; color: #1E3A8A; margin-bottom: 4px;">
+                        ข้อที่ ${idx + 1} [${escapeHtml(q.qaId)} • กลุ่ม ${q.groupNo}] : ${escapeHtml(q.question)}
+                      </div>
+                      <div style="margin-bottom: 5px; white-space: pre-line;">
+                        <strong style="color: #065f46;">คำตอบมาตรฐาน:</strong> ${escapeHtml(q.standardAnswer)}
+                      </div>
+                      ${(q.refMedia || q.refLaw) ? `
+                        <div style="font-size: 11px; color: #334155; margin-bottom: 4px;">
+                          ${q.refMedia ? `<div><strong>3.1 สื่อ/PowerPoint:</strong> ${escapeHtml(q.refMedia)}</div>` : ''}
+                          ${q.refLaw ? `<div><strong>3.2 ระเบียบ/กฎหมาย:</strong> ${escapeHtml(q.refLaw)}</div>` : ''}
+                        </div>
+                      ` : ''}
+                      ${q.caution ? `<div style="font-size: 11px; color: #92400e; background: #fffbeb; padding: 4px 8px; border-radius: 6px; margin-bottom: 4px;"><strong>ข้อควรระวัง:</strong> ${escapeHtml(q.caution)}</div>` : ''}
+                      ${cmts.length > 0 ? `
+                        <div style="font-size: 11px; color: #115e59; background: #f0fdfa; border: 1px solid #99f6e4; padding: 5px 8px; border-radius: 6px; margin-bottom: 4px;">
+                          <strong>ข้อเสนอแนะผู้ทรงคุณวุฒิ / วิทยากร / DGA:</strong>
+                          ${cmts.map(c => `<div style="margin-top:2px;">• <strong>${escapeHtml(c.author)}:</strong> ${escapeHtml(c.text)}</div>`).join('')}
+                        </div>
+                      ` : ''}
+                      <div style="font-size: 10.5px; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
+                        ผู้บันทึก: ${escapeHtml(q.recorder || '-')} • ผู้ตรวจสอบ: ${escapeHtml(q.reviewer || '-')} • วันที่: ${escapeHtml(q.dateTh || '-')}
+                      </div>
+                    </div>
+                  `;
+                }).join('')
+            }
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 16px;">
+          <p style="font-size: 12px; font-weight: 700; color: #881337;">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานคลังความรู้งานจราจร (Q&amp;A) และข้อเสนอแนะผู้ทรงคุณวุฒิ / DGA</h2>
+          <p style="font-size: 12px; color: #475569;">โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI “คู่หูจราจร”) • รวมทั้งสิ้น ${afternoonQAs.length} ข้อ</p>
+        </div>
+        ${sectionsHtml}
+      `;
+      window.print();
+    }
+
+    function triggerDownload(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ==================== MODALS: CONFIRM & ROLE UNLOCK ====================
+    function openConfirmModal(title, desc, onConfirmFn) {
+      pendingConfirmAction = onConfirmFn;
+      document.getElementById('cm-title').textContent = title;
+      document.getElementById('cm-desc').textContent = desc;
+      document.getElementById('confirm-modal')?.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeConfirmModal() {
+      pendingConfirmAction = null;
+      document.getElementById('confirm-modal')?.classList.add('hidden');
+    }
+
+    async function executePendingConfirm() {
+      if (typeof pendingConfirmAction !== 'function') return;
+      const fn = pendingConfirmAction;
+      const btn = document.getElementById('cm-confirm-btn');
+      btn.disabled = true;
+      btn.textContent = 'กำลังลบ...';
+      isMutating = true;
+      try {
+        await fn();
+        closeConfirmModal();
+      } catch (err) {
+        showToast('ดำเนินการไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันลบ';
+      }
+    }
+
+    function openRoleUnlockModal(mode) {
+      const isAdminTarget = mode === 'admin';
+      document.getElementById('ru-target-mode').value = mode;
+      document.getElementById('ru-pin-input').value = '';
+      document.getElementById('ru-name-fields')?.classList.toggle('hidden', isAdminTarget);
+      document.getElementById('ru-name-input').required = !isAdminTarget;
+
+      if (isAdminTarget) {
+        document.getElementById('ru-title').textContent = 'ปลดล็อกโหมดคณะทำงาน (Admin)';
+        document.getElementById('ru-desc').textContent = 'กรอกรหัสผ่านคณะทำงานเพื่อแก้ไข/ลบข้อมูล และส่งออกไฟล์ Excel / Text / PDF';
+        document.getElementById('ru-pin-input').placeholder = 'กรอกรหัสคณะทำงาน (2569)';
+        document.getElementById('ru-submit-btn').className = 'flex-1 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold';
+      } else {
+        document.getElementById('ru-title').textContent = 'ยืนยันตัวตนผู้ทรงคุณวุฒิ / วิทยากร / DGA';
+        document.getElementById('ru-desc').textContent = 'ระบุชื่อและรหัสยืนยัน (DGA หรือ 2569) เพื่อเปิดใช้งานช่องบันทึกข้อเสนอแนะ';
+        document.getElementById('ru-pin-input').placeholder = 'กรอกรหัส (DGA หรือ 2569)';
+        document.getElementById('ru-name-input').value = userCtx.name || safeGet('ws2_reviewer_author', '');
+        document.getElementById('ru-submit-btn').className = 'flex-1 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-extrabold';
+      }
+
+      document.getElementById('role-unlock-modal')?.classList.remove('hidden');
+      setTimeout(() => {
+        (isAdminTarget ? document.getElementById('ru-pin-input') : document.getElementById('ru-name-input'))?.focus();
+      }, 60);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeRoleUnlockModal() {
+      document.getElementById('role-unlock-modal')?.classList.add('hidden');
+    }
+
+    function submitRoleUnlock(e) {
+      e.preventDefault();
+      const targetMode = document.getElementById('ru-target-mode').value;
+      const pin = String(document.getElementById('ru-pin-input')?.value || '').trim().toUpperCase();
+
+      if (targetMode === 'admin') {
+        if (pin !== ADMIN_PASSCODE) {
+          showToast('รหัสผ่านคณะทำงานไม่ถูกต้อง', 'error');
+          return;
+        }
+        userCtx.roleLevel = 'admin';
+        safeSessionSet('ai_seminar_ws_admin', 'true');
+        closeRoleUnlockModal();
+        updateCrossPageLinks();
+        renderEverything();
+        showToast('ปลดล็อกโหมดคณะทำงาน (Admin) เรียบร้อยแล้ว', 'success');
+      } else {
+        if (!REVIEWER_PASSCODES.includes(pin)) {
+          showToast('รหัสยืนยันสิทธิ์ไม่ถูกต้อง (ใช้ DGA หรือ 2569)', 'error');
+          return;
+        }
+        const nameVal = String(document.getElementById('ru-name-input')?.value || '').trim();
+        const roleVal = String(document.getElementById('ru-role-select')?.value || 'ผู้ทรงคุณวุฒิ').trim();
+        if (!nameVal) {
+          showToast('กรุณาระบุชื่อ-สกุลของท่าน', 'warning');
+          return;
+        }
+        userCtx.roleLevel = 'reviewer';
+        userCtx.name = nameVal;
+        userCtx.rawRoleText = roleVal;
+        document.getElementById('rev-author-name').value = nameVal;
+        document.getElementById('rev-author-role').value = roleVal;
+        safeSet('ws2_reviewer_author', nameVal);
+        safeSet('ws2_reviewer_role', roleVal);
+        safeSessionSet('ai_seminar_ws_reviewer', 'true');
+        closeRoleUnlockModal();
+        updateCrossPageLinks();
+        renderEverything();
+        showToast(`เปิดใช้งานโหมดบันทึกข้อเสนอแนะสำหรับ ${nameVal} เรียบร้อยแล้ว`, 'success');
+      }
+    }
+
+    // ==================== TOAST & ESCAPE ====================
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3300);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
