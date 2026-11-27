@@ -142,15 +142,50 @@
           <span class="hidden md:inline">จัดกลุ่ม 5 กลุ่ม</span>
         </button>
 
-        <a href="input.html?staff=1" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-teal-700 hover:bg-teal-600 text-white shadow-xs transition" title="เปิดหน้าบันทึกใบงานวันที่ 2 เช้า-บ่าย โหมดเจ้าหน้าที่ (input.html)">
-          <i data-lucide="file-edit" class="w-3.5 h-3.5 text-amber-200"></i>
-          <span class="hidden lg:inline">ใบงานวันที่ 2</span>
-        </a>
+        <!-- เมนูใบงานวันที่ 2 แยก 3 ไฟล์ + จอเวที (สิทธิ์คณะทำงาน Admin ?staff=1) -->
+        <div id="ws2-menu-wrap" class="relative">
+          <button type="button" onclick="toggleWs2Menu(event)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-teal-700 hover:bg-teal-600 border border-teal-400/50 text-white shadow-xs transition" title="เปิดระบบใบงานวันที่ 2 (เช้า / บ่าย / คัดกรอง DGA / จอเวที)">
+            <i data-lucide="file-edit" class="w-3.5 h-3.5 text-amber-200"></i>
+            <span>ใบงานวันที่ 2</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-85"></i>
+          </button>
 
-        <a href="display.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-700 hover:bg-rose-600 text-white shadow-xs transition" title="เปิดหน้าจอโปรเจกเตอร์แสดงผลใบงานวันที่ 2 (display.html)">
-          <i data-lucide="presentation" class="w-3.5 h-3.5 text-amber-200"></i>
-          <span class="hidden xl:inline">จอใบงานเวที</span>
-        </a>
+          <div id="ws2-menu-dropdown" class="hidden absolute right-0 top-full mt-1.5 z-50 w-72 rounded-2xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden p-1.5 space-y-1">
+            <div class="px-2.5 py-1.5 text-[10.5px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+              ระบบใบงานวันที่ 2 (โหมดคณะทำงาน Admin)
+            </div>
+            <a href="morning.html?staff=1" target="_blank" onclick="closeWs2Menu()" class="flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-700 transition">
+              <span class="w-7 h-7 rounded-lg bg-navy-700 text-amber-300 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="sun" class="w-4 h-4"></i></span>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-navy-900 dark:text-white leading-tight">ใบงานช่วงเช้า (ระดมสมอง 5 หมวด)</p>
+                <p class="text-[10.5px] text-slate-500 dark:text-slate-400">คุมรอบ • Matrix 5×5 • Export Excel/Text/PDF</p>
+              </div>
+            </a>
+            <a href="afternoon.html?staff=1" target="_blank" onclick="closeWs2Menu()" class="flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 dark:hover:bg-slate-700 transition">
+              <span class="w-7 h-7 rounded-lg bg-maroon-700 text-amber-300 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="book-open-check" class="w-4 h-4"></i></span>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-maroon-800 dark:text-rose-200 leading-tight">ใบงานช่วงบ่าย (จัดทำ Q&amp;A 5 หมวด)</p>
+                <p class="text-[10.5px] text-slate-500 dark:text-slate-400">ดึงคิวเช้า • แก้ไขทุกหมวด • Export Q&amp;A</p>
+              </div>
+            </a>
+            <a href="review.html?staff=1" target="_blank" onclick="closeWs2Menu()" class="flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-teal-50 dark:hover:bg-slate-700 transition">
+              <span class="w-7 h-7 rounded-lg bg-teal-700 text-amber-300 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="library" class="w-4 h-4"></i></span>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-teal-900 dark:text-teal-200 leading-tight">คัดกรอง Q&amp;A &amp; ข้อเสนอแนะ (DGA)</p>
+                <p class="text-[10.5px] text-slate-500 dark:text-slate-400">ดูความเห็นผู้ทรงคุณวุฒิ • Export ฉบับสมบูรณ์</p>
+              </div>
+            </a>
+            <div class="border-t border-slate-100 dark:border-slate-700 pt-1">
+              <a href="display.html" target="_blank" onclick="closeWs2Menu()" class="flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-amber-50 dark:hover:bg-slate-700 transition">
+                <span class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="presentation" class="w-4 h-4"></i></span>
+                <div class="min-w-0">
+                  <p class="text-xs font-extrabold text-slate-900 dark:text-amber-200 leading-tight">จอโปรเจกเตอร์ใบงานหน้าเวที</p>
+                  <p class="text-[10.5px] text-slate-500 dark:text-slate-400">Presentation Mode • จับเวลา 30 นาที</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
 
         <button type="button" onclick="openEvalSummaryModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition" title="สรุปผลประเมินความพึงพอใจ 10 ข้อ">
           <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
@@ -371,7 +406,7 @@
       </div>
     </div>
 
-    <!-- Camera Device Picker (แสดงอัตโนมัติเมื่อเครื่องมีหลายกล้อง) -->
+    <!-- Camera Device Picker -->
     <div id="scan-device-bar" class="hidden shrink-0 px-3 py-1.5 bg-slate-900 border-b border-white/10 flex items-center gap-2 text-[11px]">
       <span class="text-slate-400 shrink-0">📷 กล้อง:</span>
       <select id="scan-camera-select" onchange="selectScannerDevice(this.value)" class="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-[11px] focus:outline-none"></select>
@@ -381,7 +416,6 @@
     <div id="scanner-viewport" onclick="handleTapToFocus(event)" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none">
       <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
 
-      <!-- กรอบนำสายตาสแกน + เลเซอร์ (ยังคงสแกนได้ทั่วทั้งหน้าจอกล้อง) -->
       <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/30">
         <div class="scan-laser-line opacity-70"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[62%] aspect-square max-w-[230px]">
@@ -392,15 +426,12 @@
         </div>
       </div>
 
-      <!-- ป้ายบอกความละเอียดจริง & สถานะ Auto-Focus -->
       <div id="scan-res-badge" class="hidden pointer-events-none absolute top-2 left-2.5 px-2 py-0.5 rounded-lg bg-black/65 border border-white/15 font-mono text-[10px] font-bold text-emerald-300">
         HD • AF
       </div>
 
-      <!-- วงแหวนแอนิเมชันเมื่อแตะจอเพื่อโฟกัส -->
       <div id="scan-focus-ring" class="hidden pointer-events-none absolute w-14 h-14 rounded-full border-2 border-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.7)] z-10"></div>
 
-      <!-- Error Overlay (แสดงเฉพาะกรณีเปิดกล้องไม่ได้จริง) -->
       <div id="scan-camera-error-box" onclick="event.stopPropagation()" class="hidden absolute inset-0 bg-slate-950/90 p-5 flex flex-col items-center justify-center text-center gap-2.5 z-20">
         <div class="w-11 h-11 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
           <i data-lucide="camera-off" class="w-5 h-5"></i>
@@ -416,7 +447,7 @@
       </div>
     </div>
 
-    <!-- แถบควบคุมซูมกล้อง (แสดงอัตโนมัติเมื่อกล้องรองรับการซูม ช่วยให้โฟกัส QR ระยะ 20-30 ซม. คมชัดมาก) -->
+    <!-- Zoom Control Bar -->
     <div id="scan-zoom-bar" class="hidden shrink-0 px-3 py-1.5 bg-slate-900 border-t border-white/10 flex items-center gap-2 text-[11px]">
       <span class="text-slate-400 shrink-0 font-semibold">🔍 ซูม:</span>
       <input type="range" id="scan-zoom-slider" min="1" max="3" step="0.1" value="1" oninput="setScannerZoom(this.value)" class="flex-1 accent-emerald-400 h-1.5 cursor-pointer" />
@@ -512,6 +543,7 @@
               <option value="คณะทำงาน">คณะทำงาน</option>
               <option value="ผู้ทรงคุณวุฒิ">ผู้ทรงคุณวุฒิ</option>
               <option value="วิทยากร">วิทยากร</option>
+              <option value="ผู้แทน DGA">ผู้แทน DGA</option>
               <option value="Walk-in หน้างาน">Walk-in หน้างาน</option>
             </select>
           </div>
@@ -659,7 +691,7 @@
       <div class="px-5 py-4 bg-gradient-to-r from-indigo-900 via-navy-800 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div>
           <h3 class="font-bold text-base">จัดการกลุ่มสัมมนา 5 กลุ่ม (ผู้เชี่ยวชาญประจำฐาน + สมาชิกหมุนเวียนตามรอบ)</h3>
-          <p class="text-[11px] text-blue-100">เลือกวิทยากร/ผู้เชี่ยวชาญจากรายการได้ทันที และจัดสมาชิกเข้ากลุ่ม 1–5 เพื่อซิงค์ขึ้นบัตร E-Pass และจอ Live TV</p>
+          <p class="text-[11px] text-blue-100">เลือกวิทยากร/ผู้เชี่ยวชาญจากรายการได้ไม่จำกัดจำนวน และจัดสมาชิกเข้ากลุ่ม 1–5 เพื่อซิงค์ขึ้นบัตร E-Pass และจอ Live TV</p>
         </div>
         <button type="button" onclick="closeWorkshopManagerModal()" class="p-1.5 rounded-lg hover:bg-white/15 shrink-0">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -692,7 +724,7 @@
         </div>
       </div>
 
-      <!-- แถบค้นหารายชื่อด่วนในหน้าจัดกลุ่ม (หาชื่อไม่เจอ/เช็กว่าอยู่กลุ่มไหน) -->
+      <!-- แถบค้นหารายชื่อด่วนในหน้าจัดกลุ่ม -->
       <div class="px-5 py-2.5 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shrink-0 space-y-2">
         <div class="flex flex-wrap items-center gap-2">
           <div class="relative flex-1 min-w-[220px]">
@@ -999,7 +1031,6 @@
     let nativeBarcodeDetector = null;
     let isNativeDetecting = false;
 
-    // ตรวจสอบว่าเบราว์เซอร์รองรับ Native BarcodeDetector สำหรับ qr_code จริงหรือไม่
     (async function initNativeQrDetector() {
       try {
         if ('BarcodeDetector' in window) {
@@ -1016,6 +1047,17 @@
         nativeBarcodeDetector = null;
       }
     })();
+
+    function toggleWs2Menu(e) {
+      if (e) e.stopPropagation();
+      const dd = document.getElementById('ws2-menu-dropdown');
+      if (dd) dd.classList.toggle('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeWs2Menu() {
+      document.getElementById('ws2-menu-dropdown')?.classList.add('hidden');
+    }
 
     function loadPreferredThaiVoice() {
       try {
@@ -1046,7 +1088,6 @@
       }
       if (window.lucide) lucide.createIcons();
 
-      // โหลดรายชื่อเสียงภาษาไทยล่วงหน้าสำหรับ SpeechSynthesis
       loadPreferredThaiVoice();
       if (window.speechSynthesis && 'onvoiceschanged' in window.speechSynthesis) {
         window.speechSynthesis.onvoiceschanged = loadPreferredThaiVoice;
@@ -1065,10 +1106,15 @@
         if (rmBox && rmInp && !rmBox.contains(e.target) && e.target !== rmInp) {
           rmBox.classList.add('hidden');
         }
+        const wsWrap = document.getElementById('ws2-menu-wrap');
+        if (wsWrap && !wsWrap.contains(e.target)) {
+          closeWs2Menu();
+        }
       });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          closeWs2Menu();
           const qpModal = document.getElementById('wm-quickpick-modal');
           if (qpModal && !qpModal.classList.contains('hidden')) {
             closeGroupQuickPickModal();
@@ -1643,10 +1689,10 @@
       const vp = document.getElementById('scanner-viewport');
       if (scanExpanded) {
         panel.className = 'no-print fixed inset-3 sm:inset-6 z-50 bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/80 overflow-hidden flex flex-col transition-all duration-200';
-        if (vp) vp.className = 'relative bg-black flex-1 min-h-[240px] w-full overflow-hidden flex items-center justify-center';
+        if (vp) vp.className = 'relative bg-black flex-1 min-h-[240px] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none';
       } else {
         panel.className = 'no-print fixed bottom-4 right-4 z-40 w-[94vw] sm:w-[400px] max-h-[92vh] bg-slate-950 text-white rounded-3xl shadow-2xl border-2 border-emerald-400/70 overflow-hidden flex flex-col transition-all duration-200';
-        if (vp) vp.className = 'relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center';
+        if (vp) vp.className = 'relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none';
       }
     }
 
@@ -1689,7 +1735,6 @@
       startCameraStream();
     }
 
-    // ปรับโฟกัสอัตโนมัติ (Continuous Auto-Focus) และตั้งค่าซูมทันทีที่เปิดกล้อง
     async function applyCameraSharpnessConstraints(track, videoEl) {
       const zoomBar = document.getElementById('scan-zoom-bar');
       const resBadge = document.getElementById('scan-res-badge');
@@ -1722,7 +1767,6 @@
             await track.applyConstraints({ advanced: [adv] }).catch(() => {});
           }
 
-          // เปิดแถบควบคุมซูมหากกล้องรองรับ (ช่วยถ่าย QR บนป้ายจากระยะ 20-30 ซม. ให้คมกริบ)
           if (caps.zoom && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number' && caps.zoom.max > caps.zoom.min) {
             scanSupportsZoom = true;
             scanZoomMin = caps.zoom.min;
@@ -1741,7 +1785,6 @@
         } catch (e) {}
       }
 
-      // แสดงความละเอียดจริงของภาพกล้องเมื่อวิดีโอเริ่มส่งเฟรม
       const updateResBadge = () => {
         if (!resBadge || !videoEl || !videoEl.videoWidth) return;
         resBadge.textContent = `${videoEl.videoWidth}×${videoEl.videoHeight}${hasAutoFocus ? ' • AF' : ''}`;
@@ -1767,7 +1810,6 @@
       } catch (e) {}
     }
 
-    // แตะที่หน้าจอกล้องเพื่อสั่งจับโฟกัสใหม่ทันที (Tap-to-Focus)
     async function handleTapToFocus(event) {
       if (!scanActive || !scanStream) return;
       const vp = document.getElementById('scanner-viewport');
@@ -1818,7 +1860,6 @@
         return;
       }
 
-      // ขอความละเอียด Full HD (1920x1080) ก่อน แล้วค่อยลดระดับหากอุปกรณ์ไม่รองรับ เพื่อให้จุด QR คมชัดที่สุด
       const constraintCandidates = [];
       if (scanSelectedDeviceId) {
         constraintCandidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
@@ -1844,7 +1885,6 @@
         }
       }
 
-      // ป้องกันการเปิดซ้อนกรณีผู้ใช้ปิดหน้าต่างหรือกดสลับกล้องระหว่างรอ
       if (sessionId !== scanCameraSessionId) {
         if (stream) stream.getTracks().forEach(t => t.stop());
         return;
@@ -1869,7 +1909,6 @@
       video.srcObject = stream;
       video.setAttribute('playsinline', 'true');
       video.muted = true;
-      // เรียก play() ทันทีและไม่ถือว่า AbortError เป็นความล้มเหลวของกล้อง
       video.play().catch(() => {});
 
       const activeTrack = stream.getVideoTracks()[0];
@@ -1974,7 +2013,6 @@
       showToast(scanVoiceEnabled ? 'เปิดเสียงพูดต้อนรับแล้ว' : 'ปิดเสียงพูดต้อนรับแล้ว', 'info');
     }
 
-    // เร่งคอนทราสต์ภาพระดับพิกเซล (ช่วยให้ซองพลาสติกสะท้อนแสงหรือห้องแสงน้อยสแกนติดง่ายขึ้น)
     function enhanceGrayscaleContrast(imageData) {
       const d = imageData.data;
       let min = 255;
@@ -1994,7 +2032,6 @@
       return imageData;
     }
 
-    // ลูปสแกน QR ความคมชัดสูง (Native BarcodeDetector ทุกรอบ + jsQR ความละเอียดสูง 3 จังหวะ + เร่งคอนทราสต์)
     function scanVideoLoop(nowTs) {
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
@@ -2008,7 +2045,6 @@
 
       scanPassToggle = (scanPassToggle + 1) % 4;
 
-      // 1. ใช้ Native BarcodeDetector แบบเต็มความละเอียดของกล้องทุกรอบ (เร็วและคมชัดที่สุดบน Chrome/Edge/Android)
       if (nativeBarcodeDetector && !isNativeDetecting) {
         isNativeDetecting = true;
         nativeBarcodeDetector.detect(video).then(barcodes => {
@@ -2020,7 +2056,6 @@
         }).finally(() => {
           isNativeDetecting = false;
         });
-        // หากมี Native detector ให้รัน jsQR เสริมเฉพาะทุกๆ 4 รอบ เพื่อไม่หน่วงเครื่องแต่ช่วยจับ QR เอียง/แสงจ้า
         if (scanPassToggle !== 3) return;
       }
 
@@ -2029,7 +2064,6 @@
       const vh = video.videoHeight;
 
       if (scanPassToggle === 0 || scanPassToggle === 2) {
-        // จังหวะที่ 1: ครอปกลางเฟรมความละเอียดสูง (680px) สำหรับ QR URL ยาวบนป้ายชื่อ/มือถือ
         const cropSize = Math.min(vw, vh) * 0.7;
         const sx = Math.round((vw - cropSize) / 2);
         const sy = Math.round((vh - cropSize) / 2);
@@ -2044,7 +2078,6 @@
           handleDecodedQr(code.data);
         }
       } else if (scanPassToggle === 1) {
-        // จังหวะที่ 2: สแกนเต็มเฟรมความละเอียดสูง (840px) เพื่อให้สแกนติดได้ทุกมุมจอ
         const maxW = 840;
         const scale = Math.min(1, maxW / Math.max(vw, vh));
         const tw = Math.max(1, Math.round(vw * scale));
@@ -2059,7 +2092,6 @@
           handleDecodedQr(code.data);
         }
       } else {
-        // จังหวะที่ 3: ครอปกลาง + เร่งคอนทราสต์ (ช่วยกรณีซองป้ายสะท้อนแสงไฟหรือห้องแสงน้อย)
         const cropSize = Math.min(vw, vh) * 0.62;
         const sx = Math.round((vw - cropSize) / 2);
         const sy = Math.round((vh - cropSize) / 2);
@@ -2275,7 +2307,6 @@
         window.speechSynthesis.cancel();
         if (window.speechSynthesis.paused) window.speechSynthesis.resume();
 
-        // หน่วง 120ms หลัง cancel เพื่อแก้บั๊ก Chrome ตัดเสียงทิ้งและไม่ทับเสียงติ๊ด
         speechDelayTimer = setTimeout(() => {
           try {
             const spokenText = expandThaiPoliceRankForSpeech(text);
@@ -2480,7 +2511,6 @@
           showToast(res.message || 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
           closeEditModal();
           isMutatingData = false;
-          // โหลดซ้ำเบาๆ เพื่อให้การจับคู่ผู้พักร่วมสองทาง (Two-Way Roommate Sync) อัปเดตทั้ง 2 คนทันที
           await fetchParticipants(false);
         } else {
           showToast(res.message || 'บันทึกไม่สำเร็จ', 'error');
@@ -2689,7 +2719,6 @@
 
     function buildExpertAddDropdownOptions(gNum) {
       const gStr = String(gNum);
-      // แสดงทุกคนที่ยังไม่ได้เป็นผู้เชี่ยวชาญของกลุ่มนี้ (รองรับเพิ่มผู้เชี่ยวชาญได้ไม่จำกัด 1, 2, 3, 4+ คน)
       const candidates = participants.filter(p => {
         const a = wmDraftAssignments[p.id];
         return !(a && a.group === gStr && isWmFixedRole(a.role));
@@ -2727,7 +2756,6 @@
         const gStr = String(gNum);
         const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
 
-        // ดึงผู้เชี่ยวชาญทั้งหมดในกลุ่มนี้ (ไม่จำกัดแค่ 2 คน — รองรับ 3+ คนได้ครบทุกคน)
         const experts = participants
           .filter(p => {
             const a = wmDraftAssignments[p.id];
@@ -2768,7 +2796,6 @@
               <input type="text" value="${escapeHtml(g.topic)}" oninput="onWmTopicInput(${gNum}, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold" />
             </div>
 
-            <!-- โซนวิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (รองรับได้ไม่จำกัดจำนวน 1, 2, 3+ คน) -->
             <div class="p-3 bg-amber-50/75 dark:bg-amber-950/20 border-b border-amber-200/80 dark:border-amber-900 space-y-2 text-xs">
               <div class="flex items-center justify-between gap-1">
                 <p class="font-bold text-amber-900 dark:text-amber-300 text-[11px]">⭐ วิทยากร / ผู้เชี่ยวชาญประจำกลุ่ม (${experts.length} ราย):</p>
@@ -2801,7 +2828,6 @@
               </select>
             </div>
 
-            <!-- โซนสมาชิกหมุนเวียน -->
             <div class="p-3 space-y-2 flex-1 flex flex-col justify-between">
               <div class="space-y-1.5">
                 <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">👥 สมาชิกเริ่มต้นกลุ่มที่ ${gNum} (${members.length} ราย • หมุนเวียนตามรอบ):</p>
@@ -3309,7 +3335,6 @@
           portalBase = new URL('portal.html', window.location.href).href;
         }
       } catch (e) {}
-      // ลิงก์สำหรับผู้เข้าร่วมสแกน (ไม่แนบ staff=1 เพื่อให้ดูได้เฉพาะบัตรของตนเอง)
       currentQrModalLink = `${portalBase}?id=${encodeURIComponent(p.id)}`;
 
       document.getElementById('pqr-id').textContent = p.id;
