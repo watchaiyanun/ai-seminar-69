@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คู่มือการใช้งานสำหรับผู้เข้าร่วมสัมมนา - แชทบอท AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            doc: ['Sarabun', 'sans-serif']
+          },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 300: '#FDE68A', 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    html, body {
+      font-family: 'Prompt', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .gold-line {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.2) 100%);
+    }
+
+    /* กรอบมือถือจำลอง (Realistic Phone Frame) */
+    .phone-frame {
+      width: 100%;
+      max-width: 315px;
+      background: #0f172a;
+      border-radius: 34px;
+      padding: 10px;
+      box-shadow: 0 22px 45px -15px rgba(15, 23, 42, 0.35), 0 0 0 2px #334155;
+      position: relative;
+      margin: 0 auto;
+    }
+    .phone-notch {
+      width: 92px;
+      height: 18px;
+      background: #0f172a;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+    }
+    .phone-screen {
+      background: #f1f5f9;
+      border-radius: 25px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #1e293b;
+    }
+
+    /* ป้ายวงกลมชี้ตำแหน่ง (Callout Pin) */
+    .pin-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 9999px;
+      background: #e11d48;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 3px 8px rgba(225, 29, 72, 0.45);
+      flex-shrink: 0;
+    }
+    .pin-float {
+      position: absolute;
+      z-index: 25;
+      animation: pinBounce 2.4s ease-in-out infinite;
+    }
+    @keyframes pinBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2.5px); }
+    }
+
+    /* บัตร E-Pass จำลอง 3 มิติ (เหมือนหน้า portal.html จริง) */
+    .demo-epass-front {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(159, 18, 57, 0.72) 0%, transparent 46%),
+        radial-gradient(circle at 12% 92%, rgba(37, 99, 235, 0.5) 0%, transparent 50%),
+        linear-gradient(135deg, #090F24 0%, #15224B 44%, #1E3A8A 78%, #34132E 100%);
+      box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.65);
+    }
+    .demo-epass-back {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.55) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(136, 19, 55, 0.55) 0%, transparent 50%),
+        linear-gradient(145deg, #0B1120 0%, #172554 55%, #1E1B3A 100%);
+      box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.65);
+    }
+
+    /* QR Code SVG pattern จำลองสวยคมชัด */
+    .qr-svg-box {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+
+    /* สไตล์สำหรับสั่งพิมพ์ / บันทึก PDF แจกผู้เข้าร่วมสัมมนา */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      body {
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-break-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .print-page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+      .phone-frame {
+        box-shadow: none !important;
+        border: 2px solid #334155 !important;
+      }
+      .pin-float {
+        animation: none !important;
+      }
+      /* แสดงทั้งด้านหน้าและด้านหลังบัตรพร้อมกันเมื่อสั่งพิมพ์ */
+      #epass-demo-front, #epass-demo-back {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- ==================== TOP BAR (ซ่อนตอนพิมพ์) ==================== -->
+  <nav class="no-print sticky top-0 z-40 bg-navy-900/95 backdrop-blur text-white border-b border-gold-500/50 shadow-md">
+    <div class="max-w-5xl mx-auto px-3.5 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-xl bg-white/10 border border-gold-400/70 flex items-center justify-center shrink-0">
+          <i data-lucide="book-open-text" class="w-4 h-4 text-gold-400"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[10px] font-bold tracking-wider uppercase text-gold-400 leading-none">PARTICIPANT USER GUIDE</p>
+          <p class="text-xs sm:text-sm font-extrabold truncate">คู่มือผู้เข้าร่วมสัมมนา AI คู่หูจราจร</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <a href="portal.html" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span>หน้าบัตร E-Pass</span>
+        </a>
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-sm transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>พิมพ์ / เซฟ PDF</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO COVER ==================== -->
+  <header class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 text-white relative overflow-hidden">
+    <div class="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gold-400/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-blue-400/10 blur-3xl"></div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 relative z-10 text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-gold-400/60 text-gold-300 text-xs font-bold">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span>สำนักงานตำรวจแห่งชาติ • ศูนย์บริหารงานจราจร (ศจร.ตร.) • สยศ.ตร.</span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight">
+        คู่มือการใช้งานระบบสัมมนา<br class="sm:hidden" />
+        <span class="text-gold-400">“แชทบอท AI คู่หูจราจร”</span>
+      </h1>
+
+      <p class="text-xs sm:text-base text-blue-100/90 max-w-2xl mx-auto leading-relaxed">
+        ฉบับผู้เข้าร่วมสัมมนา พร้อมภาพหน้าจอจริงทุกขั้นตอน ตั้งแต่การสแกน QR เข้าบัตรประจำตัว การเช็กอิน การทำใบงานกลุ่มย่อย 5 หมวด (เช้า–บ่าย) ไปจนถึงการทำแบบประเมินผล
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs">
+        <span class="px-3 py-1.5 rounded-xl bg-black/25 border border-white/15 font-semibold">📅 30 พ.ย. – 2 ธ.ค. 2569</span>
+        <span class="px-3 py-1.5 rounded-xl bg-black/25 border border-white/15 font-semibold">📍 โรงแรมไพน์เฮิร์สท จ.ปทุมธานี</span>
+        <span class="px-3 py-1.5 rounded-xl bg-black/25 border border-white/15 font-semibold">📱 ใช้งานผ่านมือถือได้เลย ไม่ต้องติดตั้งแอป</span>
+      </div>
+    </div>
+    <div class="gold-line"></div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="max-w-5xl w-full mx-auto px-3.5 sm:px-6 py-6 space-y-8 flex-1">
+
+    <!-- สารบัญลัด 6 ขั้นตอน (Quick Jump Map) -->
+    <section class="no-print bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-sm sm:text-base font-extrabold text-navy-900 flex items-center gap-2">
+          <i data-lucide="map" class="w-4 h-4 text-maroon-700"></i>
+          สารบัญลัด 6 ขั้นตอนการใช้งาน (แตะเพื่อข้ามไปยังหัวข้อ)
+        </h2>
+        <span class="text-[11px] text-slate-500">อ่านจบใน 3 นาที</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+        <a href="#sec-1" class="p-2.5 rounded-2xl bg-blue-50 hover:bg-navy-700 hover:text-white border border-blue-200 text-navy-900 font-bold transition text-center">
+          <span class="block text-base">🪪</span>
+          <span class="block mt-1">1. สแกนป้ายชื่อ</span>
+        </a>
+        <a href="#sec-2" class="p-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-700 hover:text-white border border-indigo-200 text-indigo-900 font-bold transition text-center">
+          <span class="block text-base">💳</span>
+          <span class="block mt-1">2. บัตร E-Pass</span>
+        </a>
+        <a href="#sec-3" class="p-2.5 rounded-2xl bg-amber-50 hover:bg-amber-500 hover:text-slate-950 border border-amber-200 text-amber-950 font-bold transition text-center">
+          <span class="block text-base">☀️</span>
+          <span class="block mt-1">3. ใบงานเช้า</span>
+        </a>
+        <a href="#sec-4" class="p-2.5 rounded-2xl bg-rose-50 hover:bg-maroon-700 hover:text-white border border-rose-200 text-maroon-900 font-bold transition text-center">
+          <span class="block text-base">📘</span>
+          <span class="block mt-1">4. ใบงานบ่าย</span>
+        </a>
+        <a href="#sec-5" class="p-2.5 rounded-2xl bg-teal-50 hover:bg-teal-700 hover:text-white border border-teal-200 text-teal-900 font-bold transition text-center">
+          <span class="block text-base">📚</span>
+          <span class="block mt-1">5. คลัง Q&amp;A</span>
+        </a>
+        <a href="#sec-6" class="p-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-600 hover:text-white border border-emerald-200 text-emerald-900 font-bold transition text-center">
+          <span class="block text-base">⭐</span>
+          <span class="block mt-1">6. ประเมินผล</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ภาพรวมเส้นทางกิจกรรม 3 วัน -->
+    <section class="print-break-avoid bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-3.5">
+      <h2 class="text-base sm:text-lg font-extrabold text-navy-900 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-xl bg-navy-800 text-gold-400 flex items-center justify-center text-sm shrink-0">🗓️</span>
+        ภาพรวมการใช้งานระบบตลอด 3 วันสัมมนา
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm">
+        <div class="p-4 rounded-2xl bg-blue-50/75 border border-blue-200 space-y-1.5">
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-navy-700 text-white text-[11px] font-bold">วันที่ 1 • จันทร์ 30 พ.ย. 69</span>
+          <h3 class="font-extrabold text-navy-900">ลงทะเบียน • บรรยาย AI • เตรียมความพร้อม</h3>
+          <ul class="text-xs text-slate-700 space-y-1 leading-relaxed">
+            <li>• รับป้ายชื่อและ<strong>สแกน QR เช็กอิน</strong> หน้าห้องประชุม</li>
+            <li>• ตรวจสอบห้องพัก คู่พัก และแนบหนังสือส่งตัวผ่านบัตร E-Pass</li>
+            <li>• เช้า: <strong>ชุดปกติคอพับกากี</strong> | บ่าย: <strong>ชุดสุภาพ</strong></li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-300 space-y-1.5">
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[11px] font-extrabold">วันที่ 2 • อังคาร 1 ธ.ค. 69</span>
+          <h3 class="font-extrabold text-amber-950">สัมมนากลุ่มย่อย 5 กลุ่ม (ใบงานเช้า–บ่าย)</h3>
+          <ul class="text-xs text-slate-700 space-y-1 leading-relaxed">
+            <li>• <strong>เช้า (09.00–12.00):</strong> หมุนเวียนระดมสมองครบ <strong>5 หมวด</strong> ในหน้าใบงานเช้า</li>
+            <li>• <strong>บ่าย (13.30–16.30):</strong> ตอบคำถามมาตรฐาน (Q&amp;A) <strong>เฉพาะหมวดหลักของกลุ่มตนเอง</strong></li>
+            <li>• การแต่งกาย: <strong>ชุดสุภาพ</strong></li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-emerald-50/75 border border-emerald-200 space-y-1.5">
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-700 text-white text-[11px] font-bold">วันที่ 3 • พุธ 2 ธ.ค. 69</span>
+          <h3 class="font-extrabold text-emerald-950">สรุปคลัง Q&amp;A • นำเสนอผล • ประเมินโครงการ</h3>
+          <ul class="text-xs text-slate-700 space-y-1 leading-relaxed">
+            <li>• <strong>เช้า:</strong> ปรับปรุงร่างคำถาม–คำตอบ 5 ประเด็นให้สมบูรณ์</li>
+            <li>• <strong>บ่าย:</strong> นำเสนอผลงาน 5 หมวด และทำ<strong>แบบประเมิน 10 ข้อ</strong> (นิรนาม 100%)</li>
+            <li>• การแต่งกาย: <strong>ชุดสุภาพ</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 1: ป้ายคล้องคอ A6 และการเริ่มต้นใช้งาน                              -->
+    <!-- ========================================================================= -->
+    <section id="sec-1" class="print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-start gap-3 border-b border-slate-100 pb-3.5">
+        <span class="w-10 h-10 rounded-2xl bg-navy-800 text-gold-400 font-mono text-lg font-extrabold flex items-center justify-center shrink-0">1</span>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-navy-700">STEP 1 • SMART BADGE &amp; CHECK-IN</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">เริ่มต้นใช้งานจาก “ป้ายคล้องคอ Smart QR”</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">ป้ายคล้องคอที่ท่านได้รับมี QR Code ทั้ง 2 ด้าน ซึ่งทำหน้าที่แตกต่างกันดังภาพ</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- ภาพจำลองป้ายชื่อ 2 ด้านจริง (เหมือน badges.html) -->
+        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- ด้านหน้าป้าย -->
+          <div class="relative rounded-2xl border-2 border-slate-300 bg-white overflow-hidden shadow-md flex flex-col">
+            <span class="pin-badge pin-float top-2 left-2">1</span>
+            <div class="bg-navy-700 text-white px-3 py-2 text-center">
+              <p class="text-[9.5px] opacity-90">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
+              <p class="text-sm font-extrabold">แชทบอท AI คู่หูจราจร</p>
+              <p class="text-[9.5px] opacity-85">30 พ.ย. – 2 ธ.ค. 2569</p>
+            </div>
+            <div class="gold-line" style="height:2px;"></div>
+            <div class="p-3.5 text-center space-y-2 flex-1 flex flex-col justify-between">
+              <div class="space-y-1">
+                <span class="inline-block px-3 py-0.5 rounded-full bg-blue-100 text-navy-800 text-[10px] font-bold">บช.น.</span>
+                <p class="text-base font-extrabold text-slate-900 leading-tight">พ.ต.อ.สมชาย ใจดี</p>
+                <p class="text-[10.5px] text-slate-500">รอง ผบก.น.5 • บช.น. (บก.น.5)</p>
+              </div>
+              <div class="relative inline-flex flex-col items-center mx-auto">
+                <span class="pin-badge pin-float -top-2 -right-3">2</span>
+                <div class="p-2 rounded-xl border-2 border-navy-700/70 bg-white shadow-xs">
+                  <!-- QR SVG -->
+                  <svg class="w-16 h-16 text-slate-900" viewBox="0 0 36 36" fill="currentColor">
+                    <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v2h-2V6zm-4 6h4v2h-4v-2zm6 2h2v4h-2v-4zm-8 2h2v4h-2v-4zm4 2h4v2h-4v-2zm-14 0h4v2H4v-2zm6 2h2v2h-2v-2zm14 0h4v2h-4v-2zm6-4h4v2h-4v-2zm-2 6h2v4h-2v-4zm4 2h2v4h-2v-4zm-10 2h4v2h-4v-2zm-6 2h2v4h-2v-4zm4 2h4v2h-4v-2zm6 2h4v4h-4v-4zm-10 4h4v2h-4v-2zm14-2h4v4h-4v-4z"/>
+                  </svg>
+                </div>
+                <p class="font-mono text-xs font-extrabold text-slate-900 mt-1">KM69-01</p>
+                <p class="text-[9px] text-slate-500">สแกนเช็กอิน • เอกสาร • ห้องพัก • ประเมินผล</p>
+              </div>
+            </div>
+            <div class="bg-navy-700 text-white py-1 text-center text-[10.5px] font-bold">ผู้เข้าร่วมสัมมนา (ด้านหน้าป้าย)</div>
+          </div>
+
+          <!-- ด้านหลังป้าย -->
+          <div class="relative rounded-2xl border-2 border-slate-300 bg-white overflow-hidden shadow-md flex flex-col">
+            <span class="pin-badge pin-float top-2 left-2">3</span>
+            <div class="bg-navy-700 text-white px-3 py-2 text-center">
+              <p class="text-[10px] font-extrabold tracking-widest uppercase text-blue-100">AI TRAFFIC KM SEMINAR 2026</p>
+            </div>
+            <div class="gold-line" style="height:2px;"></div>
+            <div class="p-3.5 text-center space-y-2 flex-1 flex flex-col justify-between bg-slate-50/70">
+              <div>
+                <p class="text-base font-extrabold text-navy-800">👮‍♂️ คู่หูจราจร AI</p>
+                <p class="text-[10px] text-slate-600 leading-snug mt-0.5">สอบถามข้อมูลและแนวทางปฏิบัติงานจราจรผ่านแชทบอท AI</p>
+              </div>
+              <div class="inline-flex flex-col items-center mx-auto">
+                <div class="p-2 rounded-xl border-2 border-maroon-700/70 bg-white shadow-xs">
+                  <svg class="w-16 h-16 text-navy-900" viewBox="0 0 36 36" fill="currentColor">
+                    <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm12-20h4v2h-4V8zm-2 4h2v4h-2v-4zm6 0h2v4h-2v-4zm-4 6h6v2h-6v-2zm-12 0h4v4H4v-4zm6 2h2v2h-2v-2zm16-2h4v4h-4v-4zm-8 4h4v2h-4v-2zm-4 4h2v4h-2v-4zm8 0h2v4h-2v-4zm4 2h4v2h-4v-2zm-8 4h4v2h-4v-2zm8 2h4v2h-4v-2z"/>
+                  </svg>
+                </div>
+                <p class="text-[10.5px] font-bold text-maroon-700 mt-1.5">สแกนใช้งานแชทบอท AI</p>
+                <p class="font-mono text-[10px] font-bold text-slate-700">pinai-fine.police.go.th</p>
+              </div>
+              <p class="text-[9px] text-slate-500">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท</p>
+            </div>
+            <div class="bg-maroon-700 text-white py-1 text-center text-[10.5px] font-bold">ด้านหลังป้าย (แชทบอท AI)</div>
+          </div>
+        </div>
+
+        <!-- คำอธิบายขั้นตอน -->
+        <div class="lg:col-span-5 space-y-3 text-xs sm:text-sm">
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">1</span>
+            <div>
+              <p class="font-extrabold text-slate-900">เช็กอินเข้างานทุกเช้า (30 พ.ย. / 1 ธ.ค. / 2 ธ.ค.)</p>
+              <p class="text-xs text-slate-600 leading-relaxed mt-0.5">ยื่น <strong>QR Code ด้านหน้าป้าย</strong> ให้กล้องโต๊ะลงทะเบียนสแกน (ห่างประมาณ 15–25 ซม.) เมื่อเช็กอินสำเร็จ จะมีเสียงพูดต้อนรับยศ–ชื่อ–สกุลของท่านทันที</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">2</span>
+            <div>
+              <p class="font-extrabold text-navy-900">สแกนด้วยมือถือของท่านเพื่อเปิด “บัตร E-Pass”</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">ใช้กล้องมือถือหรือแอป LINE สแกน QR ด้านหน้าป้าย ระบบจะเปิดหน้าบัตรประจำตัวเฉพาะบุคคลของท่านทันที (<strong>แนะนำให้เปิดผ่าน Chrome หรือ Safari</strong> เพื่อความเสถียรสูงสุด)</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-rose-50/80 border border-rose-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">3</span>
+            <div>
+              <p class="font-extrabold text-maroon-800">ทดลองใช้งาน “แชทบอทคู่หูจราจร AI”</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">สแกน QR ด้านหลังป้าย เพื่อเปิดเว็บไซต์ <code class="font-mono font-bold text-navy-800">pinai-fine.police.go.th</code> ทดลองสอบถามข้อมูลงานจราจรได้ตลอดเวลา</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 2: บัตรประจำตัวอิเล็กทรอนิกส์ (Digital E-Pass — portal.html)        -->
+    <!-- ========================================================================= -->
+    <section id="sec-2" class="print-page-break print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-3.5">
+        <div class="flex items-start gap-3">
+          <span class="w-10 h-10 rounded-2xl bg-indigo-700 text-gold-400 font-mono text-lg font-extrabold flex items-center justify-center shrink-0">2</span>
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">STEP 2 • DIGITAL E-PASS (PORTAL)</span>
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">การใช้งานหน้า “บัตรประจำตัวอิเล็กทรอนิกส์ (E-Pass)”</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">ศูนย์รวมทุกอย่างของท่านในหน้าเดียว ทั้งเช็กอิน ห้องพัก กลุ่มสัมมนา เอกสาร และการขอแก้ไขข้อมูล</p>
+          </div>
+        </div>
+
+        <!-- ปุ่มลองพลิกบัตรในคู่มือ (ซ่อนตอนพิมพ์) -->
+        <div class="no-print flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <button type="button" id="demo-epass-btn-front" onclick="toggleDemoEpass('front')" class="px-3 py-1.5 rounded-lg font-extrabold bg-navy-700 text-white transition">ดูด้านหน้าบัตร</button>
+          <button type="button" id="demo-epass-btn-back" onclick="toggleDemoEpass('back')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 transition">ดูด้านหลังบัตร</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- มือถือจำลองแสดงหน้าบัตร E-Pass จริง -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <!-- Header มือถือจำลอง -->
+              <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-maroon-800 text-white pt-7 pb-10 px-3 text-center">
+                <p class="text-[8.5px] text-gold-300 font-bold">30 พ.ย. – 2 ธ.ค. 2569 • ไพน์เฮิร์สท</p>
+                <p class="text-xs font-extrabold leading-tight mt-0.5">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</p>
+              </div>
+
+              <!-- Body มือถือจำลอง -->
+              <div class="px-2.5 pb-3 -mt-7 space-y-2.5">
+                <!-- ด้านหน้าบัตร E-Pass -->
+                <div id="epass-demo-front" onclick="toggleDemoEpass('back')" class="cursor-pointer demo-epass-front rounded-2xl p-3 text-white relative space-y-2">
+                  <div class="flex items-center justify-between text-[8.5px]">
+                    <span class="font-bold text-gold-300 tracking-wider">ROYAL THAI POLICE • AI E-PASS</span>
+                    <span class="px-1.5 py-0.5 rounded-full bg-white/15 border border-gold-400/50 text-gold-300 font-bold">ผู้เข้าร่วมสัมมนา</span>
+                  </div>
+
+                  <div class="flex items-center justify-between gap-2">
+                    <!-- มาสคอตแตะทักทาย -->
+                    <div class="relative shrink-0">
+                      <span class="pin-badge pin-float -top-2 -left-2">1</span>
+                      <div class="w-11 h-11 rounded-xl bg-white p-1 flex items-center justify-center border-2 border-gold-400 shadow">
+                        <span class="text-xl leading-none">👮‍♂️</span>
+                      </div>
+                      <p class="text-[7px] text-center text-gold-300 font-bold mt-0.5">แตะทักทาย</p>
+                    </div>
+
+                    <div class="text-right flex-1 min-w-0 space-y-1">
+                      <div class="flex items-center justify-end gap-1">
+                        <span class="px-1.5 py-0.2 rounded-full bg-white/15 text-[8px]">บช.น.</span>
+                        <span class="font-mono text-xs font-extrabold text-gold-300">KM69-01</span>
+                      </div>
+                      <span class="inline-block px-1.5 py-0.2 rounded-full bg-emerald-500/30 border border-emerald-400 text-[7.5px] font-bold text-emerald-200">● VERIFIED • CHECKED-IN</span>
+                      <!-- Live HUD -->
+                      <div class="relative bg-black/35 border border-gold-400/50 rounded-lg px-2 py-1 text-left">
+                        <span class="pin-badge pin-float -top-2 -right-2">2</span>
+                        <div class="flex justify-between text-[7.5px] text-gold-300 font-bold">
+                          <span>● กำลังดำเนินการ</span>
+                          <span class="bg-white/15 px-1 rounded text-white">👔 ชุดสุภาพ</span>
+                        </div>
+                        <p class="text-[8px] text-white truncate mt-0.5">ใบงานเช้า: ระดมสมองครบ 5 หมวด</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="pt-1.5 border-t border-white/15 space-y-1.5">
+                    <div>
+                      <p class="text-xs font-extrabold leading-tight">พ.ต.อ.สมชาย ใจดี</p>
+                      <p class="text-[9px] text-blue-100/80">รอง ผบก.น.5</p>
+                    </div>
+                    <!-- ตราประทับ 3 วัน -->
+                    <div class="relative grid grid-cols-3 gap-1 text-center text-[7.5px]">
+                      <span class="pin-badge pin-float -bottom-2 -right-1">3</span>
+                      <div class="rounded-md py-0.5 bg-emerald-500/25 border border-emerald-400 text-white font-bold">
+                        <div class="text-emerald-200">30 พ.ย.</div>
+                        <div>✓ 08:25</div>
+                      </div>
+                      <div class="rounded-md py-0.5 bg-emerald-500/25 border border-emerald-400 text-white font-bold">
+                        <div class="text-emerald-200">1 ธ.ค.</div>
+                        <div>✓ 08:10</div>
+                      </div>
+                      <div class="rounded-md py-0.5 bg-white/10 border border-dashed border-white/30 text-white/60">
+                        <div>2 ธ.ค.</div>
+                        <div>รอเช็กอิน</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ด้านหลังบัตร E-Pass -->
+                <div id="epass-demo-back" onclick="toggleDemoEpass('front')" class="hidden cursor-pointer demo-epass-back rounded-2xl p-3 text-white relative space-y-2">
+                  <div class="bg-slate-950/80 -mx-3 px-3 py-1 flex justify-between text-[8px] font-mono border-y border-white/10">
+                    <span class="text-slate-400">SMART CHECK-IN &amp; DETAILS</span>
+                    <span class="text-gold-300 font-bold">KM69-01</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="relative bg-white p-1.5 rounded-xl border border-gold-400 text-center shrink-0">
+                      <span class="pin-badge pin-float -top-2 -left-2">4</span>
+                      <svg class="w-12 h-12 text-slate-900" viewBox="0 0 36 36" fill="currentColor">
+                        <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v2h-2V6zm-4 6h4v2h-4v-2zm6 2h2v4h-2v-4zm-8 2h2v4h-2v-4zm4 2h4v2h-4v-2zm-14 0h4v2H4v-2zm6 2h2v2h-2v-2zm14 0h4v2h-4v-2zm6-4h4v2h-4v-2zm-2 6h2v4h-2v-4zm4 2h2v4h-2v-4zm-10 2h4v2h-4v-2zm-6 2h2v4h-2v-4zm4 2h4v2h-4v-2zm6 2h4v4h-4v-4z"/>
+                      </svg>
+                      <span class="block text-[7px] font-extrabold text-navy-800 mt-0.5">ขยาย QR</span>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-1 text-[8.5px]">
+                      <div class="p-1.5 rounded-lg bg-white/10 border border-white/15">
+                        <p class="text-gold-300 font-bold">🛏️ ที่พัก / ห้อง / คู่พัก</p>
+                        <p class="font-bold">พักคืน 30 พ.ย. &amp; 1 ธ.ค. • ห้อง 305</p>
+                        <p class="text-sky-200 text-[8px]">ผู้พักร่วม: พ.ต.ท.วิชัย รักงาน</p>
+                      </div>
+                      <div class="p-1.5 rounded-lg bg-white/10 border border-white/15">
+                        <p class="text-gold-300 font-bold">🍽️ อาหาร / ตอบรับ</p>
+                        <p class="font-bold">อาหารทั่วไป • ยืนยันเข้าร่วม</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="relative p-1.5 rounded-lg bg-white/10 border border-gold-400/50 text-[8px]">
+                    <span class="pin-badge pin-float -top-2 -right-2">5</span>
+                    <div class="flex justify-between font-bold text-gold-300">
+                      <span>👥 กลุ่มประจำตัว: ก.1 • โต๊ะรอบนี้: โต๊ะ 1</span>
+                      <span>รอบ 1/5</span>
+                    </div>
+                    <p class="text-white font-bold">ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง</p>
+                    <p class="text-emerald-200 font-mono text-[7.5px]">เช้า: [ร1:ต1]→ร2:ต2→ร3:ต3→ร4:ต4→ร5:ต5 | บ่าย: หมวด 1</p>
+                  </div>
+                </div>
+
+                <!-- ปุ่มควบคุมใต้บัตร -->
+                <div class="relative grid grid-cols-2 gap-1.5 text-[9px] font-bold">
+                  <span class="pin-badge pin-float -top-2 right-1">6</span>
+                  <div onclick="toggleDemoEpass()" class="cursor-pointer py-1.5 px-2 rounded-xl bg-white border border-slate-200 text-navy-800 text-center">🔄 พลิกดูหลังบัตร</div>
+                  <div class="py-1.5 px-2 rounded-xl bg-navy-700 text-white text-center">✏️ ขอแก้ไข / แจ้งผู้แทน</div>
+                </div>
+
+                <!-- แถบภารกิจด่วนใต้บัตร -->
+                <div class="relative bg-white rounded-xl p-2 border border-slate-200 space-y-1.5">
+                  <span class="pin-badge pin-float -bottom-2 right-1">7</span>
+                  <p class="text-[8.5px] font-extrabold text-navy-800">☀️ เช้า 1 ธ.ค. : ระดมสมองครบ 5 หมวด • กลุ่มที่ 1</p>
+                  <div class="grid grid-cols-2 gap-1.5 text-[9px] font-extrabold text-center">
+                    <div class="py-1.5 rounded-lg bg-amber-400 text-slate-950">☀️ ใบงานเช้า (5 หมวด)</div>
+                    <div class="py-1.5 rounded-lg bg-maroon-700 text-white">📘 ใบงานบ่าย (หมวด 1)</div>
+                  </div>
+                </div>
+
+                <!-- กล่องแจ้งเตือนเอกสารขาด -->
+                <div class="p-2 rounded-xl bg-rose-50 border border-rose-300 text-[8.5px] space-y-1">
+                  <p class="font-extrabold text-rose-800">🔔 แจ้งเตือน: ข้อมูลหรือเอกสารยังไม่ครบ</p>
+                  <div class="flex flex-wrap gap-1">
+                    <span class="px-1.5 py-0.2 rounded bg-white border border-amber-300 text-amber-900 font-bold">• หนังสือส่งตัว</span>
+                    <span class="px-1.5 py-0.2 rounded bg-white border border-amber-300 text-amber-900 font-bold">• เบอร์โทร</span>
+                  </div>
+                  <div class="py-1 rounded-lg bg-rose-600 text-white text-center font-bold">📤 กรอกข้อมูล / แนบเอกสารที่ขาดทันที</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="no-print text-center text-[11px] text-indigo-700 font-semibold">💡 ลองแตะที่ตัวบัตรจำลองด้านบนเพื่อพลิกดูด้านหน้า–ด้านหลังได้เลยครับ</p>
+        </div>
+
+        <!-- คำอธิบายจุดสำคัญทั้ง 7 จุด -->
+        <div class="lg:col-span-7 space-y-2.5 text-xs sm:text-sm">
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">1</span>
+            <div>
+              <p class="font-extrabold text-slate-900">มาสคอต “คู่หูจราจร AI” (แตะทักทาย)</p>
+              <p class="text-xs text-slate-600 mt-0.5">แตะที่รูปมาสคอตบนบัตรเพื่อรับข้อความสรุปกลุ่มของท่าน แจ้งเตือนเอกสารขาด หรือเตือนทำแบบประเมิน</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">2</span>
+            <div>
+              <p class="font-extrabold text-slate-900">แถบกำหนดการสดและการแต่งกาย (Live HUD)</p>
+              <p class="text-xs text-slate-600 mt-0.5">บอกอัตโนมัติว่าขณะนี้กำลังอยู่ช่วงกิจกรรมใด เหลือเวลากี่นาที และต้องแต่งกายชุดใด</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">3</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ตราประทับเช็กอิน 3 วันแบบเรียลไทม์</p>
+              <p class="text-xs text-slate-600 mt-0.5">เมื่อเจ้าหน้าที่สแกน QR ของท่านแล้ว ช่องวันที่จะเปลี่ยนเป็นสีเขียวพร้อมเวลาเช็กอิน (เช่น <code class="font-mono font-bold text-emerald-700">✓ 08:25</code>) ภายใน 7 วินาที</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">4</span>
+            <div>
+              <p class="font-extrabold text-slate-900">พลิกหลังบัตรดู QR ขยายเต็มจอ &amp; ห้องพักโรงแรม</p>
+              <p class="text-xs text-slate-600 mt-0.5">แตะที่ตัวบัตรเพื่อพลิกดู <strong>เลขห้องพัก</strong>, <strong>ผู้พักร่วม</strong>, อาหาร และแตะที่ <strong>“ขยาย QR”</strong> เพื่อยื่นหน้าจอมือถือให้เจ้าหน้าที่สแกนแทนป้ายคล้องคอได้</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">5</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ตรวจสอบกลุ่มสัมมนา 5 กลุ่มและเส้นทางหมุนเวียน</p>
+              <p class="text-xs text-slate-600 mt-0.5">แสดงกลุ่มประจำตัวของท่าน โต๊ะฐานในรอบปัจจุบัน ชื่อผู้เชี่ยวชาญประจำโต๊ะ และหมวดที่รับผิดชอบในช่วงบ่าย</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">6</span>
+            <div>
+              <p class="font-extrabold text-navy-900">ขอแก้ไขข้อมูล / แจ้งส่งผู้แทน / แนบหนังสือส่งตัว</p>
+              <p class="text-xs text-slate-700 mt-0.5">กดปุ่ม <strong>“ขอแก้ไข / แจ้งผู้แทน”</strong> (หรือปุ่มสีแดงในกล่องแจ้งเตือนเอกสารขาด) เพื่อแจ้งเปลี่ยนที่พัก ระบุผู้พักร่วม ใส่เบอร์โทร/ทะเบียนรถ แจ้งชื่อผู้แทน หรืออัปโหลดไฟล์หนังสือส่งตัว (PDF/รูปภาพ ไม่เกิน 5MB) ส่งให้เจ้าหน้าที่อนุมัติ</p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-amber-50/80 border border-amber-300 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">7</span>
+            <div>
+              <p class="font-extrabold text-amber-950">ปุ่มลัดเข้า “ใบงานเช้า / ใบงานบ่าย” และคลังเอกสาร</p>
+              <p class="text-xs text-slate-700 mt-0.5">กดเข้าทำใบงานได้จากใต้บัตรโดยตรง ระบบจะส่ง <strong>รหัส ชื่อ และเลขกลุ่มของท่านติดไปด้วยอัตโนมัติ</strong> (ไม่ต้องกรอกใหม่) และเลื่อนลงด้านล่างจะมีปุ่มเข้ากลุ่ม LINE, โฟลเดอร์เอกสาร Google Drive ทั้ง 4 โฟลเดอร์ และกำหนดการ 3 วัน</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 3: ใบงานที่ 1 ช่วงเช้า (morning.html — ระดมสมองครบ 5 หมวด)           -->
+    <!-- ========================================================================= -->
+    <section id="sec-3" class="print-page-break print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-start gap-3 border-b border-slate-100 pb-3.5">
+        <span class="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 font-mono text-lg font-extrabold flex items-center justify-center shrink-0">3</span>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">STEP 3 • MORNING WORKSHOP (1 ธ.ค. 09.00–12.00 น.)</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">ใบงานที่ 1 ช่วงเช้า : ระดมสมองครบทั้ง 5 หมวด (World Café)</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">ทุกกลุ่มจะเดินหมุนเวียนไปร่วมระดมสมองปัญหาและข้อขัดข้องจนครบทั้ง 5 โต๊ะ/หมวด (รอบละ 30 นาที)</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- มือถือจำลองหน้า morning.html -->
+        <div class="lg:col-span-5">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <!-- Header -->
+              <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white pt-7 pb-2.5 px-3">
+                <p class="text-[8px] text-gold-400 font-bold">วันที่ 2 (1 ธ.ค. 2569)</p>
+                <p class="text-[11px] font-extrabold leading-tight">☀️ ใบงานที่ 1 ช่วงเช้า : ระดมสมองครบ 5 หมวด</p>
+              </div>
+              <div class="gold-line" style="height:2px;"></div>
+
+              <!-- Body -->
+              <div class="p-2.5 space-y-2.5 text-[9px]">
+                <!-- Progress 5 หมวด -->
+                <div class="bg-white rounded-2xl p-2.5 border border-slate-200 space-y-1.5">
+                  <div class="flex justify-between items-center font-bold">
+                    <span class="text-navy-900">ความคืบหน้ากลุ่มที่ 1:</span>
+                    <span class="text-emerald-700 font-mono">2 / 5 หมวด</span>
+                  </div>
+                  <div class="grid grid-cols-5 gap-1 text-center text-[8px]">
+                    <div class="py-1 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold">หมวด 1<br>✓ 3 ข้อ</div>
+                    <div class="py-1 rounded-lg bg-navy-700 text-white font-bold">หมวด 2<br>📍 รอบนี้</div>
+                    <div class="py-1 rounded-lg bg-slate-100 border border-dashed border-slate-300 text-slate-400">หมวด 3<br>🔒 รอบ 3</div>
+                    <div class="py-1 rounded-lg bg-slate-100 border border-dashed border-slate-300 text-slate-400">หมวด 4<br>🔒 รอบ 4</div>
+                    <div class="py-1 rounded-lg bg-slate-100 border border-dashed border-slate-300 text-slate-400">หมวด 5<br>🔒 รอบ 5</div>
+                  </div>
+                </div>
+
+                <!-- ฟอร์มบันทึก -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                  <div class="bg-navy-800 text-white px-2.5 py-1.5 font-extrabold text-[9.5px]">บันทึกประเด็นปัญหา / ข้อขัดข้อง</div>
+                  <div class="p-2.5 space-y-2">
+                    <!-- 1. เลือกหมวด -->
+                    <div class="relative space-y-1">
+                      <span class="pin-badge pin-float -top-1 -right-1">1</span>
+                      <p class="font-extrabold text-navy-900">1. เลือกหมวดหมู่ / โต๊ะฐาน</p>
+                      <div class="grid grid-cols-2 gap-1 text-[8px]">
+                        <div class="p-1.5 rounded-xl border border-slate-200 bg-white">
+                          <span class="font-bold text-navy-700">หมวด 1</span> <span class="text-emerald-700">↩️ ผ่านมาแล้ว</span>
+                          <p class="font-bold text-slate-800 truncate">กฎหมายจราจร</p>
+                        </div>
+                        <div class="p-1.5 rounded-xl border-2 border-navy-700 bg-navy-700 text-white">
+                          <span class="font-bold text-gold-300">หมวด 2</span> <span class="bg-amber-400 text-slate-950 px-1 rounded font-bold">📍 รอบนี้</span>
+                          <p class="font-bold truncate">คู่มือ / SOP</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 2. ล็อกกลุ่ม -->
+                    <div class="relative p-2 rounded-xl bg-maroon-700 text-white flex items-center justify-between">
+                      <span class="pin-badge pin-float -top-2 -right-1">2</span>
+                      <span class="font-extrabold">กลุ่มที่ 1 (กลุ่มประจำตัวของท่าน)</span>
+                      <span class="px-1.5 py-0.5 rounded-full bg-gold-500 text-slate-950 font-extrabold text-[7.5px]">🔒 ล็อกกลุ่ม</span>
+                    </div>
+
+                    <!-- กล่องดูของเพื่อนกันซ้ำ -->
+                    <div class="relative p-2 rounded-xl bg-emerald-50 border border-emerald-200 space-y-0.5">
+                      <span class="pin-badge pin-float -top-2 -right-1">3</span>
+                      <p class="font-extrabold text-emerald-900">✓ เพื่อนในกลุ่มส่งแล้ว (ดูกันถามซ้ำ)</p>
+                      <p class="text-[8px] text-slate-700 bg-white px-1.5 py-1 rounded border border-emerald-200 truncate"><strong>ISS-012:</strong> การตั้งจุดตรวจแอลกอฮอล์ต้องมีป้าย...</p>
+                    </div>
+
+                    <!-- ช่องพิมพ์ประเด็น -->
+                    <div class="space-y-1">
+                      <p class="font-extrabold text-navy-900">4. ประเด็นปัญหา / คำถามที่พบบ่อย *</p>
+                      <div class="p-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 text-[8.5px]">
+                        กรณีผู้ขับขี่ปฏิเสธการเป่าวัดแอลกอฮอล์ ณ จุดตรวจ ต้องปฏิบัติตามขั้นตอน SOP อย่างไร?
+                      </div>
+                    </div>
+
+                    <!-- ระดับความเร่งด่วน -->
+                    <div class="relative space-y-1">
+                      <span class="pin-badge pin-float -top-1 -right-1">4</span>
+                      <p class="font-extrabold text-navy-900">5. ระดับความเร่งด่วน *</p>
+                      <div class="grid grid-cols-3 gap-1 text-center text-[8px] font-bold">
+                        <div class="py-1 rounded-xl border-2 border-rose-600 bg-rose-50 text-rose-800">🔴 เร่งด่วนมาก</div>
+                        <div class="py-1 rounded-xl border border-slate-200 text-slate-600">🟠 เร่งด่วน</div>
+                        <div class="py-1 rounded-xl border border-slate-200 text-slate-600">🟢 ทั่วไป</div>
+                      </div>
+                    </div>
+
+                    <div class="py-1.5 rounded-xl bg-navy-700 text-white text-center font-extrabold text-[9.5px]">
+                      ✈️ บันทึกประเด็นปัญหา
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- คำอธิบายขั้นตอน -->
+        <div class="lg:col-span-7 space-y-3 text-xs sm:text-sm">
+          <div class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">1</span>
+            <div>
+              <p class="font-extrabold text-navy-900">หมวดหมู่จะปลดล็อกตามรอบหมุนเวียน (รอบ 1 → 5)</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">ท่านสามารถบันทึกได้เฉพาะ <strong>หมวดรอบปัจจุบัน (📍 รอบนี้)</strong> และย้อนกลับไปเพิ่มเติมใน <strong>หมวดที่กลุ่มผ่านมาแล้ว (↩️ ผ่านมาแล้ว)</strong> เท่านั้น ส่วนหมวดที่ยังไม่ถึงรอบจะขึ้น <strong>🔒 รอบที่...</strong> และจะปลดล็อกให้เองทันทีเมื่อเจ้าหน้าที่กดเปลี่ยนรอบบนเวที</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">2</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ระบบล็อกกลุ่มประจำตัวให้อัตโนมัติ</p>
+              <p class="text-xs text-slate-600 leading-relaxed mt-0.5">เมื่อเข้าผ่านหน้าบัตร E-Pass ของท่าน ระบบจะล็อกเลขกลุ่ม (กลุ่ม 1–5) และกรอกชื่อผู้บันทึกให้อัตโนมัติ เพื่อป้องกันการส่งผิดกลุ่ม</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">3</span>
+            <div>
+              <p class="font-extrabold text-emerald-950">เช็กกล่องสีเขียว “กันถามซ้ำ” ก่อนกดส่ง</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">ดูประเด็นที่เพื่อนร่วมกลุ่มเพิ่งส่งเข้ามาแบบเรียลไทม์ หากพิมพ์ข้อความคล้ายกับที่มีอยู่แล้ว ระบบจะขึ้นแถบสีเหลืองแจ้งเตือนให้ทราบทันที</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">4</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ส่งทีละ 1 ประเด็น เลือกความเร่งด่วน แล้วกดบันทึก</p>
+              <p class="text-xs text-slate-600 leading-relaxed mt-0.5">เขียน 1 ปัญหาต่อ 1 การส่ง เลือกระดับ <strong>🔴 เร่งด่วนมาก / 🟠 เร่งด่วน / 🟢 ทั่วไป</strong> กดบันทึกแล้วส่งข้อถัดไปได้ไม่จำกัด (สามารถกดรูปดินสอ ✏️ แก้ไข หรือถังขยะ 🗑️ ลบข้อของกลุ่มตนเองได้ด้านล่าง)</p>
+            </div>
+          </div>
+
+          <!-- กล่องสรุป 5 หมวด -->
+          <div class="p-3.5 rounded-2xl bg-navy-900 text-white space-y-1.5 text-xs">
+            <p class="font-extrabold text-gold-400">📌 5 หมวดหมู่หลักที่ต้องระดมสมองให้ครบในช่วงเช้า:</p>
+            <ol class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11.5px] text-blue-100">
+              <li><strong>หมวด 1:</strong> กฎหมายจราจรและกฎหมายที่เกี่ยวข้อง</li>
+              <li><strong>หมวด 2:</strong> คู่มือแนวทาง ข้อสั่งการ และ SOP</li>
+              <li><strong>หมวด 3:</strong> ระบบไอทีจราจร (PTM / TPCC)</li>
+              <li><strong>หมวด 4:</strong> การเงินและงบประมาณงานจราจร</li>
+              <li class="sm:col-span-2"><strong>หมวด 5:</strong> ประเด็นข้อโต้แย้งจากประชาชนในระหว่างปฏิบัติหน้าที่</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 4: ใบงานที่ 2 ช่วงบ่าย (afternoon.html — จัดทำคำตอบ Q&A)             -->
+    <!-- ========================================================================= -->
+    <section id="sec-4" class="print-page-break print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-start gap-3 border-b border-slate-100 pb-3.5">
+        <span class="w-10 h-10 rounded-2xl bg-maroon-700 text-gold-400 font-mono text-lg font-extrabold flex items-center justify-center shrink-0">4</span>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-maroon-700">STEP 4 • AFTERNOON Q&amp;A (1 ธ.ค. บ่าย – 2 ธ.ค. เช้า)</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">ใบงานที่ 2 ช่วงบ่าย : จัดทำคำตอบมาตรฐาน (Q&amp;A) เฉพาะหมวดหลัก</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">แต่ละกลุ่มประจำฐานของตนเอง (กลุ่มที่ 1 ตอบหมวด 1, กลุ่มที่ 2 ตอบหมวด 2 ... กลุ่มที่ 5 ตอบหมวด 5)</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- มือถือจำลองหน้า afternoon.html -->
+        <div class="lg:col-span-5">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="bg-gradient-to-r from-maroon-800 via-navy-800 to-navy-900 text-white pt-7 pb-2.5 px-3">
+                <p class="text-[8px] text-gold-400 font-bold">ช่วงบ่าย • รับผิดชอบเฉพาะหมวดหลัก</p>
+                <p class="text-[11px] font-extrabold leading-tight">📘 ใบงานที่ 2 : จัดทำคลังความรู้ Q&amp;A</p>
+              </div>
+              <div class="gold-line" style="height:2px;"></div>
+
+              <div class="p-2.5 space-y-2 text-[9px]">
+                <!-- แถบความคืบหน้า + ดูตัวอย่าง -->
+                <div class="bg-white rounded-2xl p-2.5 border border-slate-200 space-y-1.5">
+                  <div class="flex justify-between items-center gap-1">
+                    <span class="font-extrabold text-navy-900 truncate">หมวด 1 : กฎหมายจราจร</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-amber-100 border border-amber-300 text-amber-950 font-bold text-[8px] shrink-0">✨ ดูตัวอย่าง</span>
+                  </div>
+                  <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-maroon-700 to-emerald-500" style="width: 60%;"></div>
+                  </div>
+                  <p class="text-[8px] text-slate-600 font-semibold">ตอบประเด็นช่วงเช้าแล้ว 6 / 10 ข้อ (60%)</p>
+                </div>
+
+                <!-- คิวคำถามช่วงเช้า -->
+                <div class="relative bg-white rounded-2xl border border-amber-300 overflow-hidden">
+                  <span class="pin-badge pin-float top-1 right-1">1</span>
+                  <div class="bg-amber-50 px-2.5 py-1.5 border-b border-amber-200 font-extrabold text-navy-900">
+                    📋 คิวคำถามช่วงเช้าของทุกกลุ่ม (หมวด 1)
+                  </div>
+                  <div class="p-2 space-y-1.5">
+                    <div class="p-2 rounded-xl border border-slate-200 flex items-center justify-between gap-1.5">
+                      <div class="min-w-0">
+                        <span class="px-1 py-0.2 rounded bg-navy-800 text-white font-mono text-[7.5px]">ISS-004</span>
+                        <span class="text-[7.5px] bg-rose-100 text-rose-800 px-1 rounded font-bold">🔴 เร่งด่วนมาก</span>
+                        <p class="font-bold text-slate-800 truncate mt-0.5">เปิดรูปถ่ายใบขับขี่ในมือถือแทนตัวจริงได้ไหม?</p>
+                      </div>
+                      <span class="px-2 py-1 rounded-lg bg-maroon-700 text-white font-extrabold text-[8px] shrink-0">เลือกทำ →</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ฟอร์มตอบ Q&A -->
+                <div class="bg-white rounded-2xl border-2 border-maroon-700/30 overflow-hidden">
+                  <div class="bg-maroon-800 text-white px-2.5 py-1.5 font-extrabold">แบบฟอร์มจัดทำ Q&amp;A (1 ข้อ / ใบงาน)</div>
+                  <div class="p-2.5 space-y-2">
+                    <!-- แถบผูกข้อช่วงเช้า -->
+                    <div class="relative p-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-900 text-[8px] font-bold">
+                      <span class="pin-badge pin-float -top-2 -right-1">2</span>
+                      🔗 กำลังตอบประเด็นช่วงเช้า: <span class="bg-emerald-600 text-white px-1 rounded font-mono">ISS-004</span>
+                    </div>
+
+                    <div>
+                      <p class="font-extrabold text-navy-900">1. คำถาม / ประเด็นปัญหา *</p>
+                      <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-300 text-[8px] mt-0.5">
+                        ประชาชนไม่พกใบขับขี่ตัวจริง เปิดรูปถ่ายในมือถือแทนได้หรือไม่?
+                      </div>
+                    </div>
+
+                    <div>
+                      <p class="font-extrabold text-navy-900">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ *</p>
+                      <div class="p-1.5 rounded-lg bg-slate-50 border border-slate-300 text-[8px] mt-0.5 leading-snug">
+                        ใช้แทนไม่ได้ ต้องแสดงผ่านแอปฯ DLT QR Licence หรือแอปฯ ทางรัฐ เท่านั้น
+                      </div>
+                    </div>
+
+                    <div class="relative p-2 rounded-xl bg-blue-50 border border-blue-200 space-y-1">
+                      <span class="pin-badge pin-float -top-2 -right-1">3</span>
+                      <p class="font-extrabold text-navy-900 text-[8.5px]">3. แหล่งอ้างอิง (กรอก 2 ช่อง)</p>
+                      <div class="grid grid-cols-2 gap-1 text-[7.5px]">
+                        <div class="p-1 rounded bg-white border border-slate-200"><strong>3.1 สื่อ/PPT:</strong> อินโฟกราฟิก ศจร.ตร.</div>
+                        <div class="p-1 rounded bg-white border border-slate-200"><strong>3.2 กฎหมาย:</strong> พ.ร.บ.จราจร ม.31/1</div>
+                      </div>
+                    </div>
+
+                    <div class="relative p-1.5 rounded-xl bg-amber-50 border border-amber-300 text-[8px]">
+                      <span class="pin-badge pin-float -top-2 -right-1">4</span>
+                      <strong class="text-amber-900">4. ข้อควรระวัง:</strong> หากแสดงผ่านแอปฯ DLT ถูกต้อง ห้ามออกใบสั่งข้อหาไม่พกพาเด็ดขาด
+                    </div>
+
+                    <div class="py-1.5 rounded-xl bg-maroon-700 text-white text-center font-extrabold text-[9.5px]">
+                      💾 บันทึกใบงาน Q&amp;A
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- คำอธิบายขั้นตอน -->
+        <div class="lg:col-span-7 space-y-3 text-xs sm:text-sm">
+          <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-300 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">1</span>
+            <div>
+              <p class="font-extrabold text-amber-950">ดึงคำถามช่วงเช้าจากคิวมาตอบแบบอัตโนมัติ (ไม่ต้องพิมพ์ใหม่)</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">ระบบรวบรวมคำถามช่วงเช้าของ <strong>ทั้ง 5 กลุ่ม</strong> ที่ถามเข้ามาในหมวดของท่านไว้ให้แล้ว เพียงกดปุ่ม <strong>“✍️ เลือกทำ Q&amp;A →”</strong> หรือเลือกจาก Dropdown ในข้อ 1 ข้อความคำถามจะถูกดึงลงฟอร์มให้ทันที (และหากอยากเพิ่มคำถามใหม่ที่ไม่มีในช่วงเช้า ก็กดปุ่ม <strong>“+ เพิ่ม Q&amp;A ใหม่”</strong> ได้เลย)</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">2</span>
+            <div>
+              <p class="font-extrabold text-emerald-950">เกลาสำนวนคำถามได้ และระบบอัปเดตสถานะให้อัตโนมัติ</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">เมื่อดึงข้อ <code class="font-mono font-bold">ISS</code> ลงมาแล้ว ท่านสามารถปรับสำนวนคำถามให้สละสลวยเหมาะกับแชทบอท AI ได้ เมื่อกดบันทึก ระบบจะเปลี่ยนสถานะข้อนั้นเป็น <strong>“✅ ทำ Q&amp;A แล้ว”</strong> และขยับแถบความคืบหน้าให้ทันที</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">3</span>
+            <div>
+              <p class="font-extrabold text-navy-900">กรอกแหล่งอ้างอิงให้ครบทั้ง 2 ช่อง (สำคัญมากสำหรับ AI)</p>
+              <p class="text-xs text-slate-700 leading-relaxed mt-0.5">ระบุให้ชัดเจนทั้ง <strong>3.1 สื่อ / อินโฟกราฟิก / PowerPoint</strong> และ <strong>3.2 ระเบียบ / กฎหมาย / มาตรา / หนังสือสั่งการ</strong> เพื่อใช้เป็นฐานอ้างอิงที่เชื่อถือได้ของระบบแชทบอท</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">4</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ระบุข้อควรระวัง / ข้อยกเว้น &amp; ชื่อผู้ตรวจสอบ</p>
+              <p class="text-xs text-slate-600 leading-relaxed mt-0.5">หากมีข้อยกเว้นทางกฎหมายหรือจุดที่เจ้าหน้าที่มักพลาด ให้กรอกในข้อ 4 พร้อมระบุชื่อผู้บันทึกและหัวหน้ากลุ่ม/ผู้ตรวจสอบ หากไม่แน่ใจรูปแบบ สามารถกดปุ่ม <strong>“✨ ดูตัวอย่างการกรอกใบงาน”</strong> ด้านบนดูได้ตลอดเวลา</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 5: คลังความรู้ Q&A & ข้อเสนอแนะ (review.html — แยกสิทธิ์ชัดเจน)       -->
+    <!-- ========================================================================= -->
+    <section id="sec-5" class="print-page-break print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-start gap-3 border-b border-slate-100 pb-3.5">
+        <span class="w-10 h-10 rounded-2xl bg-teal-700 text-gold-400 font-mono text-lg font-extrabold flex items-center justify-center shrink-0">5</span>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">STEP 5 • KNOWLEDGE BASE &amp; EXPERT REVIEW</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">คลังความรู้ Q&amp;A ครบทั้ง 5 หมวด &amp; การบันทึกข้อเสนอแนะ</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">สำหรับอ่านทบทวนทุกหมวด เตรียมนำเสนอวันสุดท้าย และให้ผู้ทรงคุณวุฒิ/วิทยากรบันทึกความเห็นเพิ่มเติม</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- มือถือจำลองหน้า review.html -->
+        <div class="lg:col-span-5">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="bg-gradient-to-r from-teal-950 via-navy-800 to-maroon-800 text-white pt-7 pb-2.5 px-3">
+                <p class="text-[8px] text-gold-400 font-bold">คลังความรู้ Q&amp;A ทั้ง 5 หมวด</p>
+                <p class="text-[11px] font-extrabold leading-tight">📚 คัดกรองคลัง Q&amp;A &amp; ข้อเสนอแนะ</p>
+              </div>
+              <div class="gold-line" style="height:2px;"></div>
+
+              <div class="p-2.5 space-y-2 text-[9px]">
+                <!-- เครื่องมืออ่านสบายตา -->
+                <div class="relative bg-white rounded-2xl p-2 border border-slate-200 flex items-center justify-between gap-1">
+                  <span class="pin-badge pin-float -top-2 -left-1">1</span>
+                  <div class="flex items-center gap-1 text-[8px] font-bold">
+                    <span class="text-slate-500">ตัวอักษร:</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-100">ปกติ</span>
+                    <span class="px-1.5 py-0.5 rounded bg-teal-700 text-white">ใหญ่</span>
+                    <span class="px-1.5 py-0.5 rounded bg-slate-100">ใหญ่มาก</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-lg bg-teal-700 text-white font-bold text-[8px]">⤢ อ่านเต็มจอ</span>
+                </div>
+
+                <!-- การ์ด Q&A ตัวอย่าง -->
+                <div class="bg-white rounded-2xl p-2.5 border border-slate-200 space-y-2" style="border-left: 4px solid #1E3A8A;">
+                  <div class="flex flex-wrap items-center gap-1 text-[8px]">
+                    <span class="px-1.5 py-0.2 rounded bg-teal-800 text-gold-400 font-bold">ข้อที่ 1</span>
+                    <span class="px-1.5 py-0.2 rounded bg-navy-700 text-white font-bold">หมวด 1: กฎหมาย</span>
+                    <span class="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-bold">💬 1 ข้อเสนอแนะ</span>
+                  </div>
+                  <p class="font-extrabold text-slate-900 text-[10px] leading-snug">ถาม: ประชาชนไม่พกใบขับขี่ตัวจริง เปิดรูปถ่ายแทนได้ไหม?</p>
+                  <div class="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-[8.5px] text-slate-800">
+                    <strong class="text-emerald-800">ตอบ:</strong> ใช้ภาพถ่ายแทนไม่ได้ ต้องแสดงผ่านแอปฯ DLT QR Licence หรือ ทางรัฐ เท่านั้น
+                  </div>
+
+                  <!-- กล่องข้อเสนอแนะ -->
+                  <div class="relative p-2 rounded-xl bg-teal-50 border border-teal-300 space-y-1 text-[8px]">
+                    <span class="pin-badge pin-float -top-2 -right-1">2</span>
+                    <p class="font-extrabold text-teal-950">💬 ข้อเสนอแนะจากผู้ทรงคุณวุฒิ / วิทยากร</p>
+                    <div class="p-1.5 rounded-lg bg-white border border-teal-200">
+                      <p class="font-bold text-teal-900">⭐ พ.ต.อ.หญิง จินดา (ผู้ทรงคุณวุฒิ)</p>
+                      <p class="text-slate-700 mt-0.5">คำตอบถูกต้องชัดเจน แนะนำให้ระบุเลข พ.ร.บ. แก้ไขเพิ่มเติมฉบับที่ 12 พ.ศ. 2562 ให้ครบถ้วนครับ</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ตารางสิทธิ์แยกตามบทบาท -->
+        <div class="lg:col-span-7 space-y-3.5 text-xs sm:text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+              <span class="pin-badge mt-0.5">1</span>
+              <div>
+                <p class="font-extrabold text-slate-900">ปรับขนาดตัวอักษร &amp; อ่านทีละข้อเต็มจอ</p>
+                <p class="text-xs text-slate-600 mt-0.5">เลือกขนาดตัวอักษรได้ 3 ระดับ (<strong>ปกติ / ใหญ่ / ใหญ่มาก</strong>) และกดปุ่ม <strong>“อ่านทีละข้อเต็มจอ”</strong> เพื่อเปิดอ่านและกดเลื่อนซ้าย-ขวาได้สะดวกสบายตา</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-teal-50/80 border border-teal-200 flex items-start gap-2">
+              <span class="pin-badge mt-0.5">2</span>
+              <div>
+                <p class="font-extrabold text-teal-950">ข้อเสนอแนะจะแสดงคู่กับคำตอบทันที</p>
+                <p class="text-xs text-slate-700 mt-0.5">สมาชิกกลุ่มสามารถเปิดอ่านข้อเสนอแนะของผู้ทรงคุณวุฒิ/วิทยากร เพื่อนำกลับไปปรับปรุงคำตอบในหน้าใบงานบ่ายให้สมบูรณ์ก่อนนำเสนอในวันที่ 2 ธ.ค.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ตารางสรุปสิทธิ์ผู้ใช้งานแต่ละประเภท -->
+          <div class="rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-3.5 py-2 bg-navy-800 text-white text-xs font-extrabold">
+              สรุปสิทธิ์การใช้งานในระบบใบงาน แยกตามประเภทผู้เข้าร่วม
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                    <th class="py-2 px-3 font-bold">บทบาท</th>
+                    <th class="py-2 px-2.5 font-bold text-center">ใบงานเช้า</th>
+                    <th class="py-2 px-2.5 font-bold text-center">ใบงานบ่าย (Q&amp;A)</th>
+                    <th class="py-2 px-2.5 font-bold text-center">คลัง Q&amp;A / เมนต์</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                  <tr>
+                    <td class="py-2 px-3 font-bold text-navy-900">👥 ผู้เข้าร่วมสัมมนา</td>
+                    <td class="py-2 px-2.5 text-center text-emerald-700 font-semibold">บันทึกครบ 5 หมวด (ตามรอบ)</td>
+                    <td class="py-2 px-2.5 text-center text-emerald-700 font-semibold">ตอบ/แก้ เฉพาะหมวดหลักของกลุ่ม</td>
+                    <td class="py-2 px-2.5 text-center text-slate-600">อ่านได้ครบ 5 หมวด</td>
+                  </tr>
+                  <tr class="bg-amber-50/40">
+                    <td class="py-2 px-3 font-bold text-amber-950">⭐ ผู้ทรงคุณวุฒิ / วิทยากร</td>
+                    <td class="py-2 px-2.5 text-center text-emerald-700 font-semibold">ดูและช่วยบันทึกได้ทุกหมวด</td>
+                    <td class="py-2 px-2.5 text-center text-amber-800 font-semibold">ดูครบ 5 หมวด + กดเพิ่มข้อเสนอแนะ</td>
+                    <td class="py-2 px-2.5 text-center text-teal-800 font-extrabold">อ่านครบ 5 หมวด + บันทึกข้อเสนอแนะ</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-bold text-slate-800">👁️ ผู้แทน DGA / สพร.</td>
+                    <td class="py-2 px-2.5 text-center text-slate-600">ดูข้อมูลอย่างเดียว</td>
+                    <td class="py-2 px-2.5 text-center text-slate-600">ดูข้อมูลอย่างเดียว</td>
+                    <td class="py-2 px-2.5 text-center text-slate-600">อ่านคัดกรองครบ 5 หมวด</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  บทที่ 6: การทำแบบประเมินความพึงพอใจ (นิรนาม 100%)                         -->
+    <!-- ========================================================================= -->
+    <section id="sec-6" class="print-page-break print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-start gap-3 border-b border-slate-100 pb-3.5">
+        <span class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-mono text-lg font-extrabold flex items-center justify-center shrink-0">6</span>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">STEP 6 • ANONYMOUS EVALUATION</span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">การทำแบบประเมินความพึงพอใจ 10 ข้อ (นิรนาม 100%)</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">ทำในวันสุดท้ายของการสัมมนา (2 ธ.ค. 69) เพื่อให้ครบ 4/4 กิจกรรมบนหน้าบัตรของท่าน</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <!-- มือถือจำลองแท็บแบบประเมิน -->
+        <div class="lg:col-span-5">
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="bg-gradient-to-r from-navy-900 to-maroon-800 text-white pt-7 pb-2.5 px-3 text-center">
+                <p class="text-[10.5px] font-extrabold">แบบประเมินความพึงพอใจโครงการ</p>
+              </div>
+
+              <div class="p-2.5 space-y-2 text-[9px]">
+                <!-- Tab Switcher -->
+                <div class="relative grid grid-cols-2 gap-1 p-1 bg-white rounded-xl border border-slate-200 font-bold text-center">
+                  <span class="pin-badge pin-float -top-2 right-1">1</span>
+                  <div class="py-1 rounded-lg text-slate-500">📖 ข้อมูล &amp; เอกสาร</div>
+                  <div class="py-1 rounded-lg bg-maroon-700 text-white">⭐ แบบประเมินผล</div>
+                </div>
+
+                <!-- ป้ายนิรนาม -->
+                <div class="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[8px] leading-snug">
+                  <strong>🛡️ แบบประเมินนิรนาม 100%:</strong> ไม่บันทึกชื่อหรือรหัสคู่กับผลคะแนน
+                </div>
+
+                <!-- ข้อคำถามตัวอย่าง -->
+                <div class="relative bg-white rounded-2xl p-2.5 border border-slate-200 space-y-2">
+                  <span class="pin-badge pin-float -top-2 -right-1">2</span>
+                  <span class="inline-block px-2 py-0.5 rounded bg-navy-700 text-white text-[8px] font-bold">มิติที่ 1: ด้านเนื้อหาสาระ</span>
+                  <p class="font-bold text-slate-800 leading-snug">1. ความชัดเจนและประโยชน์ของการบรรยายเรื่องระบบ AI Chatbot "คู่หูจราจร"</p>
+                  <div class="grid grid-cols-5 gap-1 text-center font-bold text-[8.5px]">
+                    <div class="py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600">1</div>
+                    <div class="py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600">2</div>
+                    <div class="py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600">3</div>
+                    <div class="py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600">4</div>
+                    <div class="py-1.5 rounded-lg border-2 border-maroon-700 bg-maroon-700 text-white shadow">5<div class="text-[6.5px] font-normal">มากที่สุด</div></div>
+                  </div>
+                </div>
+
+                <!-- ช่องข้อเสนอแนะ & ปุ่มส่ง -->
+                <div class="bg-white rounded-2xl p-2.5 border border-slate-200 space-y-1.5">
+                  <p class="font-bold text-slate-800">ข้อเสนอแนะเพิ่มเติม (ไม่บังคับ)</p>
+                  <div class="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-[8px]">อยากให้เพิ่มฟีเจอร์ค้นหามาตรา...</div>
+                  <div class="relative py-2 rounded-xl bg-maroon-700 text-white text-center font-extrabold text-[9.5px]">
+                    <span class="pin-badge pin-float -top-2 -right-1">3</span>
+                    ส่งแบบประเมินความพึงพอใจ
+                  </div>
+                </div>
+
+                <!-- Progress 4/4 -->
+                <div class="bg-white rounded-xl p-2 border border-emerald-200 space-y-1">
+                  <div class="flex justify-between text-[8px] font-bold">
+                    <span class="text-slate-700">ความคืบหน้ากิจกรรม</span>
+                    <span class="text-emerald-700">4/4 (100%)</span>
+                  </div>
+                  <div class="grid grid-cols-4 gap-1 text-center text-[7.5px] font-extrabold text-emerald-800">
+                    <div class="py-0.5 rounded bg-emerald-50 border border-emerald-300">✓ 30 พ.ย.</div>
+                    <div class="py-0.5 rounded bg-emerald-50 border border-emerald-300">✓ 1 ธ.ค.</div>
+                    <div class="py-0.5 rounded bg-emerald-50 border border-emerald-300">✓ 2 ธ.ค.</div>
+                    <div class="py-0.5 rounded bg-emerald-50 border border-emerald-300">✓ ประเมิน</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- คำอธิบาย -->
+        <div class="lg:col-span-7 space-y-3 text-xs sm:text-sm">
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">1</span>
+            <div>
+              <p class="font-extrabold text-slate-900">เปิดแท็บ “⭐ แบบประเมินผล” บนหน้าบัตร E-Pass</p>
+              <p class="text-xs text-slate-600 mt-0.5">กดสลับแท็บที่ด้านใต้บัตรประจำตัว หรือกดปุ่มสีแดง <strong>“ทำแบบประเมิน”</strong> ที่ด้านล่างสุดของหน้า</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">2</span>
+            <div>
+              <p class="font-extrabold text-slate-900">ให้คะแนน 1–5 ครบทั้ง 10 ข้อ (น้อยที่สุด 1 → มากที่สุด 5)</p>
+              <p class="text-xs text-slate-600 mt-0.5">แบ่งเป็น <strong>มิติที่ 1 เนื้อหาสาระ (ข้อ 1–4)</strong>, <strong>มิติที่ 2 การจัดงานและสถานที่ (ข้อ 5–9)</strong> และ <strong>ภาพรวมโครงการ (ข้อ 10)</strong> พร้อมพิมพ์ข้อเสนอแนะเพิ่มเติมสำหรับระบบ AI คู่หูจราจร</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-2.5">
+            <span class="pin-badge mt-0.5">3</span>
+            <div>
+              <p class="font-extrabold text-emerald-950">กดส่งแบบประเมิน — มั่นใจได้ว่าเป็นนิรนาม 100%</p>
+              <p class="text-xs text-slate-700 mt-0.5">ระบบจะบันทึกเฉพาะคะแนนและข้อเสนอแนะแยกต่างหากโดย <strong>ไม่ผูกกับชื่อของท่าน</strong> และจะประทับตรา <strong>“✓ ประเมิน”</strong> บนหน้าบัตรให้ครบ 4/4 กิจกรรม (100%) ทันที</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--  คำถามที่พบบ่อย (FAQ) & การแก้ปัญหาเบื้องต้นหน้างาน                         -->
+    <!-- ========================================================================= -->
+    <section class="print-break-avoid bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+      <h2 class="text-base sm:text-lg font-extrabold text-navy-900 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </span>
+        คำถามที่พบบ่อย &amp; วิธีแก้ไขปัญหาเบื้องต้นหน้างาน
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <p class="font-extrabold text-navy-900">❓ ทำไมเปิดลิงก์แล้วขึ้นข้อความให้ “สแกน QR Code ประจำตัว”?</p>
+          <p class="text-slate-600 leading-relaxed">เพื่อความปลอดภัยของข้อมูลส่วนบุคคล บัตร E-Pass จะเปิดแสดงเฉพาะเมื่อสแกน <strong>QR Code ด้านหน้าป้ายคล้องคอของท่านเอง</strong> เท่านั้น (ไม่แสดงรายชื่อคนอื่น)</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <p class="font-extrabold text-navy-900">❓ ช่วงเช้าทำไมกดเลือกหมวดถัดไปไม่ได้ (ขึ้นรูปแม่กุญแจ 🔒)?</p>
+          <p class="text-slate-600 leading-relaxed">ระบบจะปลดล็อกเฉพาะหมวดของรอบปัจจุบันและหมวดที่กลุ่มท่านผ่านมาแล้ว เมื่อหมดเวลารอบละ 30 นาทีและเจ้าหน้าที่กดเปลี่ยนรอบบนเวที หมวดถัดไปจะปลดล็อกให้เองอัตโนมัติครับ</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <p class="font-extrabold text-slate-900">❓ หากส่งผู้แทนเข้าร่วม หรืออยากแก้คู่พัก/แนบหนังสือส่งตัว ทำอย่างไร?</p>
+          <p class="text-slate-600 leading-relaxed">กดปุ่ม <strong>“ขอแก้ไข / แจ้งผู้แทน”</strong> ใต้หน้าบัตร กรอกข้อมูลหรือแนบไฟล์ (ไม่เกิน 5MB) แล้วกดส่ง คำขอจะเด้งแจ้งเจ้าหน้าที่โต๊ะลงทะเบียนเพื่ออนุมัติอัปเดตทันที</p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <p class="font-extrabold text-slate-900">❓ สแกนจากแอป LINE แล้วแนบไฟล์หรือกดปุ่มไม่สะดวก ทำอย่างไร?</p>
+          <p class="text-slate-600 leading-relaxed">ให้แตะจุด 3 จุดมุมขวาล่างในหน้าต่าง LINE แล้วเลือก <strong>“เปิดในเบราว์เซอร์เริ่มต้น (Open in Safari / Chrome)”</strong> จะใช้งานได้ลื่นไหลและอัปโหลดไฟล์ได้สมบูรณ์ครับ</p>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-gradient-to-r from-navy-900 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2">
+          <i data-lucide="headset" class="w-4 h-4 text-gold-400 shrink-0"></i>
+          <span>หากพบปัญหาการใช้งาน ลืมป้ายชื่อ หรือต้องการความช่วยเหลือ กรุณาติดต่อ <strong>เจ้าหน้าที่กองอำนวยการสัมมนา (โต๊ะลงทะเบียนด้านหน้าห้องประชุม)</strong></span>
+        </div>
+        <span class="font-mono text-gold-300 font-bold">ศจร.ตร. • สยศ.ตร.</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center py-5 text-[11px] text-slate-400">
+    โครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI “คู่หูจราจร” • 30 พ.ย. – 2 ธ.ค. 2569
+  </footer>
+
+  <script>
+    let demoEpassSide = 'front';
+
+    function toggleDemoEpass(targetSide) {
+      if (targetSide === 'front' || targetSide === 'back') {
+        demoEpassSide = targetSide;
+      } else {
+        demoEpassSide = demoEpassSide === 'front' ? 'back' : 'front';
+      }
+      const isFront = demoEpassSide === 'front';
+      document.getElementById('epass-demo-front')?.classList.toggle('hidden', !isFront);
+      document.getElementById('epass-demo-back')?.classList.toggle('hidden', isFront);
+
+      const btnFront = document.getElementById('demo-epass-btn-front');
+      const btnBack = document.getElementById('demo-epass-btn-back');
+      if (btnFront && btnBack) {
+        btnFront.className = isFront
+          ? 'px-3 py-1.5 rounded-lg font-extrabold bg-navy-700 text-white transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 transition';
+        btnBack.className = !isFront
+          ? 'px-3 py-1.5 rounded-lg font-extrabold bg-navy-700 text-white transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 transition';
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) lucide.createIcons();
+      });
+    } else {
+      if (window.lucide) lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
