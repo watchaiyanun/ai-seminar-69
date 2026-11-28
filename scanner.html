@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ใบงานที่ 1 ช่วงเช้า (ระดมสมองครบ 5 หมวด) - AI คู่หูจราจร</title>
+  <title>สแกน QR เช็กอิน HD &amp; เสียงพูดต้อนรับ - แชทบอท AI คู่หูจราจร</title>
 
-  <!-- Google Fonts: Sarabun -->
+  <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Sarabun', 'sans-serif'] },
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
           colors: {
             navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
-            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
-            gold: { 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
           }
         }
       }
@@ -29,814 +29,938 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- jsQR สำหรับสแกน QR Code ความเร็วสูง -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
   <style>
     html, body {
-      font-family: 'Sarabun', sans-serif;
+      font-family: 'Prompt', sans-serif;
       max-width: 100%;
       overflow-x: hidden;
     }
     .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    .gold-line {
-      height: 3px;
-      background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.2) 100%);
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    @keyframes scanLaser {
+      0%, 100% { top: 14%; opacity: 0.45; }
+      50% { top: 84%; opacity: 1; }
+    }
+    .scan-laser-line {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      height: 2.5px;
+      background: linear-gradient(90deg, transparent, #34d399, #fde68a, #34d399, transparent);
+      box-shadow: 0 0 12px #10b981;
+      animation: scanLaser 2.2s ease-in-out infinite;
     }
 
-    /* รูปแบบสำหรับสั่งพิมพ์ / บันทึกเป็น PDF สำหรับคณะทำงาน (Admin) */
-    @media print {
-      @page { size: A4 portrait; margin: 12mm; }
-      body { background: #ffffff !important; color: #0f172a !important; }
-      .no-print { display: none !important; }
-      #print-report-container { display: block !important; }
-      table { page-break-inside: auto; }
-      tr { page-break-inside: avoid; page-break-after: auto; }
+    @keyframes screenFlashGreen {
+      0% { box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0); }
+      30% { box-shadow: inset 0 0 0 12px rgba(16, 185, 129, 0.85); }
+      100% { box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0); }
     }
+    .flash-success { animation: screenFlashGreen 0.65s ease-out; }
+
+    @keyframes screenFlashAmber {
+      0% { box-shadow: inset 0 0 0 0 rgba(245, 158, 11, 0); }
+      30% { box-shadow: inset 0 0 0 12px rgba(245, 158, 11, 0.85); }
+      100% { box-shadow: inset 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .flash-warn { animation: screenFlashAmber 0.65s ease-out; }
+
+    @keyframes focusRingPop {
+      0% { transform: translate(-50%, -50%) scale(1.35); opacity: 1; }
+      65% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.95; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+    .focus-ring-pop { animation: focusRingPop 0.85s ease-out forwards; }
+
+    @keyframes cardPopIn {
+      0% { transform: scale(0.96); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .welcome-card-pop { animation: cardPopIn 0.25s ease-out; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
 
-  <!-- ==================== TOP HEADER BAR ==================== -->
-  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-md">
-    <div class="max-w-5xl mx-auto px-3.5 sm:px-5 py-3 flex flex-wrap items-center justify-between gap-2.5">
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-md border-b-2 border-amber-400/75">
+    <div class="max-w-[1500px] mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand -->
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-10 h-10 rounded-xl bg-white/10 border border-gold-400/75 flex items-center justify-center shrink-0">
-          <i data-lucide="sun" class="w-5 h-5 text-gold-400"></i>
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/70 flex items-center justify-center shrink-0">
+          <i data-lucide="scan-line" class="w-5 h-5 text-emerald-300"></i>
         </div>
         <div class="min-w-0">
-          <p class="text-[11px] font-bold tracking-wider uppercase text-gold-400 leading-none truncate">ศูนย์บริหารงานจราจร ตร. (ศจร.ตร.) • วันที่ 2 (1 ธ.ค. 2569)</p>
-          <h1 class="text-base sm:text-lg font-extrabold leading-tight truncate mt-0.5">ใบงานที่ 1 ช่วงเช้า : ระดมสมองครบทั้ง 5 หมวด</h1>
-          <div class="flex items-center gap-1.5 text-[11px] text-blue-100/90 mt-0.5">
-            <span id="sync-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
-            <span id="sync-text" class="truncate">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
+          <h1 class="text-sm sm:text-base font-extrabold leading-tight truncate">สถานีสแกน QR เช็กอิน HD</h1>
+          <div class="flex items-center gap-2 text-[11px] text-blue-100/85">
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
+            <span id="sync-status-text" class="truncate">กำลังเชื่อมต่อ Google Sheets...</span>
           </div>
         </div>
       </div>
 
-      <!-- ปุ่มนำทางข้ามหน้า (เชื่อมกับบัตร, ช่วงบ่าย, คลังคัดกรอง และจอเวที) -->
-      <div class="flex flex-wrap items-center gap-1.5 shrink-0">
-        <a id="nav-back-portal" href="portal.html" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-xs font-bold text-white transition">
+      <!-- Day Switcher -->
+      <div class="flex items-center bg-black/25 p-0.5 rounded-xl border border-white/15 text-xs">
+        <button type="button" onclick="selectDay('day1')" id="btn-day1" class="px-2.5 py-1.5 rounded-lg font-bold transition">30 พ.ย.</button>
+        <button type="button" onclick="selectDay('day2')" id="btn-day2" class="px-2.5 py-1.5 rounded-lg font-semibold transition">1 ธ.ค.</button>
+        <button type="button" onclick="selectDay('day3')" id="btn-day3" class="px-2.5 py-1.5 rounded-lg font-semibold transition">2 ธ.ค.</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-sm transition">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-          <span>กลับบัตร</span>
+          <span>Dashboard</span>
         </a>
-        <a id="nav-to-afternoon" href="afternoon.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-rose-300/40 text-xs font-bold text-white transition" title="สลับไปหน้าใบงานช่วงบ่าย (จัดทำคำตอบ Q&A)">
-          <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-gold-400"></i>
-          <span>ช่วงบ่าย (Q&amp;A)</span>
+        <a href="monitor.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดหน้าจอ Live TV">
+          <i data-lucide="tv" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Live TV</span>
         </a>
-        <a id="nav-to-review" href="review.html" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-600 border border-teal-300/40 text-xs font-bold text-white transition" title="เปิดหน้าคัดกรองคลังคำถาม-คำตอบและข้อเสนอแนะ">
-          <i data-lucide="library" class="w-3.5 h-3.5 text-gold-400"></i>
-          <span class="hidden sm:inline">คลัง Q&amp;A</span>
-        </a>
-        <a id="nav-to-display" href="display.html" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 text-xs font-extrabold shadow-xs transition" title="เปิดจอแสดงผลโปรเจกเตอร์หน้าเวที">
-          <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">จอเวที</span>
-        </a>
-        <button type="button" onclick="fetchAllData(true)" title="รีเฟรชข้อมูลล่าสุด" class="p-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        <button type="button" onclick="fetchParticipants(true)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="รีเฟรชข้อมูลล่าสุด">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="toggleFullscreen()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-amber-300 transition" title="เปิดเต็มจอ">
+          <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="สลับโหมดกลางวัน / กลางคืน">
+          <i data-lucide="moon" class="w-3.5 h-3.5"></i>
         </button>
       </div>
     </div>
-    <div class="gold-line"></div>
   </header>
 
-  <!-- ==================== MAIN WORKSPACE ==================== -->
-  <main class="no-print max-w-5xl w-full mx-auto px-3.5 sm:px-5 py-4 space-y-4 flex-1 pb-12">
-
-    <!-- 1. การ์ดแสดงตัวตน บทบาทสิทธิ์ และคำชี้แจงกิจกรรมช่วงเช้า -->
-    <section id="role-banner-card" class="bg-white rounded-3xl p-4 sm:p-5 border-2 border-navy-700/20 shadow-xs space-y-3">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2 min-w-0">
-          <span id="ctx-code" class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-gold-400 font-mono text-xs font-extrabold shrink-0">KM69</span>
-          <strong id="ctx-name" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">ผู้เข้าร่วมสัมมนา</strong>
+  <!-- ==================== VOICE ACTIVATION & TTS CONTROL BAR ==================== -->
+  <section class="max-w-[1500px] w-full mx-auto px-3 sm:px-5 pt-3">
+    <!-- แบนเนอร์ปลดล็อกเสียงอัตโนมัติ (แสดงจนกว่าผู้ใช้จะแตะหน้าจอ 1 ครั้ง) -->
+    <div id="voice-unlock-banner" class="mb-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-slate-950 shadow-md border-2 border-amber-200 flex flex-wrap items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-slate-950/15 flex items-center justify-center shrink-0 animate-pulse">
+          <i data-lucide="volume-2" class="w-5 h-5"></i>
         </div>
-        <span id="ctx-role-badge" class="px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0">👥 ผู้เข้าร่วมสัมมนา</span>
+        <div class="min-w-0">
+          <p class="text-xs sm:text-sm font-extrabold leading-tight">แตะปุ่ม "เปิดเสียงต้อนรับ" 1 ครั้ง ก่อนเริ่มสแกน</p>
+          <p class="text-[11px] font-medium opacity-90">เพื่อปลดล็อกข้อจำกัดของเบราว์เซอร์ ให้เสียงพูดอ่านยศ-ชื่อ-สกุลดังชัดเจนทุกครั้งที่สแกน</p>
+        </div>
       </div>
+      <button type="button" onclick="activateAndTestVoice(true)" class="px-4 py-2 rounded-xl bg-slate-950 hover:bg-navy-900 text-amber-300 text-xs font-extrabold shadow-sm shrink-0 transition">
+        🔊 เปิดเสียงต้อนรับทันที
+      </button>
+    </div>
 
-      <div id="ctx-role-guide" class="p-3 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
-
-      <!-- แถบความคืบหน้าหมุนเวียนครบ 5 หมวดของกลุ่มปัจจุบัน -->
-      <div id="group-5cat-progress-box" class="space-y-1.5 pt-1">
-        <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
-          <span id="group-5cat-label" class="font-extrabold text-navy-900">ความคืบหน้าการระดมสมองครบ 5 หมวด (กลุ่มที่ 1):</span>
-          <span id="group-5cat-count" class="font-mono font-extrabold text-emerald-700">0 / 5 หมวด</span>
-        </div>
-        <div id="group-5cat-pills" class="grid grid-cols-5 gap-1.5"></div>
-      </div>
-    </section>
-
-    <!-- 2. แผงควบคุมสำหรับคณะทำงาน (ADMIN PANEL: คุมรอบ + Matrix 5×5 + เลือกขอบเขต Export) -->
-    <section id="admin-control-panel" class="hidden bg-white rounded-3xl border-2 border-indigo-300 shadow-sm overflow-hidden">
-      <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-indigo-900 via-navy-800 to-navy-900 text-white flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-4 h-4 text-gold-400"></i>
-          <h2 class="font-extrabold text-sm sm:text-base">แผงควบคุมคณะทำงาน (Admin) — คุมรอบหมุนเวียน • ภาพรวม 5×5 • ส่งออกข้อมูล</h2>
-        </div>
-        <button type="button" onclick="toggleAdminMatrix()" id="btn-toggle-matrix" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
-          ซ่อนตารางสรุป
+    <!-- แถบตั้งค่าเสียงพูดต้อนรับ -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-2.5 sm:p-3 border border-slate-200 dark:border-slate-700 shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="toggleScannerVoice()" id="btn-scan-voice" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-2xs transition">
+          <i data-lucide="volume-2" class="w-4 h-4"></i>
+          <span id="voice-toggle-label">เสียงพูดต้อนรับ: เปิด</span>
         </button>
+
+        <button type="button" onclick="activateAndTestVoice(false)" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white font-bold transition" title="ทดสอบอ่านยศ ชื่อ-สกุลภาษาไทย">
+          <i data-lucide="play" class="w-3.5 h-3.5 text-amber-300"></i>
+          <span>ทดสอบเสียง</span>
+        </button>
+
+        <span id="voice-status-pill" class="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 text-[11px] font-semibold">
+          กำลังตรวจสอบเสียงภาษาไทย...
+        </span>
       </div>
 
-      <!-- แถบเลือกขอบเขตการ Export ข้อมูล (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) -->
-      <div class="px-4 sm:px-5 py-3 bg-slate-50 border-b border-indigo-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="font-extrabold text-navy-900 flex items-center gap-1">
-            <i data-lucide="filter" class="w-3.5 h-3.5 text-indigo-700"></i> ขอบเขตส่งออก:
-          </span>
-          <select id="export-scope-mode" onchange="onExportScopeModeChange()" class="px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-indigo-600">
-            <option value="all">ทั้งหมด (ทุกกลุ่ม • ทุกหมวด)</option>
-            <option value="by_group">เฉพาะกลุ่มที่เลือก (ครบ 5 หมวดของกลุ่ม)</option>
-            <option value="by_cat">เฉพาะหมวดที่เลือก (ทุกกลุ่มในหมวดนั้น)</option>
-          </select>
-          <select id="export-scope-value" onchange="updateExportScopePreview()" class="hidden px-2.5 py-1.5 rounded-xl border border-indigo-300 bg-white font-bold text-maroon-800 focus:outline-none focus:ring-2 focus:ring-indigo-600"></select>
-          <span id="export-scope-count" class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-900 font-mono font-extrabold">พร้อมส่งออก 0 ข้อ</span>
-        </div>
+      <div class="flex flex-wrap items-center gap-1.5">
+        <select id="voice-engine-select" onchange="onVoiceSettingChange()" title="เลือกแหล่งเสียงพูดภาษาไทย" class="px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-[11px] font-bold">
+          <option value="auto">🔊 เสียง: อัตโนมัติ (แนะนำ)</option>
+          <option value="local">📱 เสียงในเครื่อง (Web Speech)</option>
+          <option value="online">🌐 เสียงไทยออนไลน์สำรอง</option>
+        </select>
 
-        <div class="flex flex-wrap items-center gap-1.5">
-          <button type="button" onclick="exportMorningExcelCsv()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition">
-            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel (CSV)
-          </button>
-          <button type="button" onclick="exportMorningText()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-extrabold transition">
-            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Text (.txt)
-          </button>
-          <button type="button" onclick="exportMorningPdfPrint()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-maroon-700 hover:bg-maroon-600 border border-gold-400/50 text-white text-xs font-extrabold transition">
-            <i data-lucide="printer" class="w-3.5 h-3.5 text-gold-400"></i> PDF / พิมพ์
-          </button>
-        </div>
+        <select id="voice-ending-select" onchange="onVoiceSettingChange()" title="คำลงท้ายต้อนรับ" class="px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-[11px] font-bold">
+          <option value="ครับ">ลงท้าย: ครับ</option>
+          <option value="ค่ะ">ลงท้าย: ค่ะ</option>
+          <option value="">ไม่ใส่คำลงท้าย</option>
+        </select>
+
+        <select id="voice-rate-select" onchange="onVoiceSettingChange()" title="ความเร็วเสียงพูด" class="px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-[11px] font-bold">
+          <option value="0.9">ช้า (0.9x)</option>
+          <option value="1.0" selected>ปกติ (1.0x)</option>
+          <option value="1.1">กระชับ (1.1x)</option>
+        </select>
       </div>
+    </div>
+  </section>
 
-      <div id="admin-panel-body" class="p-4 sm:p-5 space-y-4 text-xs sm:text-sm">
-        <!-- ควบคุมรอบหมุนเวียนกลาง (ซิงค์ขึ้นเวทีและบัตรทุกคน) -->
-        <div class="p-3.5 rounded-2xl bg-indigo-50/75 border border-indigo-200 space-y-2.5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p class="font-extrabold text-indigo-950">🔄 ควบคุมรอบหมุนเวียน World Café (รอบที่ 1–5)</p>
-              <p class="text-[11px] text-indigo-700">กดเลือกรอบแล้วกด “ซิงค์รอบให้ทุกคน” เพื่อย้ายโต๊ะและปลดล็อกหมวดถัดไปให้ผู้เข้าร่วมทุกคนอัตโนมัติ</p>
-            </div>
-            <button type="button" id="btn-admin-sync-round" onclick="syncAdminRoundToServer()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold shadow-xs transition">
-              <i data-lucide="radio" class="w-3.5 h-3.5 text-gold-400"></i>
-              <span id="btn-admin-sync-round-text">ซิงค์รอบ 1 ให้ทุกคน</span>
+  <!-- ==================== MAIN 2-COLUMN WORKSPACE ==================== -->
+  <main class="max-w-[1500px] w-full mx-auto px-3 sm:px-5 py-3.5 grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+
+    <!-- ==================== LEFT COLUMN: HD CAMERA SCANNER ==================== -->
+    <section class="lg:col-span-6 xl:col-span-5 flex flex-col gap-3">
+      <div class="bg-slate-950 text-white rounded-3xl shadow-xl border-2 border-emerald-400/70 overflow-hidden flex flex-col">
+        <!-- Scanner Toolbar -->
+        <div class="px-4 py-2.5 bg-gradient-to-r from-navy-900 to-emerald-900 border-b border-white/15 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span id="cam-live-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span class="font-bold text-xs sm:text-sm truncate">กล้องสแกน QR (<span id="scan-day-badge">30 พ.ย.</span>)</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="toggleScannerMode()" id="btn-scan-mode" title="สลับโหมดสแกนรัว / ตรวจก่อนเช็กอิน" class="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[11px] font-bold transition">
+              สแกนรัว
+            </button>
+            <button type="button" onclick="switchScannerCamera()" title="สลับกล้องหน้า/หลัง" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
+              <i data-lucide="switch-camera" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="toggleScannerTorch()" id="btn-scan-torch" title="เปิด/ปิด ไฟแฟลช" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
+              <i data-lucide="flashlight" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="toggleCameraPause()" id="btn-cam-power" title="หยุด/เปิดกล้องชั่วคราว" class="px-2.5 py-1 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-[11px] font-bold transition">
+              พักกล้อง
             </button>
           </div>
-          <div id="admin-round-buttons" class="grid grid-cols-5 gap-2"></div>
         </div>
 
-        <!-- ตารางภาพรวม Matrix 5 กลุ่ม × 5 หมวด -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <p class="font-extrabold text-navy-900">📊 สรุปจำนวนประเด็นช่วงเช้า (Matrix 5 กลุ่ม × 5 หมวด) — แตะตัวเลขเพื่อกรองดูรายการ</p>
-            <span id="admin-total-issues-pill" class="px-2.5 py-0.5 rounded-full bg-navy-800 text-gold-400 font-mono text-xs font-extrabold">รวม 0 ข้อ</span>
-          </div>
-          <div class="overflow-x-auto custom-scroll rounded-2xl border border-slate-200">
-            <table class="w-full text-center border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 text-navy-900 border-b border-slate-200">
-                  <th class="py-2 px-2.5 text-left font-extrabold">กลุ่ม / หมวด</th>
-                  <th class="py-2 px-2 font-extrabold">หมวด 1<br><span class="font-normal text-[10px] text-slate-500">กฎหมาย</span></th>
-                  <th class="py-2 px-2 font-extrabold">หมวด 2<br><span class="font-normal text-[10px] text-slate-500">SOP</span></th>
-                  <th class="py-2 px-2 font-extrabold">หมวด 3<br><span class="font-normal text-[10px] text-slate-500">PTM/TPCC</span></th>
-                  <th class="py-2 px-2 font-extrabold">หมวด 4<br><span class="font-normal text-[10px] text-slate-500">การเงิน</span></th>
-                  <th class="py-2 px-2 font-extrabold">หมวด 5<br><span class="font-normal text-[10px] text-slate-500">ข้อโต้แย้ง</span></th>
-                  <th class="py-2 px-2.5 font-extrabold bg-blue-50 text-navy-800">รวม</th>
-                </tr>
-              </thead>
-              <tbody id="admin-matrix-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
-            </table>
-          </div>
+        <!-- Camera Device Picker -->
+        <div id="scan-device-bar" class="hidden px-3 py-1.5 bg-slate-900 border-b border-white/10 flex items-center gap-2 text-[11px]">
+          <span class="text-slate-400 shrink-0">📷 เลือกกล้อง:</span>
+          <select id="scan-camera-select" onchange="selectScannerDevice(this.value)" class="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-[11px] focus:outline-none"></select>
         </div>
-      </div>
-    </section>
 
-    <!-- 3. แถบแจ้งเตือนเมื่อเจ้าหน้าที่เปลี่ยนรอบระหว่างที่กำลังพิมพ์ค้างอยู่ -->
-    <section id="round-change-banner" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-2 border-amber-400 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 animate-bounce">
-          <i data-lucide="bell-ring" class="w-5 h-5"></i>
-        </span>
-        <p id="round-change-text" class="text-xs sm:text-sm font-extrabold text-amber-950 leading-snug"></p>
-      </div>
-      <div class="flex items-center gap-1.5 shrink-0">
-        <button type="button" id="btn-jump-station" onclick="jumpToLiveStation()" class="px-3.5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-extrabold shadow-xs transition">
-          ย้ายโต๊ะทั้งกลุ่ม →
-        </button>
-        <button type="button" onclick="dismissRoundChangeBanner()" class="px-2.5 py-2 rounded-xl bg-white/85 hover:bg-white border border-amber-300 text-amber-900 text-xs font-bold transition">
-          อยู่โต๊ะเดิมก่อน
-        </button>
-      </div>
-    </section>
+        <!-- Camera Viewport -->
+        <div id="scanner-viewport" onclick="handleTapToFocus(event)" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none">
+          <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
 
-    <!-- 4. การ์ดแสดงผู้เชี่ยวชาญประจำโต๊ะ & สมาชิกทั้งกลุ่มที่ย้ายโต๊ะมาด้วยกัน -->
-    <section class="bg-white rounded-3xl border border-indigo-200 shadow-xs overflow-hidden">
-      <button type="button" onclick="toggleRosterCard()" class="w-full px-4 sm:px-5 py-3 bg-indigo-50/75 hover:bg-indigo-100/70 flex flex-wrap items-center justify-between gap-2 text-left transition">
-        <div class="flex items-center gap-2 min-w-0">
-          <span class="w-8 h-8 rounded-xl bg-indigo-700 text-gold-400 flex items-center justify-center shrink-0">
-            <i data-lucide="users" class="w-4 h-4"></i>
-          </span>
-          <div class="min-w-0">
-            <p id="roster-title" class="text-xs sm:text-sm font-extrabold text-navy-900 truncate">รายชื่อประจำโต๊ะที่ 1 — ผู้เชี่ยวชาญ + สมาชิกกลุ่มที่ 1</p>
-            <p id="roster-sub" class="text-[11px] text-indigo-800 truncate">รอบเวทีปัจจุบัน: รอบที่ 1 / 5 (ควบคุมโดยเจ้าหน้าที่)</p>
+          <!-- Viewfinder Overlay -->
+          <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/30">
+            <div class="scan-laser-line opacity-75"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[62%] aspect-square max-w-[260px]">
+              <span class="absolute top-0 left-0 w-6 h-6 border-t-[3.5px] border-l-[3.5px] border-emerald-400 rounded-tl-xl"></span>
+              <span class="absolute top-0 right-0 w-6 h-6 border-t-[3.5px] border-r-[3.5px] border-emerald-400 rounded-tr-xl"></span>
+              <span class="absolute bottom-0 left-0 w-6 h-6 border-b-[3.5px] border-l-[3.5px] border-emerald-400 rounded-bl-xl"></span>
+              <span class="absolute bottom-0 right-0 w-6 h-6 border-b-[3.5px] border-r-[3.5px] border-emerald-400 rounded-br-xl"></span>
+            </div>
+          </div>
+
+          <div id="scan-res-badge" class="hidden pointer-events-none absolute top-2.5 left-3 px-2 py-0.5 rounded-lg bg-black/65 border border-white/15 font-mono text-[10.5px] font-bold text-emerald-300">
+            HD • AF
+          </div>
+
+          <div id="scan-focus-ring" class="hidden pointer-events-none absolute w-14 h-14 rounded-full border-2 border-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.7)] z-10"></div>
+
+          <!-- Camera Paused / Error Overlay -->
+          <div id="scan-camera-error-box" onclick="event.stopPropagation()" class="hidden absolute inset-0 bg-slate-950/90 p-5 flex flex-col items-center justify-center text-center gap-3 z-20">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-400/50 text-rose-300 flex items-center justify-center">
+              <i data-lucide="camera-off" class="w-6 h-6"></i>
+            </div>
+            <p id="scan-camera-error-msg" class="text-xs sm:text-sm text-rose-200 leading-relaxed max-w-xs">ไม่สามารถเปิดกล้องได้</p>
+            <button type="button" onclick="unlockAllAudio(); startCameraStream();" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition">
+              เปิดกล้องสแกน
+            </button>
+          </div>
+
+          <div id="scan-camera-status" class="pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/75 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
+            กำลังเปิดกล้อง...
           </div>
         </div>
-        <span id="roster-toggle-text" class="px-2.5 py-1 rounded-lg bg-white border border-indigo-200 text-indigo-800 text-[11px] font-bold shrink-0">ซ่อนรายชื่อ</span>
-      </button>
 
-      <div id="roster-body" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs border-t border-indigo-100">
-        <div class="p-3 rounded-2xl bg-amber-50/75 border border-amber-200 space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <span id="roster-exp-title" class="font-extrabold text-amber-950">⭐ ผู้เชี่ยวชาญประจำโต๊ะที่ 1 (นั่งประจำไม่ย้ายโต๊ะ)</span>
-            <span id="roster-exp-cnt" class="px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 font-mono text-[10.5px] font-extrabold">0 ราย</span>
+        <!-- Zoom Control Bar -->
+        <div id="scan-zoom-bar" class="hidden px-3.5 py-2 bg-slate-900 border-t border-white/10 flex items-center gap-2 text-[11px]">
+          <span class="text-slate-400 shrink-0 font-semibold">🔍 ซูม:</span>
+          <input type="range" id="scan-zoom-slider" min="1" max="3" step="0.1" value="1" oninput="setScannerZoom(this.value)" class="flex-1 accent-emerald-400 h-1.5 cursor-pointer" />
+          <span id="scan-zoom-value" class="font-mono font-bold text-emerald-300 w-9 text-right shrink-0">1.0x</span>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="setScannerZoom(1)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1x</button>
+            <button type="button" onclick="setScannerZoom(1.5)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1.5x</button>
+            <button type="button" onclick="setScannerZoom(2)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">2x</button>
           </div>
-          <div id="roster-exp-chips" class="flex flex-wrap gap-1.5"></div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-blue-50/75 border border-blue-200 space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <span id="roster-mem-title" class="font-extrabold text-navy-900">👥 สมาชิกกลุ่มที่ 1 (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)</span>
-            <span id="roster-mem-cnt" class="px-2 py-0.5 rounded-full bg-blue-200 text-navy-900 font-mono text-[10.5px] font-extrabold">0 ราย</span>
+        <!-- Confirm Mode Banner (เมื่อเปิดโหมดตรวจชื่อก่อนยืนยัน) -->
+        <div id="scan-confirm-box" class="hidden p-3.5 bg-indigo-950 border-t-2 border-amber-400 space-y-2.5 text-xs">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <span class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-mono text-[10.5px] font-extrabold" id="sc-pid">KM69-00</span>
+              <p id="sc-name" class="font-extrabold text-base text-white mt-1 leading-tight"></p>
+              <p id="sc-detail" class="text-xs text-blue-200 mt-0.5"></p>
+            </div>
           </div>
-          <div id="roster-mem-chips" class="flex flex-wrap gap-1.5"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- กล่องแจ้งสิทธิ์อ่านอย่างเดียวสำหรับผู้แทน DGA -->
-    <section id="dga-readonly-notice" class="hidden bg-slate-50 rounded-3xl p-4 sm:p-5 border-2 border-slate-300 shadow-xs flex items-start gap-3 text-xs sm:text-sm text-slate-700">
-      <div class="w-10 h-10 rounded-2xl bg-slate-800 text-gold-400 flex items-center justify-center shrink-0">
-        <i data-lucide="eye" class="w-5 h-5"></i>
-      </div>
-      <div class="space-y-1">
-        <p class="font-extrabold text-slate-900">โหมดผู้แทน DGA / สพร. (ดูข้อมูลอย่างเดียว — Read-Only)</p>
-        <p class="leading-relaxed">ท่านสามารถเรียกดูและค้นหาประเด็นปัญหาช่วงเช้าของทุกกลุ่มและทุกหมวดได้ด้านล่างครับ (สิทธิ์การบันทึก แก้ไข และแสดงความคิดเห็นสงวนไว้สำหรับข้าราชการตำรวจผู้เข้าร่วมสัมมนา ผู้ทรงคุณวุฒิ วิทยากร และคณะทำงาน)</p>
-      </div>
-    </section>
-
-    <!-- 5. ฟอร์มบันทึกใบงานที่ 1 (ช่วงเช้า — ส่งทีละ 1 ประเด็น) -->
-    <section id="morning-form-card" class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="px-5 py-3.5 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-700 text-white flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 class="font-extrabold text-base sm:text-lg leading-tight">บันทึกประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย</h2>
-          <p class="text-xs text-blue-100 mt-0.5">ส่งทีละ 1 ประเด็นให้กระชับชัดเจน เพื่อใช้เป็นข้อมูลตั้งต้นจัดทำคำตอบ Q&amp;A ในช่วงบ่าย</p>
-        </div>
-        <span id="edit-mode-badge" class="hidden px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">✏️ กำลังแก้ไขประเด็น</span>
-      </div>
-
-      <form id="morning-form" onsubmit="submitMorningIssue(event)" class="p-4 sm:p-6 space-y-4 text-sm sm:text-base">
-        <input type="hidden" id="m-edit-id" value="" />
-
-        <!-- 5.1 เลือกหมวดหมู่ / โต๊ะฐาน (1–5) -->
-        <div class="space-y-2">
-          <div class="flex flex-wrap items-center justify-between gap-1.5">
-            <label class="font-extrabold text-navy-900">1. เลือกหมวดหมู่ / โต๊ะฐาน (หมวด 1–5) <span class="text-rose-600">*</span></label>
-            <span id="cat-status-pill" class="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-navy-800 text-xs font-extrabold">รอบที่ 1 / 5</span>
+          <div class="flex gap-2">
+            <button type="button" onclick="cancelPendingScan()" class="flex-1 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 font-bold">ข้าม</button>
+            <button type="button" onclick="confirmPendingScan()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold">ยืนยันเช็กอิน &amp; พูดต้อนรับ ✓</button>
           </div>
-          <p id="cat-lock-hint" class="text-xs text-slate-500">ตอบได้เฉพาะหมวดรอบปัจจุบันและหมวดที่กลุ่มของท่านผ่านมาแล้วเท่านั้น (หมวดถัดไปจะปลดล็อกเมื่อเจ้าหน้าที่เปลี่ยนรอบ)</p>
-          <div id="category-buttons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>
-          <div id="category-scope-box" class="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed"></div>
         </div>
 
-        <!-- 5.2 กลุ่มผู้ส่งประเด็น (ล็อกตามบัตรสำหรับผู้เข้าร่วม / เลือกได้สำหรับ Admin & ผู้เชี่ยวชาญ) -->
-        <div class="space-y-2 pt-1">
-          <div class="flex flex-wrap items-center justify-between gap-1.5">
-            <label class="font-extrabold text-navy-900">2. กลุ่มผู้ส่งประเด็น <span class="text-rose-600">*</span></label>
-            <span id="group-status-pill" class="px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-maroon-800 text-xs font-extrabold">กลุ่มที่ 1</span>
-          </div>
-          <div id="group-selector-area"></div>
-        </div>
-
-        <!-- กล่องดูประเด็นที่เพื่อนในกลุ่มส่งแล้วในหมวดนี้ (กันถามซ้ำ) -->
-        <div class="p-3.5 rounded-2xl bg-emerald-50/75 border border-emerald-200 space-y-2">
-          <div class="flex flex-wrap items-center justify-between gap-1.5">
-            <p id="teammate-panel-title" class="text-xs sm:text-sm font-extrabold text-emerald-950 flex items-center gap-1.5">
-              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i>
-              <span>ประเด็นที่เพื่อนในกลุ่มส่งแล้วในหมวดนี้ (ดูเพื่อกันถามซ้ำ)</span>
-            </p>
-            <span id="teammate-panel-count" class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono text-[11px] font-extrabold">0 ข้อ</span>
-          </div>
-          <div id="teammate-panel-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll text-xs"></div>
-        </div>
-
-        <!-- 5.3 ผู้บันทึกข้อมูล -->
-        <div class="space-y-1">
-          <label for="m-recorder" class="block font-extrabold text-navy-900">3. ผู้บันทึกข้อมูล <span class="text-rose-600">*</span></label>
-          <input type="text" id="m-recorder" required oninput="safeSet('ws2_recorder_name', this.value)" placeholder="ระบุยศ ชื่อ - สกุล ผู้บันทึกข้อมูล" class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-700 text-base" />
-        </div>
-
-        <!-- 5.4 ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย -->
-        <div class="space-y-1">
-          <label for="m-issue-text" class="block font-extrabold text-navy-900">4. ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย <span class="text-rose-600">*</span></label>
-          <p class="text-xs text-slate-500">เขียนให้กระชับชัดเจน 1 ประเด็นต่อ 1 รายการ (ระบบช่วยตรวจสอบประเด็นคล้ายกันในหมวดนี้อัตโนมัติ)</p>
-          <textarea id="m-issue-text" rows="3" required oninput="checkDuplicateHint(this.value)" placeholder="พิมพ์ประเด็นปัญหา ข้อขัดข้องในการปฏิบัติงาน หรือคำถามที่ประชาชน/ตำรวจหน้างานถามบ่อย..." class="w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-700 text-base leading-relaxed"></textarea>
-          <div id="m-duplicate-warning" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-950 font-semibold leading-snug"></div>
-        </div>
-
-        <!-- 5.5 ระดับความเร่งด่วน (Radio Card 3 สี) -->
-        <div class="space-y-2">
-          <label class="block font-extrabold text-navy-900">5. ระดับความเร่งด่วน <span class="text-rose-600">*</span></label>
-          <div class="grid grid-cols-3 gap-2.5">
-            <label class="cursor-pointer">
-              <input type="radio" name="m-urgency" value="เร่งด่วนมาก" class="peer sr-only" />
-              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-rose-600 peer-checked:bg-rose-50 text-center transition">
-                <span class="block text-base sm:text-lg leading-none">🔴</span>
-                <span class="block font-extrabold text-xs sm:text-sm text-rose-800 mt-1">เร่งด่วนมาก</span>
-              </div>
+        <!-- Manual Input / Quick Name Search & Image QR Upload -->
+        <div class="p-3.5 bg-slate-900 border-t border-white/10 space-y-2">
+          <form onsubmit="handleManualQrSubmit(event)" class="relative flex gap-1.5">
+            <div class="relative flex-1">
+              <input type="text" id="manual-qr-input" autocomplete="off" oninput="showManualSuggestions(this.value)" placeholder="พิมพ์รหัส (KM69-01) หรือชื่อ-สกุล แล้วกดเช็กอิน" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+              <div id="manual-suggestions" class="hidden absolute left-0 right-0 bottom-full mb-1.5 z-40 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 rounded-2xl shadow-2xl max-h-56 overflow-y-auto custom-scroll divide-y divide-slate-100 dark:divide-slate-700"></div>
+            </div>
+            <button type="submit" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shrink-0 transition">เช็กอิน</button>
+            <label title="สแกน QR จากไฟล์รูปภาพในเครื่อง" class="cursor-pointer px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center justify-center shrink-0 transition">
+              <i data-lucide="image" class="w-4 h-4"></i>
+              <input type="file" accept="image/*" onchange="handleQrImageUpload(event)" class="hidden" />
             </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="m-urgency" value="เร่งด่วน" class="peer sr-only" checked />
-              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-amber-500 peer-checked:bg-amber-50 text-center transition">
-                <span class="block text-base sm:text-lg leading-none">🟠</span>
-                <span class="block font-extrabold text-xs sm:text-sm text-amber-800 mt-1">เร่งด่วน</span>
-              </div>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="m-urgency" value="ทั่วไป" class="peer sr-only" />
-              <div class="p-3 rounded-2xl border-2 border-slate-200 bg-white peer-checked:border-emerald-600 peer-checked:bg-emerald-50 text-center transition">
-                <span class="block text-base sm:text-lg leading-none">🟢</span>
-                <span class="block font-extrabold text-xs sm:text-sm text-emerald-800 mt-1">ทั่วไป</span>
-              </div>
-            </label>
-          </div>
+          </form>
         </div>
-
-        <!-- ปุ่มส่งข้อมูล -->
-        <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" id="m-cancel-edit-btn" onclick="cancelEdit()" class="hidden px-4 py-2.5 rounded-2xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition">
-            ยกเลิกการแก้ไข
-          </button>
-          <button type="submit" id="m-submit-btn" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-navy-700 hover:bg-navy-800 active:scale-[0.99] text-white font-extrabold text-base shadow-md transition">
-            <i data-lucide="send" class="w-4 h-4 text-gold-400"></i>
-            <span id="m-submit-label">บันทึกประเด็นปัญหา</span>
-          </button>
-        </div>
-      </form>
+      </div>
     </section>
 
-    <!-- 6. รายการประเด็นปัญหาที่ส่งแล้วแบบเรียลไทม์ -->
-    <section class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 space-y-2.5">
+    <!-- ==================== RIGHT COLUMN: WELCOME DISPLAY & DESK FEED ==================== -->
+    <section class="lg:col-span-6 xl:col-span-7 flex flex-col gap-3.5">
+
+      <!-- KPI Progress Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-2.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="font-extrabold text-sm sm:text-base text-navy-900">รายการประเด็นปัญหาช่วงเช้า (<span id="list-count" class="font-mono text-navy-700">0</span> ข้อ)</h3>
-            <p id="list-subtitle" class="text-xs text-slate-500">แสดงรายการตามตัวกรองที่เลือก</p>
+          <div class="flex items-center gap-4">
+            <div>
+              <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">เช็กอินแล้ว (<span id="kpi-day-label">30 พ.ย.</span>)</p>
+              <p class="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none mt-0.5">
+                <span id="kpi-checked">0</span><span class="text-base text-slate-400 font-semibold">/<span id="kpi-total">0</span></span>
+              </p>
+            </div>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
+            <div>
+              <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">รอเช็กอิน</p>
+              <p id="kpi-pending" class="font-mono text-2xl sm:text-3xl font-extrabold text-maroon-700 dark:text-rose-400 leading-none mt-0.5">0</p>
+            </div>
           </div>
-          <div class="flex flex-wrap items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-xs">
-            <button type="button" id="scope-btn-match" onclick="setListScope('match')" class="px-2.5 py-1 rounded-lg font-bold transition">กลุ่ม+หมวดนี้</button>
-            <button type="button" id="scope-btn-cat" onclick="setListScope('cat')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทุกกลุ่มหมวดนี้</button>
-            <button type="button" id="scope-btn-group" onclick="setListScope('group')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทั้งกลุ่มนี้</button>
-            <button type="button" id="scope-btn-all" onclick="setListScope('all')" class="px-2.5 py-1 rounded-lg font-semibold transition">ทั้งหมด</button>
-          </div>
+          <span id="kpi-pct" class="px-3.5 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-mono text-lg font-extrabold">0%</span>
         </div>
-
-        <!-- ช่องค้นหา + กรองความเร่งด่วน -->
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-          <div class="relative flex-1 min-w-[180px]">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="list-search" oninput="renderIssuesList()" placeholder="ค้นหารหัส ISS, คำสำคัญ, ชื่อผู้บันทึก..." class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-navy-700" />
-          </div>
-          <select id="list-filter-urgency" onchange="renderIssuesList()" class="px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-bold">
-            <option value="all">ทุกระดับความเร่งด่วน</option>
-            <option value="เร่งด่วนมาก">🔴 เร่งด่วนมาก</option>
-            <option value="เร่งด่วน">🟠 เร่งด่วน</option>
-            <option value="ทั่วไป">🟢 ทั่วไป</option>
-          </select>
+        <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div id="kpi-progress-bar" class="h-full rounded-full bg-gradient-to-r from-navy-700 via-teal-500 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
         </div>
       </div>
 
-      <div id="issues-list-container" class="p-4 space-y-2.5"></div>
-    </section>
+      <!-- BIG WELCOME FEEDBACK CARD (แสดงผลหลังสแกนทันที) -->
+      <div id="welcome-display-card" class="bg-white dark:bg-slate-800 rounded-3xl p-5 border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-all">
+        <div id="welcome-empty-state" class="py-6 text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center mx-auto">
+            <i data-lucide="qr-code" class="w-6 h-6"></i>
+          </div>
+          <p class="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-200">พร้อมรับการสแกน QR Code เช็กอิน</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">นำป้ายชื่อหรือหน้าจอบัตร E-Pass ส่องที่กล้องด้านซ้าย หรือพิมพ์รหัสเพื่อเช็กอินและออกเสียงต้อนรับ</p>
+        </div>
 
-    <!-- Footer พร้อมปุ่มปลดล็อกคณะทำงาน (Admin) -->
-    <footer class="text-center pt-2 text-xs text-slate-400 space-y-1">
-      <p>โครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI “คู่หูจราจร” • ศจร.ตร.</p>
-      <p id="footer-admin-trigger">
-        <button type="button" onclick="openAdminUnlockModal()" class="text-slate-400 hover:text-navy-700 underline transition">สำหรับคณะทำงาน (Admin): ปลดล็อกคุมรอบและส่งออกข้อมูล</button>
-      </p>
-    </footer>
+        <div id="welcome-active-state" class="hidden space-y-3">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="wd-status-badge" class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-extrabold">✓ เช็กอินสำเร็จ</span>
+              <span id="wd-id" class="px-2.5 py-0.5 rounded-lg bg-navy-800 text-amber-300 font-mono text-xs font-extrabold">KM69-01</span>
+              <span id="wd-time" class="font-mono text-xs font-bold text-slate-500 dark:text-slate-400">08:30 น.</span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" id="wd-speak-again-btn" onclick="speakLastPersonAgain()" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 text-navy-700 dark:text-blue-200 text-xs font-bold transition">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> พูดซ้ำ
+              </button>
+              <a id="wd-portal-link" href="#" target="_blank" class="hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold transition">
+                <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> บัตร
+              </a>
+              <button type="button" id="wd-undo-btn" class="hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ยกเลิก
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-0.5">
+            <h2 id="wd-name" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight break-words"></h2>
+            <p id="wd-sub-info" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300"></p>
+            <p id="wd-spoken-preview" class="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium pt-0.5"></p>
+          </div>
+
+          <!-- ป้ายข้อมูลสำคัญหน้าโต๊ะลงทะเบียน (ห้องพัก / อาหาร / กลุ่ม / เอกสารขาด) -->
+          <div id="wd-badges-row" class="flex flex-wrap gap-1.5 pt-1"></div>
+
+          <!-- แจ้งเตือนเอกสารขาด (ให้เจ้าหน้าที่โต๊ะลงทะเบียนทวงเอกสารได้ทันที) -->
+          <div id="wd-doc-alert-box" class="hidden p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-xs text-rose-900 dark:text-rose-200 font-semibold"></div>
+        </div>
+      </div>
+
+      <!-- RECENT CHECK-INS & PENDING LIST -->
+      <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex-1 flex flex-col">
+        <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+            <button type="button" onclick="switchFeedTab('checked')" id="feed-tab-checked" class="px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition">
+              เช็กอินแล้ว (<span id="feed-cnt-checked">0</span>)
+            </button>
+            <button type="button" onclick="switchFeedTab('pending')" id="feed-tab-pending" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">
+              ยังไม่เช็กอิน (<span id="feed-cnt-pending">0</span>)
+            </button>
+          </div>
+
+          <div class="relative flex-1 min-w-[160px] max-w-xs">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="feed-search" oninput="renderFeedList()" placeholder="กรองรายชื่อ..." class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-navy-700" />
+          </div>
+        </div>
+
+        <div id="feed-list-container" class="p-3 space-y-2 max-h-[42vh] lg:max-h-[46vh] overflow-y-auto custom-scroll"></div>
+      </div>
+    </section>
   </main>
 
-  <!-- ==================== พื้นที่รายงานสำหรับพิมพ์ / บันทึก PDF (Admin) ==================== -->
-  <section id="print-report-container" class="hidden p-4 bg-white text-slate-900"></section>
-
-  <!-- ==================== MODAL: ยืนยันการลบ (แทน confirm) ==================== -->
-  <div id="delete-modal" onclick="closeDeleteModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-rose-500">
-      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-        <i data-lucide="trash-2" class="w-6 h-6"></i>
-      </div>
-      <div class="space-y-1">
-        <h3 class="font-extrabold text-base text-slate-900">ยืนยันการลบประเด็นปัญหา?</h3>
-        <p id="delete-modal-desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed"></p>
-      </div>
-      <div class="flex gap-2">
-        <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">ยกเลิก</button>
-        <button type="button" id="delete-confirm-btn" onclick="executeDeleteIssue()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm">ยืนยันลบ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: ปลดล็อกโหมดคณะทำงาน (Admin PIN) ==================== -->
-  <div id="admin-unlock-modal" onclick="closeAdminUnlockModal()" class="no-print hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div onclick="event.stopPropagation()" class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border-2 border-indigo-600">
-      <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center mx-auto">
-        <i data-lucide="shield-check" class="w-6 h-6"></i>
-      </div>
-      <div class="space-y-1">
-        <h3 class="font-extrabold text-base text-slate-900">ปลดล็อกโหมดคณะทำงาน (Admin)</h3>
-        <p class="text-xs text-slate-500">กรอกรหัสผ่านคณะทำงานเพื่อเปิดแผงควบคุมรอบหมุนเวียน ตารางสรุป Matrix 5×5 แก้ไข/ลบทุกกลุ่ม และส่งออกไฟล์</p>
-      </div>
-      <form onsubmit="submitAdminPin(event)" class="space-y-3">
-        <input type="password" id="admin-pin-input" inputmode="numeric" maxlength="10" placeholder="กรอกรหัส (2569)" required class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 bg-slate-50 text-center font-mono text-base font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-600" />
-        <div class="flex gap-2">
-          <button type="button" onclick="closeAdminUnlockModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">ยกเลิก</button>
-          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-extrabold">ปลดล็อก</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Hidden Fallback Audio Element for Online Thai TTS -->
+  <audio id="tts-fallback-audio" preload="none" referrerpolicy="no-referrer" class="hidden"></audio>
 
   <!-- Toast Container -->
-  <div id="toast-box" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+  <div id="toast-box" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
 
   <script>
     const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
-    const ADMIN_PASSCODE = "2569";
-
-    // โครงสร้าง 5 หมวดหมู่หลักและขอบเขตเนื้อหา
-    const CATEGORIES = [
-      {
-        no: 1,
-        short: 'กฎหมายจราจร',
-        name: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง',
-        scope: 'พ.ร.บ.จราจรทางบก, พ.ร.บ.รถยนต์, การตีความข้อกฎหมาย, อำนาจหน้าที่, การเปรียบเทียบปรับ และข้อกฎหมายใหม่',
-        color: '#1E3A8A'
-      },
-      {
-        no: 2,
-        short: 'คู่มือ / SOP',
-        name: 'คู่มือแนวทาง ข้อสั่งการ และมาตรฐานการปฏิบัติงาน (SOP)',
-        scope: 'การตั้งจุดตรวจ/จุดสกัด, การตรวจวัดแอลกอฮอล์, การจัดการจราจร/อุบัติเหตุ, ขั้นตอนปฏิบัติ และหนังสือสั่งการ ตร./ศจร.ตร.',
-        color: '#0F766E'
-      },
-      {
-        no: 3,
-        short: 'ไอที (PTM / TPCC)',
-        name: 'การใช้งานระบบเทคโนโลยีสารสนเทศงานจราจร (PTM / TPCC)',
-        scope: 'ระบบใบสั่งจราจร PTM, ระบบบริหารจุดตรวจ TPCC, ระบบตัดคะแนนความประพฤติ, การเชื่อมโยงข้อมูล และปัญหาการใช้งานอุปกรณ์',
-        color: '#4338CA'
-      },
-      {
-        no: 4,
-        short: 'การเงินและงบประมาณ',
-        name: 'ด้านการเงินและงบประมาณงานจราจร',
-        scope: 'เงินรางวัลค่าปรับจราจร, การจัดสรรและเบิกจ่ายงบประมาณ, ค่าตอบแทน/เบี้ยเลี้ยง, การจัดซื้อจัดจ้าง และระเบียบการเงิน',
-        color: '#B45309'
-      },
-      {
-        no: 5,
-        short: 'ข้อโต้แย้งจากประชาชน',
-        name: 'ประเด็นข้อโต้แย้งจากประชาชนในระหว่างปฏิบัติหน้าที่',
-        scope: 'การโต้เถียงเรื่องอำนาจตรวจค้น/ออกใบสั่ง, การถ่ายคลิปเผยแพร่, ข้อร้องเรียนที่พบบ่อย และแนวทางสื่อสารลดความขัดแย้ง',
-        color: '#881337'
-      }
-    ];
+    const DAY_LABELS = { day1: '30 พ.ย.', day2: '1 ธ.ค.', day3: '2 ธ.ค.' };
 
     function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
     function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-    function safeSessionGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
-    function safeSessionSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
 
-    const API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
-
-    // สถานะสิทธิ์ 4 ระดับ: 'admin' (คณะทำงาน) | 'reviewer' (ผู้ทรงคุณวุฒิ/วิทยากร) | 'dga_viewer' (ผู้แทน DGA ดูอย่างเดียว) | 'participant' (ผู้เข้าร่วมสัมมนา)
-    let userCtx = {
-      id: '',
-      name: '',
-      roleLevel: 'participant',
-      rawRoleText: '',
-      baseGroup: 0,
-      liveRound: 1
-    };
-
-    let adminSelectedRound = 1;
-    let selectedCategory = Number(safeGet('ws2_last_cat', '1')) || 1;
-    let selectedGroup = Number(safeGet('ws2_last_group', '1')) || 1;
-    let listScope = 'match'; // 'match' | 'cat' | 'group' | 'all'
-    let rosterHidden = false;
-    let adminMatrixHidden = false;
-    let hasLoadedOnce = false;
-    let lastKnownRound = 0;
-
+    let API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
     let participants = [];
-    let workshopConfig = { currentRound: 1, groups: [] };
-    let morningIssues = [];
-    let pendingDeleteIssueId = '';
-    let isMutating = false;
+    let currentDay = detectInitialDay();
+    let feedTab = 'checked';
+    let isMutatingData = false;
+    let pauseAutoRefreshUntil = 0;
+    let fetchSeq = 0;
+    let lastParticipantsSnapshot = '';
+    let lastWelcomedText = '';
 
-    // ==================== HELPER FUNCTIONS ====================
-    function getCategory(no) {
-      return CATEGORIES.find(c => c.no === Number(no)) || CATEGORIES[0];
-    }
+    // ==================== AUDIO & DUAL-ENGINE THAI TTS STATE ====================
+    let sharedAudioCtx = null;
+    let audioUnlocked = false;
+    let preferredThaiVoice = null;
+    let speechDelayTimer = null;
+    let speechWatchdogTimer = null;
+    let scanVoiceEnabled = safeGet('ai_seminar_voice_on', 'true') !== 'false';
+    let voiceEngineMode = safeGet('ai_seminar_voice_engine', 'auto') || 'auto'; // 'auto' | 'local' | 'online'
+    let voiceEnding = safeGet('ai_seminar_voice_ending', 'ครับ');
+    let voiceRate = parseFloat(safeGet('ai_seminar_voice_rate', '1.0')) || 1.0;
+    window.__activeSpeechUtterance = null;
 
-    function parseGroupNo(val) {
-      const m = String(val || '').trim().match(/[1-5]/);
-      return m ? parseInt(m[0], 10) : 0;
-    }
+    // ==================== HD QR SCANNER STATE ====================
+    let scanStream = null;
+    let scanRafId = null;
+    let scanActive = false;
+    let scanPausedByUser = false;
+    let scanFacingMode = 'environment';
+    let scanSelectedDeviceId = '';
+    let scanAvailableCameras = [];
+    let scanCameraSessionId = 0;
+    let scanTorchOn = false;
+    let scanConfirmMode = false;
+    let scanPendingPerson = null;
+    let scanLastCode = '';
+    let scanLastTime = 0;
+    let scanLastDecodeTs = 0;
+    let scanPassToggle = 0;
+    let scanZoomMin = 1;
+    let scanZoomMax = 1;
+    let scanZoomCurrent = 1;
+    let scanSupportsZoom = false;
+    let scanOffscreenCanvas = document.createElement('canvas');
+    let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
+    let nativeBarcodeDetector = null;
+    let isNativeDetecting = false;
 
-    function isFixedExpertRole(p) {
-      const wr = String(p?.workshopRole || '');
-      return wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร');
-    }
-
-    function detectRoleLevelFromParticipant(p) {
-      const role = String(p?.role || '').trim();
-      const unit = String(p?.mainUnit || p?.unitDetail || '').trim();
-      const wr = String(p?.workshopRole || '').trim();
-      if (role.includes('คณะทำงาน') || unit.includes('สยศ.ตร.')) return 'admin';
-      // ผู้แทน DGA / สพร. เป็นบุคคลภายนอก ดูข้อมูลได้อย่างเดียว (ไม่สามารถบันทึกหรือคอมเมนต์ได้)
-      if (role.toUpperCase().includes('DGA') || unit.toUpperCase().includes('DGA') || role.includes('สพร.') || unit.includes('สพร.')) {
-        return 'dga_viewer';
+    (async function initNativeQrDetector() {
+      try {
+        if ('BarcodeDetector' in window) {
+          if (typeof BarcodeDetector.getSupportedFormats === 'function') {
+            const formats = await BarcodeDetector.getSupportedFormats();
+            if (Array.isArray(formats) && formats.includes('qr_code')) {
+              nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+            }
+          } else {
+            nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+          }
+        }
+      } catch (e) {
+        nativeBarcodeDetector = null;
       }
-      if (role.includes('ผู้ทรงคุณวุฒิ') || role.includes('วิทยากร') || wr.includes('ผู้เชี่ยวชาญ') || wr.includes('วิทยากร')) {
-        return 'reviewer';
-      }
-      return 'participant';
-    }
+    })();
 
-    function getActiveDisplayName(p) {
-      if (!p) return '';
-      const isSub = p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(String(p.substituteName || '').trim());
-      return isSub ? String(p.substituteName).trim() : String(p.fullName || '').trim();
-    }
-
-    function getRotatingStationForGroup(baseGrp, round) {
-      if (!baseGrp || baseGrp < 1 || baseGrp > 5) return 0;
-      const r = Math.max(1, Math.min(5, Number(round) || 1));
-      return (((baseGrp - 1 + (r - 1)) % 5) + 1);
-    }
-
-    function getVisitingGroupAtStation(stationNo, round) {
-      if (!stationNo || stationNo < 1 || stationNo > 5) return 0;
-      const r = Math.max(1, Math.min(5, Number(round) || 1));
-      return (((stationNo - 1 - (r - 1) + 5) % 5) + 1);
-    }
-
-    function isStationAlreadyVisited(baseGrp, stationNo, currentRound) {
-      if (!baseGrp || currentRound <= 1) return false;
-      for (let r = 1; r < currentRound; r++) {
-        if (getRotatingStationForGroup(baseGrp, r) === stationNo) return true;
-      }
-      return false;
-    }
-
-    function getScheduledRoundForCategory(baseGrp, catNo) {
-      if (!baseGrp || !catNo) return 1;
-      return ((Number(catNo) - Number(baseGrp) + 5) % 5) + 1;
-    }
-
-    // คืนค่ารายการหมวดที่ผู้ใช้งานปัจจุบันได้รับอนุญาตให้กรอกได้ (ล็อกหมวดล่วงหน้าสำหรับผู้เข้าร่วม)
-    function getAllowedCategoriesForCurrentUser() {
-      if (!isGroupLocked()) return [1, 2, 3, 4, 5];
-      const allowed = [];
-      const maxRound = Math.max(1, Math.min(5, Number(userCtx.liveRound) || 1));
-      for (let r = 1; r <= maxRound; r++) {
-        const st = getRotatingStationForGroup(userCtx.baseGroup, r);
-        if (st && !allowed.includes(st)) allowed.push(st);
-      }
-      return allowed;
-    }
-
-    function isCategoryUnlockedForUser(catNo) {
-      return getAllowedCategoriesForCurrentUser().includes(Number(catNo));
-    }
-
-    function enforceAllowedCategory() {
-      if (!isGroupLocked()) return;
-      if (!isCategoryUnlockedForUser(selectedCategory)) {
-        const currentSt = getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound) || 1;
-        selectedCategory = currentSt;
-        safeSet('ws2_last_cat', String(selectedCategory));
-      }
-    }
-
-    function isGroupLocked() {
-      return userCtx.roleLevel === 'participant' && userCtx.baseGroup >= 1 && userCtx.baseGroup <= 5;
-    }
-
-    function canModifyIssue(item) {
-      if (!item) return false;
-      if (userCtx.roleLevel === 'dga_viewer') return false;
-      if (userCtx.roleLevel === 'admin') return true;
-      if (userCtx.roleLevel === 'reviewer') {
-        if (!userCtx.baseGroup) return true;
-        return Number(item.categoryNo) === userCtx.baseGroup || (userCtx.name && item.recorder === userCtx.name);
-      }
-      if (userCtx.name && item.recorder === userCtx.name) return true;
-      return !userCtx.baseGroup || Number(item.groupNo) === userCtx.baseGroup;
-    }
-
-    function getUrgencyBadge(urgency) {
-      if (urgency === 'เร่งด่วนมาก') return { cls: 'bg-rose-100 text-rose-800 border-rose-300', label: '🔴 เร่งด่วนมาก' };
-      if (urgency === 'เร่งด่วน') return { cls: 'bg-amber-100 text-amber-900 border-amber-300', label: '🟠 เร่งด่วน' };
-      return { cls: 'bg-emerald-100 text-emerald-800 border-emerald-300', label: '🟢 ทั่วไป' };
+    function detectInitialDay() {
+      const p = new URLSearchParams(window.location.search).get('day');
+      if (p && DAY_LABELS[p]) return p;
+      const now = new Date();
+      const m = now.getMonth() + 1;
+      const d = now.getDate();
+      if (m === 12 && d === 1) return 'day2';
+      if (m === 12 && d === 2) return 'day3';
+      return 'day1';
     }
 
     // ==================== INITIALIZATION ====================
-    function initMorningApp() {
-      const params = new URLSearchParams(window.location.search);
-      const urlId = String(params.get('id') || '').trim();
-      const urlName = String(params.get('name') || '').trim();
-      const urlGroup = parseGroupNo(params.get('group'));
-      const urlCat = parseGroupNo(params.get('cat'));
-      const urlRound = parseGroupNo(params.get('round')) || 1;
-      const urlStaff = String(params.get('staff') || '').trim().toLowerCase();
-      const urlUserType = String(params.get('userType') || params.get('role') || '').trim().toLowerCase();
-
-      userCtx.id = urlId;
-      userCtx.name = urlName || safeGet('ws2_recorder_name', '');
-      userCtx.liveRound = Math.max(1, Math.min(5, urlRound));
-      adminSelectedRound = userCtx.liveRound;
-      lastKnownRound = userCtx.liveRound;
-
-      if (urlStaff === '1' || urlStaff === 'true' || urlUserType === 'staff' || urlUserType === 'admin' || safeSessionGet('ai_seminar_ws_admin') === 'true') {
-        userCtx.roleLevel = 'admin';
-      } else if (urlUserType === 'dga' || urlUserType === 'dga_viewer') {
-        userCtx.roleLevel = 'dga_viewer';
-      } else if (urlUserType === 'expert' || urlUserType === 'reviewer') {
-        userCtx.roleLevel = 'reviewer';
-      } else {
-        userCtx.roleLevel = 'participant';
+    function initScannerPage() {
+      if (safeGet('ai_seminar_dark') === 'true') {
+        document.documentElement.classList.add('dark');
       }
-
-      if (userCtx.roleLevel === 'reviewer' && urlCat) {
-        userCtx.baseGroup = urlCat;
-        selectedCategory = urlCat;
-        selectedGroup = getVisitingGroupAtStation(urlCat, userCtx.liveRound) || 1;
-      } else if (urlGroup) {
-        userCtx.baseGroup = urlGroup;
-        selectedGroup = urlGroup;
-        selectedCategory = urlCat || getRotatingStationForGroup(urlGroup, userCtx.liveRound) || 1;
-      } else if (urlCat) {
-        selectedCategory = urlCat;
-      }
-
-      enforceAllowedCategory();
-      document.getElementById('m-recorder').value = userCtx.name || safeGet('ws2_recorder_name', '');
-
-      onExportScopeModeChange();
-      updateCrossPageLinks();
-      setListScope((userCtx.roleLevel === 'admin' || userCtx.roleLevel === 'dga_viewer') ? 'all' : 'match', false);
-      renderEverything();
       if (window.lucide) lucide.createIcons();
 
-      fetchAllData(true);
+      // โหลดค่าตั้งค่าเสียง
+      document.getElementById('voice-engine-select').value = voiceEngineMode;
+      document.getElementById('voice-ending-select').value = voiceEnding;
+      document.getElementById('voice-rate-select').value = String(voiceRate);
+      updateVoiceToggleUi();
 
-      // ซิงค์ข้อมูลอัตโนมัติทุก 10 วินาที
-      setInterval(() => {
-        if (!document.hidden && !isMutating) fetchAllData(false);
-      }, 10000);
+      // โหลดรายชื่อเสียงภาษาไทย (รองรับโหลดแบบ Async บน Android / Chrome)
+      loadPreferredThaiVoice();
+      if (window.speechSynthesis && 'onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = loadPreferredThaiVoice;
+      }
+      setTimeout(loadPreferredThaiVoice, 500);
+      setTimeout(loadPreferredThaiVoice, 1500);
 
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          closeDeleteModal();
-          closeAdminUnlockModal();
+      // ปลดล็อกเสียงอัตโนมัติทันทีเมื่อผู้ใช้แตะหรือคลิกครั้งแรกที่ใดก็ได้บนหน้าเว็บ
+      const firstGestureUnlock = () => {
+        if (!audioUnlocked) {
+          unlockAllAudio();
+        }
+      };
+      document.addEventListener('pointerdown', firstGestureUnlock, { passive: true });
+      document.addEventListener('click', firstGestureUnlock, { passive: true });
+
+      document.addEventListener('click', (e) => {
+        const inp = document.getElementById('manual-qr-input');
+        const box = document.getElementById('manual-suggestions');
+        if (box && inp && !box.contains(e.target) && e.target !== inp) {
+          box.classList.add('hidden');
         }
       });
+
+      selectDay(currentDay, false);
+      fetchParticipants(true);
+      startCameraStream();
+
+      // ซิงค์ข้อมูลทุก 12 วินาที
+      setInterval(() => {
+        if (!document.hidden && !isMutatingData && Date.now() >= pauseAutoRefreshUntil) {
+          fetchParticipants(false);
+        }
+      }, 12000);
+
+      window.addEventListener('pagehide', () => stopCameraStream());
+      window.addEventListener('beforeunload', () => stopCameraStream());
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initMorningApp);
+      document.addEventListener('DOMContentLoaded', initScannerPage);
     } else {
-      initMorningApp();
+      initScannerPage();
     }
 
-    function updateCrossPageLinks() {
-      const qs = new URLSearchParams();
-      if (userCtx.id) qs.set('id', userCtx.id);
-      if (userCtx.name) qs.set('name', userCtx.name);
-      if (userCtx.baseGroup) qs.set('group', String(userCtx.baseGroup));
-      if (userCtx.roleLevel === 'admin') {
-        qs.set('staff', '1');
-        qs.set('userType', 'staff');
-      } else if (userCtx.roleLevel === 'dga_viewer') {
-        qs.set('userType', 'dga_viewer');
-      } else if (userCtx.roleLevel === 'reviewer') {
-        qs.set('userType', 'expert');
+    // ==================== BULLETPROOF THAI TTS ENGINE ====================
+    function loadPreferredThaiVoice() {
+      try {
+        if (!('speechSynthesis' in window)) {
+          updateVoiceStatusPill();
+          return;
+        }
+        const voices = window.speechSynthesis.getVoices() || [];
+        preferredThaiVoice =
+          voices.find(v => /google.*(ไทย|thai)|premwadee|niwat|kanya|narisa/i.test(v.name || '') && /^th/i.test(v.lang || '')) ||
+          voices.find(v => /^th(-|_)?TH$/i.test(v.lang || '')) ||
+          voices.find(v => String(v.lang || '').toLowerCase().startsWith('th')) ||
+          voices.find(v => /thai|ไทย|kanya|narisa|niwat|premwadee/i.test(v.name || '')) ||
+          null;
+      } catch (e) {
+        preferredThaiVoice = null;
       }
-      const queryStr = qs.toString() ? `?${qs.toString()}` : '';
+      updateVoiceStatusPill();
+    }
 
-      const backPortal = document.getElementById('nav-back-portal');
-      if (backPortal && userCtx.id) {
-        backPortal.href = `portal.html?id=${encodeURIComponent(userCtx.id)}${userCtx.roleLevel === 'admin' ? '&staff=1' : ''}`;
-        backPortal.classList.remove('hidden');
+    function updateVoiceStatusPill() {
+      const pill = document.getElementById('voice-status-pill');
+      if (!pill) return;
+
+      if (!scanVoiceEnabled) {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-[11px] font-semibold';
+        pill.textContent = '🔇 ปิดเสียงพูดอยู่';
+        return;
       }
-      const toAfternoon = document.getElementById('nav-to-afternoon');
-      if (toAfternoon) toAfternoon.href = `afternoon.html${queryStr}`;
-      const toReview = document.getElementById('nav-to-review');
-      if (toReview) toReview.href = `review.html${queryStr}`;
+      if (!audioUnlocked) {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-bold';
+        pill.textContent = '⚠️ รอแตะปลดล็อกเสียง 1 ครั้ง';
+        return;
+      }
+      if (voiceEngineMode === 'online') {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-sky-100 text-sky-900 border border-sky-200 text-[11px] font-bold';
+        pill.textContent = '🌐 พร้อมใช้งาน (เสียงไทยออนไลน์)';
+        return;
+      }
+      if (preferredThaiVoice) {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-bold';
+        pill.textContent = `✓ เสียงไทยพร้อม (${preferredThaiVoice.name.slice(0, 24)})`;
+      } else if (voiceEngineMode === 'auto') {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-sky-100 text-sky-900 border border-sky-200 text-[11px] font-bold';
+        pill.textContent = '✓ พร้อมใช้งาน (สลับเสียงสำรองอัตโนมัติ)';
+      } else {
+        pill.className = 'px-2.5 py-1 rounded-xl bg-rose-100 text-rose-800 border border-rose-200 text-[11px] font-bold';
+        pill.textContent = '⚠️ ไม่พบเสียงไทยในเครื่อง (แนะนำเลือก "อัตโนมัติ")';
+      }
+    }
 
-      const toDisplay = document.getElementById('nav-to-display');
-      if (toDisplay) toDisplay.classList.toggle('hidden', userCtx.roleLevel !== 'admin');
+    function unlockAudioContext() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
+        if (sharedAudioCtx.state === 'suspended') {
+          sharedAudioCtx.resume().catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    function unlockAllAudio() {
+      unlockAudioContext();
+      try {
+        if ('speechSynthesis' in window) {
+          loadPreferredThaiVoice();
+          const synth = window.speechSynthesis;
+          if (synth.paused) synth.resume();
+          // Warmup silent utterance ภายใน user gesture เพื่อให้เบราว์เซอร์อนุญาต TTS จากกล้อง
+          const warmup = new SpeechSynthesisUtterance(' ');
+          warmup.lang = 'th-TH';
+          if (preferredThaiVoice) warmup.voice = preferredThaiVoice;
+          warmup.volume = 0;
+          warmup.rate = 2;
+          synth.speak(warmup);
+        }
+      } catch (e) {}
+
+      // ปลดล็อก <audio> สำรองด้วย silent wav สั้นๆ
+      try {
+        const audioEl = document.getElementById('tts-fallback-audio');
+        if (audioEl && !audioEl.dataset.unlocked) {
+          audioEl.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+          audioEl.volume = 0.01;
+          audioEl.play().then(() => {
+            audioEl.pause();
+            audioEl.volume = 1.0;
+            audioEl.dataset.unlocked = '1';
+          }).catch(() => {});
+        }
+      } catch (e) {}
+
+      audioUnlocked = true;
+      document.getElementById('voice-unlock-banner')?.classList.add('hidden');
+      updateVoiceStatusPill();
+    }
+
+    function activateAndTestVoice(fromBanner = false) {
+      unlockAllAudio();
+      if (!scanVoiceEnabled) {
+        scanVoiceEnabled = true;
+        safeSet('ai_seminar_voice_on', 'true');
+        updateVoiceToggleUi();
+      }
+      playBeep('success');
+      const ending = voiceEnding ? ` ${voiceEnding}` : '';
+      const sample = fromBanner
+        ? `เปิดระบบเสียงพูดต้อนรับพร้อมใช้งานแล้ว${ending}`
+        : `ยินดีต้อนรับ ร.ต.อ.สมชาย ใจดี${ending}`;
+      speakWelcome(sample, true);
+      showToast('ทดสอบระบบเสียงพูดภาษาไทยแล้ว', 'success');
+    }
+
+    function toggleScannerVoice() {
+      unlockAllAudio();
+      scanVoiceEnabled = !scanVoiceEnabled;
+      safeSet('ai_seminar_voice_on', String(scanVoiceEnabled));
+      updateVoiceToggleUi();
+      updateVoiceStatusPill();
+      if (scanVoiceEnabled) {
+        const ending = voiceEnding ? ` ${voiceEnding}` : '';
+        speakWelcome(`เปิดระบบเสียงพูดต้อนรับแล้ว${ending}`, true);
+      } else {
+        stopAllSpeech();
+      }
+    }
+
+    function updateVoiceToggleUi() {
+      const btn = document.getElementById('btn-scan-voice');
+      const lbl = document.getElementById('voice-toggle-label');
+      if (!btn || !lbl) return;
+      lbl.textContent = scanVoiceEnabled ? 'เสียงพูดต้อนรับ: เปิด' : 'เสียงพูดต้อนรับ: ปิด';
+      btn.className = scanVoiceEnabled
+        ? 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-2xs transition'
+        : 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold transition';
+      btn.innerHTML = `<i data-lucide="${scanVoiceEnabled ? 'volume-2' : 'volume-x'}" class="w-4 h-4"></i><span id="voice-toggle-label">${lbl.textContent}</span>`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function onVoiceSettingChange() {
+      unlockAllAudio();
+      voiceEngineMode = document.getElementById('voice-engine-select').value || 'auto';
+      voiceEnding = document.getElementById('voice-ending-select').value;
+      voiceRate = parseFloat(document.getElementById('voice-rate-select').value) || 1.0;
+      safeSet('ai_seminar_voice_engine', voiceEngineMode);
+      safeSet('ai_seminar_voice_ending', voiceEnding);
+      safeSet('ai_seminar_voice_rate', String(voiceRate));
+      updateVoiceStatusPill();
+    }
+
+    function expandThaiPoliceRankForSpeech(text) {
+      const rankMap = [
+        [/พล\.ต\.อ\.\s*หญิง/g, 'พลตำรวจเอกหญิง '],
+        [/พล\.ต\.ท\.\s*หญิง/g, 'พลตำรวจโทหญิง '],
+        [/พล\.ต\.ต\.\s*หญิง/g, 'พลตำรวจตรีหญิง '],
+        [/พ\.ต\.อ\.\s*หญิง/g, 'พันตำรวจเอกหญิง '],
+        [/พ\.ต\.ท\.\s*หญิง/g, 'พันตำรวจโทหญิง '],
+        [/พ\.ต\.ต\.\s*หญิง/g, 'พันตำรวจตรีหญิง '],
+        [/ร\.ต\.อ\.\s*หญิง/g, 'ร้อยตำรวจเอกหญิง '],
+        [/ร\.ต\.ท\.\s*หญิง/g, 'ร้อยตำรวจโทหญิง '],
+        [/ร\.ต\.ต\.\s*หญิง/g, 'ร้อยตำรวจตรีหญิง '],
+        [/ด\.ต\.\s*หญิง/g, 'ดาบตำรวจหญิง '],
+        [/จ\.ส\.ต\.\s*หญิง/g, 'จ่าสิบตำรวจหญิง '],
+        [/ส\.ต\.อ\.\s*หญิง/g, 'สิบตำรวจเอกหญิง '],
+        [/ส\.ต\.ท\.\s*หญิง/g, 'สิบตำรวจโทหญิง '],
+        [/ส\.ต\.ต\.\s*หญิง/g, 'สิบตำรวจตรีหญิง '],
+        [/พล\.ต\.อ\./g, 'พลตำรวจเอก '],
+        [/พล\.ต\.ท\./g, 'พลตำรวจโท '],
+        [/พล\.ต\.ต\./g, 'พลตำรวจตรี '],
+        [/พ\.ต\.อ\./g, 'พันตำรวจเอก '],
+        [/พ\.ต\.ท\./g, 'พันตำรวจโท '],
+        [/พ\.ต\.ต\./g, 'พันตำรวจตรี '],
+        [/ร\.ต\.อ\./g, 'ร้อยตำรวจเอก '],
+        [/ร\.ต\.ท\./g, 'ร้อยตำรวจโท '],
+        [/ร\.ต\.ต\./g, 'ร้อยตำรวจตรี '],
+        [/ด\.ต\./g, 'ดาบตำรวจ '],
+        [/จ\.ส\.ต\./g, 'จ่าสิบตำรวจ '],
+        [/ส\.ต\.อ\./g, 'สิบตำรวจเอก '],
+        [/ส\.ต\.ท\./g, 'สิบตำรวจโท '],
+        [/ส\.ต\.ต\./g, 'สิบตำรวจตรี '],
+        [/ว่าที่\s+/g, 'ว่าที่ '],
+        [/น\.ส\./g, 'นางสาว '],
+        [/ผศ\./g, 'ผู้ช่วยศาสตราจารย์ '],
+        [/รศ\./g, 'รองศาสตราจารย์ '],
+        [/ศ\./g, 'ศาสตราจารย์ '],
+        [/ดร\./g, 'ดอกเตอร์ ']
+      ];
+      let out = String(text || '');
+      rankMap.forEach(([rx, full]) => { out = out.replace(rx, full); });
+      return out.replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function stopAllSpeech() {
+      if (speechDelayTimer) { clearTimeout(speechDelayTimer); speechDelayTimer = null; }
+      if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
+      try {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      } catch (e) {}
+      try {
+        const audioEl = document.getElementById('tts-fallback-audio');
+        if (audioEl) {
+          audioEl.pause();
+          audioEl.currentTime = 0;
+        }
+      } catch (e) {}
+    }
+
+    function speakOnlineFallback(spokenText) {
+      try {
+        const audioEl = document.getElementById('tts-fallback-audio');
+        if (!audioEl || !spokenText) return;
+        const trimmed = spokenText.slice(0, 180);
+        audioEl.pause();
+        audioEl.volume = 1.0;
+        audioEl.playbackRate = Math.max(0.85, Math.min(1.25, voiceRate));
+        audioEl.src = `https://translate.google.com/translate_tts?ie=UTF-8&tl=th&client=tw-ob&q=${encodeURIComponent(trimmed)}`;
+        audioEl.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    function speakWelcome(rawText, forceSpeak = false) {
+      if (!rawText) return;
+      if (!forceSpeak && !scanVoiceEnabled) return;
+
+      const spokenText = expandThaiPoliceRankForSpeech(rawText);
+      lastWelcomedText = spokenText;
+      stopAllSpeech();
+
+      // โหมดเสียงออนไลน์ล้วน หรือเบราว์เซอร์ไม่รองรับ speechSynthesis
+      if (voiceEngineMode === 'online' || !('speechSynthesis' in window)) {
+        speakOnlineFallback(spokenText);
+        return;
+      }
+
+      if (!preferredThaiVoice) loadPreferredThaiVoice();
+      const synth = window.speechSynthesis;
+
+      // โหมดอัตโนมัติ: หากตรวจพบว่าเครื่องไม่มีเสียงไทยเลย และเคยโหลด voices แล้ว ให้ใช้เสียงออนไลน์สำรองทันที
+      const voicesNow = synth.getVoices() || [];
+      if (voiceEngineMode === 'auto' && voicesNow.length > 0 && !preferredThaiVoice) {
+        speakOnlineFallback(spokenText);
+        return;
+      }
+
+      const executeLocalSpeak = () => {
+        try {
+          if (synth.paused) synth.resume();
+          const u = new SpeechSynthesisUtterance(spokenText);
+          u.lang = 'th-TH';
+          if (preferredThaiVoice) u.voice = preferredThaiVoice;
+          u.rate = voiceRate;
+          u.volume = 1.0;
+          window.__activeSpeechUtterance = u;
+
+          let hasStarted = false;
+          u.onstart = () => {
+            hasStarted = true;
+            if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
+          };
+          u.onend = () => {
+            window.__activeSpeechUtterance = null;
+            if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
+          };
+          u.onerror = () => {
+            window.__activeSpeechUtterance = null;
+            if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
+            if (voiceEngineMode === 'auto' && !hasStarted) {
+              speakOnlineFallback(spokenText);
+            }
+          };
+
+          synth.speak(u);
+
+          // Watchdog: หากเบราว์เซอร์เงียบไม่เริ่มพูดภายใน 1.2 วินาที (พบในบางเครื่อง) ให้สลับเสียงออนไลน์สำรองอัตโนมัติ
+          if (voiceEngineMode === 'auto') {
+            speechWatchdogTimer = setTimeout(() => {
+              if (!hasStarted) {
+                try { synth.cancel(); } catch (e) {}
+                speakOnlineFallback(spokenText);
+              }
+            }, 1200);
+          }
+        } catch (e) {
+          if (voiceEngineMode === 'auto') speakOnlineFallback(spokenText);
+        }
+      };
+
+      if (synth.speaking || synth.pending) {
+        synth.cancel();
+        speechDelayTimer = setTimeout(executeLocalSpeak, 65);
+      } else {
+        executeLocalSpeak();
+      }
+    }
+
+    function speakLastPersonAgain() {
+      unlockAllAudio();
+      if (!lastWelcomedText) return;
+      speakWelcome(lastWelcomedText, true);
+    }
+
+    function playBeep(type = 'success') {
+      try {
+        unlockAudioContext();
+        const ctx = sharedAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        sharedAudioCtx = ctx;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = type === 'success' ? 920 : (type === 'warn' ? 620 : 280);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.17);
+      } catch (e) {}
     }
 
     // ==================== DATA SYNC ====================
-    async function fetchAllData(showLoading = false) {
-      const dot = document.getElementById('sync-dot');
-      const txt = document.getElementById('sync-text');
-      if (showLoading && txt) txt.textContent = 'กำลังโหลดข้อมูลล่าสุด...';
-
-      const ts = Date.now();
-      try {
-        const reqs = [fetch(`${API_URL}?action=getWorkshopData&_t=${ts}`, { cache: 'no-store' })];
-        if (!hasLoadedOnce || showLoading || participants.length === 0) {
-          reqs.push(fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }).catch(() => null));
+    function formatThaiTime(val) {
+      const s = String(val || '').trim();
+      if (!s || s === 'ยังไม่มา' || s === '-') return '';
+      if (s.includes('1899') || s.includes('GMT')) {
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
         }
-
-        const [wRes, pRes] = await Promise.all(reqs);
-        if (!wRes.ok) throw new Error(`HTTP ${wRes.status}`);
-        const wJson = await wRes.json();
-        if (wJson.status !== 'success') throw new Error(wJson.message || 'โหลดข้อมูลไม่สำเร็จ');
-
-        morningIssues = Array.isArray(wJson.data?.issues) ? wJson.data.issues : [];
-
-        if (pRes && pRes.ok) {
-          try {
-            const pJson = await pRes.json();
-            if (pJson.status === 'success' && Array.isArray(pJson.data)) {
-              participants = pJson.data;
-              hydrateUserFromParticipants();
-            }
-          } catch (e) {}
-        }
-
-        const cfg = wJson.data?.workshopConfig;
-        if (cfg) {
-          workshopConfig = cfg;
-          const srvRound = Number(cfg.currentRound);
-          if (srvRound >= 1 && srvRound <= 5) {
-            const roundChanged = hasLoadedOnce && lastKnownRound > 0 && srvRound !== lastKnownRound;
-            userCtx.liveRound = srvRound;
-            if (!hasLoadedOnce || userCtx.roleLevel !== 'admin') {
-              adminSelectedRound = srvRound;
-            }
-            lastKnownRound = srvRound;
-
-            if (!hasLoadedOnce) {
-              const urlCat = parseGroupNo(new URLSearchParams(window.location.search).get('cat'));
-              if (isGroupLocked()) {
-                selectedGroup = userCtx.baseGroup;
-                const liveSt = getRotatingStationForGroup(userCtx.baseGroup, srvRound) || 1;
-                selectedCategory = (urlCat && isCategoryUnlockedForUser(urlCat)) ? urlCat : liveSt;
-              } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
-                selectedCategory = userCtx.baseGroup;
-                selectedGroup = getVisitingGroupAtStation(userCtx.baseGroup, srvRound) || 1;
-              }
-              enforceAllowedCategory();
-            } else if (roundChanged && userCtx.roleLevel !== 'admin' && userCtx.roleLevel !== 'dga_viewer') {
-              handleLiveRoundChanged(srvRound);
-            }
-          }
-        }
-
-        hasLoadedOnce = true;
-        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
-        if (txt) {
-          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
-          txt.textContent = `ซิงค์ล่าสุด ${nowStr} น. (รวม ${morningIssues.length} ประเด็น)`;
-        }
-
-        updateCrossPageLinks();
-        renderEverything();
-      } catch (err) {
-        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-400 inline-block shrink-0';
-        if (txt) txt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
-        if (showLoading) showToast('ไม่สามารถโหลดข้อมูลได้: ' + err.message, 'error');
+        const m = s.match(/(\d{1,2}:\d{2})/);
+        if (m) return m[1];
       }
+      const m = s.match(/^(\d{1,2}:\d{2})(?::\d{2})?$/);
+      if (m) return m[1];
+      return s;
     }
 
-    function hydrateUserFromParticipants() {
-      if (!userCtx.id || participants.length === 0) return;
-      const found = participants.find(p => String(p.id || '').trim().toUpperCase() === userCtx.id.toUpperCase());
-      if (!found) return;
+    function isCheckedIn(p, dayKey = currentDay) {
+      const v = String(p[dayKey] || '').trim();
+      return v !== '' && v !== 'ยังไม่มา' && v !== '-';
+    }
 
-      const name = getActiveDisplayName(found);
-      if (name) {
-        userCtx.name = name;
-        const recInp = document.getElementById('m-recorder');
-        if (recInp && !recInp.value) recInp.value = name;
-      }
-      userCtx.rawRoleText = String(found.role || '').trim();
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
 
-      const grp = parseGroupNo(found.workshopGroup);
-      if (grp) userCtx.baseGroup = grp;
+    function getActiveName(p) {
+      return hasSubstitute(p) ? p.substituteName : p.fullName;
+    }
 
-      if (userCtx.roleLevel !== 'admin') {
-        userCtx.roleLevel = detectRoleLevelFromParticipant(found);
-      }
-      if (userCtx.roleLevel === 'dga_viewer' && !hasLoadedOnce) {
-        setListScope('all', false);
-      }
-      if (isGroupLocked()) {
-        selectedGroup = userCtx.baseGroup;
-        enforceAllowedCategory();
+    function getMissingDocs(p) {
+      const missing = [];
+      if (!p || p.rsvp === 'ไม่สามารถเข้าร่วม') return missing;
+      if (p.officialLetter !== 'ส่งแล้ว' && !p.letterUrl) missing.push('หนังสือส่งตัว');
+      if (!p.stay30 || !p.stay1) missing.push('ข้อมูลที่พัก');
+      if (!p.phone) missing.push('เบอร์โทร');
+      return missing;
+    }
+
+    async function fetchParticipants(showLoading = false) {
+      const reqId = ++fetchSeq;
+      const syncTxt = document.getElementById('sync-status-text');
+      const syncDot = document.getElementById('sync-status-dot');
+      if (showLoading && syncTxt) syncTxt.textContent = 'กำลังโหลดรายชื่อ...';
+
+      try {
+        const res = await fetch(`${API_URL}?action=getParticipants&_t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message || 'โหลดรายชื่อไม่สำเร็จ');
+        if (reqId !== fetchSeq || isMutatingData) return;
+
+        const mapped = (json.data || []).map(p => ({
+          ...p,
+          id: String(p.id || '').trim(),
+          fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
+          position: String(p.position || ''),
+          mainUnit: String(p.mainUnit || p.group || ''),
+          unitDetail: String(p.unitDetail || p.unit || ''),
+          role: String(p.role || 'ผู้เข้าร่วมสัมมนา'),
+          rsvp: String(p.rsvp || 'รอการยืนยัน'),
+          day1: formatThaiTime(p.day1),
+          day2: formatThaiTime(p.day2),
+          day3: formatThaiTime(p.day3),
+          stay30: String(p.stay30 || '').trim(),
+          stay1: String(p.stay1 || '').trim(),
+          roomNo: String(p.roomNo || '').trim(),
+          roommate: String(p.roommate || '').trim(),
+          food: String(p.food || 'อาหารทั่วไป').trim(),
+          officialLetter: String(p.officialLetter || '').trim(),
+          phone: String(p.phone || '').trim(),
+          substituteName: String(p.substituteName || '').trim(),
+          substitutePosition: String(p.substitutePosition || '').trim(),
+          letterUrl: String(p.letterUrl || '').trim(),
+          workshopGroup: String(p.workshopGroup || '').trim(),
+          workshopRole: String(p.workshopRole || 'ผู้เข้าร่วม').trim(),
+          docAlert: String(p.docAlert || '').trim()
+        }));
+
+        const nextSnap = JSON.stringify(mapped);
+        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        if (syncTxt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          syncTxt.textContent = `ซิงค์แล้ว ${nowStr} น. (${mapped.length} ราย)`;
+        }
+
+        if (!showLoading && nextSnap === lastParticipantsSnapshot) return;
+        participants = mapped;
+        lastParticipantsSnapshot = nextSnap;
+        updateKpis();
+        renderFeedList();
+      } catch (err) {
+        if (syncDot) syncDot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0';
+        if (syncTxt) syncTxt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
       }
     }
 
@@ -850,995 +974,819 @@
       return await res.json();
     }
 
-    // ==================== LIVE ROUND ROTATION ====================
-    function isDraftingText() {
-      const txt = String(document.getElementById('m-issue-text')?.value || '').trim();
-      const editId = String(document.getElementById('m-edit-id')?.value || '').trim();
-      return Boolean(txt || editId);
-    }
-
-    function handleLiveRoundChanged(newRound) {
-      if (!isDraftingText()) {
-        applyLiveStationForRound(newRound, true);
-        dismissRoundChangeBanner();
-        return;
+    // ==================== DAY & KPI & FEED LIST ====================
+    function selectDay(dayKey, shouldRender = true) {
+      currentDay = dayKey;
+      ['day1', 'day2', 'day3'].forEach(k => {
+        const btn = document.getElementById(`btn-${k}`);
+        if (!btn) return;
+        btn.className = k === dayKey
+          ? 'px-2.5 py-1.5 rounded-lg font-extrabold bg-amber-400 text-slate-950 shadow-xs transition'
+          : 'px-2.5 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white hover:bg-white/10 transition';
+      });
+      const lbl = DAY_LABELS[dayKey] || dayKey;
+      document.getElementById('kpi-day-label').textContent = lbl;
+      document.getElementById('scan-day-badge').textContent = lbl;
+      if (shouldRender) {
+        updateKpis();
+        renderFeedList();
       }
-      const banner = document.getElementById('round-change-banner');
-      const msgEl = document.getElementById('round-change-text');
-      const btn = document.getElementById('btn-jump-station');
-      if (!banner || !msgEl) return;
-
-      if (isGroupLocked()) {
-        const nextCat = getRotatingStationForGroup(userCtx.baseGroup, newRound);
-        msgEl.textContent = `🔔 เจ้าหน้าที่เปลี่ยนเป็นรอบที่ ${newRound}/5 แล้ว! กลุ่มที่ ${userCtx.baseGroup} ย้ายไปหมวดที่ ${nextCat} (${getCategory(nextCat).short})`;
-        if (btn) btn.textContent = `ย้ายไปหมวด ${nextCat} →`;
-        banner.classList.remove('hidden');
-      } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
-        const nextGrp = getVisitingGroupAtStation(userCtx.baseGroup, newRound);
-        msgEl.textContent = `🔔 รอบที่ ${newRound}/5 แล้ว! กลุ่มที่ ${nextGrp} เดินมาที่โต๊ะหมวดที่ ${userCtx.baseGroup} ของท่าน`;
-        if (btn) btn.textContent = `สลับรับกลุ่ม ${nextGrp} →`;
-        banner.classList.remove('hidden');
-      }
-      if (window.lucide) lucide.createIcons();
     }
 
-    function applyLiveStationForRound(roundNo, toastMsg = false) {
-      if (isGroupLocked()) {
-        selectedGroup = userCtx.baseGroup;
-        const nextCat = getRotatingStationForGroup(userCtx.baseGroup, roundNo) || 1;
-        selectedCategory = nextCat;
-        safeSet('ws2_last_cat', String(selectedCategory));
-        if (toastMsg) showToast(`🔔 รอบที่ ${roundNo}/5: ย้ายกลุ่มที่ ${userCtx.baseGroup} ไปหมวดที่ ${nextCat} (${getCategory(nextCat).short}) อัตโนมัติ`, 'success');
-      } else if (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) {
-        selectedCategory = userCtx.baseGroup;
-        selectedGroup = getVisitingGroupAtStation(userCtx.baseGroup, roundNo) || 1;
-        if (toastMsg) showToast(`🔔 รอบที่ ${roundNo}/5: กลุ่มที่ ${selectedGroup} มาที่โต๊ะหมวดที่ ${userCtx.baseGroup} ของท่าน`, 'success');
-      }
-      renderEverything();
+    function updateKpis() {
+      const total = participants.length;
+      const checked = participants.filter(p => isCheckedIn(p)).length;
+      const pending = total - checked;
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+      document.getElementById('kpi-checked').textContent = checked;
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-pending').textContent = pending;
+      document.getElementById('kpi-pct').textContent = `${pct}%`;
+      document.getElementById('kpi-progress-bar').style.width = `${pct}%`;
+      document.getElementById('feed-cnt-checked').textContent = checked;
+      document.getElementById('feed-cnt-pending').textContent = pending;
     }
 
-    function jumpToLiveStation() {
-      applyLiveStationForRound(userCtx.liveRound, true);
-      dismissRoundChangeBanner();
+    function switchFeedTab(tab) {
+      feedTab = tab;
+      const isChecked = tab === 'checked';
+      document.getElementById('feed-tab-checked').className = isChecked
+        ? 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition'
+        : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition';
+      document.getElementById('feed-tab-pending').className = !isChecked
+        ? 'px-3 py-1.5 rounded-lg font-bold bg-maroon-700 text-white transition'
+        : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition';
+      renderFeedList();
     }
 
-    function dismissRoundChangeBanner() {
-      document.getElementById('round-change-banner')?.classList.add('hidden');
-    }
+    function renderFeedList() {
+      const box = document.getElementById('feed-list-container');
+      if (!box) return;
+      const q = String(document.getElementById('feed-search')?.value || '').trim().toLowerCase();
 
-    // ==================== RENDER ALL UI ====================
-    function renderEverything() {
-      enforceAllowedCategory();
-      renderRoleBanner();
-      renderAdminControlPanel();
-      renderRosterCard();
-      renderCategoryAndGroupSelectors();
-      renderTeammatePanel();
-      renderIssuesList();
-      if (window.lucide) lucide.createIcons();
-    }
+      const list = participants.filter(p => {
+        const checked = isCheckedIn(p);
+        if (feedTab === 'checked' && !checked) return false;
+        if (feedTab === 'pending' && checked) return false;
+        if (!q) return true;
+        return `${p.id} ${p.fullName} ${p.substituteName} ${p.mainUnit} ${p.unitDetail} ${p.roomNo}`.toLowerCase().includes(q);
+      });
 
-    function renderRoleBanner() {
-      const codeEl = document.getElementById('ctx-code');
-      const nameEl = document.getElementById('ctx-name');
-      const badgeEl = document.getElementById('ctx-role-badge');
-      const guideEl = document.getElementById('ctx-role-guide');
-      const progBox = document.getElementById('group-5cat-progress-box');
-      const progLbl = document.getElementById('group-5cat-label');
-      const progCnt = document.getElementById('group-5cat-count');
-      const progPills = document.getElementById('group-5cat-pills');
-
-      const isAdmin = userCtx.roleLevel === 'admin';
-      const isReviewer = userCtx.roleLevel === 'reviewer';
-      const isDga = userCtx.roleLevel === 'dga_viewer';
-
-      codeEl.textContent = userCtx.id || (isAdmin ? 'ADMIN' : (isDga ? 'DGA' : (isReviewer ? 'EXPERT' : 'GUEST')));
-      nameEl.textContent = userCtx.name || (isAdmin ? 'คณะทำงาน (Admin)' : (isDga ? 'ผู้แทน DGA (สพร.)' : (isReviewer ? 'ผู้ทรงคุณวุฒิ / วิทยากร' : 'ผู้เข้าร่วมสัมมนา')));
-
-      document.getElementById('footer-admin-trigger')?.classList.toggle('hidden', isAdmin);
-      document.getElementById('dga-readonly-notice')?.classList.toggle('hidden', !isDga);
-      document.getElementById('morning-form-card')?.classList.toggle('hidden', isDga);
-
-      if (isAdmin) {
-        badgeEl.className = 'px-3 py-1 rounded-full bg-indigo-700 text-white text-xs font-extrabold shrink-0';
-        badgeEl.textContent = '🛡️ คณะทำงาน (Admin)';
-        guideEl.className = 'p-3 rounded-2xl bg-indigo-50/85 border border-indigo-200 text-xs sm:text-sm text-indigo-950 leading-relaxed';
-        guideEl.innerHTML = `<strong>สิทธิ์คณะทำงาน (Admin):</strong> ควบคุมรอบหมุนเวียนกลาง (รอบปัจจุบัน: <strong>รอบที่ ${userCtx.liveRound}/5</strong>), ดูตารางภาพรวมครบทั้ง 5 กลุ่ม × 5 หมวด, บันทึก แก้ไข ลบประเด็นได้ทั้งหมด และเลือกส่งออกข้อมูลเฉพาะกลุ่ม/เฉพาะหมวดเป็นไฟล์ <strong>Excel / Text / PDF</strong>`;
-      } else if (isDga) {
-        badgeEl.className = 'px-3 py-1 rounded-full bg-slate-800 text-gold-400 text-xs font-extrabold shrink-0';
-        badgeEl.textContent = '👁️ ผู้แทน DGA (ดูอย่างเดียว)';
-        guideEl.className = 'p-3 rounded-2xl bg-slate-100 border border-slate-300 text-xs sm:text-sm text-slate-800 leading-relaxed';
-        guideEl.innerHTML = `<strong>👁️ ผู้แทน DGA / สพร. (โหมดสังเกตการณ์):</strong> สามารถเรียกดูและติดตามประเด็นปัญหาช่วงเช้าได้ครบทั้ง 5 หมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5) โดยไม่สามารถบันทึก แก้ไข หรือลบข้อมูลได้`;
-      } else if (isReviewer) {
-        badgeEl.className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold shrink-0';
-        badgeEl.textContent = userCtx.baseGroup ? `⭐ ผู้ทรงคุณวุฒิ/วิทยากร โต๊ะ ${userCtx.baseGroup}` : '⭐ ผู้ทรงคุณวุฒิ / วิทยากร';
-        guideEl.className = 'p-3 rounded-2xl bg-amber-50/85 border border-amber-300 text-xs sm:text-sm text-amber-950 leading-relaxed';
-        const visitGrp = userCtx.baseGroup ? getVisitingGroupAtStation(userCtx.baseGroup, userCtx.liveRound) : 0;
-        guideEl.innerHTML = userCtx.baseGroup
-          ? `<strong>⭐ ท่านประจำฐานหมวดที่ ${userCtx.baseGroup} (${escapeHtml(getCategory(userCtx.baseGroup).short)}):</strong> นั่งประจำฐานไม่ย้ายโต๊ะ • รอบเวทีปัจจุบัน (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) <strong>กลุ่มที่ ${visitGrp}</strong> กำลังร่วมระดมสมองที่โต๊ะของท่าน (สามารถช่วยบันทึกหรือตรวจประเด็นช่วงเช้าได้)`
-          : `<strong>⭐ ผู้ทรงคุณวุฒิ / วิทยากร:</strong> สามารถเรียกดูและช่วยบันทึกประเด็นปัญหาช่วงเช้าได้ครบทุกหมวด (รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound}/5)`;
+      if (feedTab === 'checked') {
+        list.sort((a, b) => String(b[currentDay]).localeCompare(String(a[currentDay])));
       } else {
-        badgeEl.className = 'px-3 py-1 rounded-full bg-navy-700 text-white text-xs font-extrabold shrink-0';
-        badgeEl.textContent = userCtx.baseGroup ? `👥 ผู้เข้าร่วม • กลุ่มที่ ${userCtx.baseGroup}` : '👥 ผู้เข้าร่วมสัมมนา';
-        guideEl.className = 'p-3 rounded-2xl bg-blue-50/85 border border-blue-200 text-xs sm:text-sm text-navy-900 leading-relaxed';
-        if (userCtx.baseGroup) {
-          const curSt = getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound);
-          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ท่านอยู่ <span class="px-2 py-0.5 rounded bg-maroon-700 text-white font-bold text-xs">🔒 กลุ่มที่ ${userCtx.baseGroup}</span> • รอบปัจจุบันจากเวที (<strong>รอบที่ ${userCtx.liveRound}/5</strong>) คือ <strong>หมวดที่ ${curSt}: ${escapeHtml(getCategory(curSt).short)}</strong> — ตอบได้เฉพาะหมวดรอบนี้และหมวดที่กลุ่มผ่านมาแล้วเท่านั้น (หมวดถัดไปจะปลดล็อกเมื่อเจ้าหน้าที่เปลี่ยนรอบ)`;
-        } else {
-          guideEl.innerHTML = `<strong>☀️ กิจกรรมช่วงเช้า (ระดมสมองครบทั้ง 5 หมวด):</strong> ร่วมกันบันทึกประเด็นปัญหาและข้อขัดข้องให้ครบทั้ง 5 หมวด (รอบปัจจุบันจากเวที: รอบที่ ${userCtx.liveRound}/5)`;
-        }
+        list.sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
       }
 
-      if (progBox) progBox.classList.toggle('hidden', isDga);
-      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      if (!isDga && progBox && progPills) {
-        let doneCats = 0;
-        progPills.innerHTML = CATEGORIES.map(c => {
-          const cnt = morningIssues.filter(m => Number(m.groupNo) === targetGrp && Number(m.categoryNo) === c.no).length;
-          if (cnt > 0) doneCats++;
-          const unlocked = isCategoryUnlockedForUser(c.no);
-          const schedRound = isGroupLocked() ? getScheduledRoundForCategory(userCtx.baseGroup, c.no) : c.no;
-          const isCur = c.no === selectedCategory;
-
-          if (!unlocked) {
-            return `
-              <button type="button" onclick="selectCategory(${c.no})" class="py-1.5 px-1 rounded-xl border border-dashed border-slate-300 bg-slate-100 text-slate-400 text-center cursor-not-allowed opacity-75">
-                <div class="text-[10.5px] font-bold leading-tight">หมวด ${c.no}</div>
-                <div class="font-mono text-[9.5px] font-bold mt-0.5">🔒 รอบ ${schedRound}</div>
-              </button>
-            `;
-          }
-
-          return `
-            <button type="button" onclick="selectCategory(${c.no})" class="py-1.5 px-1 rounded-xl border text-center transition ${
-              cnt > 0
-                ? (isCur ? 'bg-emerald-600 border-emerald-700 text-white shadow-xs' : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100')
-                : (isCur ? 'bg-navy-700 border-navy-800 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-navy-700/40')
-            }">
-              <div class="text-[10.5px] font-extrabold leading-tight">หมวด ${c.no}</div>
-              <div class="font-mono text-[10px] font-bold mt-0.5">${cnt > 0 ? `✓ ${cnt} ข้อ` : 'รอส่ง'}</div>
-            </button>
-          `;
-        }).join('');
-        if (progLbl) progLbl.textContent = `ความคืบหน้าการระดมสมองครบทั้ง 5 หมวดของกลุ่มที่ ${targetGrp}:`;
-        if (progCnt) progCnt.textContent = `${doneCats} / 5 หมวด`;
-      }
-    }
-
-    // ==================== ADMIN PANEL (ROUND SYNC + 5×5 MATRIX + EXPORTS) ====================
-    function renderAdminControlPanel() {
-      const panel = document.getElementById('admin-control-panel');
-      if (!panel) return;
-      const isAdmin = userCtx.roleLevel === 'admin';
-      panel.classList.toggle('hidden', !isAdmin);
-      if (!isAdmin) return;
-
-      updateExportScopePreview();
-
-      const btnTxt = document.getElementById('btn-admin-sync-round-text');
-      if (btnTxt) btnTxt.textContent = `ซิงค์รอบ ${adminSelectedRound} ให้ทุกคน`;
-
-      const roundBox = document.getElementById('admin-round-buttons');
-      if (roundBox) {
-        roundBox.innerHTML = [1, 2, 3, 4, 5].map(r => {
-          const active = r === adminSelectedRound;
-          const isLive = r === userCtx.liveRound;
-          return `
-            <button type="button" onclick="selectAdminRound(${r})" class="py-2 px-1 rounded-xl border-2 text-center transition ${
-              active
-                ? 'border-indigo-700 bg-indigo-700 text-white shadow-xs'
-                : 'border-indigo-200 bg-white hover:border-indigo-500 text-slate-800'
-            }">
-              <div class="text-[10px] font-bold ${active ? 'text-gold-400' : (isLive ? 'text-emerald-700' : 'text-slate-400')}">${isLive ? '● รอบเวที' : 'รอบที่'}</div>
-              <div class="font-mono text-base font-extrabold leading-tight">${r}</div>
-            </button>
-          `;
-        }).join('');
-      }
-
-      const tbody = document.getElementById('admin-matrix-tbody');
-      const totalPill = document.getElementById('admin-total-issues-pill');
-      if (totalPill) totalPill.textContent = `รวมทั้งหมด ${morningIssues.length} ข้อ`;
-      if (!tbody) return;
-
-      const colTotals = [0, 0, 0, 0, 0];
-      const rowsHtml = [1, 2, 3, 4, 5].map(g => {
-        let rowSum = 0;
-        const cells = [1, 2, 3, 4, 5].map((c, idx) => {
-          const cnt = morningIssues.filter(m => Number(m.groupNo) === g && Number(m.categoryNo) === c).length;
-          rowSum += cnt;
-          colTotals[idx] += cnt;
-          return `
-            <td class="py-2 px-1.5">
-              <button type="button" onclick="jumpToMatrixCell(${g}, ${c})" class="w-full py-1 rounded-lg font-mono font-extrabold text-xs transition ${
-                cnt > 0
-                  ? 'bg-emerald-50 hover:bg-emerald-200 text-emerald-800 border border-emerald-200'
-                  : 'bg-slate-50 hover:bg-slate-200 text-slate-400 border border-slate-200/70'
-              }">${cnt}</button>
-            </td>
-          `;
-        }).join('');
-        return `
-          <tr>
-            <td class="py-2 px-2.5 text-left font-extrabold text-navy-900 whitespace-nowrap">กลุ่มที่ ${g}</td>
-            ${cells}
-            <td class="py-2 px-2.5 font-mono font-extrabold bg-blue-50/70 text-navy-800">${rowSum}</td>
-          </tr>
-        `;
-      }).join('');
-
-      const footerRow = `
-        <tr class="bg-slate-100 font-extrabold text-navy-900 border-t-2 border-slate-300">
-          <td class="py-2 px-2.5 text-left">รวมทุกกลุ่ม</td>
-          ${colTotals.map(v => `<td class="py-2 px-1.5 font-mono">${v}</td>`).join('')}
-          <td class="py-2 px-2.5 font-mono bg-navy-800 text-gold-400">${morningIssues.length}</td>
-        </tr>
-      `;
-      tbody.innerHTML = rowsHtml + footerRow;
-    }
-
-    function toggleAdminMatrix() {
-      adminMatrixHidden = !adminMatrixHidden;
-      document.getElementById('admin-panel-body')?.classList.toggle('hidden', adminMatrixHidden);
-      const btn = document.getElementById('btn-toggle-matrix');
-      if (btn) btn.textContent = adminMatrixHidden ? 'แสดงแผงควบคุม' : 'ซ่อนตารางสรุป';
-    }
-
-    function selectAdminRound(r) {
-      adminSelectedRound = Math.max(1, Math.min(5, Number(r) || 1));
-      renderAdminControlPanel();
-    }
-
-    async function syncAdminRoundToServer() {
-      if (userCtx.roleLevel !== 'admin') return;
-      const btn = document.getElementById('btn-admin-sync-round');
-      const txt = document.getElementById('btn-admin-sync-round-text');
-      btn.disabled = true;
-      txt.textContent = 'กำลังซิงค์...';
-      isMutating = true;
-      try {
-        const res = await postToApi({ action: 'setWorkshopRound', currentRound: adminSelectedRound });
-        if (res.status !== 'success') throw new Error(res.message || 'ซิงค์รอบไม่สำเร็จ');
-        userCtx.liveRound = adminSelectedRound;
-        lastKnownRound = adminSelectedRound;
-        showToast(`📢 ซิงค์เปลี่ยนเป็นรอบที่ ${adminSelectedRound}/5 ขึ้นเวทีและบัตรทุกคนเรียบร้อยแล้ว`, 'success');
-        renderEverything();
-      } catch (err) {
-        showToast('ซิงค์รอบไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        isMutating = false;
-        btn.disabled = false;
-        txt.textContent = `ซิงค์รอบ ${adminSelectedRound} ให้ทุกคน`;
-      }
-    }
-
-    function jumpToMatrixCell(g, c) {
-      selectedGroup = g;
-      selectedCategory = c;
-      setListScope('match', false);
-      renderEverything();
-      document.getElementById('issues-list-container')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    // ==================== ROSTER CARD ====================
-    function toggleRosterCard() {
-      rosterHidden = !rosterHidden;
-      document.getElementById('roster-body')?.classList.toggle('hidden', rosterHidden);
-      const t = document.getElementById('roster-toggle-text');
-      if (t) t.textContent = rosterHidden ? 'แสดงรายชื่อ' : 'ซ่อนรายชื่อ';
-    }
-
-    function renderRosterCard() {
-      const catNo = selectedCategory;
-      const grpNo = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      const cat = getCategory(catNo);
-
-      const experts = participants.filter(p => parseGroupNo(p.workshopGroup) === catNo && isFixedExpertRole(p));
-      const members = participants.filter(p => parseGroupNo(p.workshopGroup) === grpNo && !isFixedExpertRole(p));
-
-      document.getElementById('roster-title').textContent =
-        `โต๊ะหมวดที่ ${catNo} (${cat.short}) — ⭐ ผู้เชี่ยวชาญ (${experts.length}) + 👥 กลุ่มที่ ${grpNo} (${members.length} ราย)`;
-      document.getElementById('roster-sub').textContent =
-        `รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound} / 5 (ควบคุมโดยเจ้าหน้าที่)`;
-      document.getElementById('roster-exp-title').textContent = `⭐ ผู้เชี่ยวชาญประจำหมวดที่ ${catNo} (นั่งประจำไม่ย้ายโต๊ะ)`;
-      document.getElementById('roster-exp-cnt').textContent = `${experts.length} ราย`;
-      document.getElementById('roster-mem-title').textContent = `👥 สมาชิกกลุ่มที่ ${grpNo} (ย้ายโต๊ะมาด้วยกันทั้งกลุ่ม)`;
-      document.getElementById('roster-mem-cnt').textContent = `${members.length} ราย`;
-
-      const expChips = document.getElementById('roster-exp-chips');
-      const memChips = document.getElementById('roster-mem-chips');
-
-      if (expChips) {
-        if (experts.length > 0) {
-          expChips.innerHTML = experts.map(p => {
-            const name = getActiveDisplayName(p);
-            const isMe = userCtx.id && String(p.id).toUpperCase() === userCtx.id.toUpperCase();
-            return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-bold ${isMe ? 'bg-amber-400 border-amber-500 text-slate-950' : 'bg-white border-amber-300 text-amber-950'}">⭐ ${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
-          }).join('');
-        } else {
-          const cfgGrp = (workshopConfig.groups || []).find(g => Number(g.groupNo) === catNo);
-          const fallback = cfgGrp && cfgGrp.experts ? String(cfgGrp.experts).split(/[\n,]+/).map(s => s.trim()).filter(Boolean) : [];
-          expChips.innerHTML = fallback.length > 0
-            ? fallback.map(n => `<span class="px-2.5 py-1 rounded-xl bg-white border border-amber-300 text-amber-950 text-[11px] font-bold">⭐ ${escapeHtml(n)}</span>`).join('')
-            : `<span class="text-[11px] text-amber-800/70 italic">ยังไม่ได้ระบุผู้เชี่ยวชาญประจำหมวดที่ ${catNo}</span>`;
-        }
-      }
-
-      if (memChips) {
-        memChips.innerHTML = members.length > 0
-          ? members.map(p => {
-              const name = getActiveDisplayName(p);
-              const isMe = userCtx.id && String(p.id).toUpperCase() === userCtx.id.toUpperCase();
-              return `<span class="px-2.5 py-1 rounded-xl border text-[11px] font-semibold ${isMe ? 'bg-navy-700 border-navy-800 text-white font-extrabold' : 'bg-white border-blue-200 text-navy-900'}">${escapeHtml(name)}${isMe ? ' (ท่าน)' : ''}</span>`;
-            }).join('')
-          : `<span class="text-[11px] text-navy-800/60 italic">ยังไม่มีรายชื่อสมาชิกในกลุ่มที่ ${grpNo}</span>`;
-      }
-    }
-
-    // ==================== CATEGORY & GROUP SELECTORS ====================
-    function selectCategory(catNo) {
-      const targetCat = Math.max(1, Math.min(5, Number(catNo) || 1));
-      if (!isCategoryUnlockedForUser(targetCat)) {
-        const schedRound = getScheduledRoundForCategory(userCtx.baseGroup, targetCat);
-        showToast(`🔒 ยังไม่สามารถเข้าหมวดที่ ${targetCat} ได้ — กลุ่มที่ ${userCtx.baseGroup} จะเวียนเข้าหมวดนี้ในรอบที่ ${schedRound} (ตอบได้เฉพาะหมวดรอบปัจจุบันและหมวดที่ผ่านมาแล้วเท่านั้น)`, 'warning');
-        return;
-      }
-      selectedCategory = targetCat;
-      safeSet('ws2_last_cat', String(selectedCategory));
-      renderEverything();
-      checkDuplicateHint(document.getElementById('m-issue-text')?.value || '');
-    }
-
-    function selectGroup(grpNo) {
-      if (isGroupLocked()) return;
-      selectedGroup = Math.max(1, Math.min(5, Number(grpNo) || 1));
-      safeSet('ws2_last_group', String(selectedGroup));
-      renderEverything();
-    }
-
-    function renderCategoryAndGroupSelectors() {
-      const catGrid = document.getElementById('category-buttons-grid');
-      const scopeBox = document.getElementById('category-scope-box');
-      const catPill = document.getElementById('cat-status-pill');
-      const catLockHint = document.getElementById('cat-lock-hint');
-      const grpPill = document.getElementById('group-status-pill');
-      const grpArea = document.getElementById('group-selector-area');
-      if (!catGrid || !grpArea) return;
-
-      const locked = isGroupLocked();
-      const targetGrp = locked ? userCtx.baseGroup : selectedGroup;
-      const curStationForMember = locked ? getRotatingStationForGroup(userCtx.baseGroup, userCtx.liveRound) : 0;
-      const visitingGrpForExpert = (userCtx.roleLevel === 'reviewer' && userCtx.baseGroup) ? getVisitingGroupAtStation(userCtx.baseGroup, userCtx.liveRound) : 0;
-
-      if (catPill) {
-        catPill.textContent = locked
-          ? `📍 รอบ ${userCtx.liveRound}/5: กลุ่ม ${userCtx.baseGroup} อยู่หมวด ${curStationForMember}`
-          : `รอบเวทีปัจจุบัน: รอบที่ ${userCtx.liveRound} / 5`;
-      }
-      if (catLockHint) {
-        catLockHint.textContent = locked
-          ? `ตอบได้เฉพาะหมวดรอบปัจจุบัน (หมวด ${curStationForMember}) และหมวดที่กลุ่มที่ ${userCtx.baseGroup} ผ่านมาแล้วเท่านั้น — หมวดถัดไปจะปลดล็อกอัตโนมัติเมื่อเจ้าหน้าที่เปลี่ยนรอบ`
-          : 'สามารถแตะเลือกหมวดหมู่ที่ต้องการบันทึกได้อย่างอิสระ (ครบทั้ง 5 หมวด)';
-      }
-
-      catGrid.innerHTML = CATEGORIES.map(c => {
-        const active = c.no === selectedCategory;
-        const unlocked = isCategoryUnlockedForUser(c.no);
-        const schedRound = locked ? getScheduledRoundForCategory(userCtx.baseGroup, c.no) : c.no;
-        const isCurrentTable = curStationForMember === c.no;
-        const isPrev = locked && !isCurrentTable && isStationAlreadyVisited(userCtx.baseGroup, c.no, userCtx.liveRound);
-        const isExpHome = userCtx.roleLevel === 'reviewer' && userCtx.baseGroup === c.no;
-        const cnt = morningIssues.filter(m => Number(m.categoryNo) === c.no && Number(m.groupNo) === targetGrp).length;
-
-        if (!unlocked) {
-          return `
-            <button type="button" onclick="selectCategory(${c.no})" class="p-3 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-100 text-slate-400 text-left cursor-not-allowed opacity-75 transition">
-              <div class="flex items-center justify-between gap-1">
-                <span class="font-mono text-xs font-bold text-slate-500">หมวดที่ ${c.no}</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold bg-slate-200 text-slate-600">🔒 รอบที่ ${schedRound}</span>
-              </div>
-              <span class="block text-sm font-bold leading-snug mt-0.5 truncate">${escapeHtml(c.short)}</span>
-              <span class="block text-[10.5px] mt-0.5 text-slate-400">ปลดล็อกเมื่อถึงรอบที่ ${schedRound}</span>
-            </button>
-          `;
-        }
-
-        return `
-          <button type="button" onclick="selectCategory(${c.no})" class="p-3 rounded-2xl border-2 text-left transition ${
-            active
-              ? 'border-navy-700 bg-navy-700 text-white shadow-sm'
-              : 'border-slate-200 bg-white hover:border-navy-700/60 text-slate-800'
-          }">
-            <div class="flex items-center justify-between gap-1">
-              <span class="font-mono text-xs font-extrabold ${active ? 'text-gold-400' : 'text-navy-700'}">หมวดที่ ${c.no}</span>
-              <div class="flex items-center gap-1">
-                ${isCurrentTable ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-blue-100 text-navy-800'}">📍 รอบนี้</span>` : ''}
-                ${isPrev ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-bold ${active ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'}">↩️ ผ่านมาแล้ว</span>` : ''}
-                ${isExpHome ? `<span class="px-1.5 py-0.2 rounded-full text-[9.5px] font-extrabold ${active ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-900'}">⭐ โต๊ะท่าน</span>` : ''}
-              </div>
-            </div>
-            <span class="block text-sm font-extrabold leading-snug mt-0.5 truncate">${escapeHtml(c.short)}</span>
-            <span class="block text-[11px] mt-0.5 ${active ? 'text-blue-100' : 'text-slate-500'}">กลุ่ม ${targetGrp} ส่งแล้ว ${cnt} ข้อ</span>
-          </button>
-        `;
-      }).join('');
-
-      const curCat = getCategory(selectedCategory);
-      if (scopeBox) {
-        scopeBox.innerHTML = `<strong class="text-navy-800">ขอบเขตหมวดที่ ${curCat.no} (${escapeHtml(curCat.name)}):</strong> ${escapeHtml(curCat.scope)}`;
-      }
-
-      if (locked) {
-        if (grpPill) grpPill.textContent = `🔒 ล็อกกลุ่มที่ ${userCtx.baseGroup}`;
-        grpArea.innerHTML = `
-          <div class="p-3.5 rounded-2xl border-2 border-maroon-700 bg-gradient-to-r from-maroon-800 to-maroon-700 text-white flex flex-wrap items-center justify-between gap-2 shadow-xs">
-            <div class="flex items-center gap-2.5">
-              <span class="w-10 h-10 rounded-xl bg-white/15 border border-gold-400/60 text-gold-400 font-mono text-xl font-extrabold flex items-center justify-center shrink-0">${userCtx.baseGroup}</span>
-              <div>
-                <p class="font-extrabold text-sm sm:text-base leading-tight">กลุ่มที่ ${userCtx.baseGroup} (กลุ่มประจำตัวของท่าน)</p>
-                <p class="text-[11px] text-rose-100 mt-0.5">🔒 ล็อกกลุ่มตามบัตรประจำตัวอัตโนมัติ ไม่ต้องกดเลือกกลุ่ม</p>
-              </div>
-            </div>
-            <span class="px-2.5 py-1 rounded-full bg-gold-500 text-slate-950 text-xs font-extrabold shrink-0">🔒 ล็อกกลุ่มแล้ว</span>
-          </div>
-        `;
-      } else {
-        if (grpPill) {
-          grpPill.textContent = visitingGrpForExpert
-            ? `📍 รอบ ${userCtx.liveRound}/5: กลุ่มที่ ${visitingGrpForExpert} อยู่ที่โต๊ะท่าน`
-            : `กำลังเลือกกลุ่มที่ ${selectedGroup}`;
-        }
-        grpArea.innerHTML = `
-          <div class="grid grid-cols-5 gap-2">
-            ${[1, 2, 3, 4, 5].map(g => {
-              const active = g === selectedGroup;
-              const isVisiting = visitingGrpForExpert === g;
-              return `
-                <button type="button" onclick="selectGroup(${g})" class="py-2.5 px-1.5 rounded-2xl border-2 font-extrabold text-center transition ${
-                  active
-                    ? 'border-maroon-700 bg-maroon-700 text-white shadow-sm'
-                    : 'border-slate-200 bg-white hover:border-maroon-600/60 text-slate-700'
-                }">
-                  ${isVisiting ? `<span class="block text-[9.5px] font-bold ${active ? 'text-gold-400' : 'text-emerald-700'} leading-none mb-0.5">📍 รอบนี้</span>` : ''}
-                  <span class="block text-[11px] font-semibold opacity-85">กลุ่มที่</span>
-                  <span class="block font-mono text-lg leading-tight">${g}</span>
-                </button>
-              `;
-            }).join('')}
-          </div>
-        `;
-      }
-    }
-
-    // ==================== TEAMMATE DUPLICATE PREVENTION ====================
-    function renderTeammatePanel() {
-      const titleEl = document.getElementById('teammate-panel-title');
-      const cntEl = document.getElementById('teammate-panel-count');
-      const listEl = document.getElementById('teammate-panel-list');
-      if (!listEl) return;
-
-      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      const items = morningIssues
-        .filter(m => Number(m.groupNo) === targetGrp && Number(m.categoryNo) === selectedCategory)
-        .slice()
-        .reverse();
-
-      if (titleEl) {
-        titleEl.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700 shrink-0"></i><span>ประเด็นที่เพื่อนในกลุ่มที่ ${targetGrp} ส่งแล้วในหมวดที่ ${selectedCategory} (ดูเพื่อกันถามซ้ำ)</span>`;
-      }
-      if (cntEl) cntEl.textContent = `${items.length} ข้อ`;
-
-      if (items.length === 0) {
-        listEl.innerHTML = `<p class="text-emerald-800/75 italic py-1">ยังไม่มีเพื่อนในกลุ่มที่ ${targetGrp} ส่งประเด็นในหมวดที่ ${selectedCategory} — ท่านสามารถพิมพ์ส่งข้อแรกได้เลยครับ</p>`;
+      if (list.length === 0) {
+        box.innerHTML = `<div class="py-10 text-center text-xs text-slate-400">${feedTab === 'checked' ? 'ยังไม่มีผู้เช็กอินในวันนี้' : 'เช็กอินครบทุกคนแล้ว!'}</div>`;
         return;
       }
 
-      listEl.innerHTML = items.map(item => {
-        const u = getUrgencyBadge(item.urgency);
+      box.innerHTML = list.map(p => {
+        const activeName = getActiveName(p);
+        const checked = isCheckedIn(p);
         return `
-          <div class="p-2 rounded-xl bg-white border border-emerald-200 flex items-start justify-between gap-2">
+          <div class="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border ${checked ? 'border-emerald-200 dark:border-emerald-800' : 'border-slate-200 dark:border-slate-700'} flex items-center justify-between gap-2 text-xs">
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="font-mono font-extrabold text-navy-700">${escapeHtml(item.issueId)}</span>
-                <span class="px-1.5 py-0.2 rounded-full border text-[10px] font-bold ${u.cls}">${u.label}</span>
-                <span class="text-[10.5px] text-slate-500">โดย ${escapeHtml(item.recorder || '-')}</span>
+                <span class="font-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded ${checked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-navy-800'}">${escapeHtml(p.id)}</span>
+                <span class="text-[11px] font-semibold text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+                ${p.roomNo ? `<span class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] font-bold">ห้อง ${escapeHtml(p.roomNo)}</span>` : ''}
+                ${p.food && p.food !== 'อาหารทั่วไป' ? `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">${escapeHtml(p.food)}</span>` : ''}
               </div>
-              <p class="font-semibold text-slate-800 mt-0.5 leading-snug break-words">${escapeHtml(item.issueText)}</p>
+              <p class="font-bold text-slate-900 dark:text-white truncate mt-0.5">${escapeHtml(activeName)}</p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              ${checked ? `
+                <span class="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-mono text-[11px] font-bold">${escapeHtml(p[currentDay])}</span>
+                <button type="button" onclick="speakPersonById('${escapeHtml(p.id)}')" title="พูดต้อนรับอีกครั้ง" class="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-navy-700 transition">
+                  <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                </button>
+                <button type="button" onclick="performCheckIn('${escapeHtml(p.id)}', true, 'QR Scan')" title="ยกเลิกเช็กอิน" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition">
+                  <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : `
+                <button type="button" onclick="unlockAllAudio(); performCheckIn('${escapeHtml(p.id)}', false, 'QR Scan');" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition">
+                  เช็กอิน
+                </button>
+              `}
             </div>
           </div>
         `;
       }).join('');
+      if (window.lucide) lucide.createIcons();
     }
 
-    function checkDuplicateHint(rawText) {
-      const box = document.getElementById('m-duplicate-warning');
-      if (!box) return;
-      const q = String(rawText || '').trim().toLowerCase();
-      const editId = document.getElementById('m-edit-id').value;
-      if (q.length < 6) {
+    function speakPersonById(id) {
+      unlockAllAudio();
+      const p = participants.find(x => x.id === id);
+      if (!p) return;
+      const ending = voiceEnding ? ` ${voiceEnding}` : '';
+      speakWelcome(`ยินดีต้อนรับ ${getActiveName(p)}${ending}`, true);
+    }
+
+    // ==================== OPTIMISTIC CHECK-IN & WELCOME CARD ====================
+    function showWelcomeCard(type, person, customTitle = '', customSub = '') {
+      const card = document.getElementById('welcome-display-card');
+      const emptyEl = document.getElementById('welcome-empty-state');
+      const activeEl = document.getElementById('welcome-active-state');
+      const badge = document.getElementById('wd-status-badge');
+      const idEl = document.getElementById('wd-id');
+      const timeEl = document.getElementById('wd-time');
+      const nameEl = document.getElementById('wd-name');
+      const subEl = document.getElementById('wd-sub-info');
+      const spokenEl = document.getElementById('wd-spoken-preview');
+      const badgesRow = document.getElementById('wd-badges-row');
+      const docBox = document.getElementById('wd-doc-alert-box');
+      const portalLink = document.getElementById('wd-portal-link');
+      const undoBtn = document.getElementById('wd-undo-btn');
+
+      emptyEl.classList.add('hidden');
+      activeEl.classList.remove('hidden');
+      card.classList.remove('welcome-card-pop');
+      void card.offsetWidth;
+      card.classList.add('welcome-card-pop');
+
+      const borderMap = {
+        success: 'bg-white dark:bg-slate-800 rounded-3xl p-5 border-2 border-emerald-500 shadow-md transition-all welcome-card-pop',
+        warn: 'bg-white dark:bg-slate-800 rounded-3xl p-5 border-2 border-amber-400 shadow-md transition-all welcome-card-pop',
+        error: 'bg-white dark:bg-slate-800 rounded-3xl p-5 border-2 border-rose-500 shadow-md transition-all welcome-card-pop'
+      };
+      card.className = borderMap[type] || borderMap.success;
+
+      const badgeMap = {
+        success: { cls: 'px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-extrabold', text: customTitle || '✓ เช็กอินสำเร็จ' },
+        warn: { cls: 'px-3 py-1 rounded-full bg-amber-500 text-slate-950 text-xs font-extrabold', text: customTitle || '⚠️ เช็กอินไปแล้ว' },
+        error: { cls: 'px-3 py-1 rounded-full bg-rose-600 text-white text-xs font-extrabold', text: customTitle || '✕ ไม่พบข้อมูล' }
+      };
+      badge.className = badgeMap[type].cls;
+      badge.textContent = badgeMap[type].text;
+
+      if (!person) {
+        idEl.textContent = 'NOT FOUND';
+        timeEl.textContent = '';
+        nameEl.textContent = customTitle || 'ไม่พบรหัสในระบบ';
+        subEl.textContent = customSub || 'กรุณาตรวจสอบ QR Code หรือลงทะเบียน Walk-in ที่หน้า Dashboard';
+        spokenEl.textContent = '';
+        badgesRow.innerHTML = '';
+        docBox.classList.add('hidden');
+        portalLink.classList.add('hidden');
+        undoBtn.classList.add('hidden');
+        return;
+      }
+
+      const isSub = hasSubstitute(person);
+      const activeName = getActiveName(person);
+      idEl.textContent = person.id;
+      timeEl.textContent = person[currentDay] ? `เวลา ${person[currentDay]} น.` : '';
+      nameEl.textContent = activeName;
+      subEl.textContent = isSub
+        ? `ผู้แทน ${person.fullName} • ${person.unitDetail || person.mainUnit}`
+        : [person.position, person.unitDetail || person.mainUnit].filter(Boolean).join(' • ');
+
+      spokenEl.textContent = scanVoiceEnabled && lastWelcomedText ? `🔊 ข้อความเสียง: “${lastWelcomedText}”` : '';
+
+      const chips = [];
+      if (person.roomNo) chips.push(`<span class="px-2.5 py-1 rounded-xl bg-sky-100 text-sky-900 font-bold text-xs">🛏️ ห้อง ${escapeHtml(person.roomNo)}${person.roommate ? ` (คู่: ${escapeHtml(person.roommate)})` : ''}</span>`);
+      else if (person.stay30 === 'พัก' || person.stay1 === 'พัก') chips.push(`<span class="px-2.5 py-1 rounded-xl bg-cyan-50 text-cyan-800 border border-cyan-200 font-bold text-xs">🏨 เข้าพักโรงแรม (รอระบุเลขห้อง)</span>`);
+      if (person.food && person.food !== 'อาหารทั่วไป') chips.push(`<span class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-extrabold text-xs">🍽️ ${escapeHtml(person.food)}</span>`);
+      if (person.workshopGroup) chips.push(`<span class="px-2.5 py-1 rounded-xl bg-indigo-100 text-indigo-900 font-bold text-xs">👥 กลุ่มสัมมนา ${escapeHtml(person.workshopGroup)}</span>`);
+      if (person.role && person.role !== 'ผู้เข้าร่วมสัมมนา') chips.push(`<span class="px-2.5 py-1 rounded-xl bg-purple-100 text-purple-900 font-bold text-xs">⭐ ${escapeHtml(person.role)}</span>`);
+      badgesRow.innerHTML = chips.join('');
+
+      const missing = getMissingDocs(person);
+      if (person.docAlert || missing.length > 0) {
+        const alertParts = [];
+        if (person.docAlert) alertParts.push(`🔔 แจ้งเตือน: ${person.docAlert}`);
+        if (missing.length > 0) alertParts.push(`⚠️ ยังขาด: ${missing.join(', ')}`);
+        docBox.textContent = alertParts.join(' • ');
+        docBox.classList.remove('hidden');
+      } else {
+        docBox.classList.add('hidden');
+      }
+
+      portalLink.href = `portal.html?id=${encodeURIComponent(person.id)}&staff=1`;
+      portalLink.classList.remove('hidden');
+
+      if (isCheckedIn(person)) {
+        undoBtn.classList.remove('hidden');
+        undoBtn.onclick = () => performCheckIn(person.id, true, 'QR Scan');
+      } else {
+        undoBtn.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function performCheckIn(id, isUndo = false, method = 'QR Scan') {
+      const target = participants.find(p => p.id.toUpperCase() === String(id).trim().toUpperCase());
+      if (!target) {
+        playBeep('error');
+        showWelcomeCard('error', null, `ไม่พบรหัส "${id}"`, 'ตรวจสอบ QR Code หรือลงทะเบียน Walk-in ในหน้า Dashboard');
+        showToast(`ไม่พบรหัส ${id} ในระบบ`, 'error');
+        return;
+      }
+
+      const prevVal = target[currentDay];
+      const nowTime = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
+      const activeName = getActiveName(target);
+      const ending = voiceEnding ? ` ${voiceEnding}` : '';
+
+      target[currentDay] = isUndo ? '' : nowTime;
+      lastParticipantsSnapshot = JSON.stringify(participants);
+      pauseAutoRefreshUntil = Date.now() + 6000;
+      updateKpis();
+      renderFeedList();
+
+      if (!isUndo) {
+        playBeep('success');
+        if (scanVoiceEnabled) speakWelcome(`ยินดีต้อนรับ ${activeName}${ending}`);
+        showWelcomeCard('success', target, '✓ เช็กอินสำเร็จ');
+        showToast(`✓ เช็กอิน ${activeName} (${nowTime} น.)`, 'success');
+      } else {
+        showWelcomeCard('warn', target, 'ยกเลิกเช็กอินแล้ว');
+        showToast(`ยกเลิกเช็กอิน ${activeName} แล้ว`, 'warning');
+      }
+
+      isMutatingData = true;
+      try {
+        const res = await postToApi({ action: 'checkIn', id: target.id, day: currentDay, method, undo: isUndo });
+        if (res.status === 'already_checked_in' && !isUndo) {
+          showToast(res.message, 'warning');
+        } else if (res.status !== 'success') {
+          throw new Error(res.message || 'บันทึกไม่สำเร็จ');
+        } else if (res.time && !isUndo) {
+          target[currentDay] = formatThaiTime(res.time);
+          lastParticipantsSnapshot = JSON.stringify(participants);
+          renderFeedList();
+        }
+      } catch (err) {
+        target[currentDay] = prevVal;
+        lastParticipantsSnapshot = JSON.stringify(participants);
+        updateKpis();
+        renderFeedList();
+        showToast('บันทึกเช็กอินไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutatingData = false;
+      }
+    }
+
+    // ==================== HD CAMERA & QR DECODING ====================
+    function showScannerErrorOverlay(msg) {
+      const box = document.getElementById('scan-camera-error-box');
+      const msgEl = document.getElementById('scan-camera-error-msg');
+      const statusEl = document.getElementById('scan-camera-status');
+      if (msgEl) msgEl.textContent = msg;
+      if (box) box.classList.remove('hidden');
+      if (statusEl) statusEl.textContent = 'กล้องไม่พร้อมใช้งาน';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function hideScannerErrorOverlay() {
+      document.getElementById('scan-camera-error-box')?.classList.add('hidden');
+    }
+
+    async function refreshAvailableCameras(activeDeviceId = '') {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        scanAvailableCameras = devices.filter(d => d.kind === 'videoinput');
+        const bar = document.getElementById('scan-device-bar');
+        const sel = document.getElementById('scan-camera-select');
+        if (!bar || !sel) return;
+
+        if (scanAvailableCameras.length > 1) {
+          sel.innerHTML = scanAvailableCameras.map((d, idx) =>
+            `<option value="${escapeHtml(d.deviceId)}" ${d.deviceId === activeDeviceId ? 'selected' : ''}>${escapeHtml(d.label || `กล้องที่ ${idx + 1}`)}</option>`
+          ).join('');
+          bar.classList.remove('hidden');
+        } else {
+          bar.classList.add('hidden');
+        }
+      } catch (e) {}
+    }
+
+    function selectScannerDevice(deviceId) {
+      scanSelectedDeviceId = deviceId || '';
+      startCameraStream();
+    }
+
+    async function applyCameraSharpnessConstraints(track, videoEl) {
+      const zoomBar = document.getElementById('scan-zoom-bar');
+      const resBadge = document.getElementById('scan-res-badge');
+      scanSupportsZoom = false;
+      if (zoomBar) zoomBar.classList.add('hidden');
+
+      let hasAutoFocus = false;
+      if (track && typeof track.getCapabilities === 'function') {
+        try {
+          const caps = track.getCapabilities() || {};
+          const adv = {};
+          if (Array.isArray(caps.focusMode)) {
+            if (caps.focusMode.includes('continuous')) { adv.focusMode = 'continuous'; hasAutoFocus = true; }
+            else if (caps.focusMode.includes('single-shot')) { adv.focusMode = 'single-shot'; hasAutoFocus = true; }
+          }
+          if (Array.isArray(caps.exposureMode) && caps.exposureMode.includes('continuous')) adv.exposureMode = 'continuous';
+          if (Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes('continuous')) adv.whiteBalanceMode = 'continuous';
+          if (Object.keys(adv).length > 0) await track.applyConstraints({ advanced: [adv] }).catch(() => {});
+
+          if (caps.zoom && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number' && caps.zoom.max > caps.zoom.min) {
+            scanSupportsZoom = true;
+            scanZoomMin = caps.zoom.min;
+            scanZoomMax = Math.min(caps.zoom.max, 4);
+            const slider = document.getElementById('scan-zoom-slider');
+            if (slider) {
+              slider.min = String(scanZoomMin);
+              slider.max = String(scanZoomMax);
+              slider.step = String(caps.zoom.step && caps.zoom.step <= 0.2 ? caps.zoom.step : 0.1);
+            }
+            const savedZoom = parseFloat(safeGet('ai_seminar_scan_zoom', '1')) || 1;
+            const initialZoom = Math.max(scanZoomMin, Math.min(scanZoomMax, savedZoom));
+            await setScannerZoom(initialZoom, false);
+            if (zoomBar) zoomBar.classList.remove('hidden');
+          }
+        } catch (e) {}
+      }
+
+      const updateResBadge = () => {
+        if (!resBadge || !videoEl || !videoEl.videoWidth) return;
+        resBadge.textContent = `${videoEl.videoWidth}×${videoEl.videoHeight}${hasAutoFocus ? ' • AF' : ''}`;
+        resBadge.classList.remove('hidden');
+      };
+      updateResBadge();
+      setTimeout(updateResBadge, 450);
+    }
+
+    async function setScannerZoom(val, persist = true) {
+      if (!scanStream || !scanSupportsZoom) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track) return;
+      const clamped = Math.max(scanZoomMin, Math.min(scanZoomMax, parseFloat(val) || scanZoomMin));
+      scanZoomCurrent = clamped;
+      document.getElementById('scan-zoom-slider').value = String(clamped);
+      document.getElementById('scan-zoom-value').textContent = `${clamped.toFixed(1)}x`;
+      if (persist) safeSet('ai_seminar_scan_zoom', String(clamped));
+      try { await track.applyConstraints({ advanced: [{ zoom: clamped }] }); } catch (e) {}
+    }
+
+    async function handleTapToFocus(event) {
+      unlockAllAudio();
+      if (!scanActive || !scanStream) return;
+      const vp = document.getElementById('scanner-viewport');
+      const ring = document.getElementById('scan-focus-ring');
+      if (vp && ring && event) {
+        const rect = vp.getBoundingClientRect();
+        ring.style.left = `${event.clientX - rect.left}px`;
+        ring.style.top = `${event.clientY - rect.top}px`;
+        ring.classList.remove('hidden', 'focus-ring-pop');
+        void ring.offsetWidth;
+        ring.classList.add('focus-ring-pop');
+      }
+      const track = scanStream.getVideoTracks()[0];
+      if (!track || typeof track.getCapabilities !== 'function') return;
+      try {
+        const caps = track.getCapabilities() || {};
+        if (Array.isArray(caps.focusMode)) {
+          if (caps.focusMode.includes('single-shot')) {
+            await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }).catch(() => {});
+            if (caps.focusMode.includes('continuous')) {
+              setTimeout(() => {
+                if (scanActive && track.readyState === 'live') {
+                  track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+                }
+              }, 650);
+            }
+          } else if (caps.focusMode.includes('continuous')) {
+            await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function startCameraStream() {
+      const sessionId = ++scanCameraSessionId;
+      scanPausedByUser = false;
+      stopCameraStream(false);
+      hideScannerErrorOverlay();
+
+      const statusEl = document.getElementById('scan-camera-status');
+      const video = document.getElementById('scan-video');
+      const powerBtn = document.getElementById('btn-cam-power');
+      const liveDot = document.getElementById('cam-live-dot');
+      if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง Full HD...';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showScannerErrorOverlay('เบราว์เซอร์ไม่รองรับกล้อง (ต้องเปิดผ่าน HTTPS เช่น GitHub Pages) — สามารถพิมพ์รหัสหรือเลือกรูปด้านล่างได้ทันที');
+        return;
+      }
+
+      const candidates = [];
+      if (scanSelectedDeviceId) {
+        candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+        candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId } }, audio: false });
+      }
+      candidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+      candidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      candidates.push({ video: { facingMode: scanFacingMode }, audio: false });
+      candidates.push({ video: true, audio: false });
+
+      let stream = null;
+      let lastErr = null;
+      for (const c of candidates) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(c);
+          if (stream) break;
+        } catch (err) {
+          lastErr = err;
+          if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) break;
+        }
+      }
+
+      if (sessionId !== scanCameraSessionId) {
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+
+      if (!stream) {
+        let friendly = 'เปิดกล้องไม่สำเร็จ กรุณาอนุญาตสิทธิ์กล้องในเบราว์เซอร์';
+        if (lastErr) {
+          if (lastErr.name === 'NotAllowedError' || lastErr.name === 'PermissionDeniedError') {
+            friendly = 'ยังไม่ได้อนุญาตสิทธิ์เข้าถึงกล้อง กรุณากดรูปกุญแจข้างช่อง URL แล้วอนุญาตกล้อง จากนั้นกดเปิดกล้องใหม่';
+          } else if (lastErr.name === 'NotFoundError' || lastErr.name === 'DevicesNotFoundError') {
+            friendly = 'ไม่พบอุปกรณ์กล้องบนเครื่องนี้ (สามารถพิมพ์รหัสหรืออัปโหลดรูป QR ด้านล่างแทนได้)';
+          } else if (lastErr.name === 'NotReadableError' || lastErr.name === 'TrackStartError') {
+            friendly = 'กล้องกำลังถูกใช้งานโดยแอปหรือแท็บอื่นอยู่ กรุณาปิดแอปอื่นแล้วกดลองใหม่';
+          }
+        }
+        showScannerErrorOverlay(friendly);
+        return;
+      }
+
+      scanStream = stream;
+      video.srcObject = stream;
+      video.setAttribute('playsinline', 'true');
+      video.muted = true;
+      video.play().catch(() => {});
+
+      const activeTrack = stream.getVideoTracks()[0];
+      const activeSettings = activeTrack && activeTrack.getSettings ? activeTrack.getSettings() : {};
+      refreshAvailableCameras(activeSettings.deviceId || scanSelectedDeviceId);
+      applyCameraSharpnessConstraints(activeTrack, video);
+
+      scanActive = true;
+      if (powerBtn) {
+        powerBtn.textContent = 'พักกล้อง';
+        powerBtn.className = 'px-2.5 py-1 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-[11px] font-bold transition';
+      }
+      if (liveDot) liveDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0';
+      if (statusEl) statusEl.textContent = 'แตะจอกล้องเพื่อโฟกัส • สแกนได้ทั่วทั้งหน้าจอ';
+      scanRafId = requestAnimationFrame(scanVideoLoop);
+    }
+
+    function stopCameraStream(bumpSession = true) {
+      if (bumpSession) scanCameraSessionId++;
+      scanActive = false;
+      scanTorchOn = false;
+      scanSupportsZoom = false;
+      if (scanRafId) { cancelAnimationFrame(scanRafId); scanRafId = null; }
+      if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+      const video = document.getElementById('scan-video');
+      if (video) video.srcObject = null;
+      document.getElementById('scan-zoom-bar')?.classList.add('hidden');
+      document.getElementById('scan-res-badge')?.classList.add('hidden');
+      const torchBtn = document.getElementById('btn-scan-torch');
+      if (torchBtn) torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
+    }
+
+    function toggleCameraPause() {
+      unlockAllAudio();
+      const powerBtn = document.getElementById('btn-cam-power');
+      const liveDot = document.getElementById('cam-live-dot');
+      if (scanActive) {
+        scanPausedByUser = true;
+        stopCameraStream();
+        showScannerErrorOverlay('หยุดกล้องชั่วคราว (ประหยัดแบตเตอรี่) — กดปุ่มด้านล่างเพื่อเปิดกล้องต่อ');
+        if (powerBtn) {
+          powerBtn.textContent = 'เปิดกล้อง';
+          powerBtn.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-extrabold transition';
+        }
+        if (liveDot) liveDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0';
+      } else {
+        startCameraStream();
+      }
+    }
+
+    function switchScannerCamera() {
+      unlockAllAudio();
+      if (scanAvailableCameras.length > 1) {
+        const curIdx = scanAvailableCameras.findIndex(d => d.deviceId === scanSelectedDeviceId);
+        const nextCam = scanAvailableCameras[(curIdx + 1 + scanAvailableCameras.length) % scanAvailableCameras.length];
+        scanSelectedDeviceId = nextCam.deviceId;
+      } else {
+        scanSelectedDeviceId = '';
+        scanFacingMode = scanFacingMode === 'environment' ? 'user' : 'environment';
+      }
+      startCameraStream();
+    }
+
+    async function toggleScannerTorch() {
+      unlockAllAudio();
+      if (!scanStream) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track || !track.getCapabilities || !track.getCapabilities().torch) {
+        showToast('กล้องนี้ไม่รองรับการเปิดไฟแฟลชจากเบราว์เซอร์', 'warning');
+        return;
+      }
+      try {
+        scanTorchOn = !scanTorchOn;
+        await track.applyConstraints({ advanced: [{ torch: scanTorchOn }] });
+        document.getElementById('btn-scan-torch').className = scanTorchOn
+          ? 'p-1.5 rounded-lg bg-amber-400 text-slate-950 transition'
+          : 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
+      } catch (e) {
+        scanTorchOn = false;
+        showToast('ไม่สามารถควบคุมไฟแฟลชได้', 'warning');
+      }
+    }
+
+    function toggleScannerMode() {
+      unlockAllAudio();
+      scanConfirmMode = !scanConfirmMode;
+      const btn = document.getElementById('btn-scan-mode');
+      btn.textContent = scanConfirmMode ? 'ตรวจก่อนเช็กอิน' : 'สแกนรัว';
+      btn.className = scanConfirmMode
+        ? 'px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-[11px] font-extrabold transition'
+        : 'px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[11px] font-bold transition';
+      cancelPendingScan();
+      showToast(scanConfirmMode ? 'สลับเป็นโหมดตรวจชื่อก่อนยืนยันเช็กอิน' : 'สลับเป็นโหมดสแกนรัวเช็กอินทันที', 'info');
+    }
+
+    function enhanceGrayscaleContrast(imageData) {
+      const d = imageData.data;
+      let min = 255, max = 0;
+      for (let i = 0; i < d.length; i += 16) {
+        const lum = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
+        if (lum < min) min = lum;
+        if (lum > max) max = lum;
+      }
+      const scale = 255 / Math.max(24, max - min);
+      for (let i = 0; i < d.length; i += 4) {
+        const lum = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
+        const v = Math.max(0, Math.min(255, Math.round((lum - min) * scale)));
+        d[i] = d[i + 1] = d[i + 2] = v;
+      }
+      return imageData;
+    }
+
+    function scanVideoLoop(nowTs) {
+      if (!scanActive) return;
+      scanRafId = requestAnimationFrame(scanVideoLoop);
+
+      const minInterval = nativeBarcodeDetector ? 85 : 110;
+      if (nowTs - scanLastDecodeTs < minInterval) return;
+      scanLastDecodeTs = nowTs;
+
+      const video = document.getElementById('scan-video');
+      if (!video || video.readyState < 2 || !video.videoWidth || !video.videoHeight) return;
+
+      scanPassToggle = (scanPassToggle + 1) % 4;
+
+      if (nativeBarcodeDetector && !isNativeDetecting) {
+        isNativeDetecting = true;
+        nativeBarcodeDetector.detect(video).then(barcodes => {
+          if (scanActive && barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+            handleDecodedQr(barcodes[0].rawValue);
+          }
+        }).catch(() => {
+          nativeBarcodeDetector = null;
+        }).finally(() => {
+          isNativeDetecting = false;
+        });
+        if (scanPassToggle !== 3) return;
+      }
+
+      if (typeof jsQR === 'undefined' || !scanOffscreenCtx) return;
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      if (scanPassToggle === 0 || scanPassToggle === 2) {
+        const cropSize = Math.min(vw, vh) * 0.7;
+        const sx = Math.round((vw - cropSize) / 2);
+        const sy = Math.round((vh - cropSize) / 2);
+        const target = Math.min(680, Math.round(cropSize));
+        scanOffscreenCanvas.width = target;
+        scanOffscreenCanvas.height = target;
+        scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, target, target);
+        const code = jsQR(scanOffscreenCtx.getImageData(0, 0, target, target).data, target, target, { inversionAttempts: 'attemptBoth' });
+        if (code && code.data) handleDecodedQr(code.data);
+      } else if (scanPassToggle === 1) {
+        const scale = Math.min(1, 840 / Math.max(vw, vh));
+        const tw = Math.max(1, Math.round(vw * scale));
+        const th = Math.max(1, Math.round(vh * scale));
+        scanOffscreenCanvas.width = tw;
+        scanOffscreenCanvas.height = th;
+        scanOffscreenCtx.drawImage(video, 0, 0, vw, vh, 0, 0, tw, th);
+        const code = jsQR(scanOffscreenCtx.getImageData(0, 0, tw, th).data, tw, th, { inversionAttempts: 'dontInvert' });
+        if (code && code.data) handleDecodedQr(code.data);
+      } else {
+        const cropSize = Math.min(vw, vh) * 0.62;
+        const sx = Math.round((vw - cropSize) / 2);
+        const sy = Math.round((vh - cropSize) / 2);
+        const target = Math.min(560, Math.round(cropSize));
+        scanOffscreenCanvas.width = target;
+        scanOffscreenCanvas.height = target;
+        scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, target, target);
+        const imgData = enhanceGrayscaleContrast(scanOffscreenCtx.getImageData(0, 0, target, target));
+        const code = jsQR(imgData.data, target, target, { inversionAttempts: 'attemptBoth' });
+        if (code && code.data) handleDecodedQr(code.data);
+      }
+    }
+
+    function extractParticipantIdFromQr(rawText) {
+      const s = String(rawText || '').trim();
+      try {
+        if (s.includes('id=')) {
+          const u = new URL(s);
+          const idParam = u.searchParams.get('id');
+          if (idParam) return idParam.trim().toUpperCase();
+        }
+      } catch (e) {
+        const m = s.match(/[?&]id=([^&]+)/i);
+        if (m) return decodeURIComponent(m[1]).trim().toUpperCase();
+      }
+      const kmMatch = s.match(/KM69-[A-Z0-9]+/i);
+      if (kmMatch) return kmMatch[0].toUpperCase();
+      return s.toUpperCase();
+    }
+
+    function flashViewport(cls) {
+      const vp = document.getElementById('scanner-viewport');
+      if (!vp) return;
+      vp.classList.remove('flash-success', 'flash-warn');
+      void vp.offsetWidth;
+      vp.classList.add(cls);
+    }
+
+    function handleDecodedQr(rawText) {
+      const pid = extractParticipantIdFromQr(rawText);
+      const now = Date.now();
+      if (pid === scanLastCode && now - scanLastTime < 2800) return;
+      scanLastCode = pid;
+      scanLastTime = now;
+
+      const person = participants.find(p => p.id.toUpperCase() === pid);
+      if (!person) {
+        playBeep('error');
+        showWelcomeCard('error', null, `ไม่พบรหัส "${pid}"`, 'ตรวจสอบ QR Code หรือลงทะเบียน Walk-in ในหน้า Dashboard');
+        return;
+      }
+
+      const activeName = getActiveName(person);
+      const ending = voiceEnding ? ` ${voiceEnding}` : '';
+
+      if (isCheckedIn(person)) {
+        playBeep('warn');
+        flashViewport('flash-warn');
+        if (scanVoiceEnabled) speakWelcome(`${activeName} เช็กอินไปแล้ว${ending}`);
+        showWelcomeCard('warn', person, `⚠️ เช็กอินไปแล้ว (${person[currentDay]} น.)`);
+        return;
+      }
+
+      if (scanConfirmMode) {
+        scanPendingPerson = person;
+        document.getElementById('sc-pid').textContent = person.id;
+        document.getElementById('sc-name').textContent = activeName;
+        document.getElementById('sc-detail').textContent = [person.unitDetail || person.mainUnit, person.roomNo ? `ห้อง ${person.roomNo}` : ''].filter(Boolean).join(' • ');
+        document.getElementById('scan-confirm-box').classList.remove('hidden');
+        playBeep('warn');
+        return;
+      }
+
+      flashViewport('flash-success');
+      if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
+      performCheckIn(person.id, false, 'QR Scan');
+    }
+
+    function confirmPendingScan() {
+      unlockAllAudio();
+      if (!scanPendingPerson) return;
+      const p = scanPendingPerson;
+      scanPendingPerson = null;
+      document.getElementById('scan-confirm-box').classList.add('hidden');
+      flashViewport('flash-success');
+      performCheckIn(p.id, false, 'QR Scan');
+    }
+
+    function cancelPendingScan() {
+      scanPendingPerson = null;
+      document.getElementById('scan-confirm-box').classList.add('hidden');
+    }
+
+    // ==================== MANUAL SEARCH & IMAGE QR UPLOAD ====================
+    function showManualSuggestions(query) {
+      const box = document.getElementById('manual-suggestions');
+      const q = String(query || '').trim().toLowerCase();
+      if (!q || q.length < 2) {
         box.classList.add('hidden');
         return;
       }
-
-      const words = q.split(/\s+/).filter(w => w.length >= 3);
-      const matches = morningIssues.filter(m => {
-        if (m.issueId === editId) return false;
-        if (Number(m.categoryNo) !== selectedCategory) return false;
-        const txt = String(m.issueText || '').toLowerCase();
-        if (txt.includes(q) || q.includes(txt.slice(0, 14))) return true;
-        if (words.length >= 2) {
-          return words.filter(w => txt.includes(w)).length >= Math.min(2, words.length);
-        }
-        return false;
-      }).slice(0, 2);
+      const matches = participants.filter(p =>
+        `${p.id} ${p.fullName} ${p.substituteName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q)
+      ).slice(0, 8);
 
       if (matches.length === 0) {
         box.classList.add('hidden');
         return;
       }
-
-      box.innerHTML = `⚠️ <strong>พบประเด็นคล้ายกันในหมวดที่ ${selectedCategory}:</strong> ` +
-        matches.map(m => `[${escapeHtml(m.issueId)} • กลุ่ม ${m.groupNo}] “${escapeHtml(m.issueText.slice(0, 75))}${m.issueText.length > 75 ? '...' : ''}”`).join(' / ');
+      box.innerHTML = matches.map(p => {
+        const checked = isCheckedIn(p);
+        return `
+          <button type="button" onclick="pickManualSuggestion('${escapeHtml(p.id)}')" class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50 dark:hover:bg-slate-700 text-xs flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(p.id)}</span>
+              <span class="font-bold ml-1.5">${escapeHtml(getActiveName(p))}</span>
+              <p class="text-[10.5px] text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+            </div>
+            <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold ${checked ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+              ${checked ? `มาแล้ว ${escapeHtml(p[currentDay])}` : 'เช็กอิน'}
+            </span>
+          </button>
+        `;
+      }).join('');
       box.classList.remove('hidden');
     }
 
-    // ==================== CRUD MORNING ISSUES ====================
-    async function submitMorningIssue(e) {
+    function pickManualSuggestion(id) {
+      unlockAllAudio();
+      document.getElementById('manual-qr-input').value = '';
+      document.getElementById('manual-suggestions').classList.add('hidden');
+      scanLastCode = '';
+      handleDecodedQr(id);
+    }
+
+    function handleManualQrSubmit(e) {
       e.preventDefault();
-      if (userCtx.roleLevel === 'dga_viewer') {
-        showToast('ผู้แทน DGA อยู่ในโหมดดูอย่างเดียว ไม่สามารถบันทึกข้อมูลได้', 'warning');
-        return;
+      unlockAllAudio();
+      const inp = document.getElementById('manual-qr-input');
+      const val = inp.value.trim();
+      if (!val) return;
+      document.getElementById('manual-suggestions').classList.add('hidden');
+
+      // หากพิมพ์ชื่อแทนรหัส ให้หาผู้ที่ตรงที่สุด
+      const exactId = extractParticipantIdFromQr(val);
+      let found = participants.find(p => p.id.toUpperCase() === exactId);
+      if (!found) {
+        const q = val.toLowerCase();
+        found = participants.find(p => `${p.fullName} ${p.substituteName}`.toLowerCase().includes(q));
       }
-      if (!isCategoryUnlockedForUser(selectedCategory)) {
-        const schedRound = getScheduledRoundForCategory(userCtx.baseGroup, selectedCategory);
-        showToast(`🔒 ยังไม่สามารถบันทึกหมวดที่ ${selectedCategory} ได้ (จะปลดล็อกในรอบที่ ${schedRound})`, 'warning');
-        return;
-      }
-      const editId = document.getElementById('m-edit-id').value.trim();
-      const recorder = document.getElementById('m-recorder').value.trim();
-      const issueText = document.getElementById('m-issue-text').value.trim();
-      const urgEl = document.querySelector('input[name="m-urgency"]:checked');
-      const urgency = urgEl ? urgEl.value : 'เร่งด่วน';
-      const finalGroup = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      const cat = getCategory(selectedCategory);
-
-      if (!recorder || !issueText) {
-        showToast('กรุณากรอกชื่อผู้บันทึกและประเด็นปัญหาให้ครบถ้วน', 'warning');
-        return;
-      }
-
-      safeSet('ws2_recorder_name', recorder);
-      const btn = document.getElementById('m-submit-btn');
-      const lbl = document.getElementById('m-submit-label');
-      btn.disabled = true;
-      lbl.textContent = 'กำลังบันทึก...';
-      isMutating = true;
-
-      try {
-        const payload = editId
-          ? {
-              action: 'updateMorningIssue',
-              issueId: editId,
-              groupNo: finalGroup,
-              categoryNo: cat.no,
-              categoryName: cat.name,
-              recorder,
-              issueText,
-              urgency
-            }
-          : {
-              action: 'addMorningIssue',
-              groupNo: finalGroup,
-              categoryNo: cat.no,
-              categoryName: cat.name,
-              recorder,
-              issueText,
-              urgency
-            };
-
-        const res = await postToApi(payload);
-        if (res.status !== 'success') throw new Error(res.message || 'บันทึกไม่สำเร็จ');
-
-        showToast(res.message || 'บันทึกประเด็นปัญหาเรียบร้อยแล้ว', 'success');
-        cancelEdit();
-        await fetchAllData(false);
-      } catch (err) {
-        showToast('บันทึกไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        isMutating = false;
-        btn.disabled = false;
-        lbl.textContent = document.getElementById('m-edit-id').value ? 'บันทึกการแก้ไขประเด็น' : 'บันทึกประเด็นปัญหา';
-      }
+      inp.value = '';
+      scanLastCode = '';
+      handleDecodedQr(found ? found.id : val);
     }
 
-    function editIssue(issueId) {
-      const item = morningIssues.find(m => m.issueId === issueId);
-      if (!item || !canModifyIssue(item)) return;
-
-      const targetCat = Number(item.categoryNo) || 1;
-      if (!isCategoryUnlockedForUser(targetCat)) {
-        showToast('ไม่สามารถแก้ไขประเด็นในหมวดที่ยังไม่ถึงรอบได้', 'warning');
-        return;
-      }
-
-      document.getElementById('m-edit-id').value = item.issueId;
-      selectedCategory = targetCat;
-      if (!isGroupLocked()) selectedGroup = Number(item.groupNo) || 1;
-
-      document.getElementById('m-recorder').value = item.recorder || userCtx.name || '';
-      document.getElementById('m-issue-text').value = item.issueText || '';
-      document.querySelectorAll('input[name="m-urgency"]').forEach(r => { r.checked = r.value === item.urgency; });
-
-      document.getElementById('edit-mode-badge').classList.remove('hidden');
-      document.getElementById('m-cancel-edit-btn').classList.remove('hidden');
-      document.getElementById('m-submit-label').textContent = 'บันทึกการแก้ไขประเด็น';
-
-      renderEverything();
-      document.getElementById('morning-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function cancelEdit() {
-      document.getElementById('m-edit-id').value = '';
-      document.getElementById('m-issue-text').value = '';
-      document.getElementById('m-duplicate-warning')?.classList.add('hidden');
-      document.getElementById('edit-mode-badge')?.classList.add('hidden');
-      document.getElementById('m-cancel-edit-btn')?.classList.add('hidden');
-      document.getElementById('m-submit-label').textContent = 'บันทึกประเด็นปัญหา';
-    }
-
-    function openDeleteModal(issueId) {
-      const item = morningIssues.find(m => m.issueId === issueId);
-      if (!item || !canModifyIssue(item)) return;
-      pendingDeleteIssueId = item.issueId;
-      document.getElementById('delete-modal-desc').textContent =
-        `ต้องการลบประเด็น ${item.issueId} (“${item.issueText.slice(0, 70)}${item.issueText.length > 70 ? '...' : ''}”) ใช่หรือไม่?`;
-      document.getElementById('delete-modal').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function closeDeleteModal() {
-      pendingDeleteIssueId = '';
-      document.getElementById('delete-modal')?.classList.add('hidden');
-    }
-
-    async function executeDeleteIssue() {
-      if (!pendingDeleteIssueId) return;
-      const btn = document.getElementById('delete-confirm-btn');
-      btn.disabled = true;
-      btn.textContent = 'กำลังลบ...';
-      isMutating = true;
-      try {
-        const res = await postToApi({ action: 'deleteMorningIssue', issueId: pendingDeleteIssueId });
-        if (res.status !== 'success') throw new Error(res.message || 'ลบไม่สำเร็จ');
-        showToast(res.message || 'ลบประเด็นปัญหาเรียบร้อยแล้ว', 'success');
-        if (document.getElementById('m-edit-id').value === pendingDeleteIssueId) cancelEdit();
-        closeDeleteModal();
-        await fetchAllData(false);
-      } catch (err) {
-        showToast('ลบไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        isMutating = false;
-        btn.disabled = false;
-        btn.textContent = 'ยืนยันลบ';
-      }
-    }
-
-    // ==================== ISSUES LIST ====================
-    function setListScope(scope, shouldRender = true) {
-      listScope = scope;
-      ['match', 'cat', 'group', 'all'].forEach(k => {
-        const btn = document.getElementById(`scope-btn-${k}`);
-        if (!btn) return;
-        btn.className = k === scope
-          ? 'px-2.5 py-1 rounded-lg font-bold bg-navy-700 text-white transition'
-          : 'px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:bg-slate-100 transition';
-      });
-      if (shouldRender) renderIssuesList();
-    }
-
-    function renderIssuesList() {
-      const box = document.getElementById('issues-list-container');
-      const cntEl = document.getElementById('list-count');
-      const subEl = document.getElementById('list-subtitle');
-      if (!box) return;
-
-      const targetGrp = isGroupLocked() ? userCtx.baseGroup : selectedGroup;
-      const search = String(document.getElementById('list-search')?.value || '').trim().toLowerCase();
-      const urgFilter = document.getElementById('list-filter-urgency')?.value || 'all';
-
-      const filtered = morningIssues.filter(item => {
-        if (listScope === 'match' && (Number(item.groupNo) !== targetGrp || Number(item.categoryNo) !== selectedCategory)) return false;
-        if (listScope === 'cat' && Number(item.categoryNo) !== selectedCategory) return false;
-        if (listScope === 'group' && Number(item.groupNo) !== targetGrp) return false;
-        if (urgFilter !== 'all' && item.urgency !== urgFilter) return false;
-        if (search) {
-          const hay = `${item.issueId} ${item.issueText} ${item.recorder} ${item.categoryName}`.toLowerCase();
-          if (!hay.includes(search)) return false;
-        }
-        return true;
-      }).slice().reverse();
-
-      const subMap = {
-        match: `แสดงเฉพาะ กลุ่มที่ ${targetGrp} ใน หมวดที่ ${selectedCategory} (${getCategory(selectedCategory).short})`,
-        cat: `แสดงทุกกลุ่ม (1–5) ใน หมวดที่ ${selectedCategory} (${getCategory(selectedCategory).short})`,
-        group: `แสดงครบทุกหมวด (1–5) ของ กลุ่มที่ ${targetGrp}`,
-        all: 'แสดงประเด็นปัญหาช่วงเช้าทั้งหมดครบทั้ง 5 กลุ่มและ 5 หมวด'
-      };
-      if (cntEl) cntEl.textContent = filtered.length;
-      if (subEl) subEl.textContent = subMap[listScope] || '';
-
-      if (filtered.length === 0) {
-        box.innerHTML = `<div class="py-10 text-center text-xs sm:text-sm text-slate-400">ยังไม่มีรายการประเด็นปัญหาในตัวกรองที่เลือก</div>`;
-        return;
-      }
-
-      box.innerHTML = filtered.map(item => {
-        const cat = getCategory(item.categoryNo);
-        const u = getUrgencyBadge(item.urgency);
-        const editable = canModifyIssue(item);
-        const isDone = item.qaStatus === 'ทำ Q&A แล้ว';
-
-        return `
-          <div class="p-3.5 rounded-2xl border ${isDone ? 'border-emerald-200 bg-emerald-50/35' : 'border-slate-200 bg-slate-50/75'} space-y-2" style="border-left: 5px solid ${cat.color};">
-            <div class="flex flex-wrap items-start justify-between gap-2">
-              <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                <span class="font-mono font-extrabold px-2 py-0.5 rounded-lg bg-navy-800 text-white">${escapeHtml(item.issueId)}</span>
-                <span class="px-2 py-0.5 rounded-lg bg-maroon-700/10 text-maroon-800 font-bold">กลุ่ม ${item.groupNo}</span>
-                <span class="px-2 py-0.5 rounded-lg text-white font-bold" style="background:${cat.color}">หมวด ${cat.no}: ${escapeHtml(cat.short)}</span>
-                <span class="px-2 py-0.5 rounded-full border font-bold text-[11px] ${u.cls}">${u.label}</span>
-                ${isDone
-                  ? `<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10.5px]">✅ ทำ Q&amp;A แล้ว (${escapeHtml(item.qaId || '')})</span>`
-                  : `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[10.5px]">⏳ รอทำคำตอบช่วงบ่าย</span>`
-                }
-              </div>
-
-              ${editable ? `
-                <div class="flex items-center gap-1 shrink-0">
-                  <button type="button" onclick="editIssue('${escapeHtml(item.issueId)}')" title="แก้ไขประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-amber-100 border border-slate-200 text-slate-700 transition">
-                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                  </button>
-                  <button type="button" onclick="openDeleteModal('${escapeHtml(item.issueId)}')" title="ลบประเด็น" class="p-1.5 rounded-lg bg-white hover:bg-rose-100 border border-slate-200 text-rose-600 transition">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-
-            <p class="text-sm sm:text-base font-bold text-slate-900 leading-snug break-words">${escapeHtml(item.issueText)}</p>
-
-            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1 border-t border-slate-200/70">
-              <span>ผู้บันทึก: <strong class="text-slate-700">${escapeHtml(item.recorder || '-')}</strong></span>
-              <span class="font-mono">${escapeHtml(item.timestamp || '')}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    // ==================== ADMIN EXPORTS: เลือกขอบเขต (ทั้งหมด / เฉพาะกลุ่ม / เฉพาะหมวด) ====================
-    function onExportScopeModeChange() {
-      const modeSel = document.getElementById('export-scope-mode');
-      const valSel = document.getElementById('export-scope-value');
-      if (!modeSel || !valSel) return;
-      const mode = modeSel.value;
-
-      if (mode === 'all') {
-        valSel.classList.add('hidden');
-        valSel.innerHTML = '';
-      } else if (mode === 'by_group') {
-        valSel.classList.remove('hidden');
-        valSel.innerHTML = [1, 2, 3, 4, 5].map(g => `<option value="${g}">กลุ่มที่ ${g}</option>`).join('');
-      } else if (mode === 'by_cat') {
-        valSel.classList.remove('hidden');
-        valSel.innerHTML = CATEGORIES.map(c => `<option value="${c.no}">หมวดที่ ${c.no} : ${escapeHtml(c.short)}</option>`).join('');
-      }
-      updateExportScopePreview();
-    }
-
-    function getExportScopeConfig() {
-      const mode = document.getElementById('export-scope-mode')?.value || 'all';
-      const val = Number(document.getElementById('export-scope-value')?.value) || 1;
-
-      if (mode === 'by_group') {
-        const items = morningIssues.filter(m => Number(m.groupNo) === val);
-        return {
-          mode,
-          value: val,
-          label: `เฉพาะกลุ่มที่ ${val} (ครบทุกหมวดของกลุ่มที่ ${val})`,
-          fileTag: `เฉพาะกลุ่ม${val}`,
-          items
+    function handleQrImageUpload(e) {
+      unlockAllAudio();
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file || typeof jsQR === 'undefined' || !scanOffscreenCtx) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, 1200 / Math.max(img.width, img.height));
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          scanOffscreenCanvas.width = w;
+          scanOffscreenCanvas.height = h;
+          scanOffscreenCtx.drawImage(img, 0, 0, w, h);
+          const imgData = scanOffscreenCtx.getImageData(0, 0, w, h);
+          const code = jsQR(imgData.data, w, h, { inversionAttempts: 'attemptBoth' });
+          if (code && code.data) {
+            scanLastCode = '';
+            handleDecodedQr(code.data);
+          } else {
+            playBeep('error');
+            showToast('ไม่พบ QR Code ในรูปภาพที่เลือก', 'error');
+          }
         };
-      }
-      if (mode === 'by_cat') {
-        const cat = getCategory(val);
-        const items = morningIssues.filter(m => Number(m.categoryNo) === val);
-        return {
-          mode,
-          value: val,
-          label: `เฉพาะหมวดที่ ${cat.no} : ${cat.name} (ทุกกลุ่ม 1–5)`,
-          fileTag: `เฉพาะหมวด${cat.no}`,
-          items
-        };
-      }
-      return {
-        mode: 'all',
-        value: 0,
-        label: 'ทั้งหมดทุกกลุ่ม (กลุ่ม 1–5) และทุกหมวด (หมวด 1–5)',
-        fileTag: 'ทั้งหมด5หมวด',
-        items: morningIssues.slice()
+        img.src = reader.result;
       };
+      reader.readAsDataURL(file);
     }
 
-    function updateExportScopePreview() {
-      const pill = document.getElementById('export-scope-count');
-      if (!pill) return;
-      const cfg = getExportScopeConfig();
-      pill.textContent = `พร้อมส่งออก ${cfg.items.length} ข้อ`;
+    // ==================== UTILITIES ====================
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      else document.exitFullscreen().catch(() => {});
     }
 
-    function exportMorningExcelCsv() {
-      const cfg = getExportScopeConfig();
-      if (cfg.items.length === 0) {
-        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
-        return;
-      }
-      const headers = ['Issue_ID', 'Timestamp', 'Group_No', 'Category_No', 'Category_Name', 'Recorder', 'Issue_Text', 'Urgency', 'QA_Status', 'QA_ID'];
-      const rows = cfg.items.map(x => [
-        x.issueId, x.timestamp, x.groupNo, x.categoryNo, x.categoryName,
-        x.recorder, x.issueText, x.urgency, x.qaStatus, x.qaId
-      ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
-
-      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-      triggerFileDownload(csv, 'text/csv;charset=utf-8;', `ใบงานช่วงเช้า_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.csv`);
-      showToast(`ส่งออกไฟล์ Excel (CSV) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      safeSet('ai_seminar_dark', String(isDark));
     }
 
-    function exportMorningText() {
-      const cfg = getExportScopeConfig();
-      if (cfg.items.length === 0) {
-        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
-        return;
-      }
-
-      const lines = [
-        '========================================================================',
-        'ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)',
-        'สรุปผลใบงานที่ 1 ช่วงเช้า : การระดมสมองรวบรวมประเด็นปัญหาและข้อขัดข้อง',
-        `ขอบเขตข้อมูล: ${cfg.label}`,
-        `โครงการสัมมนาจัดทำคลังความรู้งานจราจร (AI "คู่หูจราจร") — รวม ${cfg.items.length} ประเด็น`,
-        '========================================================================',
-        ''
-      ];
-
-      const catsToRender = cfg.mode === 'by_cat'
-        ? CATEGORIES.filter(c => c.no === cfg.value)
-        : CATEGORIES;
-
-      catsToRender.forEach(cat => {
-        const items = cfg.items.filter(m => Number(m.categoryNo) === cat.no);
-        lines.push(`【หมวดที่ ${cat.no} : ${cat.name}】 (${items.length} ประเด็น)`);
-        lines.push(`ขอบเขต: ${cat.scope}`);
-        lines.push('------------------------------------------------------------------------');
-        if (items.length === 0) {
-          lines.push('  (ยังไม่มีข้อมูลประเด็นปัญหาในหมวดนี้)');
-        } else {
-          items.forEach((m, i) => {
-            lines.push(`  ${i + 1}. [${m.issueId} | กลุ่ม ${m.groupNo} | ${m.urgency} | ${m.qaStatus}]`);
-            lines.push(`     ประเด็น: ${m.issueText}`);
-            lines.push(`     ผู้บันทึก: ${m.recorder || '-'} (${m.timestamp || '-'})`);
-          });
-        }
-        lines.push('');
-      });
-
-      triggerFileDownload(lines.join('\n'), 'text/plain;charset=utf-8;', `สรุปใบงานช่วงเช้า_${cfg.fileTag}_${new Date().toISOString().slice(0, 10)}.txt`);
-      showToast(`ส่งออกไฟล์ Text (.txt) — ${cfg.label} เรียบร้อยแล้ว`, 'success');
-    }
-
-    function exportMorningPdfPrint() {
-      const cfg = getExportScopeConfig();
-      if (cfg.items.length === 0) {
-        showToast(`ไม่มีข้อมูลประเด็นปัญหาในขอบเขต “${cfg.label}”`, 'warning');
-        return;
-      }
-      const container = document.getElementById('print-report-container');
-      if (!container) return;
-
-      const catsToRender = cfg.mode === 'by_cat'
-        ? CATEGORIES.filter(c => c.no === cfg.value)
-        : CATEGORIES;
-
-      const sectionsHtml = catsToRender.map(cat => {
-        const items = cfg.items.filter(m => Number(m.categoryNo) === cat.no);
-        return `
-          <div style="margin-bottom: 18px;">
-            <h3 style="font-size: 15px; font-weight: 800; color: #1E3A8A; border-bottom: 2px solid #1E3A8A; padding-bottom: 4px; margin-bottom: 6px;">
-              หมวดที่ ${cat.no} : ${escapeHtml(cat.name)} (${items.length} ประเด็น)
-            </h3>
-            ${items.length === 0
-              ? `<p style="font-size: 12px; color: #64748b; font-style: italic;">— ยังไม่มีรายการในหมวดนี้ —</p>`
-              : `<table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                  <thead>
-                    <tr style="background: #f1f5f9;">
-                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 70px;">รหัส</th>
-                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 55px;">กลุ่ม</th>
-                      <th style="border: 1px solid #cbd5e1; padding: 5px; text-align: left;">ประเด็นปัญหา / ข้อขัดข้อง / คำถามที่พบบ่อย</th>
-                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 85px;">ความเร่งด่วน</th>
-                      <th style="border: 1px solid #cbd5e1; padding: 5px; width: 120px;">ผู้บันทึก</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${items.map(m => `
-                      <tr>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center; font-weight: 700;">${escapeHtml(m.issueId)}</td>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center;">กลุ่ม ${m.groupNo}</td>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${escapeHtml(m.issueText)}</td>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px; text-align: center; font-weight: 700;">${escapeHtml(m.urgency)}</td>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${escapeHtml(m.recorder || '-')}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>`
-            }
-          </div>
-        `;
-      }).join('');
-
-      container.innerHTML = `
-        <div style="text-align: center; margin-bottom: 16px;">
-          <p style="font-size: 12px; font-weight: 700; color: #881337;">ศูนย์บริหารงานจราจร สำนักงานตำรวจแห่งชาติ (ศจร.ตร.)</p>
-          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 2px 0;">รายงานสรุปใบงานที่ 1 ช่วงเช้า : ระดมสมองรวบรวมประเด็นปัญหา</h2>
-          <p style="font-size: 12px; color: #1E3A8A; font-weight: 700; margin: 2px 0;">ขอบเขตข้อมูล: ${escapeHtml(cfg.label)} • รวม ${cfg.items.length} ประเด็น</p>
-        </div>
-        ${sectionsHtml}
-      `;
-
-      window.print();
-    }
-
-    function triggerFileDownload(content, mimeType, filename) {
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // ==================== ADMIN PIN UNLOCK ====================
-    function openAdminUnlockModal() {
-      const inp = document.getElementById('admin-pin-input');
-      if (inp) inp.value = '';
-      document.getElementById('admin-unlock-modal')?.classList.remove('hidden');
-      setTimeout(() => inp?.focus(), 60);
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function closeAdminUnlockModal() {
-      document.getElementById('admin-unlock-modal')?.classList.add('hidden');
-    }
-
-    function submitAdminPin(e) {
-      e.preventDefault();
-      const pin = String(document.getElementById('admin-pin-input')?.value || '').trim();
-      if (pin !== ADMIN_PASSCODE) {
-        showToast('รหัสผ่านคณะทำงานไม่ถูกต้อง', 'error');
-        return;
-      }
-      userCtx.roleLevel = 'admin';
-      safeSessionSet('ai_seminar_ws_admin', 'true');
-      closeAdminUnlockModal();
-      updateCrossPageLinks();
-      setListScope('all', false);
-      renderEverything();
-      showToast('ปลดล็อกโหมดคณะทำงาน (Admin) เรียบร้อยแล้ว', 'success');
-    }
-
-    // ==================== TOAST & ESCAPE ====================
     function showToast(message, type = 'info') {
       const box = document.getElementById('toast-box');
       if (!box) return;
@@ -1855,7 +1803,7 @@
       setTimeout(() => {
         el.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => el.remove(), 300);
-      }, 3300);
+      }, 3200);
     }
 
     function escapeHtml(str) {
