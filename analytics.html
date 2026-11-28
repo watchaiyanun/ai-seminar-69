@@ -612,6 +612,10 @@
         if (!q) return true;
         const cTxt = buildChangeChips(r.changes).join(' ');
         return `${r.requestId} ${r.participantId} ${r.originalName} ${r.summaryText} ${r.note} ${cTxt}`.toLowerCase().includes(q);
+      }).slice().reverse().sort((a, b) => {
+        const aPending = a.status === 'รออนุมัติ' ? 0 : 1;
+        const bPending = b.status === 'รออนุมัติ' ? 0 : 1;
+        return aPending - bPending;
       });
 
       const titles = {
@@ -678,6 +682,7 @@
     }
 
     async function processEditRequest(requestId, decision, clearDocAlert = false) {
+      if (isMutating) return;
       showToast('กำลังบันทึกการตัดสินใจ...', 'info');
       isMutating = true;
       try {
