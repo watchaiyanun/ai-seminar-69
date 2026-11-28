@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>คำขอแก้ไขข้อมูล &amp; สรุปผลประเมิน 10 ข้อ - แชทบอท AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js (โหลดเฉพาะหน้านี้เพื่อลดภาระหน้า index.html) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    html, body {
+      font-family: 'Prompt', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #0f172a !important; }
+      .print-clean { box-shadow: none !important; border-color: #cbd5e1 !important; }
+      .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
+      #print-header { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-navy-900 via-navy-800 to-maroon-800 text-white shadow-md border-b-2 border-amber-400/75">
+    <div class="max-w-[1500px] mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-white/10 border border-amber-300/60 flex items-center justify-center shrink-0">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-amber-300"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-base font-extrabold leading-tight truncate">ศูนย์คำขอแก้ไข &amp; สรุปผลประเมินโครงการ</h1>
+          <div class="flex items-center gap-2 text-[11px] text-blue-100/85">
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
+            <span id="sync-status-text" class="truncate">กำลังเชื่อมต่อ Google Sheets...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-sm transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="summary.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดหน้าสรุปที่พัก &amp; ตรวจเอกสาร">
+          <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-amber-200"></i>
+          <span class="hidden sm:inline">ที่พัก/เอกสาร</span>
+        </a>
+        <a href="groups.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดหน้าจัดกลุ่ม 5 กลุ่ม">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-amber-200"></i>
+          <span class="hidden md:inline">จัดกลุ่ม</span>
+        </a>
+        <a href="portal.html?staff=1" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition" title="เปิดหน้า Portal โหมดเจ้าหน้าที่">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+          <span class="hidden lg:inline">หน้า Portal</span>
+        </a>
+        <button type="button" onclick="window.print()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="พิมพ์ / บันทึกเป็น PDF">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden lg:inline">พิมพ์รายงาน</span>
+        </button>
+        <button type="button" onclick="refreshAllData(true)" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="รีเฟรชข้อมูลล่าสุด">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="สลับโหมดกลางวัน / กลางคืน">
+          <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="openSettingsModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ตั้งค่า API URL">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== PRINT HEADER (แสดงเฉพาะตอนสั่งพิมพ์/PDF) ==================== -->
+  <div id="print-header" class="hidden text-center pb-3 mb-4 border-b-2 border-navy-800">
+    <p class="text-xs font-bold text-maroon-700">สำนักงานยุทธศาสตร์ตำรวจ (สยศ.ตร.) • ศูนย์บริหารงานจราจร ตร. (ศจร.ตร.)</p>
+    <h2 id="print-doc-title" class="text-lg font-extrabold text-slate-900 mt-0.5">รายงานสรุปผลโครงการสัมมนาจัดทำคลังความรู้งานจราจร (แชทบอท AI คู่หูจราจร)</h2>
+    <p id="print-doc-date" class="text-xs text-slate-500 mt-0.5"></p>
+  </div>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="max-w-[1500px] w-full mx-auto px-3 sm:px-5 py-4 space-y-4 flex-1 pb-12">
+
+    <!-- MAIN TAB SWITCHER -->
+    <section class="no-print grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <button type="button" id="main-tab-requests" onclick="switchMainTab('requests')" class="p-3.5 rounded-2xl border-2 text-left flex items-center justify-between gap-3 transition shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="main-tab-requests-icon" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-sm sm:text-base leading-tight truncate">คำขอแก้ไขข้อมูลจาก Portal</p>
+            <p class="text-[11px] opacity-80 truncate">ตรวจสอบคำขอแก้ที่พัก / แจ้งผู้แทน / แนบหนังสือส่งตัว และกดอนุมัติทันที</p>
+          </div>
+        </div>
+        <span id="main-badge-requests" class="px-2.5 py-1 rounded-full font-mono text-xs font-extrabold shrink-0">0 รออนุมัติ</span>
+      </button>
+
+      <button type="button" id="main-tab-eval" onclick="switchMainTab('eval')" class="p-3.5 rounded-2xl border-2 text-left flex items-center justify-between gap-3 transition shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="main-tab-eval-icon" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-sm sm:text-base leading-tight truncate">สรุปผลประเมินความพึงพอใจ (10 ข้อ)</p>
+            <p class="text-[11px] opacity-80 truncate">กราฟแท่งคะแนนเฉลี่ย 3 มิติ • ตารางแปลผล • ข้อเสนอแนะ • Export รายงาน</p>
+          </div>
+        </div>
+        <span id="main-badge-eval" class="px-2.5 py-1 rounded-full font-mono text-xs font-extrabold shrink-0">0 คน</span>
+      </button>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--                    PANEL 1: PORTAL EDIT REQUESTS                          -->
+    <!-- ========================================================================= -->
+    <section id="panel-requests" class="space-y-4">
+
+      <!-- 4 Clickable KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <button type="button" onclick="switchReqSubTab('pending')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-800 hover:ring-2 hover:ring-amber-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300">⏳ รออนุมัติ</p>
+          <p id="req-stat-pending" class="font-mono text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">รอเจ้าหน้าที่ตรวจสอบ</p>
+        </button>
+
+        <button type="button" onclick="switchReqSubTab('approved')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 hover:ring-2 hover:ring-emerald-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">✓ อนุมัติแล้ว</p>
+          <p id="req-stat-approved" class="font-mono text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">อัปเดตลง Google Sheets แล้ว</p>
+        </button>
+
+        <button type="button" onclick="switchReqSubTab('rejected')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 hover:ring-2 hover:ring-rose-500 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-rose-700 dark:text-rose-300">✕ ปฏิเสธ</p>
+          <p id="req-stat-rejected" class="font-mono text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">ไม่ผ่านการอนุมัติ</p>
+        </button>
+
+        <button type="button" onclick="switchReqSubTab('all')" class="print-clean p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-800 hover:ring-2 hover:ring-purple-600 transition text-left shadow-2xs">
+          <p class="text-[11px] font-bold text-purple-700 dark:text-purple-300">📋 คำขอทั้งหมด</p>
+          <p id="req-stat-all" class="font-mono text-2xl sm:text-3xl font-extrabold text-purple-700 dark:text-purple-300 leading-tight mt-1">0</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">ประวัติคำขอจากหน้า Portal</p>
+        </button>
+      </div>
+
+      <!-- Filter & Export Toolbar -->
+      <div class="no-print bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs">
+            <button type="button" onclick="switchReqSubTab('pending')" id="req-tab-pending" class="px-3 py-1.5 rounded-lg font-bold transition">⏳ รออนุมัติ</button>
+            <button type="button" onclick="switchReqSubTab('approved')" id="req-tab-approved" class="px-3 py-1.5 rounded-lg font-semibold transition">✓ อนุมัติแล้ว</button>
+            <button type="button" onclick="switchReqSubTab('rejected')" id="req-tab-rejected" class="px-3 py-1.5 rounded-lg font-semibold transition">✕ ปฏิเสธ</button>
+            <button type="button" onclick="switchReqSubTab('all')" id="req-tab-all" class="px-3 py-1.5 rounded-lg font-semibold transition">ทั้งหมด</button>
+          </div>
+
+          <button type="button" onclick="exportRequestsCSV()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-xs transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> ส่งออก Excel/CSV คำขอแก้ไข
+          </button>
+        </div>
+
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="req-search-input" oninput="renderRequestsPanel()" placeholder="ค้นหารหัส (เช่น KM69-01), ชื่อผู้ขอ, ชื่อผู้แทน, รายละเอียด, หมายเหตุ..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-600" />
+        </div>
+      </div>
+
+      <!-- Requests List Card -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 bg-gradient-to-r from-purple-800 to-navy-800 text-white flex items-center justify-between gap-2">
+          <h2 id="req-list-heading" class="font-bold text-sm sm:text-base">รายการคำขอแก้ไขข้อมูลจากหน้า Portal</h2>
+          <span id="req-list-count" class="px-2.5 py-0.5 rounded-full bg-white text-purple-900 font-mono text-xs font-extrabold">0 รายการ</span>
+        </div>
+        <div id="requests-list-container" class="p-4 space-y-3 text-xs"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!--                    PANEL 2: EVALUATION SUMMARY (10 QUESTIONS)             -->
+    <!-- ========================================================================= -->
+    <section id="panel-eval" class="hidden space-y-4">
+
+      <!-- 4 Executive KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div class="print-clean p-4 rounded-2xl bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 shadow-2xs space-y-1">
+          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400">👥 จำนวนผู้ประเมิน (นิรนาม)</p>
+          <p class="font-mono text-3xl font-extrabold text-navy-700 dark:text-blue-300 leading-none" id="ev-count">0</p>
+          <p id="ev-response-rate" class="text-[11px] font-semibold text-blue-700 dark:text-blue-300">กำลังคำนวณอัตราตอบกลับ...</p>
+        </div>
+
+        <div class="print-clean p-4 rounded-2xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 shadow-2xs space-y-1">
+          <p class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">📘 มิติที่ 1: เนื้อหาสาระ (ข้อ 1–4)</p>
+          <div class="flex items-baseline gap-2">
+            <span id="ev-dim1" class="font-mono text-3xl font-extrabold text-indigo-700 dark:text-indigo-300 leading-none">0.00</span>
+            <span class="text-xs text-slate-400 font-mono">/ 5.00</span>
+          </div>
+          <span id="ev-dim1-level" class="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 text-[10.5px] font-bold">-</span>
+        </div>
+
+        <div class="print-clean p-4 rounded-2xl bg-white dark:bg-slate-800 border border-teal-200 dark:border-teal-800 shadow-2xs space-y-1">
+          <p class="text-[11px] font-bold text-teal-700 dark:text-teal-300">🏛️ มิติที่ 2: การจัดงาน (ข้อ 5–9)</p>
+          <div class="flex items-baseline gap-2">
+            <span id="ev-dim2" class="font-mono text-3xl font-extrabold text-teal-700 dark:text-teal-300 leading-none">0.00</span>
+            <span class="text-xs text-slate-400 font-mono">/ 5.00</span>
+          </div>
+          <span id="ev-dim2-level" class="inline-block px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[10.5px] font-bold">-</span>
+        </div>
+
+        <div class="print-clean p-4 rounded-2xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 shadow-2xs space-y-1">
+          <p class="text-[11px] font-bold text-maroon-700 dark:text-rose-300">⭐ ภาพรวมโครงการ (ข้อ 10)</p>
+          <div class="flex items-baseline gap-2">
+            <span id="ev-overall" class="font-mono text-3xl font-extrabold text-maroon-700 dark:text-rose-300 leading-none">0.00</span>
+            <span class="text-xs text-slate-400 font-mono">/ 5.00</span>
+          </div>
+          <span id="ev-overall-level" class="inline-block px-2 py-0.5 rounded-full bg-rose-50 text-maroon-800 text-[10.5px] font-bold">-</span>
+        </div>
+      </div>
+
+      <!-- Bar Chart Card -->
+      <div class="print-clean print-break-avoid bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="font-extrabold text-sm sm:text-base text-navy-900 dark:text-white">กราฟคะแนนเฉลี่ยความพึงพอใจรายข้อ (ข้อ 1 – ข้อ 10)</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-navy-700 mr-1"></span>มิติ 1: เนื้อหา (1–4)
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-teal-700 ml-3 mr-1"></span>มิติ 2: การจัดงาน (5–9)
+              <span class="inline-block w-2.5 h-2.5 rounded-sm bg-maroon-700 ml-3 mr-1"></span>ภาพรวมโครงการ (10)
+            </p>
+          </div>
+          <div class="no-print flex flex-wrap items-center gap-1.5">
+            <button type="button" onclick="exportEvaluationCSV()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Export CSV ผลประเมิน
+            </button>
+            <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold shadow-xs transition">
+              <i data-lucide="printer" class="w-3.5 h-3.5 text-amber-300"></i> พิมพ์ / PDF รายงาน
+            </button>
+          </div>
+        </div>
+
+        <div class="h-72 sm:h-80 w-full">
+          <canvas id="eval-chart-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Detailed 10-Question Score Table -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 bg-gradient-to-r from-navy-800 via-navy-700 to-maroon-800 text-white flex flex-wrap items-center justify-between gap-2">
+          <h3 class="font-bold text-sm sm:text-base">ตารางสรุปคะแนนเฉลี่ยและระดับความพึงพอใจรายข้อ (10 ข้อ)</h3>
+          <span id="ev-grand-avg-pill" class="px-2.5 py-0.5 rounded-full bg-white/15 border border-amber-300/60 text-amber-200 font-mono text-xs font-extrabold">เฉลี่ยรวม 0.00 / 5.00</span>
+        </div>
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
+                <th class="py-2.5 px-3 font-bold text-center w-12">ข้อ</th>
+                <th class="py-2.5 px-3 font-bold">หัวข้อประเมินความพึงพอใจ</th>
+                <th class="py-2.5 px-3 font-bold w-40 hidden sm:table-cell">สัดส่วนคะแนน</th>
+                <th class="py-2.5 px-3 font-bold text-center w-24">ค่าเฉลี่ย</th>
+                <th class="py-2.5 px-3 font-bold text-center w-28">แปลผลระดับ</th>
+              </tr>
+            </thead>
+            <tbody id="eval-detail-tbody" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Open-Ended Comments Card -->
+      <div class="print-clean bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="message-square-text" class="w-4 h-4 text-maroon-700"></i>
+            <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">ข้อเสนอแนะเพิ่มเติมจากผู้เข้าร่วมสัมมนา (<span id="ev-comments-count" class="font-mono text-maroon-700">0</span> รายการ)</h3>
+          </div>
+          <div class="no-print flex items-center gap-2 text-xs">
+            <input type="text" id="ev-comment-search" oninput="renderEvalComments()" placeholder="ค้นหาในข้อเสนอแนะ..." class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs w-44 sm:w-56 focus:outline-none focus:ring-2 focus:ring-navy-700" />
+          </div>
+        </div>
+        <div id="ev-comments-list" class="p-4 space-y-2.5 text-xs sm:text-sm"></div>
+      </div>
+
+      <!-- Danger Zone: Reset All Evaluations (ก่อนวันงานจริง) -->
+      <div class="no-print p-4 rounded-3xl bg-rose-50/80 dark:bg-rose-950/30 border-2 border-rose-200 dark:border-rose-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="space-y-0.5 max-w-2xl">
+          <p class="font-extrabold text-rose-900 dark:text-rose-200 flex items-center gap-1.5">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+            ล้างข้อมูลทดสอบแบบประเมินทั้งหมด (ใช้สำหรับเคลียร์ข้อมูลทดสอบก่อนวันงานจริง)
+          </p>
+          <p class="text-[11px] text-rose-700 dark:text-rose-300">ระบบจะล้างคะแนนในแท็บ <code class="font-mono font-bold">Evaluations</code> และรีเซ็ตคอลัมน์ <code class="font-mono font-bold">ประเมินแล้ว (คอลัมน์ R)</code> บนหน้าบัตรของทุกคนให้พร้อมทำแบบประเมินใหม่</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btn-reset-eval-ask" onclick="toggleResetEvalConfirm(true)" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs transition">
+            รีเซ็ตสถานะประเมินทั้งหมด
+          </button>
+          <div id="reset-eval-confirm-group" class="hidden flex items-center gap-1.5">
+            <button type="button" onclick="toggleResetEvalConfirm(false)" class="px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold">ยกเลิก</button>
+            <button type="button" id="btn-reset-eval-confirm" onclick="confirmResetAllEvaluations()" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-extrabold shadow-sm">ยืนยันล้างทั้งหมด</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODAL: SETTINGS ==================== -->
+  <div id="settings-modal" onclick="closeSettingsModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+        <h3 class="font-bold text-base">ตั้งค่าการเชื่อมต่อ Google Sheets</h3>
+        <button type="button" onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="saveSettings(event)" class="p-5 space-y-4 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google Apps Script Web App URL</label>
+          <input type="url" id="set-api-url" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
+        </div>
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+          <span class="font-semibold text-xs">ซิงค์ข้อมูลอัตโนมัติทุก 15 วินาที</span>
+          <input type="checkbox" id="set-auto-refresh" class="w-4 h-4 rounded text-navy-700" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">ปิด</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold">บันทึกตั้งค่า</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+
+    const EVAL_QUESTIONS = [
+      { key: 'q1',  num: 1,  dim: 'มิติ 1: เนื้อหาสาระ', color: '#1E3A8A', label: 'ความชัดเจนและประโยชน์ของการบรรยายเรื่องระบบ AI Chatbot "คู่หูจราจร" (สพร./DGA)' },
+      { key: 'q2',  num: 2,  dim: 'มิติ 1: เนื้อหาสาระ', color: '#1E3A8A', label: 'ความครอบคลุมขององค์ความรู้ทั้ง 5 หมวดต่อปัญหาการปฏิบัติงานจราจรจริง' },
+      { key: 'q3',  num: 3,  dim: 'มิติ 1: เนื้อหาสาระ', color: '#1E3A8A', label: 'ประสิทธิภาพของกระบวนการสัมมนากลุ่มย่อยและวิทยากร (ศวปถ.) ในการกลั่นกรองร่างคำถาม–คำตอบ' },
+      { key: 'q4',  num: 4,  dim: 'มิติ 1: เนื้อหาสาระ', color: '#1E3A8A', label: 'ประโยชน์ในการนำไปใช้จริง (เชื่อมั่นว่าระบบ AI "คู่หูจราจร" จะช่วยให้ทำงานง่ายขึ้นและลดข้อโต้แย้งหน้างานได้)' },
+      { key: 'q5',  num: 5,  dim: 'มิติ 2: การจัดงาน',  color: '#0F766E', label: 'ความสะดวก รวดเร็ว และเป็นระบบของการลงทะเบียนและการประสานงาน (กลุ่ม LINE)' },
+      { key: 'q6',  num: 6,  dim: 'มิติ 2: การจัดงาน',  color: '#0F766E', label: 'ความเหมาะสมของอาคาร สถานที่ ห้องประชุม และพื้นที่ทำกิจกรรมกลุ่มย่อย' },
+      { key: 'q7',  num: 7,  dim: 'มิติ 2: การจัดงาน',  color: '#0F766E', label: 'ความเหมาะสมของห้องพัก อาหาร และอาหารว่าง' },
+      { key: 'q8',  num: 8,  dim: 'มิติ 2: การจัดงาน',  color: '#0F766E', label: 'ความพร้อมของอุปกรณ์ โสตทัศนูปกรณ์ ระบบภาพ เสียง และอินเทอร์เน็ต' },
+      { key: 'q9',  num: 9,  dim: 'มิติ 2: การจัดงาน',  color: '#0F766E', label: 'การให้บริการ การต้อนรับ และการอำนวยความสะดวกของเจ้าหน้าที่ผู้จัดงาน' },
+      { key: 'q10', num: 10, dim: 'ภาพรวมโครงการ',       color: '#881337', label: 'ความพึงพอใจโดยรวมต่อการจัดสัมมนาครั้งนี้' }
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    let API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+    let autoRefreshEnabled = safeGet('ai_seminar_auto_refresh', 'true') !== 'false';
+    let autoRefreshTimer = null;
+    let isMutating = false;
+
+    let mainTab = 'requests'; // 'requests' | 'eval'
+    let reqSubTab = 'pending'; // 'pending' | 'approved' | 'rejected' | 'all'
+    let editRequests = [];
+    let evalSummary = { count: 0, averages: {}, comments: [] };
+    let totalParticipantsCount = 0;
+    let evalChartInstance = null;
+
+    // ==================== INITIALIZATION ====================
+    function initAnalyticsApp() {
+      if (safeGet('ai_seminar_dark') === 'true') {
+        document.documentElement.classList.add('dark');
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = String(params.get('tab') || '').trim().toLowerCase();
+      mainTab = (tabParam === 'eval' || tabParam === 'evaluation') ? 'eval' : 'requests';
+
+      switchMainTab(mainTab, false);
+      switchReqSubTab('pending', false);
+      if (window.lucide) lucide.createIcons();
+
+      refreshAllData(true);
+      startAutoRefresh();
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSettingsModal();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAnalyticsApp);
+    } else {
+      initAnalyticsApp();
+    }
+
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (!autoRefreshEnabled || document.hidden || isMutating) return;
+        const modalOpen = !document.getElementById('settings-modal')?.classList.contains('hidden');
+        if (!modalOpen) refreshAllData(false);
+      }, 15000);
+    }
+
+    // ==================== DATA SYNC ====================
+    async function refreshAllData(showLoading = false) {
+      const dot = document.getElementById('sync-status-dot');
+      const txt = document.getElementById('sync-status-text');
+      if (showLoading && txt) txt.textContent = 'กำลังโหลดข้อมูลล่าสุด...';
+
+      const ts = Date.now();
+      try {
+        const [reqRes, evalRes, partRes] = await Promise.all([
+          fetch(`${API_URL}?action=getRequests&_t=${ts}`, { cache: 'no-store' }),
+          fetch(`${API_URL}?action=getEvaluationSummary&_t=${ts}`, { cache: 'no-store' }),
+          fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }).catch(() => null)
+        ]);
+
+        if (reqRes.ok) {
+          const rJson = await reqRes.json();
+          if (rJson.status === 'success' && Array.isArray(rJson.data)) {
+            editRequests = rJson.data;
+          }
+        }
+
+        if (evalRes.ok) {
+          const eJson = await evalRes.json();
+          if (eJson.status === 'success' && eJson.data) {
+            evalSummary = eJson.data;
+          }
+        }
+
+        if (partRes && partRes.ok) {
+          try {
+            const pJson = await partRes.json();
+            if (pJson.status === 'success' && Array.isArray(pJson.data)) {
+              totalParticipantsCount = pJson.data.filter(p => String(p.rsvp || '') !== 'ไม่สามารถเข้าร่วม').length;
+            }
+          } catch (e) {}
+        }
+
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        if (txt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          txt.textContent = `ซิงค์ล่าสุด ${nowStr} น.`;
+        }
+        const printDateEl = document.getElementById('print-doc-date');
+        if (printDateEl) {
+          printDateEl.textContent = `พิมพ์รายงานเมื่อ: ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })} น.`;
+        }
+
+        updateTopTabBadges();
+        renderRequestsPanel();
+        renderEvaluationPanel();
+      } catch (err) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0';
+        if (txt) txt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        if (showLoading) showToast('ไม่สามารถโหลดข้อมูลได้: ' + err.message, 'error');
+      }
+    }
+
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    // ==================== MAIN TAB SWITCHER ====================
+    function switchMainTab(tab, updateUrl = true) {
+      mainTab = tab;
+      const isReq = tab === 'requests';
+      document.getElementById('panel-requests').classList.toggle('hidden', !isReq);
+      document.getElementById('panel-eval').classList.toggle('hidden', isReq);
+
+      const reqBtn = document.getElementById('main-tab-requests');
+      const evalBtn = document.getElementById('main-tab-eval');
+      const reqIcon = document.getElementById('main-tab-requests-icon');
+      const evalIcon = document.getElementById('main-tab-eval-icon');
+      const reqBadge = document.getElementById('main-badge-requests');
+      const evalBadge = document.getElementById('main-badge-eval');
+
+      if (isReq) {
+        reqBtn.className = 'p-3.5 rounded-2xl border-2 border-purple-600 bg-gradient-to-r from-purple-800 to-navy-800 text-white text-left flex items-center justify-between gap-3 transition shadow-md';
+        reqIcon.className = 'w-10 h-10 rounded-xl bg-white/15 text-amber-300 flex items-center justify-center shrink-0';
+        reqBadge.className = 'px-2.5 py-1 rounded-full bg-white text-purple-900 font-mono text-xs font-extrabold shrink-0';
+
+        evalBtn.className = 'p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-amber-400 text-left flex items-center justify-between gap-3 transition';
+        evalIcon.className = 'w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 flex items-center justify-center shrink-0';
+        evalBadge.className = 'px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-mono text-xs font-extrabold shrink-0';
+      } else {
+        evalBtn.className = 'p-3.5 rounded-2xl border-2 border-amber-500 bg-gradient-to-r from-maroon-800 via-navy-800 to-navy-900 text-white text-left flex items-center justify-between gap-3 transition shadow-md';
+        evalIcon.className = 'w-10 h-10 rounded-xl bg-white/15 text-amber-300 flex items-center justify-center shrink-0';
+        evalBadge.className = 'px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-mono text-xs font-extrabold shrink-0';
+
+        reqBtn.className = 'p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-purple-500 text-left flex items-center justify-between gap-3 transition';
+        reqIcon.className = 'w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 flex items-center justify-center shrink-0';
+        reqBadge.className = 'px-2.5 py-1 rounded-full bg-purple-100 text-purple-900 font-mono text-xs font-extrabold shrink-0';
+      }
+
+      const printTitle = document.getElementById('print-doc-title');
+      if (printTitle) {
+        printTitle.textContent = isReq
+          ? 'รายงานรายการคำขอแก้ไขข้อมูลจากหน้า Portal — โครงการสัมมนา AI คู่หูจราจร'
+          : 'รายงานสรุปผลประเมินความพึงพอใจโครงการ (10 ข้อ) — โครงการสัมมนา AI คู่หูจราจร';
+      }
+
+      if (!isReq) {
+        setTimeout(() => renderEvaluationChart(), 60);
+      }
+
+      if (updateUrl) {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.set('tab', tab);
+          window.history.replaceState({}, '', u.toString());
+        } catch (e) {}
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function updateTopTabBadges() {
+      const pendingCnt = editRequests.filter(r => r.status === 'รออนุมัติ').length;
+      document.getElementById('main-badge-requests').textContent = pendingCnt > 0 ? `${pendingCnt} รออนุมัติ` : 'เคลียร์ครบ ✓';
+      document.getElementById('main-badge-eval').textContent = `${evalSummary.count || 0} คนประเมิน`;
+    }
+
+    // ==================== PANEL 1: PORTAL EDIT REQUESTS ====================
+    function switchReqSubTab(tab, shouldRender = true) {
+      reqSubTab = tab;
+      const styles = {
+        pending:  'px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition',
+        approved: 'px-3 py-1.5 rounded-lg font-bold bg-emerald-600 text-white transition',
+        rejected: 'px-3 py-1.5 rounded-lg font-bold bg-rose-600 text-white transition',
+        all:      'px-3 py-1.5 rounded-lg font-bold bg-purple-700 text-white transition'
+      };
+      Object.keys(styles).forEach(k => {
+        const el = document.getElementById(`req-tab-${k}`);
+        if (!el) return;
+        el.className = k === tab
+          ? styles[k]
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition';
+      });
+      if (shouldRender) renderRequestsPanel();
+    }
+
+    function buildChangeChips(c) {
+      if (!c || typeof c !== 'object') return [];
+      const chips = [];
+      if (c.fullName) chips.push(`ชื่อ: ${c.fullName}`);
+      if (c.position) chips.push(`ตำแหน่ง: ${c.position}`);
+      if (c.rsvp) chips.push(`ตอบรับ: ${c.rsvp}`);
+      if (c.substituteName) chips.push(`ผู้แทน: ${c.substituteName}${c.substitutePosition ? ` (${c.substitutePosition})` : ''}`);
+      if (c.stay30 || c.stay1) chips.push(`ที่พัก: 30พ.ย.(${c.stay30 || '-'}) / 1ธ.ค.(${c.stay1 || '-'})`);
+      if (c.roomNo) chips.push(`ห้อง: ${c.roomNo}`);
+      if (c.roommate) chips.push(`คู่พัก: ${c.roommate}`);
+      if (c.food) chips.push(`อาหาร: ${c.food}`);
+      if (c.phone) chips.push(`โทร: ${c.phone}`);
+      if (c.licensePlate) chips.push(`ทะเบียนรถ: ${c.licensePlate}`);
+      return chips;
+    }
+
+    function renderRequestsPanel() {
+      const box = document.getElementById('requests-list-container');
+      if (!box) return;
+
+      const pendingList = editRequests.filter(r => r.status === 'รออนุมัติ');
+      const approvedList = editRequests.filter(r => r.status === 'อนุมัติแล้ว');
+      const rejectedList = editRequests.filter(r => r.status !== 'รออนุมัติ' && r.status !== 'อนุมัติแล้ว');
+
+      document.getElementById('req-stat-pending').textContent = pendingList.length;
+      document.getElementById('req-stat-approved').textContent = approvedList.length;
+      document.getElementById('req-stat-rejected').textContent = rejectedList.length;
+      document.getElementById('req-stat-all').textContent = editRequests.length;
+
+      const q = String(document.getElementById('req-search-input')?.value || '').trim().toLowerCase();
+      const filtered = editRequests.filter(r => {
+        if (reqSubTab === 'pending' && r.status !== 'รออนุมัติ') return false;
+        if (reqSubTab === 'approved' && r.status !== 'อนุมัติแล้ว') return false;
+        if (reqSubTab === 'rejected' && (r.status === 'รออนุมัติ' || r.status === 'อนุมัติแล้ว')) return false;
+        if (!q) return true;
+        const cTxt = buildChangeChips(r.changes).join(' ');
+        return `${r.requestId} ${r.participantId} ${r.originalName} ${r.summaryText} ${r.note} ${cTxt}`.toLowerCase().includes(q);
+      });
+
+      const titles = {
+        pending: 'คำขอแก้ไขข้อมูลที่รอการอนุมัติ',
+        approved: 'คำขอแก้ไขข้อมูลที่อนุมัติเรียบร้อยแล้ว',
+        rejected: 'คำขอแก้ไขข้อมูลที่ถูกปฏิเสธ',
+        all: 'รายการคำขอแก้ไขข้อมูลทั้งหมดจากหน้า Portal'
+      };
+      document.getElementById('req-list-heading').textContent = titles[reqSubTab] || 'คำขอแก้ไขข้อมูล';
+      document.getElementById('req-list-count').textContent = `${filtered.length} รายการ`;
+
+      if (filtered.length === 0) {
+        box.innerHTML = `<div class="py-12 text-center text-slate-400 font-medium">${reqSubTab === 'pending' ? 'ไม่มีคำขอแก้ไขค้างรออนุมัติในขณะนี้ ✓' : 'ไม่พบรายการคำขอแก้ไขตามเงื่อนไขที่เลือก'}</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(r => {
+        const isPending = r.status === 'รออนุมัติ';
+        const isApproved = r.status === 'อนุมัติแล้ว';
+        const chips = buildChangeChips(r.changes);
+        return `
+          <div class="print-break-avoid p-4 rounded-2xl border ${isPending ? 'bg-amber-50/75 dark:bg-amber-950/25 border-amber-300 dark:border-amber-800' : (isApproved ? 'bg-emerald-50/35 dark:bg-emerald-950/15 border-emerald-200 dark:border-emerald-900' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700')} space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-mono font-bold px-2 py-0.5 rounded-lg bg-navy-700 text-white">${escapeHtml(r.participantId)}</span>
+                <strong class="text-sm text-slate-900 dark:text-white">${escapeHtml(r.originalName)}</strong>
+                <span class="text-[11px] font-mono text-slate-500">${escapeHtml(r.timestamp)}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <a href="portal.html?id=${encodeURIComponent(r.participantId)}&staff=1" target="_blank" class="no-print px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 text-[10.5px] font-bold transition">ดูบัตร ↗</a>
+                <span class="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold ${isPending ? 'bg-amber-200 text-amber-950' : (isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800')}">${escapeHtml(r.status)}</span>
+              </div>
+            </div>
+
+            <p class="text-xs sm:text-sm font-bold text-navy-800 dark:text-blue-200">${escapeHtml(r.summaryText || 'ขออัปเดตข้อมูลส่วนบุคคล')}</p>
+
+            ${chips.length > 0 ? `
+              <div class="flex flex-wrap gap-1.5">
+                ${chips.map(ch => `<span class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold">${escapeHtml(ch)}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            ${r.note ? `<p class="text-xs text-slate-600 dark:text-slate-300 italic bg-white/70 dark:bg-slate-800/70 px-3 py-1.5 rounded-xl border border-slate-200/70 dark:border-slate-700">หมายเหตุถึงเจ้าหน้าที่: ${escapeHtml(r.note)}</p>` : ''}
+
+            ${r.letterUrl ? `
+              <div>
+                <a href="${escapeHtml(r.letterUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition">
+                  <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> เปิดไฟล์หนังสือส่งตัวที่แนบมา ↗
+                </a>
+              </div>
+            ` : ''}
+
+            ${isPending ? `
+              <div class="no-print flex flex-wrap justify-end gap-2 pt-2.5 border-t border-amber-200/80 dark:border-amber-800/60">
+                <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'reject', false)" class="px-3.5 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold transition">ปฏิเสธคำขอ</button>
+                <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'approve', false)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs transition">✓ อนุมัติทันที</button>
+                <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'approve', true)" class="px-4 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white font-extrabold shadow-xs transition">✓ อนุมัติ + ล้างแจ้งเตือนบัตร</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function processEditRequest(requestId, decision, clearDocAlert = false) {
+      showToast('กำลังบันทึกการตัดสินใจ...', 'info');
+      isMutating = true;
+      try {
+        const res = await postToApi({ action: 'processEditRequest', requestId, decision, clearDocAlert });
+        if (res.status === 'success') {
+          showToast(res.message || 'ดำเนินการเรียบร้อยแล้ว', 'success');
+          isMutating = false;
+          await refreshAllData(false);
+        } else {
+          showToast(res.message || 'ทำรายการไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+      }
+    }
+
+    function exportRequestsCSV() {
+      const headers = ['Request_ID', 'เวลาส่งคำขอ', 'ID ผู้เข้าร่วม', 'ชื่อ-สกุลเดิม', 'สถานะ', 'สรุปคำขอ', 'รายละเอียดที่ขอแก้ไข', 'หมายเหตุ', 'ลิงก์หนังสือส่งตัว'];
+      const rows = editRequests.map(r => [
+        r.requestId, r.timestamp, r.participantId, r.originalName, r.status,
+        r.summaryText, buildChangeChips(r.changes).join(' | '), r.note, r.letterUrl
+      ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+
+      downloadCsv(headers, rows, `รายการคำขอแก้ไขข้อมูล_Portal_AIคู่หูจราจร_${new Date().toISOString().slice(0, 10)}.csv`);
+      showToast('ส่งออกไฟล์ CSV คำขอแก้ไขเรียบร้อยแล้ว', 'success');
+    }
+
+    // ==================== PANEL 2: EVALUATION SUMMARY (10 QUESTIONS) ====================
+    function interpretSatisfactionScore(score) {
+      const n = Number(score) || 0;
+      if (n <= 0) return { label: 'ยังไม่มีข้อมูล', cls: 'bg-slate-100 text-slate-500' };
+      if (n >= 4.5) return { label: 'มากที่สุด', cls: 'bg-emerald-100 text-emerald-800' };
+      if (n >= 3.5) return { label: 'มาก', cls: 'bg-blue-100 text-navy-800' };
+      if (n >= 2.5) return { label: 'ปานกลาง', cls: 'bg-amber-100 text-amber-900' };
+      if (n >= 1.5) return { label: 'น้อย', cls: 'bg-orange-100 text-orange-900' };
+      return { label: 'น้อยที่สุด', cls: 'bg-rose-100 text-rose-800' };
+    }
+
+    function renderEvaluationPanel() {
+      const d = evalSummary || { count: 0, averages: {}, comments: [] };
+      const avg = d.averages || {};
+      const count = Number(d.count || 0);
+
+      document.getElementById('ev-count').textContent = count;
+      const rateEl = document.getElementById('ev-response-rate');
+      if (rateEl) {
+        if (totalParticipantsCount > 0) {
+          const pct = Math.min(100, Math.round((count / totalParticipantsCount) * 100));
+          rateEl.textContent = `คิดเป็น ${pct}% จากผู้เข้าร่วม ${totalParticipantsCount} ราย`;
+        } else {
+          rateEl.textContent = 'รวบรวมจากแท็บ Evaluations แบบนิรนาม 100%';
+        }
+      }
+
+      const dim1 = Number(avg.dim1 || 0);
+      const dim2 = Number(avg.dim2 || 0);
+      const overall = Number(avg.overall || 0);
+
+      document.getElementById('ev-dim1').textContent = dim1.toFixed(2);
+      document.getElementById('ev-dim2').textContent = dim2.toFixed(2);
+      document.getElementById('ev-overall').textContent = overall.toFixed(2);
+
+      const lv1 = interpretSatisfactionScore(dim1);
+      const lv2 = interpretSatisfactionScore(dim2);
+      const lvO = interpretSatisfactionScore(overall);
+      document.getElementById('ev-dim1-level').className = `inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold ${lv1.cls}`;
+      document.getElementById('ev-dim1-level').textContent = `ระดับ: ${lv1.label}`;
+      document.getElementById('ev-dim2-level').className = `inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold ${lv2.cls}`;
+      document.getElementById('ev-dim2-level').textContent = `ระดับ: ${lv2.label}`;
+      document.getElementById('ev-overall-level').className = `inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold ${lvO.cls}`;
+      document.getElementById('ev-overall-level').textContent = `ระดับ: ${lvO.label}`;
+
+      const scores = EVAL_QUESTIONS.map(q => Number(avg[q.key] || 0));
+      const grandAvg = count > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      document.getElementById('ev-grand-avg-pill').textContent = `เฉลี่ยรวม 10 ข้อ: ${grandAvg.toFixed(2)} / 5.00`;
+
+      // ตารางรายข้อ 10 ข้อ
+      const tbody = document.getElementById('eval-detail-tbody');
+      if (tbody) {
+        tbody.innerHTML = EVAL_QUESTIONS.map(q => {
+          const val = Number(avg[q.key] || 0);
+          const pct = Math.max(0, Math.min(100, (val / 5) * 100));
+          const lv = interpretSatisfactionScore(val);
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40">
+              <td class="py-2.5 px-3 text-center font-mono font-extrabold text-navy-700 dark:text-blue-300">${q.num}</td>
+              <td class="py-2.5 px-3">
+                <span class="inline-block px-1.5 py-0.2 rounded text-[10px] font-bold text-white mb-0.5" style="background:${q.color}">${escapeHtml(q.dim)}</span>
+                <p class="font-semibold text-slate-800 dark:text-slate-100 leading-snug">${escapeHtml(q.label)}</p>
+              </td>
+              <td class="py-2.5 px-3 hidden sm:table-cell">
+                <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500" style="width:${pct}%; background:${q.color};"></div>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-center font-mono text-sm font-extrabold text-slate-900 dark:text-white">${val.toFixed(2)}</td>
+              <td class="py-2.5 px-3 text-center">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[10.5px] font-bold ${lv.cls}">${lv.label}</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      renderEvaluationChart();
+      renderEvalComments();
+    }
+
+    function renderEvaluationChart() {
+      const ctx = document.getElementById('eval-chart-canvas');
+      if (!ctx || typeof Chart === 'undefined') return;
+      const avg = (evalSummary && evalSummary.averages) || {};
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(148,163,184,0.18)' : 'rgba(148,163,184,0.25)';
+      const tickColor = isDark ? '#cbd5e1' : '#475569';
+
+      if (evalChartInstance) evalChartInstance.destroy();
+      evalChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: EVAL_QUESTIONS.map(q => `ข้อ ${q.num}`),
+          datasets: [{
+            label: 'คะแนนเฉลี่ย (เต็ม 5.00)',
+            data: EVAL_QUESTIONS.map(q => Number(avg[q.key] || 0)),
+            backgroundColor: EVAL_QUESTIONS.map(q => q.color),
+            borderRadius: 10,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 0, max: 5, ticks: { stepSize: 1, color: tickColor }, grid: { color: gridColor } },
+            x: { ticks: { color: tickColor, font: { family: 'Prompt', weight: 'bold' } }, grid: { display: false } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const idx = items[0]?.dataIndex ?? 0;
+                  const q = EVAL_QUESTIONS[idx];
+                  return q ? `ข้อ ${q.num}: ${q.label}` : '';
+                },
+                label: (item) => ` คะแนนเฉลี่ย: ${Number(item.raw || 0).toFixed(2)} / 5.00`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderEvalComments() {
+      const box = document.getElementById('ev-comments-list');
+      const cntEl = document.getElementById('ev-comments-count');
+      if (!box) return;
+
+      const allComments = Array.isArray(evalSummary?.comments) ? evalSummary.comments : [];
+      const q = String(document.getElementById('ev-comment-search')?.value || '').trim().toLowerCase();
+      const filtered = allComments.filter(c => !q || `${c.text} ${c.time}`.toLowerCase().includes(q));
+
+      if (cntEl) cntEl.textContent = filtered.length;
+      if (filtered.length === 0) {
+        box.innerHTML = `<p class="text-xs text-slate-400 italic py-8 text-center">ยังไม่มีข้อเสนอแนะเพิ่มเติม</p>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map((c, idx) => `
+        <div class="print-break-avoid p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+            <span class="font-mono font-bold text-navy-700 dark:text-blue-300">#${idx + 1} • ${escapeHtml(c.time || '-')}</span>
+            <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold">ภาพรวม: ${escapeHtml(c.overall || '-')}/5</span>
+          </div>
+          <p class="text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line break-words">${escapeHtml(c.text)}</p>
+        </div>
+      `).join('');
+    }
+
+    function exportEvaluationCSV() {
+      const avg = (evalSummary && evalSummary.averages) || {};
+      const comments = Array.isArray(evalSummary?.comments) ? evalSummary.comments : [];
+      const lines = [];
+
+      lines.push(['สรุปผลประเมินความพึงพอใจโครงการสัมมนา AI คู่หูจราจร', `จำนวนผู้ประเมิน: ${evalSummary.count || 0} คน`].map(csvEsc).join(','));
+      lines.push(['มิติที่ 1 (เนื้อหา 1-4)', Number(avg.dim1 || 0).toFixed(2), interpretSatisfactionScore(avg.dim1).label].map(csvEsc).join(','));
+      lines.push(['มิติที่ 2 (จัดงาน 5-9)', Number(avg.dim2 || 0).toFixed(2), interpretSatisfactionScore(avg.dim2).label].map(csvEsc).join(','));
+      lines.push(['ภาพรวมโครงการ (ข้อ 10)', Number(avg.overall || 0).toFixed(2), interpretSatisfactionScore(avg.overall).label].map(csvEsc).join(','));
+      lines.push('');
+      lines.push(['ข้อที่', 'มิติ', 'หัวข้อประเมิน', 'คะแนนเฉลี่ย (เต็ม 5.00)', 'ระดับความพึงพอใจ'].map(csvEsc).join(','));
+
+      EVAL_QUESTIONS.forEach(q => {
+        const val = Number(avg[q.key] || 0);
+        lines.push([q.num, q.dim, q.label, val.toFixed(2), interpretSatisfactionScore(val).label].map(csvEsc).join(','));
+      });
+
+      lines.push('');
+      lines.push(['ลำดับข้อเสนอแนะ', 'เวลาบันทึก', 'คะแนนภาพรวม', 'ข้อเสนอแนะเพิ่มเติม'].map(csvEsc).join(','));
+      comments.forEach((c, idx) => {
+        lines.push([idx + 1, c.time, c.overall, c.text].map(csvEsc).join(','));
+      });
+
+      const csv = '\uFEFF' + lines.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `สรุปผลประเมินความพึงพอใจ_10ข้อ_AIคู่หูจราจร_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('ส่งออกไฟล์สรุปผลประเมิน (CSV) เรียบร้อยแล้ว', 'success');
+    }
+
+    function toggleResetEvalConfirm(show) {
+      document.getElementById('btn-reset-eval-ask')?.classList.toggle('hidden', show);
+      document.getElementById('reset-eval-confirm-group')?.classList.toggle('hidden', !show);
+    }
+
+    async function confirmResetAllEvaluations() {
+      const btn = document.getElementById('btn-reset-eval-confirm');
+      btn.disabled = true;
+      btn.textContent = 'กำลังล้าง...';
+      isMutating = true;
+      try {
+        const res = await postToApi({ action: 'resetEvaluations' });
+        if (res.status !== 'success') throw new Error(res.message || 'ล้างข้อมูลไม่สำเร็จ');
+        showToast(res.message || 'รีเซ็ตแบบประเมินและสถานะบนบัตรทุกคนเรียบร้อยแล้ว', 'success');
+        toggleResetEvalConfirm(false);
+        isMutating = false;
+        await refreshAllData(false);
+      } catch (err) {
+        showToast('รีเซ็ตไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        isMutating = false;
+        btn.disabled = false;
+        btn.textContent = 'ยืนยันล้างทั้งหมด';
+      }
+    }
+
+    // ==================== SETTINGS & UTILS ====================
+    function openSettingsModal() {
+      document.getElementById('set-api-url').value = API_URL;
+      document.getElementById('set-auto-refresh').checked = autoRefreshEnabled;
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal')?.classList.add('hidden');
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      API_URL = document.getElementById('set-api-url').value.trim() || DEFAULT_API_URL;
+      autoRefreshEnabled = document.getElementById('set-auto-refresh').checked;
+      safeSet('ai_seminar_api_url', API_URL);
+      safeSet('ai_seminar_auto_refresh', String(autoRefreshEnabled));
+      closeSettingsModal();
+      showToast('บันทึกตั้งค่าเรียบร้อยแล้ว', 'success');
+      refreshAllData(true);
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      safeSet('ai_seminar_dark', String(isDark));
+      if (mainTab === 'eval') renderEvaluationChart();
+    }
+
+    function csvEsc(v) {
+      return `"${String(v ?? '').replace(/"/g, '""')}"`;
+    }
+
+    function downloadCsv(headers, rows, filename) {
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
