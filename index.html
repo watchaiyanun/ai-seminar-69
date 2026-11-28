@@ -31,8 +31,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Chart.js สำหรับกราฟสรุปผลประเมิน 10 ข้อ -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     html, body {
@@ -50,7 +48,7 @@
       display: block;
     }
 
-@media print {
+    @media print {
       .no-print { display: none !important; }
     }
   </style>
@@ -88,11 +86,11 @@
           <span>สแกน QR</span>
         </a>
 
-        <button type="button" onclick="openRequestsModal()" class="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-purple-700 hover:bg-purple-800 text-white shadow-xs transition" title="คำขอแก้ไขข้อมูลจากหน้า Portal">
+        <a href="analytics.html?tab=requests" target="_blank" class="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-purple-700 hover:bg-purple-800 text-white shadow-xs transition" title="เปิดหน้าอนุมัติคำขอแก้ไขข้อมูลจาก Portal (analytics.html)">
           <i data-lucide="bell" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">คำขอแก้ไข</span>
           <span id="req-badge-count" class="hidden px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono text-[10px] font-extrabold">0</span>
-        </button>
+        </a>
 
         <a href="summary.html?tab=docs" target="_blank" class="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition" title="เปิดหน้าตรวจสอบเอกสาร/ข้อมูลไม่ครบ และส่งแจ้งเตือนขึ้นหน้าบัตร (summary.html)">
           <i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-amber-200"></i>
@@ -155,10 +153,10 @@
           </div>
         </div>
 
-        <button type="button" onclick="openEvalSummaryModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition" title="สรุปผลประเมินความพึงพอใจ 10 ข้อ">
+        <a href="analytics.html?tab=eval" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-xs transition" title="เปิดหน้ากราฟสรุปผลประเมินความพึงพอใจ 10 ข้อ (analytics.html)">
           <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
           <span class="hidden lg:inline">ผลประเมิน</span>
-        </button>
+        </a>
 
         <button type="button" onclick="openWalkInModal()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="ลงทะเบียนหน้างาน Walk-in">
           <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
@@ -529,79 +527,6 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: EDIT REQUESTS ==================== -->
-  <div id="requests-modal" onclick="closeRequestsModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[88vh]">
-      <div class="px-5 py-4 bg-gradient-to-r from-purple-800 to-navy-800 text-white flex items-center justify-between">
-        <div>
-          <h3 class="font-bold text-base">คำขอแก้ไขข้อมูล / แจ้งส่งผู้แทน จากหน้า Portal</h3>
-          <p class="text-[11px] text-purple-100">ตรวจสอบรายละเอียดและกดอนุมัติเพื่ออัปเดตลง Google Sheets ทันที</p>
-        </div>
-        <button type="button" onclick="closeRequestsModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <div id="requests-list" class="p-4 space-y-3 overflow-y-auto custom-scroll flex-1 text-xs"></div>
-    </div>
-  </div>
-
-  <!-- ==================== MODAL: EVALUATION SUMMARY (10 QUESTIONS) ==================== -->
-  <div id="eval-modal" onclick="closeEvalSummaryModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
-      <div class="px-5 py-4 bg-gradient-to-r from-maroon-800 via-navy-800 to-navy-900 text-white flex items-center justify-between gap-2">
-        <div>
-          <h3 class="font-bold text-base">สรุปผลประเมินความพึงพอใจโครงการ (แบบนิรนาม 10 ข้อ)</h3>
-          <p class="text-[11px] text-amber-200">คำนวณคะแนนเฉลี่ยจากแท็บ Evaluations ใน Google Sheets แบบ Real-time</p>
-        </div>
-        <button type="button" onclick="closeEvalSummaryModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-
-      <div class="p-5 space-y-4 overflow-y-auto custom-scroll flex-1 text-xs sm:text-sm">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-          <div class="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800">
-            <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">จำนวนผู้ประเมิน</p>
-            <p id="ev-count" class="font-mono text-2xl font-extrabold text-navy-700 dark:text-blue-300">0</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800">
-            <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">มิติ 1 (เนื้อหา 1–4)</p>
-            <p id="ev-dim1" class="font-mono text-2xl font-extrabold text-indigo-700 dark:text-indigo-300">0.00</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800">
-            <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">มิติ 2 (จัดงาน 5–9)</p>
-            <p id="ev-dim2" class="font-mono text-2xl font-extrabold text-teal-700 dark:text-teal-300">0.00</p>
-          </div>
-          <div class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800">
-            <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">ภาพรวมโครงการ (ข้อ 10)</p>
-            <p id="ev-overall" class="font-mono text-2xl font-extrabold text-maroon-700 dark:text-rose-300">0.00</p>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 h-64">
-          <canvas id="eval-chart-canvas"></canvas>
-        </div>
-
-        <div class="space-y-2">
-          <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">ข้อเสนอแนะเพิ่มเติมจากผู้เข้าร่วม</h4>
-          <div id="ev-comments" class="space-y-2 max-h-48 overflow-y-auto custom-scroll"></div>
-        </div>
-
-        <div class="p-3.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div class="space-y-0.5">
-            <p class="font-bold text-rose-900 dark:text-rose-200">ล้างข้อมูลทดสอบแบบประเมินทั้งหมด (ก่อนวันงานจริง)</p>
-            <p class="text-[11px] text-rose-700 dark:text-rose-300">ล้างข้อมูลทั้งแท็บ <code class="font-mono">Evaluations</code> และรีเซ็ตคอลัมน์ <code class="font-mono">ประเมินแล้ว (คอลัมน์ R)</code> บนหน้าบัตรของทุกคนให้พร้อมประเมินใหม่</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button type="button" id="btn-reset-eval-ask" onclick="toggleResetEvalConfirm(true)" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs transition">
-              รีเซ็ตสถานะประเมินทั้งหมด
-            </button>
-            <div id="reset-eval-confirm-group" class="hidden flex items-center gap-1.5">
-              <button type="button" onclick="toggleResetEvalConfirm(false)" class="px-3 py-2 rounded-xl bg-slate-200 text-slate-700 font-bold">ยกเลิก</button>
-              <button type="button" id="btn-reset-eval-confirm" onclick="confirmResetAllEvaluations()" class="px-3.5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-extrabold">ยืนยันล้างทั้งหมด</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ==================== MODAL: ADD WALK-IN ==================== -->
   <div id="walkin-modal" onclick="closeWalkInModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
     <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -728,14 +653,10 @@
     let lastParticipantsSnapshot = '';
 
     let participants = [];
-    let editRequests = [];
     let currentDay = detectDefaultDay();
     let viewMode = 'split';
     let searchDebounceTimer = null;
     let currentQrModalLink = '';
-    let evalChartInstance = null;
-
-
     let sharedAudioCtx = null;
 
     function toggleWs2Menu(e) {
@@ -784,8 +705,6 @@
         if (e.key === 'Escape') {
           closeWs2Menu();
           closeEditModal();
-          closeRequestsModal();
-          closeEvalSummaryModal();
           closeWalkInModal();
           closeSettingsModal();
           closePersonQrModal();
@@ -804,7 +723,7 @@
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       autoRefreshTimer = setInterval(() => {
         if (!autoRefreshEnabled || document.hidden || isMutatingData || Date.now() < pauseAutoRefreshUntil) return;
-        const anyModalOpen = ['edit-modal', 'requests-modal', 'walkin-modal', 'eval-modal']
+        const anyModalOpen = ['edit-modal', 'walkin-modal', 'settings-modal']
           .some(id => !document.getElementById(id)?.classList.contains('hidden'));
         if (!anyModalOpen) {
           refreshAllData(false);
@@ -919,7 +838,7 @@
     async function refreshAllData(showLoading = false) {
       await Promise.all([
         fetchParticipants(showLoading),
-        fetchEditRequests()
+        fetchPendingRequestsCount()
       ]);
     }
 
@@ -985,14 +904,13 @@
       }
     }
 
-    async function fetchEditRequests() {
+    async function fetchPendingRequestsCount() {
       try {
         const res = await fetch(`${API_URL}?action=getRequests&_t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const json = await res.json();
         if (json.status === 'success' && Array.isArray(json.data)) {
-          editRequests = json.data;
-          const pendingCount = editRequests.filter(r => r.status === 'รออนุมัติ').length;
+          const pendingCount = json.data.filter(r => r.status === 'รออนุมัติ').length;
           const badge = document.getElementById('req-badge-count');
           if (badge) {
             badge.textContent = pendingCount;
@@ -1540,7 +1458,7 @@
       window.open(url, '_blank', 'noopener');
     }
 
-    // ==================== WORKSHOP GROUP HELPERS (จัดการกลุ่มเต็มจอที่ groups.html) ====================
+    // ==================== WORKSHOP GROUP HELPERS ====================
     function parseWorkshopGroupNo(val) {
       const s = String(val || '').trim();
       const m = s.match(/[1-5]/);
@@ -1550,165 +1468,6 @@
     function isWmFixedRole(roleStr) {
       const r = String(roleStr || '');
       return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
-    }
-
-    // ==================== EDIT REQUESTS MODAL ====================
-    function openRequestsModal() {
-      const box = document.getElementById('requests-list');
-      if (editRequests.length === 0) {
-        box.innerHTML = `<div class="py-12 text-center text-slate-400">ยังไม่มีคำขอแก้ไขข้อมูลจากหน้า Portal</div>`;
-      } else {
-        box.innerHTML = editRequests.map(r => {
-          const isPending = r.status === 'รออนุมัติ';
-          const c = r.changes || {};
-          const details = [];
-          if (c.rsvp) details.push(`ตอบรับ: ${c.rsvp}`);
-          if (c.substituteName) details.push(`ผู้แทน: ${c.substituteName} (${c.substitutePosition || '-'})`);
-          if (c.stay30 || c.stay1) details.push(`ที่พัก: 30พ.ย.(${c.stay30 || '-'}) / 1ธ.ค.(${c.stay1 || '-'})`);
-          if (c.roomNo) details.push(`ห้อง: ${c.roomNo}`);
-          if (c.roommate) details.push(`คู่พัก: ${c.roommate}`);
-          if (c.phone) details.push(`โทร: ${c.phone}`);
-
-          return `
-            <div class="p-4 rounded-2xl border ${isPending ? 'bg-amber-50/70 dark:bg-amber-950/25 border-amber-300' : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700'} space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono font-bold px-2 py-0.5 rounded bg-navy-700 text-white">${escapeHtml(r.participantId)}</span>
-                  <strong class="text-sm text-slate-900 dark:text-white">${escapeHtml(r.originalName)}</strong>
-                  <span class="text-[11px] text-slate-500">${escapeHtml(r.timestamp)}</span>
-                </div>
-                <span class="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold ${isPending ? 'bg-amber-200 text-amber-950' : (r.status === 'อนุมัติแล้ว' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800')}">${escapeHtml(r.status)}</span>
-              </div>
-              <p class="text-xs font-semibold text-navy-800 dark:text-blue-200">${escapeHtml(r.summaryText)}</p>
-              <p class="text-[11px] text-slate-600 dark:text-slate-300">${escapeHtml(details.join(' • '))}</p>
-              ${r.note ? `<p class="text-[11px] text-slate-500 italic">หมายเหตุ: ${escapeHtml(r.note)}</p>` : ''}
-              ${r.letterUrl ? `<a href="${escapeHtml(r.letterUrl)}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:underline">📎 เปิดไฟล์หนังสือส่งตัวที่แนบมา ↗</a>` : ''}
-              ${isPending ? `
-                <div class="flex flex-wrap justify-end gap-2 pt-2 border-t border-amber-200/70">
-                  <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'reject', false)" class="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold">ปฏิเสธ</button>
-                  <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'approve', false)" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">อนุมัติทันที</button>
-                  <button type="button" onclick="processEditRequest('${escapeHtml(r.requestId)}', 'approve', true)" class="px-3.5 py-1.5 rounded-xl bg-navy-700 hover:bg-navy-800 text-white font-bold">อนุมัติ + ล้างแจ้งเตือนบัตร</button>
-                </div>
-              ` : ''}
-            </div>
-          `;
-        }).join('');
-      }
-      document.getElementById('requests-modal').classList.remove('hidden');
-    }
-
-    function closeRequestsModal() {
-      document.getElementById('requests-modal')?.classList.add('hidden');
-    }
-
-    async function processEditRequest(requestId, decision, clearDocAlert = false) {
-      showToast('กำลังดำเนินการ...', 'info');
-      isMutatingData = true;
-      try {
-        const res = await postToApi({ action: 'processEditRequest', requestId, decision, clearDocAlert });
-        if (res.status === 'success') {
-          showToast(res.message, 'success');
-          isMutatingData = false;
-          await refreshAllData(true);
-          openRequestsModal();
-        } else {
-          showToast(res.message || 'ทำรายการไม่สำเร็จ', 'error');
-        }
-      } catch (err) {
-        showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
-      } finally {
-        isMutatingData = false;
-      }
-    }
-
-    // ==================== EVALUATION SUMMARY MODAL ====================
-    function openEvalSummaryModal() {
-      toggleResetEvalConfirm(false);
-      document.getElementById('eval-modal').classList.remove('hidden');
-      fetchAndRenderEvalSummary();
-    }
-
-    function closeEvalSummaryModal() {
-      document.getElementById('eval-modal')?.classList.add('hidden');
-    }
-
-    function toggleResetEvalConfirm(show) {
-      document.getElementById('btn-reset-eval-ask')?.classList.toggle('hidden', show);
-      document.getElementById('reset-eval-confirm-group')?.classList.toggle('hidden', !show);
-    }
-
-    async function confirmResetAllEvaluations() {
-      const btn = document.getElementById('btn-reset-eval-confirm');
-      btn.disabled = true;
-      btn.textContent = 'กำลังล้าง...';
-      isMutatingData = true;
-      try {
-        const res = await postToApi({ action: 'resetEvaluations' });
-        if (res.status !== 'success') throw new Error(res.message || 'ล้างข้อมูลไม่สำเร็จ');
-        participants.forEach(p => { p.evaluated = false; });
-        lastParticipantsSnapshot = JSON.stringify(participants);
-        showToast(res.message || 'รีเซ็ตแบบประเมินและสถานะบนบัตรทุกคนเรียบร้อยแล้ว', 'success');
-        toggleResetEvalConfirm(false);
-        await fetchAndRenderEvalSummary();
-      } catch (err) {
-        showToast('รีเซ็ตไม่สำเร็จ: ' + err.message, 'error');
-      } finally {
-        isMutatingData = false;
-        btn.disabled = false;
-        btn.textContent = 'ยืนยันล้างทั้งหมด';
-      }
-    }
-
-    async function fetchAndRenderEvalSummary() {
-      try {
-        const res = await fetch(`${API_URL}?action=getEvaluationSummary&_t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) return;
-        const json = await res.json();
-        if (json.status !== 'success' || !json.data) return;
-        const d = json.data;
-        const avg = d.averages || {};
-
-        document.getElementById('ev-count').textContent = d.count || 0;
-        document.getElementById('ev-dim1').textContent = Number(avg.dim1 || 0).toFixed(2);
-        document.getElementById('ev-dim2').textContent = Number(avg.dim2 || 0).toFixed(2);
-        document.getElementById('ev-overall').textContent = Number(avg.overall || 0).toFixed(2);
-
-        const cBox = document.getElementById('ev-comments');
-        cBox.innerHTML = (!d.comments || d.comments.length === 0)
-          ? `<p class="text-xs text-slate-400 italic py-4 text-center">ยังไม่มีข้อเสนอแนะเพิ่มเติม</p>`
-          : d.comments.map(c => `
-              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
-                <div class="flex items-center justify-between text-[10.5px] text-slate-400 mb-1">
-                  <span>${escapeHtml(c.time)}</span>
-                  <span class="font-bold text-amber-600">ภาพรวม: ${c.overall}/5</span>
-                </div>
-                <p class="text-slate-800 dark:text-slate-200">${escapeHtml(c.text)}</p>
-              </div>
-            `).join('');
-
-        const ctx = document.getElementById('eval-chart-canvas');
-        if (ctx && typeof Chart !== 'undefined') {
-          if (evalChartInstance) evalChartInstance.destroy();
-          evalChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: ['ข้อ 1', 'ข้อ 2', 'ข้อ 3', 'ข้อ 4', 'ข้อ 5', 'ข้อ 6', 'ข้อ 7', 'ข้อ 8', 'ข้อ 9', 'ข้อ 10'],
-              datasets: [{
-                label: 'คะแนนเฉลี่ย (เต็ม 5.00)',
-                data: [avg.q1, avg.q2, avg.q3, avg.q4, avg.q5, avg.q6, avg.q7, avg.q8, avg.q9, avg.q10].map(v => Number(v || 0)),
-                backgroundColor: ['#1E3A8A', '#1E3A8A', '#1E3A8A', '#1E3A8A', '#0F766E', '#0F766E', '#0F766E', '#0F766E', '#0F766E', '#881337'],
-                borderRadius: 8
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: { y: { min: 0, max: 5 } },
-              plugins: { legend: { display: false } }
-            }
-          });
-        }
-      } catch (e) {}
     }
 
     // ==================== WALK-IN, PERSON QR, MISSING LIST & SETTINGS ====================
