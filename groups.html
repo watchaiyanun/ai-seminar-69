@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดกลุ่มสัมมนา 5 กลุ่ม (World Café) - แชทบอท AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html, body {
+      font-family: 'Prompt', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #0f172a !important; }
+      .print-card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; }
+      .print-expand { max-height: none !important; overflow: visible !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="no-print sticky top-0 z-30 bg-gradient-to-r from-indigo-950 via-navy-800 to-maroon-800 text-white shadow-md border-b-2 border-amber-400/75">
+    <div class="max-w-[1680px] mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-indigo-500/25 border border-amber-300/60 flex items-center justify-center shrink-0">
+          <i data-lucide="users" class="w-5 h-5 text-amber-300"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-base font-extrabold leading-tight truncate">ศูนย์จัดกลุ่มสัมมนา 5 กลุ่ม (World Café)</h1>
+          <div class="flex items-center gap-2 text-[11px] text-blue-100/85">
+            <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-300 inline-block shrink-0"></span>
+            <span id="sync-status-text" class="truncate">กำลังเชื่อมต่อ Google Sheets...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation & Quick Links -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <a href="index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-sm transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="scanner.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition" title="เปิดสถานีสแกน QR">
+          <i data-lucide="scan-line" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">สแกน QR</span>
+        </a>
+        <a href="monitor.html" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดหน้าจอ Live TV &amp; จับเวลากลุ่ม">
+          <i data-lucide="tv" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">จอ Live TV</span>
+        </a>
+        <a href="morning.html?staff=1" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดใบงานช่วงเช้า">
+          <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-300"></i>
+          <span class="hidden lg:inline">ใบงานเช้า</span>
+        </a>
+        <a href="afternoon.html?staff=1" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition" title="เปิดใบงานช่วงบ่าย">
+          <i data-lucide="book-open-check" class="w-3.5 h-3.5 text-amber-300"></i>
+          <span class="hidden lg:inline">ใบงานบ่าย</span>
+        </a>
+        <button type="button" onclick="exportGroupsCSV()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition" title="ส่งออกรายชื่อ 5 กลุ่มเป็นไฟล์ Excel/CSV">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span class="hidden xl:inline">Export CSV</span>
+        </button>
+        <button type="button" onclick="window.print()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="พิมพ์รายชื่อกลุ่ม">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="refreshFromSheet()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ดึงรายชื่อล่าสุดจาก Google Sheets">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="toggleDarkMode()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="สลับโหมดกลางวัน / กลางคืน">
+          <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+        </button>
+        <button type="button" onclick="openSettingsModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition" title="ตั้งค่า API URL">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="max-w-[1680px] w-full mx-auto px-3 sm:px-5 py-4 space-y-4 flex-1 pb-24">
+
+    <!-- KPI SUMMARY STRIP -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2">
+        <div>
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">จัดกลุ่มแล้ว / ทั้งหมด</p>
+          <p class="font-mono text-2xl font-extrabold text-indigo-700 dark:text-indigo-300 leading-tight mt-0.5">
+            <span id="kpi-assigned">0</span><span class="text-sm text-slate-400 font-semibold">/<span id="kpi-total">0</span></span>
+          </p>
+        </div>
+        <span id="kpi-pct" class="px-2.5 py-1 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono text-xs font-extrabold">0%</span>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-amber-200 dark:border-amber-800 shadow-2xs flex items-center justify-between gap-2">
+        <div>
+          <p class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">⭐ ผู้เชี่ยวชาญ (ประจำฐาน)</p>
+          <p id="kpi-experts" class="font-mono text-2xl font-extrabold text-amber-600 dark:text-amber-300 leading-tight mt-0.5">0</p>
+        </div>
+        <span class="px-2 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 text-[10px] font-bold">อยู่โต๊ะเดิม</span>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-sky-200 dark:border-sky-800 shadow-2xs flex items-center justify-between gap-2">
+        <div>
+          <p class="text-[11px] font-semibold text-sky-800 dark:text-sky-300">👥 สมาชิก (หมุนเวียน)</p>
+          <p id="kpi-members" class="font-mono text-2xl font-extrabold text-sky-700 dark:text-sky-300 leading-tight mt-0.5">0</p>
+        </div>
+        <span class="px-2 py-1 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 text-[10px] font-bold">5 กลุ่ม</span>
+      </div>
+
+      <div onclick="jumpToUnassigned()" class="cursor-pointer bg-white dark:bg-slate-800 hover:border-rose-400 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-between gap-2 transition">
+        <div>
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">ยังไม่จัดกลุ่ม</p>
+          <p id="kpi-unassigned" class="font-mono text-2xl font-extrabold text-rose-600 dark:text-rose-400 leading-tight mt-0.5">0</p>
+        </div>
+        <span id="wm-unassigned-pill" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-[10.5px] font-bold">ดูรายชื่อ ↗</span>
+      </div>
+    </section>
+
+    <!-- CONTROL TOOLBAR: ROUND + VIEW TABS + AUTO DISTRIBUTE + SAVE -->
+    <section class="no-print bg-white dark:bg-slate-800 rounded-3xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700 shadow-2xs space-y-3">
+      <!-- Row 1: Round Control & Main Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="font-extrabold text-slate-700 dark:text-slate-200">รอบหมุนเวียนปัจจุบัน:</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="setWorkshopRoundDraft(1)" id="wm-round-btn-1" class="px-3 py-1.5 rounded-xl font-bold border transition">รอบ 1</button>
+            <button type="button" onclick="setWorkshopRoundDraft(2)" id="wm-round-btn-2" class="px-3 py-1.5 rounded-xl font-bold border transition">รอบ 2</button>
+            <button type="button" onclick="setWorkshopRoundDraft(3)" id="wm-round-btn-3" class="px-3 py-1.5 rounded-xl font-bold border transition">รอบ 3</button>
+            <button type="button" onclick="setWorkshopRoundDraft(4)" id="wm-round-btn-4" class="px-3 py-1.5 rounded-xl font-bold border transition">รอบ 4</button>
+            <button type="button" onclick="setWorkshopRoundDraft(5)" id="wm-round-btn-5" class="px-3 py-1.5 rounded-xl font-bold border transition">รอบ 5</button>
+          </div>
+          <button type="button" id="btn-quick-sync-round" onclick="quickSyncRoundOnly()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 font-bold transition" title="เปลี่ยนรอบบนจอ Live TV และหน้าบัตรทุกคนทันทีโดยไม่ต้องรอรอบใหญ่">
+            <i data-lucide="radio" class="w-3.5 h-3.5"></i>
+            <span id="btn-quick-sync-round-label">ซิงค์รอบ 1 ขึ้นเวทีทันที</span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="autoDistributeWorkshopGroups()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold border border-amber-300 transition">
+            ✨ กระจายสมาชิกที่ยังไม่มีกลุ่มอัตโนมัติ
+          </button>
+          <button type="button" id="wm-save-btn-top" onclick="saveWorkshopConfigToServer()" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold shadow-sm transition">
+            <i data-lucide="save" class="w-3.5 h-3.5 text-amber-300"></i>
+            <span>บันทึกและซิงค์ขึ้นบัตรทุกคน</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Tabs + Quick Find -->
+      <div class="pt-2.5 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex flex-wrap items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+          <button type="button" onclick="switchWmTab('bygroup')" id="wm-tab-bygroup" class="px-3 py-1.5 rounded-lg font-bold bg-indigo-700 text-white transition">จัดแยกตามกลุ่ม 1–5</button>
+          <button type="button" onclick="switchWmTab('all')" id="wm-tab-all" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">ตารางรายชื่อทั้งหมด</button>
+          <button type="button" onclick="switchWmTab('rotation')" id="wm-tab-rotation" class="px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 transition">🔄 ตารางหมุนเวียน 5 รอบ</button>
+        </div>
+
+        <div class="relative flex-1 min-w-[240px] max-w-xl">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="wm-quick-find" oninput="renderWmQuickFind()" placeholder="ค้นหาด่วน (เช่น KM69-10, ชื่อ-สกุล, สังกัด) เพื่อย้ายกลุ่ม/ตั้งผู้เชี่ยวชาญได้ทันที..." class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button type="button" id="wm-quick-find-clear" onclick="clearWmQuickFind()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 font-bold text-xs">✕</button>
+        </div>
+      </div>
+
+      <!-- Quick Find Results Dropdown -->
+      <div id="wm-quick-find-results" class="hidden space-y-1.5 max-h-56 overflow-y-auto custom-scroll pt-1"></div>
+    </section>
+
+    <!-- UNSAVED CHANGES BANNER -->
+    <div id="unsaved-banner" class="no-print hidden p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2 text-amber-950 dark:text-amber-200 font-bold">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600 shrink-0"></i>
+        <span>มีการปรับเปลี่ยนการจัดกลุ่มที่ยังไม่ได้บันทึก — กดปุ่ม “บันทึกและซิงค์ขึ้นบัตรทุกคน” เพื่ออัปเดตลง Google Sheets</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="refreshFromSheet()" class="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-amber-300 text-amber-900 dark:text-amber-200 font-bold">คืนค่าเดิม</button>
+        <button type="button" onclick="saveWorkshopConfigToServer()" class="px-4 py-1 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold">บันทึกทันที</button>
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 1: BY GROUP (5 GROUPS GRID) ==================== -->
+    <section id="wm-view-bygroup" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-3.5"></section>
+
+    <!-- ==================== VIEW 2: ALL PARTICIPANTS TABLE ==================== -->
+    <section id="wm-view-all" class="hidden bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="no-print p-3.5 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-2 text-xs">
+        <div class="relative flex-1 min-w-[200px] max-w-md">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="wm-all-search" oninput="renderWmAllTableView()" placeholder="ค้นหารหัส, ชื่อ, สังกัด..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
+        </div>
+        <select id="wm-all-filter-status" onchange="renderWmAllTableView()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-bold">
+          <option value="all">แสดงทุกคน</option>
+          <option value="unassigned">❓ เฉพาะยังไม่จัดกลุ่ม</option>
+          <option value="experts">⭐ เฉพาะผู้เชี่ยวชาญประจำฐาน</option>
+          <option value="members">👥 เฉพาะสมาชิกหมุนเวียน</option>
+          <option value="1">กลุ่มที่ 1</option>
+          <option value="2">กลุ่มที่ 2</option>
+          <option value="3">กลุ่มที่ 3</option>
+          <option value="4">กลุ่มที่ 4</option>
+          <option value="5">กลุ่มที่ 5</option>
+        </select>
+        <span id="wm-all-count-badge" class="ml-auto px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 font-mono font-extrabold">0 ราย</span>
+      </div>
+      <div id="wm-all-list" class="divide-y divide-slate-200 dark:divide-slate-700"></div>
+    </section>
+
+    <!-- ==================== VIEW 3: WORLD CAFÉ 5-ROUND ROTATION PREVIEW ==================== -->
+    <section id="wm-view-rotation" class="hidden space-y-4">
+      <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="font-extrabold text-sm sm:text-base text-navy-900 dark:text-white">ตารางหมุนเวียน World Café (ช่วงเช้า 5 รอบ — ผู้เชี่ยวชาญประจำโต๊ะเดิม สมาชิกย้ายโต๊ะตามรอบ)</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">สูตรหมุนเวียนตรงกับระบบบัตร E-Pass (`portal.html`), จอ Live TV (`monitor.html`) และใบงานเช้า (`morning.html`)</p>
+          </div>
+          <span id="rot-active-round-pill" class="px-3 py-1 rounded-full bg-indigo-700 text-amber-300 font-mono text-xs font-extrabold">รอบปัจจุบัน: รอบที่ 1 / 5</span>
+        </div>
+
+        <div class="overflow-x-auto custom-scroll rounded-2xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center border-collapse text-xs">
+            <thead>
+              <tr class="bg-navy-800 text-white">
+                <th class="py-2.5 px-3 text-left font-bold">โต๊ะ / หมวดฐาน</th>
+                <th class="py-2.5 px-2.5 font-bold">รอบที่ 1</th>
+                <th class="py-2.5 px-2.5 font-bold">รอบที่ 2</th>
+                <th class="py-2.5 px-2.5 font-bold">รอบที่ 3</th>
+                <th class="py-2.5 px-2.5 font-bold">รอบที่ 4</th>
+                <th class="py-2.5 px-2.5 font-bold">รอบที่ 5</th>
+              </tr>
+            </thead>
+            <tbody id="rot-matrix-tbody" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- แสดงรายชื่อจริงประจำแต่ละโต๊ะในรอบที่เลือก -->
+      <div class="space-y-2">
+        <h3 id="rot-round-roster-title" class="text-sm font-extrabold text-navy-900 dark:text-white px-1">รายชื่อผู้ประจำแต่ละโต๊ะในรอบที่ 1 / 5</h3>
+        <div id="rot-round-roster-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== STICKY BOTTOM SAVE BAR ==================== -->
+  <div class="no-print fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 px-4 py-2.5 shadow-lg">
+    <div class="max-w-[1680px] mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+      <span id="wm-summary-text" class="text-slate-600 dark:text-slate-300 font-semibold">กำลังโหลดข้อมูล...</span>
+      <div class="flex items-center gap-2 ml-auto">
+        <button type="button" onclick="refreshFromSheet()" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          🔄 โหลดข้อมูลใหม่
+        </button>
+        <button type="button" id="wm-save-btn" onclick="saveWorkshopConfigToServer()" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold shadow-md transition">
+          <i data-lucide="save" class="w-4 h-4 text-amber-300"></i>
+          <span>บันทึกและซิงค์ขึ้นบัตรทุกคน</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SUB-MODAL: QUICK MULTI-PICK MEMBERS INTO GROUP ==================== -->
+  <div id="wm-quickpick-modal" onclick="closeGroupQuickPickModal()" class="no-print fixed inset-0 z-[60] hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden border-2 border-indigo-500 flex flex-col max-h-[85vh]">
+      <div class="px-5 py-3.5 bg-indigo-800 text-white flex items-center justify-between">
+        <h3 id="wm-qp-title" class="font-bold text-sm sm:text-base">เลือกหลายคนพร้อมกันเข้ากลุ่มที่ 1</h3>
+        <button type="button" onclick="closeGroupQuickPickModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center gap-2">
+        <input type="text" id="wm-qp-search" oninput="renderGroupQuickPickList()" placeholder="ค้นหาชื่อ, รหัส หรือสังกัด..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs" />
+        <label class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer">
+          <input type="checkbox" id="wm-qp-only-unassigned" onchange="renderGroupQuickPickList()" class="w-4 h-4 rounded text-indigo-600" />
+          <span>เฉพาะยังไม่มีกลุ่ม</span>
+        </label>
+      </div>
+      <div id="wm-qp-list" class="p-3 space-y-1.5 overflow-y-auto custom-scroll flex-1 text-xs"></div>
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between gap-2">
+        <span class="text-[11px] text-slate-500">ติ๊กเข้า/ออกได้ทันที ระบบจะอัปเดตเข้ากลุ่มให้อัตโนมัติ</span>
+        <button type="button" onclick="closeGroupQuickPickModal()" class="px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold shadow-xs transition">
+          เสร็จสิ้น
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS ==================== -->
+  <div id="settings-modal" onclick="closeSettingsModal()" class="no-print fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+        <h3 class="font-bold text-base">ตั้งค่าการเชื่อมต่อ Google Sheets</h3>
+        <button type="button" onclick="closeSettingsModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="saveSettings(event)" class="p-5 space-y-4 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google Apps Script Web App URL</label>
+          <input type="url" id="set-api-url" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-mono text-xs" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">ปิด</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-navy-700 hover:bg-navy-800 text-white text-xs font-bold">บันทึกตั้งค่า</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-box" class="no-print fixed bottom-16 left-1/2 -translate-x-1/2 z-[70] w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzFnUSHX2NoQ7jDrhtsd9pcOJPkyVjwLzn8RXkFltz6NfxLgGrzE-aqMKJT8HXH2eq/exec";
+    const WM_GROUP_COLORS = ['#1E3A8A', '#0F766E', '#4338CA', '#D97706', '#9F1239'];
+    const DEFAULT_WM_GROUPS = [
+      { groupNo: 1, topic: 'ด้านกฎหมายจราจรและกฎหมายที่เกี่ยวข้อง', experts: '' },
+      { groupNo: 2, topic: 'คู่มือแนวทางมาตรฐานการปฏิบัติงาน', experts: '' },
+      { groupNo: 3, topic: 'ระบบเทคโนโลยีสารสนเทศงานจราจร', experts: '' },
+      { groupNo: 4, topic: 'การปฏิบัติงานด้านการเงินและงบประมาณ', experts: '' },
+      { groupNo: 5, topic: 'ประเด็นข้อโต้แย้งจากประชาชน', experts: '' }
+    ];
+
+    function safeGet(k, def = '') { try { return localStorage.getItem(k) ?? def; } catch (e) { return def; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+    let API_URL = safeGet('ai_seminar_api_url', DEFAULT_API_URL) || DEFAULT_API_URL;
+    let participants = [];
+    let workshopConfig = { currentRound: 1, groups: DEFAULT_WM_GROUPS.map(g => ({ ...g })) };
+
+    // Draft State
+    let wmDraftRound = 1;
+    let wmDraftGroups = DEFAULT_WM_GROUPS.map(g => ({ ...g }));
+    let wmDraftAssignments = {};
+    let wmActiveTab = 'bygroup'; // 'bygroup' | 'all' | 'rotation'
+    let wmQuickPickGroupNo = 1;
+    let hasUnsavedChanges = false;
+
+    // ==================== INITIALIZATION ====================
+    function initGroupsApp() {
+      if (safeGet('ai_seminar_dark') === 'true') {
+        document.documentElement.classList.add('dark');
+      }
+      if (window.lucide) lucide.createIcons();
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeGroupQuickPickModal();
+          closeSettingsModal();
+        }
+      });
+
+      window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      refreshFromSheet(false);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGroupsApp);
+    } else {
+      initGroupsApp();
+    }
+
+    // ==================== HELPERS ====================
+    function hasSubstitute(p) {
+      return p.rsvp === 'ส่งผู้แทนเข้าร่วม' && Boolean(p.substituteName);
+    }
+
+    function getActiveName(p) {
+      return hasSubstitute(p) ? p.substituteName : p.fullName;
+    }
+
+    function parseWorkshopGroupNo(val) {
+      const m = String(val || '').trim().match(/[1-5]/);
+      return m ? parseInt(m[0], 10) : 0;
+    }
+
+    function isWmFixedRole(roleStr) {
+      const r = String(roleStr || '');
+      return r.includes('ผู้เชี่ยวชาญ') || r.includes('วิทยากร');
+    }
+
+    function markDirty(dirty = true) {
+      hasUnsavedChanges = dirty;
+      document.getElementById('unsaved-banner')?.classList.toggle('hidden', !dirty);
+    }
+
+    // ==================== DATA SYNC ====================
+    async function refreshFromSheet(showToastDone = true) {
+      const dot = document.getElementById('sync-status-dot');
+      const txt = document.getElementById('sync-status-text');
+      if (txt) txt.textContent = 'กำลังดึงรายชื่อล่าสุดจาก Google Sheets...';
+
+      const ts = Date.now();
+      try {
+        const [pRes, wRes] = await Promise.all([
+          fetch(`${API_URL}?action=getParticipants&_t=${ts}`, { cache: 'no-store' }),
+          fetch(`${API_URL}?action=getWorkshopConfig&_t=${ts}`, { cache: 'no-store' }).catch(() => null)
+        ]);
+        if (!pRes.ok) throw new Error(`HTTP ${pRes.status}`);
+        const pJson = await pRes.json();
+        if (pJson.status !== 'success') throw new Error(pJson.message || 'โหลดรายชื่อไม่สำเร็จ');
+
+        participants = (pJson.data || []).map(p => ({
+          ...p,
+          id: String(p.id || '').trim(),
+          fullName: p.prefix ? `${p.prefix}${p.fullName || ''}` : String(p.fullName || ''),
+          position: String(p.position || ''),
+          mainUnit: String(p.mainUnit || p.group || ''),
+          unitDetail: String(p.unitDetail || p.unit || ''),
+          role: String(p.role || 'ผู้เข้าร่วมสัมมนา'),
+          rsvp: String(p.rsvp || 'รอการยืนยัน'),
+          substituteName: String(p.substituteName || '').trim(),
+          workshopGroup: String(p.workshopGroup || '').trim(),
+          workshopRole: String(p.workshopRole || 'ผู้เข้าร่วม').trim()
+        }));
+
+        if (wRes && wRes.ok) {
+          try {
+            const wJson = await wRes.json();
+            if (wJson.status === 'success' && wJson.data) {
+              workshopConfig = wJson.data;
+            }
+          } catch (e) {}
+        }
+
+        buildWmDraftFromParticipants();
+        markDirty(false);
+        setWorkshopRoundDraft(wmDraftRound, false);
+        renderWorkshopManager();
+
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        if (txt) {
+          const nowStr = new Date().toLocaleTimeString('th-TH', { hour12: false, timeZone: 'Asia/Bangkok' });
+          txt.textContent = `ซิงค์แล้ว ${nowStr} น. (${participants.length} ราย • เวทีรอบที่ ${workshopConfig.currentRound || 1}/5)`;
+        }
+        if (showToastDone) showToast(`ดึงข้อมูลล่าสุดครบ ${participants.length} รายเรียบร้อยแล้ว`, 'success');
+      } catch (err) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500 inline-block shrink-0';
+        if (txt) txt.textContent = `เชื่อมต่อขัดข้อง: ${err.message}`;
+        showToast('โหลดข้อมูลไม่สำเร็จ: ' + err.message, 'error');
+      }
+    }
+
+    async function postToApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    function buildWmDraftFromParticipants() {
+      wmDraftRound = Math.max(1, Math.min(5, Number(workshopConfig.currentRound) || 1));
+      wmDraftGroups = DEFAULT_WM_GROUPS.map(def => {
+        const existing = (workshopConfig.groups || []).find(g => Number(g.groupNo) === def.groupNo);
+        return {
+          groupNo: def.groupNo,
+          topic: existing && existing.topic ? existing.topic : def.topic,
+          experts: existing && existing.experts ? existing.experts : ''
+        };
+      });
+
+      wmDraftAssignments = {};
+      const orderCounter = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      const sorted = [...participants].sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+      sorted.forEach(p => {
+        const g = parseWorkshopGroupNo(p.workshopGroup);
+        const validG = (g >= 1 && g <= 5) ? String(g) : '';
+        const isExp = Boolean(validG) && isWmFixedRole(p.workshopRole);
+        let order = 0;
+        if (isExp) {
+          orderCounter[g]++;
+          order = orderCounter[g];
+        }
+        wmDraftAssignments[p.id] = {
+          group: validG,
+          role: isExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
+          order: order
+        };
+      });
+    }
+
+    // ==================== TABS & ROUND SWITCHING ====================
+    function switchWmTab(tab) {
+      wmActiveTab = tab;
+      document.getElementById('wm-view-bygroup').classList.toggle('hidden', tab !== 'bygroup');
+      document.getElementById('wm-view-all').classList.toggle('hidden', tab !== 'all');
+      document.getElementById('wm-view-rotation').classList.toggle('hidden', tab !== 'rotation');
+
+      ['bygroup', 'all', 'rotation'].forEach(k => {
+        const btn = document.getElementById(`wm-tab-${k}`);
+        if (!btn) return;
+        btn.className = k === tab
+          ? 'px-3 py-1.5 rounded-lg font-bold bg-indigo-700 text-white shadow-2xs transition'
+          : 'px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition';
+      });
+      renderWorkshopManager();
+    }
+
+    function setWorkshopRoundDraft(r, markAsDirty = true) {
+      wmDraftRound = Math.max(1, Math.min(5, Number(r) || 1));
+      if (markAsDirty && wmDraftRound !== Number(workshopConfig.currentRound || 1)) {
+        markDirty(true);
+      }
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`wm-round-btn-${i}`);
+        if (!btn) continue;
+        const isLive = i === Number(workshopConfig.currentRound || 1);
+        btn.className = i === wmDraftRound
+          ? 'px-3 py-1.5 rounded-xl font-extrabold bg-indigo-700 text-white border border-indigo-700 shadow-xs transition'
+          : 'px-3 py-1.5 rounded-xl font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-indigo-50 transition';
+        btn.textContent = isLive ? `รอบ ${i} ●` : `รอบ ${i}`;
+      }
+      const syncLbl = document.getElementById('btn-quick-sync-round-label');
+      if (syncLbl) syncLbl.textContent = `ซิงค์รอบ ${wmDraftRound} ขึ้นเวทีทันที`;
+      renderWorkshopManager();
+    }
+
+    async function quickSyncRoundOnly() {
+      const btn = document.getElementById('btn-quick-sync-round');
+      const lbl = document.getElementById('btn-quick-sync-round-label');
+      btn.disabled = true;
+      lbl.textContent = 'กำลังซิงค์...';
+      try {
+        const res = await postToApi({ action: 'setWorkshopRound', currentRound: wmDraftRound });
+        if (res.status !== 'success') throw new Error(res.message || 'ซิงค์รอบไม่สำเร็จ');
+        workshopConfig.currentRound = wmDraftRound;
+        setWorkshopRoundDraft(wmDraftRound, false);
+        showToast(`📢 ซิงค์เปลี่ยนเป็นรอบที่ ${wmDraftRound}/5 ขึ้นเวทีและบัตรทุกคนเรียบร้อยแล้ว`, 'success');
+      } catch (err) {
+        showToast('ซิงค์รอบไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        lbl.textContent = `ซิงค์รอบ ${wmDraftRound} ขึ้นเวทีทันที`;
+      }
+    }
+
+    function jumpToUnassigned() {
+      switchWmTab('all');
+      const sel = document.getElementById('wm-all-filter-status');
+      if (sel) sel.value = 'unassigned';
+      renderWmAllTableView();
+    }
+
+    // ==================== QUICK FIND BAR ====================
+    function clearWmQuickFind() {
+      const inp = document.getElementById('wm-quick-find');
+      if (inp) inp.value = '';
+      document.getElementById('wm-quick-find-clear')?.classList.add('hidden');
+      document.getElementById('wm-quick-find-results')?.classList.add('hidden');
+    }
+
+    function renderWmQuickFind() {
+      const inp = document.getElementById('wm-quick-find');
+      const box = document.getElementById('wm-quick-find-results');
+      const clr = document.getElementById('wm-quick-find-clear');
+      if (!inp || !box) return;
+
+      const q = inp.value.trim().toLowerCase();
+      if (clr) clr.classList.toggle('hidden', q.length === 0);
+      if (!q) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      const matches = participants.filter(p => {
+        const name = getActiveName(p);
+        return `${p.id} ${name} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${p.position}`.toLowerCase().includes(q);
+      });
+
+      if (matches.length === 0) {
+        box.innerHTML = `<div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">ไม่พบ "${escapeHtml(inp.value.trim())}" ในรายชื่อที่โหลดมา (${participants.length} ราย)</div>`;
+        box.classList.remove('hidden');
+        return;
+      }
+
+      box.innerHTML = matches.slice(0, 10).map(p => {
+        const name = getActiveName(p);
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        const isExp = a.group && isWmFixedRole(a.role);
+        return `
+          <div class="p-2.5 rounded-xl bg-indigo-50/75 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="min-w-0 flex-1">
+              <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(p.id)}</span>
+              <strong class="ml-1 text-slate-900 dark:text-white">${escapeHtml(name)}</strong>
+              <span class="ml-1 text-[11px] text-slate-500">(${escapeHtml(p.unitDetail || p.mainUnit)})</span>
+              <span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${a.group ? (isExp ? 'bg-amber-200 text-amber-950' : 'bg-sky-100 text-sky-900') : 'bg-slate-200 text-slate-700'}">
+                ${a.group ? (isExp ? `⭐ ผู้เชี่ยวชาญ กลุ่ม ${a.group}` : `👥 สมาชิก กลุ่ม ${a.group}`) : 'ยังไม่จัดกลุ่ม'}
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <select onchange="onWmAssignGroupFromAll('${escapeHtml(p.id)}', this.value)" class="px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-[11px] font-bold">
+                <option value="" ${!a.group ? 'selected' : ''}>ยังไม่จัดกลุ่ม</option>
+                ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${a.group === String(n) ? 'selected' : ''}>กลุ่ม ${n}</option>`).join('')}
+              </select>
+              <button type="button" onclick="onWmToggleRole('${escapeHtml(p.id)}')" ${!a.group ? 'disabled' : ''} class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold border transition ${!a.group ? 'opacity-40 cursor-not-allowed bg-slate-100' : (isExp ? 'bg-amber-100 border-amber-300 text-amber-950' : 'bg-sky-50 border-sky-200 text-sky-900')}">
+                ${isExp ? '⭐ ประจำฐาน' : '🔄 หมุนเวียน'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      box.classList.remove('hidden');
+    }
+
+    // ==================== MAIN RENDERER ====================
+    function renderWorkshopManager() {
+      const total = participants.length;
+      const assignedCount = Object.values(wmDraftAssignments).filter(a => a.group).length;
+      const expertCount = Object.values(wmDraftAssignments).filter(a => a.group && isWmFixedRole(a.role)).length;
+      const memberCount = assignedCount - expertCount;
+      const unassignedCount = total - assignedCount;
+      const pct = total > 0 ? Math.round((assignedCount / total) * 100) : 0;
+
+      document.getElementById('kpi-assigned').textContent = assignedCount;
+      document.getElementById('kpi-total').textContent = total;
+      document.getElementById('kpi-pct').textContent = `${pct}%`;
+      document.getElementById('kpi-experts').textContent = expertCount;
+      document.getElementById('kpi-members').textContent = memberCount;
+      document.getElementById('kpi-unassigned').textContent = unassignedCount;
+
+      const unPill = document.getElementById('wm-unassigned-pill');
+      if (unPill) {
+        unPill.textContent = unassignedCount > 0 ? `ค้าง ${unassignedCount} ราย ↗` : 'จัดครบแล้ว ✓';
+        unPill.className = unassignedCount > 0
+          ? 'px-2.5 py-1 rounded-xl bg-rose-100 text-rose-800 border border-rose-200 text-[10.5px] font-bold'
+          : 'px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10.5px] font-bold';
+      }
+
+      const sumEl = document.getElementById('wm-summary-text');
+      if (sumEl) {
+        sumEl.textContent = `จัดกลุ่มแล้ว ${assignedCount}/${total} ราย (⭐ ผู้เชี่ยวชาญ ${expertCount} ราย • 👥 สมาชิกหมุนเวียน ${memberCount} ราย • รอบที่ ${wmDraftRound}/5)`;
+      }
+
+      if (wmActiveTab === 'bygroup') renderWmByGroupView();
+      else if (wmActiveTab === 'all') renderWmAllTableView();
+      else renderWmRotationView();
+
+      renderWmQuickFind();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function buildExpertAddDropdownOptions(gNum) {
+      const gStr = String(gNum);
+      const candidates = participants.filter(p => {
+        const a = wmDraftAssignments[p.id];
+        return !(a && a.group === gStr && isWmFixedRole(a.role));
+      });
+      const priority = candidates.filter(p =>
+        String(p.role).includes('ผู้ทรงคุณวุฒิ') || String(p.role).includes('วิทยากร') || String(p.role).includes('คณะทำงาน')
+      );
+      const others = candidates.filter(p => !priority.includes(p));
+
+      const renderOpt = (p) => {
+        const name = getActiveName(p);
+        const curA = wmDraftAssignments[p.id];
+        let tag = '';
+        if (curA && curA.group) {
+          tag = isWmFixedRole(curA.role) ? ` [⭐ ผู้เชี่ยวชาญ ก.${curA.group}]` : ` [สมาชิก ก.${curA.group}]`;
+        }
+        return `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} • ${escapeHtml(name)} (${escapeHtml(p.mainUnit)})${tag}</option>`;
+      };
+
+      return `
+        <option value="">+ เพิ่มผู้เชี่ยวชาญ / วิทยากรเข้ากลุ่มที่ ${gNum}...</option>
+        <optgroup label="⭐ ผู้ทรงคุณวุฒิ / วิทยากร / คณะทำงาน">${priority.map(renderOpt).join('')}</optgroup>
+        <optgroup label="👥 ผู้เข้าร่วมสัมมนาทั้งหมด">${others.map(renderOpt).join('')}</optgroup>
+      `;
+    }
+
+    function renderWmByGroupView() {
+      const box = document.getElementById('wm-view-bygroup');
+      if (!box) return;
+
+      const unassignedList = participants.filter(p => !wmDraftAssignments[p.id]?.group);
+
+      box.innerHTML = wmDraftGroups.map((g, idx) => {
+        const gNum = g.groupNo;
+        const gStr = String(gNum);
+        const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
+
+        const experts = participants
+          .filter(p => {
+            const a = wmDraftAssignments[p.id];
+            return a && a.group === gStr && isWmFixedRole(a.role);
+          })
+          .sort((a, b) => (wmDraftAssignments[a.id].order || 99) - (wmDraftAssignments[b.id].order || 99));
+
+        const members = participants.filter(p => {
+          const a = wmDraftAssignments[p.id];
+          return a && a.group === gStr && !isWmFixedRole(a.role);
+        });
+
+        const addMemberOptions = [
+          `<option value="">+ เพิ่มสมาชิกเข้ากลุ่มที่ ${gNum}...</option>`,
+          `<optgroup label="ยังไม่จัดกลุ่ม (${unassignedList.length})">${unassignedList.map(p =>
+            `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} • ${escapeHtml(getActiveName(p))} (${escapeHtml(p.mainUnit)})</option>`
+          ).join('')}</optgroup>`,
+          `<optgroup label="ย้ายมาจากกลุ่มอื่น">${participants.filter(p => {
+            const a = wmDraftAssignments[p.id];
+            return a && a.group && a.group !== gStr;
+          }).map(p => {
+            const roleTag = isWmFixedRole(wmDraftAssignments[p.id].role) ? '⭐' : '';
+            return `<option value="${escapeHtml(p.id)}">[${roleTag}ก.${wmDraftAssignments[p.id].group}] ${escapeHtml(p.id)} • ${escapeHtml(getActiveName(p))}</option>`;
+          }).join('')}</optgroup>`
+        ].join('');
+
+        return `
+          <div class="print-card rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden flex flex-col" style="border-top: 5px solid ${color};">
+            <!-- Header -->
+            <div class="p-3.5 border-b border-slate-200 dark:border-slate-700 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="px-2.5 py-0.5 rounded-lg text-white font-mono text-xs font-extrabold" style="background:${color}">กลุ่มที่ ${gNum}</span>
+                  <span class="text-[11px] font-bold text-slate-500">รวม ${experts.length + members.length} ราย</span>
+                </div>
+                <button type="button" onclick="openGroupQuickPickModal(${gNum})" class="no-print px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-[11px] font-bold transition">
+                  ☑ เลือกหลายคน
+                </button>
+              </div>
+              <input type="text" value="${escapeHtml(g.topic)}" oninput="onWmTopicInput(${gNum}, this.value)" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <!-- Experts -->
+            <div class="p-3 bg-amber-50/75 dark:bg-amber-950/20 border-b border-amber-200/80 dark:border-amber-900 space-y-2 text-xs">
+              <div class="flex items-center justify-between gap-1">
+                <p class="font-bold text-amber-900 dark:text-amber-300 text-[11px]">⭐ วิทยากร / ผู้เชี่ยวชาญ (${experts.length})</p>
+                <span class="text-[10px] text-amber-800/80 font-medium">ประจำฐาน</span>
+              </div>
+
+              <div class="space-y-1">
+                ${experts.length === 0
+                  ? `<p class="text-[11px] text-amber-800/60 italic py-1">ยังไม่ได้ระบุผู้เชี่ยวชาญประจำกลุ่ม</p>`
+                  : experts.map((exp, eIdx) => `
+                      <div class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-[11px] shadow-2xs">
+                        <div class="min-w-0 flex-1 truncate">
+                          <span class="font-mono font-bold text-amber-700 dark:text-amber-300">${eIdx + 1}. ${escapeHtml(exp.id)}</span>
+                          <span class="font-bold text-slate-900 dark:text-white ml-1">${escapeHtml(getActiveName(exp))}</span>
+                        </div>
+                        <div class="no-print flex items-center gap-1 shrink-0">
+                          <button type="button" onclick="onWmConvertExpertToMember('${escapeHtml(exp.id)}')" title="เปลี่ยนเป็นสมาชิกหมุนเวียน" class="px-1.5 py-0.5 rounded bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-[10px] font-bold">🔄</button>
+                          <button type="button" onclick="onWmRemoveMember('${escapeHtml(exp.id)}')" title="นำออกจากกลุ่ม" class="px-1.5 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold">✕</button>
+                        </div>
+                      </div>
+                    `).join('')
+                }
+              </div>
+
+              <select onchange="if(this.value){ onWmAddExpertToGroup(${gNum}, this.value); this.value=''; }" class="no-print w-full px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800 text-xs font-semibold">
+                ${buildExpertAddDropdownOptions(gNum)}
+              </select>
+            </div>
+
+            <!-- Rotating Members -->
+            <div class="p-3 space-y-2 flex-1 flex flex-col justify-between bg-slate-50/40 dark:bg-slate-900/20">
+              <div class="space-y-1.5">
+                <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300">👥 สมาชิกเริ่มต้นกลุ่มที่ ${gNum} (${members.length} ราย)</p>
+                <div class="print-expand space-y-1 max-h-[340px] overflow-y-auto custom-scroll">
+                  ${members.length === 0
+                    ? `<p class="text-[11px] text-slate-400 italic py-3 text-center">ยังไม่มีสมาชิกในกลุ่มนี้</p>`
+                    : members.map((m, mIdx) => `
+                        <div class="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px]">
+                          <div class="min-w-0 flex-1 truncate">
+                            <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${mIdx + 1}. ${escapeHtml(m.id)}</span>
+                            <span class="font-semibold text-slate-800 dark:text-white ml-1">${escapeHtml(getActiveName(m))}</span>
+                            <span class="text-[10px] text-slate-400 ml-1">${escapeHtml(m.mainUnit)}</span>
+                          </div>
+                          <div class="no-print flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="onWmPromoteMemberToExpert('${escapeHtml(m.id)}')" title="ตั้งเป็นผู้เชี่ยวชาญประจำกลุ่มนี้" class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold">⭐</button>
+                            <button type="button" onclick="onWmRemoveMember('${escapeHtml(m.id)}')" title="นำออกจากกลุ่ม" class="px-1.5 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold">✕</button>
+                          </div>
+                        </div>
+                      `).join('')
+                  }
+                </div>
+              </div>
+
+              <select onchange="if(this.value){ onWmAddMemberToGroup(${gNum}, this.value); this.value=''; }" class="no-print w-full px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-medium mt-2">
+                ${addMemberOptions}
+              </select>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWmAllTableView() {
+      const box = document.getElementById('wm-all-list');
+      const cntEl = document.getElementById('wm-all-count-badge');
+      if (!box) return;
+
+      const q = String(document.getElementById('wm-all-search')?.value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('wm-all-filter-status')?.value || 'all';
+
+      const list = participants.filter(p => {
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        const isExp = Boolean(a.group) && isWmFixedRole(a.role);
+        if (statusFilter === 'unassigned' && a.group) return false;
+        if (statusFilter === 'experts' && !isExp) return false;
+        if (statusFilter === 'members' && (!a.group || isExp)) return false;
+        if (['1', '2', '3', '4', '5'].includes(statusFilter) && a.group !== statusFilter) return false;
+        if (!q) return true;
+        return `${p.id} ${getActiveName(p)} ${p.fullName} ${p.mainUnit} ${p.unitDetail} ${p.role}`.toLowerCase().includes(q);
+      });
+
+      if (cntEl) cntEl.textContent = `${list.length} ราย`;
+
+      if (list.length === 0) {
+        box.innerHTML = `<div class="py-12 text-center text-xs text-slate-400">ไม่พบรายชื่อตามตัวกรองที่เลือก</div>`;
+        return;
+      }
+
+      box.innerHTML = list.map(p => {
+        const name = getActiveName(p);
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        const isExp = a.group && isWmFixedRole(a.role);
+        return `
+          <div class="px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/40 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="min-w-0 flex-1">
+              <span class="font-mono font-bold text-navy-700 dark:text-blue-300">${escapeHtml(p.id)}</span>
+              <strong class="ml-1.5 text-slate-900 dark:text-white">${escapeHtml(name)}</strong>
+              <span class="ml-1.5 text-slate-500 text-[11px]">${escapeHtml(p.unitDetail || p.mainUnit)}</span>
+              ${p.rsvp === 'ไม่สามารถเข้าร่วม' ? `<span class="ml-1.5 px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold">ไม่เข้าร่วม</span>` : ''}
+            </div>
+            <div class="no-print flex items-center gap-1.5 shrink-0">
+              <select onchange="onWmAssignGroupFromAll('${escapeHtml(p.id)}', this.value)" class="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-bold">
+                <option value="" ${!a.group ? 'selected' : ''}>ยังไม่จัดกลุ่ม</option>
+                ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${a.group === String(n) ? 'selected' : ''}>กลุ่ม ${n}</option>`).join('')}
+              </select>
+              <button type="button" onclick="onWmToggleRole('${escapeHtml(p.id)}')" ${!a.group ? 'disabled' : ''} class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition ${!a.group ? 'opacity-40 cursor-not-allowed bg-slate-100' : (isExp ? 'bg-amber-100 border-amber-300 text-amber-950' : 'bg-sky-50 border-sky-200 text-sky-900')}">
+                ${isExp ? '⭐ ประจำฐาน' : '🔄 หมุนเวียน'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWmRotationView() {
+      const tbody = document.getElementById('rot-matrix-tbody');
+      const rosterGrid = document.getElementById('rot-round-roster-grid');
+      const pill = document.getElementById('rot-active-round-pill');
+      const titleEl = document.getElementById('rot-round-roster-title');
+      if (!tbody || !rosterGrid) return;
+
+      const round = wmDraftRound;
+      if (pill) pill.textContent = `กำลังพรีวิว: รอบที่ ${round} / 5`;
+      if (titleEl) titleEl.textContent = `รายชื่อประจำแต่ละโต๊ะในรอบที่ ${round} / 5 (ช่วงเช้า World Café)`;
+
+      tbody.innerHTML = wmDraftGroups.map((g, idx) => {
+        const station = g.groupNo;
+        const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
+        const cells = [1, 2, 3, 4, 5].map(r => {
+          const visitingBaseGroup = ((station - 1 - (r - 1) + 5) % 5) + 1;
+          const isCur = r === round;
+          return `
+            <td class="py-2.5 px-2 ${isCur ? 'bg-indigo-50 dark:bg-indigo-950/50' : ''}">
+              <span class="inline-block px-2.5 py-1 rounded-xl font-bold ${isCur ? 'bg-indigo-700 text-amber-300 shadow-2xs' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'}">
+                กลุ่มที่ ${visitingBaseGroup}
+              </span>
+            </td>
+          `;
+        }).join('');
+        return `
+          <tr>
+            <td class="py-2.5 px-3 text-left font-bold">
+              <span class="inline-block px-2 py-0.5 rounded text-white font-mono text-[11px] mr-1.5" style="background:${color}">โต๊ะ ${station}</span>
+              <span class="text-slate-800 dark:text-slate-100">${escapeHtml(g.topic)}</span>
+            </td>
+            ${cells}
+          </tr>
+        `;
+      }).join('');
+
+      rosterGrid.innerHTML = wmDraftGroups.map((g, idx) => {
+        const station = g.groupNo;
+        const color = WM_GROUP_COLORS[idx % WM_GROUP_COLORS.length];
+        const visitingBaseGroup = ((station - 1 - (round - 1) + 5) % 5) + 1;
+
+        const experts = participants.filter(p => {
+          const a = wmDraftAssignments[p.id];
+          return a && a.group === String(station) && isWmFixedRole(a.role);
+        });
+        const visitingMembers = participants.filter(p => {
+          const a = wmDraftAssignments[p.id];
+          return a && a.group === String(visitingBaseGroup) && !isWmFixedRole(a.role);
+        });
+
+        return `
+          <div class="print-card rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3.5 shadow-2xs space-y-2.5 text-xs" style="border-top: 4px solid ${color};">
+            <div>
+              <div class="flex items-center justify-between gap-1">
+                <span class="px-2 py-0.5 rounded-lg text-white font-mono font-extrabold text-[11px]" style="background:${color}">โต๊ะ ${station}</span>
+                <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold text-[10.5px]">รับกลุ่มที่ ${visitingBaseGroup}</span>
+              </div>
+              <p class="font-bold text-slate-900 dark:text-white mt-1 leading-snug">${escapeHtml(g.topic)}</p>
+            </div>
+            <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 space-y-1">
+              <p class="font-bold text-amber-900 dark:text-amber-300 text-[10.5px]">⭐ ผู้เชี่ยวชาญประจำโต๊ะ (${experts.length})</p>
+              ${experts.length === 0 ? '<p class="text-[10.5px] text-slate-400 italic">-</p>' : experts.map((e, i) => `<p class="text-[11px] font-semibold">${i + 1}. ${escapeHtml(getActiveName(e))}</p>`).join('')}
+            </div>
+            <div class="space-y-1">
+              <p class="font-bold text-slate-600 dark:text-slate-300 text-[10.5px]">👥 สมาชิกกลุ่มที่ ${visitingBaseGroup} (${visitingMembers.length} ราย)</p>
+              ${visitingMembers.length === 0 ? '<p class="text-[10.5px] text-slate-400 italic">-</p>' : visitingMembers.map((m, i) => `<p class="text-[11px]">${i + 1}. ${escapeHtml(getActiveName(m))} <span class="text-[10px] text-slate-400">(${escapeHtml(m.mainUnit)})</span></p>`).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== MUTATION HANDLERS ====================
+    function onWmTopicInput(gNum, val) {
+      const g = wmDraftGroups.find(x => x.groupNo === gNum);
+      if (g) {
+        g.topic = val;
+        markDirty(true);
+      }
+    }
+
+    function getNextExpertOrder(gNum) {
+      const gStr = String(gNum);
+      let maxOrder = 0;
+      Object.values(wmDraftAssignments).forEach(a => {
+        if (a && a.group === gStr && isWmFixedRole(a.role) && (a.order || 0) > maxOrder) {
+          maxOrder = a.order;
+        }
+      });
+      return maxOrder + 1;
+    }
+
+    function onWmAddExpertToGroup(gNum, pid) {
+      if (!pid) return;
+      wmDraftAssignments[pid] = {
+        group: String(gNum),
+        role: 'ผู้เชี่ยวชาญประจำกลุ่ม',
+        order: getNextExpertOrder(gNum)
+      };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmConvertExpertToMember(pid) {
+      const cur = wmDraftAssignments[pid];
+      if (!cur || !cur.group) return;
+      wmDraftAssignments[pid] = { group: cur.group, role: 'ผู้เข้าร่วม', order: 0 };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmPromoteMemberToExpert(pid) {
+      const cur = wmDraftAssignments[pid];
+      if (!cur || !cur.group) return;
+      wmDraftAssignments[pid] = {
+        group: cur.group,
+        role: 'ผู้เชี่ยวชาญประจำกลุ่ม',
+        order: getNextExpertOrder(Number(cur.group))
+      };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmAddMemberToGroup(gNum, pid) {
+      wmDraftAssignments[pid] = { group: String(gNum), role: 'ผู้เข้าร่วม', order: 0 };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmRemoveMember(pid) {
+      wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmAssignGroupFromAll(pid, val) {
+      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+      if (!val) {
+        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+      } else {
+        const keepExp = isWmFixedRole(cur.role);
+        wmDraftAssignments[pid] = {
+          group: String(val),
+          role: keepExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
+          order: keepExp ? getNextExpertOrder(Number(val)) : 0
+        };
+      }
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function onWmToggleRole(pid) {
+      const cur = wmDraftAssignments[pid];
+      if (!cur || !cur.group) return;
+      const nextExp = !isWmFixedRole(cur.role);
+      wmDraftAssignments[pid] = {
+        group: cur.group,
+        role: nextExp ? 'ผู้เชี่ยวชาญประจำกลุ่ม' : 'ผู้เข้าร่วม',
+        order: nextExp ? getNextExpertOrder(Number(cur.group)) : 0
+      };
+      markDirty(true);
+      renderWorkshopManager();
+    }
+
+    function autoDistributeWorkshopGroups() {
+      const unassigned = participants.filter(p => !wmDraftAssignments[p.id]?.group && p.rsvp !== 'ไม่สามารถเข้าร่วม');
+      if (unassigned.length === 0) {
+        showToast('รายชื่อทั้งหมดถูกจัดเข้ากลุ่มครบแล้ว', 'info');
+        return;
+      }
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      Object.values(wmDraftAssignments).forEach(a => {
+        if (a.group && !isWmFixedRole(a.role)) counts[Number(a.group)]++;
+      });
+      unassigned.forEach(p => {
+        let minG = 1;
+        for (let g = 2; g <= 5; g++) {
+          if (counts[g] < counts[minG]) minG = g;
+        }
+        wmDraftAssignments[p.id] = { group: String(minG), role: 'ผู้เข้าร่วม', order: 0 };
+        counts[minG]++;
+      });
+      markDirty(true);
+      renderWorkshopManager();
+      showToast(`กระจายสมาชิก ${unassigned.length} รายเข้ากลุ่ม 1–5 เรียบร้อย (อย่าลืมกดบันทึก)`, 'success');
+    }
+
+    // ==================== MULTI-PICK MODAL ====================
+    function openGroupQuickPickModal(gNum) {
+      wmQuickPickGroupNo = gNum;
+      document.getElementById('wm-qp-title').textContent = `เลือกสมาชิกเข้ากลุ่มที่ ${gNum} (ติ๊กเลือกได้หลายคน)`;
+      document.getElementById('wm-qp-search').value = '';
+      renderGroupQuickPickList();
+      document.getElementById('wm-quickpick-modal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeGroupQuickPickModal() {
+      document.getElementById('wm-quickpick-modal')?.classList.add('hidden');
+      renderWorkshopManager();
+    }
+
+    function renderGroupQuickPickList() {
+      const box = document.getElementById('wm-qp-list');
+      const q = String(document.getElementById('wm-qp-search')?.value || '').trim().toLowerCase();
+      const onlyUnassigned = Boolean(document.getElementById('wm-qp-only-unassigned')?.checked);
+      const gStr = String(wmQuickPickGroupNo);
+
+      const list = participants.filter(p => {
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        if (onlyUnassigned && a.group && a.group !== gStr) return false;
+        if (!q) return true;
+        return `${p.id} ${getActiveName(p)} ${p.fullName} ${p.mainUnit} ${p.unitDetail}`.toLowerCase().includes(q);
+      });
+
+      box.innerHTML = list.map(p => {
+        const name = getActiveName(p);
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+        const inThis = a.group === gStr && !isWmFixedRole(a.role);
+        const isFixedExp = a.group && isWmFixedRole(a.role);
+        return `
+          <label class="flex items-center justify-between gap-2 p-2.5 rounded-xl border cursor-pointer ${inThis ? 'bg-indigo-50 border-indigo-400 dark:bg-indigo-950/50' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <input type="checkbox" ${inThis ? 'checked' : ''} ${isFixedExp ? 'disabled' : ''} onchange="toggleQuickPickMember('${escapeHtml(p.id)}')" class="w-4 h-4 rounded text-indigo-600 shrink-0" />
+              <div class="min-w-0">
+                <p class="font-bold text-slate-900 dark:text-white truncate">${escapeHtml(p.id)} • ${escapeHtml(name)}</p>
+                <p class="text-[10.5px] text-slate-500 truncate">${escapeHtml(p.unitDetail || p.mainUnit)}</p>
+              </div>
+            </div>
+            ${isFixedExp
+              ? `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold shrink-0">⭐ ผู้เชี่ยวชาญ ก.${a.group}</span>`
+              : (a.group && a.group !== gStr ? `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold shrink-0">อยู่ ก.${a.group}</span>` : '')
+            }
+          </label>
+        `;
+      }).join('');
+    }
+
+    function toggleQuickPickMember(pid) {
+      const gStr = String(wmQuickPickGroupNo);
+      const cur = wmDraftAssignments[pid] || { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+      if (cur.group === gStr && !isWmFixedRole(cur.role)) {
+        wmDraftAssignments[pid] = { group: '', role: 'ผู้เข้าร่วม', order: 0 };
+      } else {
+        wmDraftAssignments[pid] = { group: gStr, role: 'ผู้เข้าร่วม', order: 0 };
+      }
+      markDirty(true);
+      renderGroupQuickPickList();
+    }
+
+    // ==================== SAVE & EXPORT ====================
+    async function saveWorkshopConfigToServer() {
+      const btns = [document.getElementById('wm-save-btn'), document.getElementById('wm-save-btn-top')].filter(Boolean);
+      btns.forEach(b => { b.disabled = true; b.classList.add('opacity-70'); });
+      const bottomBtn = document.getElementById('wm-save-btn');
+      if (bottomBtn) bottomBtn.textContent = 'กำลังบันทึกและซิงค์...';
+
+      const finalGroups = wmDraftGroups.map(g => {
+        const gStr = String(g.groupNo);
+        const expNames = participants
+          .filter(p => {
+            const a = wmDraftAssignments[p.id];
+            return a && a.group === gStr && isWmFixedRole(a.role);
+          })
+          .sort((a, b) => (wmDraftAssignments[a.id].order || 99) - (wmDraftAssignments[b.id].order || 99))
+          .map(p => getActiveName(p).trim());
+        return {
+          groupNo: g.groupNo,
+          topic: g.topic.trim(),
+          experts: expNames.join(', ')
+        };
+      });
+
+      const assignments = participants.map(p => {
+        const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม' };
+        return {
+          id: p.id,
+          workshopGroup: a.group || '',
+          workshopRole: a.group ? (a.role || 'ผู้เข้าร่วม') : 'ผู้เข้าร่วม'
+        };
+      });
+
+      try {
+        const res = await postToApi({
+          action: 'saveWorkshopConfig',
+          currentRound: wmDraftRound,
+          groups: finalGroups,
+          assignments: assignments
+        });
+        if (res.status !== 'success') throw new Error(res.message || 'บันทึกไม่สำเร็จ');
+
+        workshopConfig = { currentRound: wmDraftRound, groups: finalGroups };
+        participants.forEach(p => {
+          const a = wmDraftAssignments[p.id] || { group: '', role: 'ผู้เข้าร่วม' };
+          p.workshopGroup = a.group || '';
+          p.workshopRole = a.group ? (a.role || 'ผู้เข้าร่วม') : 'ผู้เข้าร่วม';
+        });
+        markDirty(false);
+        setWorkshopRoundDraft(wmDraftRound, false);
+        showToast(res.message || 'บันทึกการจัดกลุ่ม 5 กลุ่มและซิงค์ขึ้นบัตรทุกคนเรียบร้อยแล้ว', 'success');
+      } catch (err) {
+        showToast('บันทึกจัดกลุ่มไม่สำเร็จ: ' + err.message, 'error');
+      } finally {
+        btns.forEach(b => { b.disabled = false; b.classList.remove('opacity-70'); });
+        if (bottomBtn) {
+          bottomBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4 text-amber-300"></i><span>บันทึกและซิงค์ขึ้นบัตรทุกคน</span>';
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+
+    function exportGroupsCSV() {
+      const headers = ['กลุ่มที่', 'หัวข้อหมวดหลัก', 'สถานะในกลุ่ม', 'ID', 'ยศ ชื่อ - สกุล', 'ผู้แทนเข้าร่วม', 'หน่วยหลัก', 'สังกัดรายละเอียด', 'การตอบรับ'];
+      const rows = [];
+      wmDraftGroups.forEach(g => {
+        const gStr = String(g.groupNo);
+        const experts = participants.filter(p => wmDraftAssignments[p.id]?.group === gStr && isWmFixedRole(wmDraftAssignments[p.id]?.role));
+        const members = participants.filter(p => wmDraftAssignments[p.id]?.group === gStr && !isWmFixedRole(wmDraftAssignments[p.id]?.role));
+        [...experts.map(p => ({ p, roleLabel: 'ผู้เชี่ยวชาญประจำกลุ่ม' })), ...members.map(p => ({ p, roleLabel: 'สมาชิกกลุ่ม (หมุนเวียน)' }))].forEach(({ p, roleLabel }) => {
+          rows.push([
+            `กลุ่มที่ ${g.groupNo}`, g.topic, roleLabel, p.id, p.fullName, p.substituteName, p.mainUnit, p.unitDetail, p.rsvp
+          ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+        });
+      });
+
+      const unassigned = participants.filter(p => !wmDraftAssignments[p.id]?.group);
+      unassigned.forEach(p => {
+        rows.push([
+          'ยังไม่จัดกลุ่ม', '-', '-', p.id, p.fullName, p.substituteName, p.mainUnit, p.unitDetail, p.rsvp
+        ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+      });
+
+      const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `รายชื่อจัดกลุ่มสัมมนา5กลุ่ม_AIคู่หูจราจร_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('ส่งออกไฟล์รายชื่อ 5 กลุ่ม (CSV) เรียบร้อยแล้ว', 'success');
+    }
+
+    // ==================== SETTINGS & UTILS ====================
+    function openSettingsModal() {
+      document.getElementById('set-api-url').value = API_URL;
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal')?.classList.add('hidden');
+    }
+
+    function saveSettings(e) {
+      e.preventDefault();
+      API_URL = document.getElementById('set-api-url').value.trim() || DEFAULT_API_URL;
+      safeSet('ai_seminar_api_url', API_URL);
+      closeSettingsModal();
+      showToast('บันทึกการตั้งค่าเรียบร้อยแล้ว', 'success');
+      refreshFromSheet(true);
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      safeSet('ai_seminar_dark', String(isDark));
+    }
+
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-500 text-slate-950',
+        info: 'bg-navy-800 text-white'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[m]);
+    }
+  </script>
+</body>
+</html>
