@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>สแกน QR เช็กอิน HD &amp; เสียงพูดต้อนรับ - แชทบอท AI คู่หูจราจร</title>
+  <title>สแกน QR เช็กอิน HD (Logitech C920e Ready) - แชทบอท AI คู่หูจราจร</title>
 
   <!-- Google Fonts: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,6 +43,7 @@
     .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
     .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
 
+    /* เอฟเฟกต์เส้นเลเซอร์สแกน */
     @keyframes scanLaser {
       0%, 100% { top: 14%; opacity: 0.45; }
       50% { top: 84%; opacity: 1; }
@@ -57,6 +58,7 @@
       animation: scanLaser 2.2s ease-in-out infinite;
     }
 
+    /* แสงแฟลชยืนยันผลบนกรอบกล้อง */
     @keyframes screenFlashGreen {
       0% { box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 0); }
       30% { box-shadow: inset 0 0 0 12px rgba(16, 185, 129, 0.85); }
@@ -83,6 +85,11 @@
       100% { transform: scale(1); opacity: 1; }
     }
     .welcome-card-pop { animation: cardPopIn 0.25s ease-out; }
+
+    /* กลับภาพซ้าย-ขวาเฉพาะหน้าจอพรีวิว (ไม่กระทบการถอดรหัส QR) */
+    .video-mirrored {
+      transform: scaleX(-1);
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
@@ -195,7 +202,7 @@
   <!-- ==================== MAIN 2-COLUMN WORKSPACE ==================== -->
   <main class="max-w-[1500px] w-full mx-auto px-3 sm:px-5 py-3.5 grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
 
-    <!-- ==================== LEFT COLUMN: HD CAMERA SCANNER ==================== -->
+    <!-- ==================== LEFT COLUMN: HD CAMERA SCANNER (LOGITECH C920e OPTIMIZED) ==================== -->
     <section class="lg:col-span-6 xl:col-span-5 flex flex-col gap-3">
       <div class="bg-slate-950 text-white rounded-3xl shadow-xl border-2 border-emerald-400/70 overflow-hidden flex flex-col">
         <!-- Scanner Toolbar -->
@@ -208,10 +215,13 @@
             <button type="button" onclick="toggleScannerMode()" id="btn-scan-mode" title="สลับโหมดสแกนรัว / ตรวจก่อนเช็กอิน" class="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[11px] font-bold transition">
               สแกนรัว
             </button>
-            <button type="button" onclick="switchScannerCamera()" title="สลับกล้องหน้า/หลัง" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
+            <button type="button" onclick="toggleMirrorPreview()" id="btn-scan-mirror" title="กลับภาพซ้าย-ขวา (สำหรับตั้งกล้องเว็บแคมหน้าโต๊ะ)" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
+              <i data-lucide="flip-horizontal-2" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="switchScannerCamera()" title="สลับกล้อง" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
               <i data-lucide="switch-camera" class="w-4 h-4"></i>
             </button>
-            <button type="button" onclick="toggleScannerTorch()" id="btn-scan-torch" title="เปิด/ปิด ไฟแฟลช" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
+            <button type="button" onclick="toggleScannerTorch()" id="btn-scan-torch" title="เปิด/ปิด ไฟแฟลช (เฉพาะมือถือ)" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition">
               <i data-lucide="flashlight" class="w-4 h-4"></i>
             </button>
             <button type="button" onclick="toggleCameraPause()" id="btn-cam-power" title="หยุด/เปิดกล้องชั่วคราว" class="px-2.5 py-1 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-[11px] font-bold transition">
@@ -220,20 +230,21 @@
           </div>
         </div>
 
-        <!-- Camera Device Picker -->
+        <!-- Camera Device Picker (แสดงเสมอเมื่อมีกล้องให้เลือก และไฮไลต์เมื่อเจอ Logitech) -->
         <div id="scan-device-bar" class="hidden px-3 py-1.5 bg-slate-900 border-b border-white/10 flex items-center gap-2 text-[11px]">
-          <span class="text-slate-400 shrink-0">📷 เลือกกล้อง:</span>
+          <span class="text-slate-400 shrink-0">📷 กล้อง:</span>
           <select id="scan-camera-select" onchange="selectScannerDevice(this.value)" class="flex-1 min-w-0 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-white text-[11px] focus:outline-none"></select>
+          <span id="scan-logi-badge" class="hidden px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-bold text-[10px] shrink-0">C920e PRO</span>
         </div>
 
-        <!-- Camera Viewport -->
-        <div id="scanner-viewport" onclick="handleTapToFocus(event)" class="relative bg-black aspect-[4/3] w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none">
-          <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <!-- Camera Viewport (ปรับสัดส่วน 16:9 บนจอคอมให้เหมาะกับ C920e 1080p) -->
+        <div id="scanner-viewport" onclick="handleTapToFocus(event)" class="relative bg-black aspect-[4/3] sm:aspect-video w-full overflow-hidden flex items-center justify-center cursor-crosshair select-none">
+          <video id="scan-video" autoplay playsinline muted class="w-full h-full object-cover transition-transform duration-200"></video>
 
           <!-- Viewfinder Overlay -->
           <div class="pointer-events-none absolute inset-3 rounded-2xl border border-emerald-400/30">
             <div class="scan-laser-line opacity-75"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[62%] aspect-square max-w-[260px]">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[54%] sm:w-[44%] aspect-square max-w-[260px]">
               <span class="absolute top-0 left-0 w-6 h-6 border-t-[3.5px] border-l-[3.5px] border-emerald-400 rounded-tl-xl"></span>
               <span class="absolute top-0 right-0 w-6 h-6 border-t-[3.5px] border-r-[3.5px] border-emerald-400 rounded-tr-xl"></span>
               <span class="absolute bottom-0 left-0 w-6 h-6 border-b-[3.5px] border-l-[3.5px] border-emerald-400 rounded-bl-xl"></span>
@@ -241,8 +252,8 @@
             </div>
           </div>
 
-          <div id="scan-res-badge" class="hidden pointer-events-none absolute top-2.5 left-3 px-2 py-0.5 rounded-lg bg-black/65 border border-white/15 font-mono text-[10.5px] font-bold text-emerald-300">
-            HD • AF
+          <div id="scan-res-badge" class="hidden pointer-events-none absolute top-2.5 left-3 px-2 py-0.5 rounded-lg bg-black/70 border border-white/15 font-mono text-[10.5px] font-bold text-emerald-300">
+            1080p • AF
           </div>
 
           <div id="scan-focus-ring" class="hidden pointer-events-none absolute w-14 h-14 rounded-full border-2 border-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.7)] z-10"></div>
@@ -259,19 +270,64 @@
           </div>
 
           <div id="scan-camera-status" class="pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/75 text-[11px] text-emerald-200 font-medium whitespace-nowrap">
-            กำลังเปิดกล้อง...
+            กำลังเปิดกล้อง Full HD 1080p...
           </div>
         </div>
 
-        <!-- Zoom Control Bar -->
-        <div id="scan-zoom-bar" class="hidden px-3.5 py-2 bg-slate-900 border-t border-white/10 flex items-center gap-2 text-[11px]">
-          <span class="text-slate-400 shrink-0 font-semibold">🔍 ซูม:</span>
-          <input type="range" id="scan-zoom-slider" min="1" max="3" step="0.1" value="1" oninput="setScannerZoom(this.value)" class="flex-1 accent-emerald-400 h-1.5 cursor-pointer" />
-          <span id="scan-zoom-value" class="font-mono font-bold text-emerald-300 w-9 text-right shrink-0">1.0x</span>
-          <div class="flex items-center gap-1 shrink-0">
-            <button type="button" onclick="setScannerZoom(1)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1x</button>
-            <button type="button" onclick="setScannerZoom(1.5)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1.5x</button>
-            <button type="button" onclick="setScannerZoom(2)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">2x</button>
+        <!-- ==================== PRO WEBCAM CONTROLS (C920e FOCUS LOCK / EXPOSURE / ZOOM) ==================== -->
+        <div id="scan-pro-controls" class="hidden px-3.5 py-2.5 bg-slate-900/95 border-t border-white/10 space-y-2.5 text-[11px]">
+
+          <!-- 1. แถบควบคุมโฟกัส (AF อัตโนมัติ vs ล็อกระยะโฟกัสตายตัวสำหรับ C920e) -->
+          <div id="scan-focus-bar" class="hidden space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-1.5">
+              <span class="text-slate-300 font-bold flex items-center gap-1">
+                🎯 โฟกัสเลนส์:
+              </span>
+              <div class="flex items-center gap-1 bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+                <button type="button" id="btn-focus-auto" onclick="setFocusMode('continuous')" class="px-2 py-0.5 rounded-md font-bold bg-emerald-500 text-slate-950 transition">AF อัตโนมัติ</button>
+                <button type="button" id="btn-focus-manual" onclick="setFocusMode('manual')" class="px-2 py-0.5 rounded-md font-semibold text-slate-300 hover:text-white transition">🔒 ล็อกระยะ (กันวืด)</button>
+              </div>
+            </div>
+
+            <div id="scan-manual-focus-wrap" class="hidden space-y-1 pt-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-slate-400 shrink-0">ไกล</span>
+                <input type="range" id="scan-focus-slider" min="0" max="250" step="5" value="45" oninput="setManualFocusDistance(this.value)" class="flex-1 accent-amber-400 h-1.5 cursor-pointer" />
+                <span class="text-[10px] text-slate-400 shrink-0">ใกล้</span>
+                <span id="scan-focus-value" class="font-mono font-bold text-amber-300 w-9 text-right shrink-0">45</span>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-1">
+                <span class="text-[10px] text-amber-200/80">ถือบัตรระยะโต๊ะแล้วเลื่อนให้ QR คมที่สุด (จำค่าอัตโนมัติ)</span>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="applyFocusPreset(0.18)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-amber-400 hover:text-slate-950 font-bold text-[10px] transition">ใกล้ (15ซม.)</button>
+                  <button type="button" onclick="applyFocusPreset(0.32)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-amber-400 hover:text-slate-950 font-bold text-[10px] transition">โต๊ะ (25ซม.)</button>
+                  <button type="button" onclick="applyFocusPreset(0.55)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-amber-400 hover:text-slate-950 font-bold text-[10px] transition">กลาง</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. แถบลดแสงจ้า (แก้หน้าจอมือถือสว่างจ้าจน QR ขาวโพลนบน C920e) -->
+          <div id="scan-exposure-bar" class="hidden flex items-center gap-2 pt-1.5 border-t border-white/10">
+            <span class="text-slate-300 shrink-0 font-semibold" id="scan-exposure-label">☀️ แสง:</span>
+            <input type="range" id="scan-exposure-slider" min="-2" max="2" step="0.2" value="0" oninput="setScannerExposure(this.value)" class="flex-1 accent-sky-400 h-1.5 cursor-pointer" />
+            <span id="scan-exposure-value" class="font-mono font-bold text-sky-300 w-10 text-right shrink-0">0</span>
+            <button type="button" onclick="applyPhoneScreenAntiGlare()" title="ลดแสงลงเล็กน้อยเพื่อสแกน QR บนหน้าจอมือถือที่สว่างจ้า" class="px-2 py-0.5 rounded bg-sky-500/25 hover:bg-sky-500/45 border border-sky-400/50 text-sky-200 font-bold text-[10px] shrink-0 transition">
+              กันจอมือถือจ้า
+            </button>
+            <button type="button" onclick="resetScannerExposure()" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 text-[10px] font-bold shrink-0">ปกติ</button>
+          </div>
+
+          <!-- 3. แถบซูมฮาร์ดแวร์ (Zoom) -->
+          <div id="scan-zoom-bar" class="hidden flex items-center gap-2 pt-1.5 border-t border-white/10">
+            <span class="text-slate-300 shrink-0 font-semibold">🔍 ซูม:</span>
+            <input type="range" id="scan-zoom-slider" min="1" max="3" step="0.1" value="1" oninput="setScannerZoom(this.value)" class="flex-1 accent-emerald-400 h-1.5 cursor-pointer" />
+            <span id="scan-zoom-value" class="font-mono font-bold text-emerald-300 w-9 text-right shrink-0">1.0x</span>
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" onclick="setScannerZoom(1)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1x</button>
+              <button type="button" onclick="setScannerZoom(1.5)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">1.5x</button>
+              <button type="button" onclick="setScannerZoom(2)" class="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/25 font-mono text-[10px] font-bold">2x</button>
+            </div>
           </div>
         </div>
 
@@ -340,7 +396,7 @@
             <i data-lucide="qr-code" class="w-6 h-6"></i>
           </div>
           <p class="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-200">พร้อมรับการสแกน QR Code เช็กอิน</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400">นำป้ายชื่อหรือหน้าจอบัตร E-Pass ส่องที่กล้องด้านซ้าย หรือพิมพ์รหัสเพื่อเช็กอินและออกเสียงต้อนรับ</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">นำป้ายชื่อหรือหน้าจอบัตร E-Pass ส่องที่กล้อง Logitech C920e ด้านซ้าย (ระยะห่าง 15–25 ซม.)</p>
         </div>
 
         <div id="welcome-active-state" class="hidden space-y-3">
@@ -369,10 +425,10 @@
             <p id="wd-spoken-preview" class="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium pt-0.5"></p>
           </div>
 
-          <!-- ป้ายข้อมูลสำคัญหน้าโต๊ะลงทะเบียน (ห้องพัก / อาหาร / กลุ่ม / เอกสารขาด) -->
+          <!-- ป้ายข้อมูลสำคัญหน้าโต๊ะลงทะเบียน -->
           <div id="wd-badges-row" class="flex flex-wrap gap-1.5 pt-1"></div>
 
-          <!-- แจ้งเตือนเอกสารขาด (ให้เจ้าหน้าที่โต๊ะลงทะเบียนทวงเอกสารได้ทันที) -->
+          <!-- แจ้งเตือนเอกสารขาด -->
           <div id="wd-doc-alert-box" class="hidden p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-xs text-rose-900 dark:text-rose-200 font-semibold"></div>
         </div>
       </div>
@@ -430,31 +486,38 @@
     let speechDelayTimer = null;
     let speechWatchdogTimer = null;
     let scanVoiceEnabled = safeGet('ai_seminar_voice_on', 'true') !== 'false';
-    let voiceEngineMode = safeGet('ai_seminar_voice_engine', 'auto') || 'auto'; // 'auto' | 'local' | 'online'
+    let voiceEngineMode = safeGet('ai_seminar_voice_engine', 'auto') || 'auto';
     let voiceEnding = safeGet('ai_seminar_voice_ending', 'ครับ');
     let voiceRate = parseFloat(safeGet('ai_seminar_voice_rate', '1.0')) || 1.0;
     window.__activeSpeechUtterance = null;
 
-    // ==================== HD QR SCANNER STATE ====================
+    // ==================== HD QR SCANNER & LOGITECH C920e PRO STATE ====================
     let scanStream = null;
     let scanRafId = null;
     let scanActive = false;
     let scanPausedByUser = false;
     let scanFacingMode = 'environment';
-    let scanSelectedDeviceId = '';
+    let scanSelectedDeviceId = safeGet('ai_seminar_scan_device_id', '');
     let scanAvailableCameras = [];
     let scanCameraSessionId = 0;
     let scanTorchOn = false;
     let scanConfirmMode = false;
+    let scanMirrorEnabled = safeGet('ai_seminar_scan_mirror', 'false') === 'true';
     let scanPendingPerson = null;
     let scanLastCode = '';
     let scanLastTime = 0;
     let scanLastDecodeTs = 0;
     let scanPassToggle = 0;
-    let scanZoomMin = 1;
-    let scanZoomMax = 1;
-    let scanZoomCurrent = 1;
-    let scanSupportsZoom = false;
+
+    // Hardware Controls (Focus / Exposure / Zoom)
+    let scanZoomMin = 1, scanZoomMax = 1, scanZoomCurrent = 1, scanSupportsZoom = false;
+    let scanSupportsManualFocus = false;
+    let scanFocusMin = 0, scanFocusMax = 250, scanFocusStep = 5;
+    let scanFocusMode = safeGet('ai_seminar_focus_mode', 'continuous') || 'continuous'; // 'continuous' | 'manual'
+    let scanFocusDistance = parseFloat(safeGet('ai_seminar_focus_dist', '45'));
+    let scanExposureKey = ''; // 'exposureCompensation' | 'brightness' | ''
+    let scanExpMin = -2, scanExpMax = 2, scanExpDefault = 0;
+
     let scanOffscreenCanvas = document.createElement('canvas');
     let scanOffscreenCtx = scanOffscreenCanvas.getContext('2d', { willReadFrequently: true });
     let nativeBarcodeDetector = null;
@@ -495,13 +558,14 @@
       }
       if (window.lucide) lucide.createIcons();
 
-      // โหลดค่าตั้งค่าเสียง
+      // โหลดค่าตั้งค่าเสียงและภาพสะท้อน
       document.getElementById('voice-engine-select').value = voiceEngineMode;
       document.getElementById('voice-ending-select').value = voiceEnding;
       document.getElementById('voice-rate-select').value = String(voiceRate);
       updateVoiceToggleUi();
+      applyMirrorUi();
 
-      // โหลดรายชื่อเสียงภาษาไทย (รองรับโหลดแบบ Async บน Android / Chrome)
+      // โหลดรายชื่อเสียงภาษาไทย
       loadPreferredThaiVoice();
       if (window.speechSynthesis && 'onvoiceschanged' in window.speechSynthesis) {
         window.speechSynthesis.onvoiceschanged = loadPreferredThaiVoice;
@@ -509,11 +573,9 @@
       setTimeout(loadPreferredThaiVoice, 500);
       setTimeout(loadPreferredThaiVoice, 1500);
 
-      // ปลดล็อกเสียงอัตโนมัติทันทีเมื่อผู้ใช้แตะหรือคลิกครั้งแรกที่ใดก็ได้บนหน้าเว็บ
+      // ปลดล็อกเสียงอัตโนมัติทันทีเมื่อแตะหรือคลิกครั้งแรก
       const firstGestureUnlock = () => {
-        if (!audioUnlocked) {
-          unlockAllAudio();
-        }
+        if (!audioUnlocked) unlockAllAudio();
       };
       document.addEventListener('pointerdown', firstGestureUnlock, { passive: true });
       document.addEventListener('click', firstGestureUnlock, { passive: true });
@@ -528,7 +590,7 @@
 
       selectDay(currentDay, false);
       fetchParticipants(true);
-      startCameraStream();
+      initPreferredWebcamAndStart();
 
       // ซิงค์ข้อมูลทุก 12 วินาที
       setInterval(() => {
@@ -545,6 +607,21 @@
       document.addEventListener('DOMContentLoaded', initScannerPage);
     } else {
       initScannerPage();
+    }
+
+    // ค้นหาและให้ความสำคัญกับกล้อง Logitech C920e / USB Webcam ก่อนกล้องโน้ตบุ๊ก
+    async function initPreferredWebcamAndStart() {
+      try {
+        if (!scanSelectedDeviceId && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const cams = devices.filter(d => d.kind === 'videoinput');
+          const logiCam = cams.find(d => /logitech|c920|c922|brio|hd pro/i.test(d.label || ''));
+          if (logiCam && logiCam.deviceId) {
+            scanSelectedDeviceId = logiCam.deviceId;
+          }
+        }
+      } catch (e) {}
+      startCameraStream();
     }
 
     // ==================== BULLETPROOF THAI TTS ENGINE ====================
@@ -616,7 +693,6 @@
           loadPreferredThaiVoice();
           const synth = window.speechSynthesis;
           if (synth.paused) synth.resume();
-          // Warmup silent utterance ภายใน user gesture เพื่อให้เบราว์เซอร์อนุญาต TTS จากกล้อง
           const warmup = new SpeechSynthesisUtterance(' ');
           warmup.lang = 'th-TH';
           if (preferredThaiVoice) warmup.voice = preferredThaiVoice;
@@ -626,7 +702,6 @@
         }
       } catch (e) {}
 
-      // ปลดล็อก <audio> สำรองด้วย silent wav สั้นๆ
       try {
         const audioEl = document.getElementById('tts-fallback-audio');
         if (audioEl && !audioEl.dataset.unlocked) {
@@ -743,15 +818,10 @@
     function stopAllSpeech() {
       if (speechDelayTimer) { clearTimeout(speechDelayTimer); speechDelayTimer = null; }
       if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
-      try {
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      } catch (e) {}
+      try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
       try {
         const audioEl = document.getElementById('tts-fallback-audio');
-        if (audioEl) {
-          audioEl.pause();
-          audioEl.currentTime = 0;
-        }
+        if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
       } catch (e) {}
     }
 
@@ -776,7 +846,6 @@
       lastWelcomedText = spokenText;
       stopAllSpeech();
 
-      // โหมดเสียงออนไลน์ล้วน หรือเบราว์เซอร์ไม่รองรับ speechSynthesis
       if (voiceEngineMode === 'online' || !('speechSynthesis' in window)) {
         speakOnlineFallback(spokenText);
         return;
@@ -784,8 +853,6 @@
 
       if (!preferredThaiVoice) loadPreferredThaiVoice();
       const synth = window.speechSynthesis;
-
-      // โหมดอัตโนมัติ: หากตรวจพบว่าเครื่องไม่มีเสียงไทยเลย และเคยโหลด voices แล้ว ให้ใช้เสียงออนไลน์สำรองทันที
       const voicesNow = synth.getVoices() || [];
       if (voiceEngineMode === 'auto' && voicesNow.length > 0 && !preferredThaiVoice) {
         speakOnlineFallback(spokenText);
@@ -814,14 +881,11 @@
           u.onerror = () => {
             window.__activeSpeechUtterance = null;
             if (speechWatchdogTimer) { clearTimeout(speechWatchdogTimer); speechWatchdogTimer = null; }
-            if (voiceEngineMode === 'auto' && !hasStarted) {
-              speakOnlineFallback(spokenText);
-            }
+            if (voiceEngineMode === 'auto' && !hasStarted) speakOnlineFallback(spokenText);
           };
 
           synth.speak(u);
 
-          // Watchdog: หากเบราว์เซอร์เงียบไม่เริ่มพูดภายใน 1.2 วินาที (พบในบางเครื่อง) ให้สลับเสียงออนไลน์สำรองอัตโนมัติ
           if (voiceEngineMode === 'auto') {
             speechWatchdogTimer = setTimeout(() => {
               if (!hasStarted) {
@@ -1232,7 +1296,7 @@
       }
     }
 
-    // ==================== HD CAMERA & QR DECODING ====================
+    // ==================== HD CAMERA & LOGITECH C920e PRO TUNING ====================
     function showScannerErrorOverlay(msg) {
       const box = document.getElementById('scan-camera-error-box');
       const msgEl = document.getElementById('scan-camera-error-msg');
@@ -1247,20 +1311,55 @@
       document.getElementById('scan-camera-error-box')?.classList.add('hidden');
     }
 
-    async function refreshAvailableCameras(activeDeviceId = '') {
+    function toggleMirrorPreview() {
+      unlockAllAudio();
+      scanMirrorEnabled = !scanMirrorEnabled;
+      safeSet('ai_seminar_scan_mirror', String(scanMirrorEnabled));
+      applyMirrorUi();
+      showToast(scanMirrorEnabled ? 'เปิดกลับภาพซ้าย-ขวา (Mirror)' : 'ปิดกลับภาพซ้าย-ขวา (ภาพปกติ)', 'info');
+    }
+
+    function applyMirrorUi() {
+      const video = document.getElementById('scan-video');
+      const btn = document.getElementById('btn-scan-mirror');
+      if (video) video.classList.toggle('video-mirrored', scanMirrorEnabled);
+      if (btn) {
+        btn.className = scanMirrorEnabled
+          ? 'p-1.5 rounded-lg bg-sky-400 text-slate-950 transition'
+          : 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
+      }
+    }
+
+    async function refreshAvailableCameras(activeDeviceId = '', activeLabel = '') {
       if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         scanAvailableCameras = devices.filter(d => d.kind === 'videoinput');
         const bar = document.getElementById('scan-device-bar');
         const sel = document.getElementById('scan-camera-select');
+        const logiBadge = document.getElementById('scan-logi-badge');
         if (!bar || !sel) return;
 
-        if (scanAvailableCameras.length > 1) {
+        // หากเปิดมาครั้งแรกแล้วไปจับกล้องโน้ตบุ๊ก แต่เครื่องมี Logitech C920e เสียบอยู่ ให้สลับไป Logitech อัตโนมัติ 1 ครั้ง
+        if (!safeGet('ai_seminar_scan_device_id', '') && !/logitech|c920|c922|brio/i.test(activeLabel || '')) {
+          const logiCam = scanAvailableCameras.find(d => /logitech|c920|c922|brio/i.test(d.label || ''));
+          if (logiCam && logiCam.deviceId && logiCam.deviceId !== activeDeviceId) {
+            scanSelectedDeviceId = logiCam.deviceId;
+            safeSet('ai_seminar_scan_device_id', logiCam.deviceId);
+            showToast(`ตรวจพบกล้อง ${logiCam.label} — สลับใช้งานให้อัตโนมัติ`, 'success');
+            startCameraStream();
+            return;
+          }
+        }
+
+        const isLogi = /logitech|c920|c922|brio/i.test(activeLabel || '');
+        if (logiBadge) logiBadge.classList.toggle('hidden', !isLogi);
+
+        if (scanAvailableCameras.length > 0) {
           sel.innerHTML = scanAvailableCameras.map((d, idx) =>
             `<option value="${escapeHtml(d.deviceId)}" ${d.deviceId === activeDeviceId ? 'selected' : ''}>${escapeHtml(d.label || `กล้องที่ ${idx + 1}`)}</option>`
           ).join('');
-          bar.classList.remove('hidden');
+          bar.classList.toggle('hidden', scanAvailableCameras.length <= 1 && !isLogi);
         } else {
           bar.classList.add('hidden');
         }
@@ -1269,28 +1368,122 @@
 
     function selectScannerDevice(deviceId) {
       scanSelectedDeviceId = deviceId || '';
+      safeSet('ai_seminar_scan_device_id', scanSelectedDeviceId);
       startCameraStream();
     }
 
-    async function applyCameraSharpnessConstraints(track, videoEl) {
+    // ปรับจูนฮาร์ดแวร์กล้องระดับโปร (รองรับ Logitech C920e UVC Focus Lock, Sharpness, Exposure, Zoom)
+    async function applyCameraProConstraints(track, videoEl) {
+      const proPanel = document.getElementById('scan-pro-controls');
+      const focusBar = document.getElementById('scan-focus-bar');
+      const expBar = document.getElementById('scan-exposure-bar');
       const zoomBar = document.getElementById('scan-zoom-bar');
       const resBadge = document.getElementById('scan-res-badge');
+
       scanSupportsZoom = false;
+      scanSupportsManualFocus = false;
+      scanExposureKey = '';
+
+      if (focusBar) focusBar.classList.add('hidden');
+      if (expBar) expBar.classList.add('hidden');
       if (zoomBar) zoomBar.classList.add('hidden');
+      if (proPanel) proPanel.classList.add('hidden');
 
       let hasAutoFocus = false;
+      let anyControlShown = false;
+
       if (track && typeof track.getCapabilities === 'function') {
         try {
           const caps = track.getCapabilities() || {};
-          const adv = {};
-          if (Array.isArray(caps.focusMode)) {
-            if (caps.focusMode.includes('continuous')) { adv.focusMode = 'continuous'; hasAutoFocus = true; }
-            else if (caps.focusMode.includes('single-shot')) { adv.focusMode = 'single-shot'; hasAutoFocus = true; }
-          }
-          if (Array.isArray(caps.exposureMode) && caps.exposureMode.includes('continuous')) adv.exposureMode = 'continuous';
-          if (Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes('continuous')) adv.whiteBalanceMode = 'continuous';
-          if (Object.keys(adv).length > 0) await track.applyConstraints({ advanced: [adv] }).catch(() => {});
+          const settings = typeof track.getSettings === 'function' ? (track.getSettings() || {}) : {};
+          const initAdv = {};
 
+          // 1. ตั้งค่าสมดุลแสงขาว & คมชัด (Sharpness) สำหรับ QR Code
+          if (Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes('continuous')) {
+            initAdv.whiteBalanceMode = 'continuous';
+          }
+          if (Array.isArray(caps.exposureMode) && caps.exposureMode.includes('continuous')) {
+            initAdv.exposureMode = 'continuous';
+          }
+          if (caps.sharpness && typeof caps.sharpness.max === 'number') {
+            // เพิ่มความคมขอบ QR เล็กน้อย (~62% ของช่วงสูงสุด) เหมาะกับ C920e
+            const idealSharp = Math.round(caps.sharpness.min + (caps.sharpness.max - caps.sharpness.min) * 0.62);
+            initAdv.sharpness = Math.min(caps.sharpness.max, Math.max(caps.sharpness.min, idealSharp));
+          }
+          if (Object.keys(initAdv).length > 0) {
+            await track.applyConstraints({ advanced: [initAdv] }).catch(() => {});
+          }
+
+          // 2. ระบบโฟกัส (Continuous AF + Manual Focus Lock สำหรับ C920e)
+          const focusModes = Array.isArray(caps.focusMode) ? caps.focusMode : [];
+          hasAutoFocus = focusModes.includes('continuous') || focusModes.includes('single-shot');
+          if (focusModes.includes('manual') && caps.focusDistance && typeof caps.focusDistance.max === 'number' && caps.focusDistance.max > caps.focusDistance.min) {
+            scanSupportsManualFocus = true;
+            scanFocusMin = caps.focusDistance.min;
+            scanFocusMax = caps.focusDistance.max;
+            scanFocusStep = caps.focusDistance.step || ((scanFocusMax - scanFocusMin) > 20 ? 5 : 0.05);
+
+            const slider = document.getElementById('scan-focus-slider');
+            if (slider) {
+              slider.min = String(scanFocusMin);
+              slider.max = String(scanFocusMax);
+              slider.step = String(scanFocusStep);
+            }
+            if (isNaN(scanFocusDistance) || scanFocusDistance < scanFocusMin || scanFocusDistance > scanFocusMax) {
+              // ค่าเริ่มต้นระยะโต๊ะ (~25-30% จากค่าต่ำสุด เหมาะกับระยะ 20-25 ซม. ของ Logitech C920e)
+              scanFocusDistance = typeof settings.focusDistance === 'number'
+                ? settings.focusDistance
+                : (scanFocusMin + (scanFocusMax - scanFocusMin) * 0.25);
+            }
+            if (focusBar) focusBar.classList.remove('hidden');
+            anyControlShown = true;
+
+            if (scanFocusMode === 'manual') {
+              await setFocusMode('manual', false);
+            } else {
+              await setFocusMode('continuous', false);
+            }
+          } else if (hasAutoFocus) {
+            const fm = focusModes.includes('continuous') ? 'continuous' : 'single-shot';
+            await track.applyConstraints({ advanced: [{ focusMode: fm }] }).catch(() => {});
+          }
+
+          // 3. ระบบปรับแสง (Exposure Compensation / Brightness) สำหรับกันจอมือถือสว่างจ้า
+          if (caps.exposureCompensation && typeof caps.exposureCompensation.max === 'number' && caps.exposureCompensation.max > caps.exposureCompensation.min) {
+            scanExposureKey = 'exposureCompensation';
+            scanExpMin = caps.exposureCompensation.min;
+            scanExpMax = caps.exposureCompensation.max;
+            scanExpDefault = typeof settings.exposureCompensation === 'number' ? settings.exposureCompensation : 0;
+            const slider = document.getElementById('scan-exposure-slider');
+            if (slider) {
+              slider.min = String(scanExpMin);
+              slider.max = String(scanExpMax);
+              slider.step = String(caps.exposureCompensation.step || 0.2);
+              slider.value = String(scanExpDefault);
+            }
+            document.getElementById('scan-exposure-label').textContent = '☀️ แสง (EV):';
+            document.getElementById('scan-exposure-value').textContent = Number(scanExpDefault).toFixed(1);
+            if (expBar) expBar.classList.remove('hidden');
+            anyControlShown = true;
+          } else if (caps.brightness && typeof caps.brightness.max === 'number' && caps.brightness.max > caps.brightness.min) {
+            scanExposureKey = 'brightness';
+            scanExpMin = caps.brightness.min;
+            scanExpMax = caps.brightness.max;
+            scanExpDefault = typeof settings.brightness === 'number' ? settings.brightness : Math.round((scanExpMin + scanExpMax) / 2);
+            const slider = document.getElementById('scan-exposure-slider');
+            if (slider) {
+              slider.min = String(scanExpMin);
+              slider.max = String(scanExpMax);
+              slider.step = String(caps.brightness.step || 1);
+              slider.value = String(scanExpDefault);
+            }
+            document.getElementById('scan-exposure-label').textContent = '☀️ ความสว่าง:';
+            document.getElementById('scan-exposure-value').textContent = String(Math.round(scanExpDefault));
+            if (expBar) expBar.classList.remove('hidden');
+            anyControlShown = true;
+          }
+
+          // 4. ระบบซูม (Hardware Zoom)
           if (caps.zoom && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number' && caps.zoom.max > caps.zoom.min) {
             scanSupportsZoom = true;
             scanZoomMin = caps.zoom.min;
@@ -1301,21 +1494,125 @@
               slider.max = String(scanZoomMax);
               slider.step = String(caps.zoom.step && caps.zoom.step <= 0.2 ? caps.zoom.step : 0.1);
             }
-            const savedZoom = parseFloat(safeGet('ai_seminar_scan_zoom', '1')) || 1;
+            const savedZoom = parseFloat(safeGet('ai_seminar_scan_zoom', String(scanZoomMin))) || scanZoomMin;
             const initialZoom = Math.max(scanZoomMin, Math.min(scanZoomMax, savedZoom));
             await setScannerZoom(initialZoom, false);
             if (zoomBar) zoomBar.classList.remove('hidden');
+            anyControlShown = true;
           }
         } catch (e) {}
       }
 
+      if (proPanel && anyControlShown) proPanel.classList.remove('hidden');
+
       const updateResBadge = () => {
         if (!resBadge || !videoEl || !videoEl.videoWidth) return;
-        resBadge.textContent = `${videoEl.videoWidth}×${videoEl.videoHeight}${hasAutoFocus ? ' • AF' : ''}`;
+        const focusTag = scanFocusMode === 'manual' && scanSupportsManualFocus ? ' • 🔒 MF' : (hasAutoFocus ? ' • AF' : '');
+        resBadge.textContent = `${videoEl.videoWidth}×${videoEl.videoHeight}${focusTag}`;
         resBadge.classList.remove('hidden');
       };
       updateResBadge();
-      setTimeout(updateResBadge, 450);
+      setTimeout(updateResBadge, 500);
+    }
+
+    async function setFocusMode(mode, notify = true) {
+      if (!scanStream || !scanSupportsManualFocus) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track) return;
+
+      scanFocusMode = mode === 'manual' ? 'manual' : 'continuous';
+      safeSet('ai_seminar_focus_mode', scanFocusMode);
+
+      const btnAuto = document.getElementById('btn-focus-auto');
+      const btnMan = document.getElementById('btn-focus-manual');
+      const manWrap = document.getElementById('scan-manual-focus-wrap');
+      const statusEl = document.getElementById('scan-camera-status');
+
+      if (btnAuto && btnMan) {
+        btnAuto.className = scanFocusMode === 'continuous'
+          ? 'px-2 py-0.5 rounded-md font-bold bg-emerald-500 text-slate-950 transition'
+          : 'px-2 py-0.5 rounded-md font-semibold text-slate-300 hover:text-white transition';
+        btnMan.className = scanFocusMode === 'manual'
+          ? 'px-2 py-0.5 rounded-md font-bold bg-amber-400 text-slate-950 transition'
+          : 'px-2 py-0.5 rounded-md font-semibold text-slate-300 hover:text-white transition';
+      }
+      if (manWrap) manWrap.classList.toggle('hidden', scanFocusMode !== 'manual');
+
+      try {
+        if (scanFocusMode === 'manual') {
+          await setManualFocusDistance(scanFocusDistance, false);
+          if (statusEl) statusEl.textContent = '🔒 ล็อกระยะโฟกัสแล้ว • วางบัตรในระยะที่คมชัดเพื่อสแกนทันที';
+          if (notify) showToast('ล็อกระยะโฟกัส (Manual) แล้ว — เลื่อนแถบให้ภาพ QR คมชัดที่สุด', 'info');
+        } else {
+          await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+          if (statusEl) statusEl.textContent = 'แตะจอกล้องเพื่อรีโฟกัส • สแกนได้ทั่วทั้งหน้าจอ';
+          if (notify) showToast('เปิดโหมดออโต้โฟกัสต่อเนื่อง (AF) แล้ว', 'info');
+        }
+      } catch (e) {}
+
+      const video = document.getElementById('scan-video');
+      const resBadge = document.getElementById('scan-res-badge');
+      if (resBadge && video && video.videoWidth) {
+        resBadge.textContent = `${video.videoWidth}×${video.videoHeight}${scanFocusMode === 'manual' ? ' • 🔒 MF' : ' • AF'}`;
+      }
+    }
+
+    async function setManualFocusDistance(val, persist = true) {
+      if (!scanStream || !scanSupportsManualFocus) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track) return;
+
+      const clamped = Math.max(scanFocusMin, Math.min(scanFocusMax, parseFloat(val) || scanFocusMin));
+      scanFocusDistance = clamped;
+      const slider = document.getElementById('scan-focus-slider');
+      const lbl = document.getElementById('scan-focus-value');
+      if (slider) slider.value = String(clamped);
+      if (lbl) lbl.textContent = (scanFocusMax - scanFocusMin) > 20 ? String(Math.round(clamped)) : clamped.toFixed(2);
+      if (persist) safeSet('ai_seminar_focus_dist', String(clamped));
+
+      try {
+        await track.applyConstraints({ advanced: [{ focusMode: 'manual', focusDistance: clamped }] });
+      } catch (e) {
+        // Fallback กรณีบางไดรเวอร์ต้องแยกคำสั่ง
+        try {
+          await track.applyConstraints({ advanced: [{ focusMode: 'manual' }] });
+          await track.applyConstraints({ advanced: [{ focusDistance: clamped }] });
+        } catch (err) {}
+      }
+    }
+
+    function applyFocusPreset(ratio) {
+      if (!scanSupportsManualFocus) return;
+      const target = scanFocusMin + (scanFocusMax - scanFocusMin) * ratio;
+      setManualFocusDistance(target, true);
+    }
+
+    async function setScannerExposure(val) {
+      if (!scanStream || !scanExposureKey) return;
+      const track = scanStream.getVideoTracks()[0];
+      if (!track) return;
+      const clamped = Math.max(scanExpMin, Math.min(scanExpMax, parseFloat(val)));
+      const slider = document.getElementById('scan-exposure-slider');
+      const lbl = document.getElementById('scan-exposure-value');
+      if (slider) slider.value = String(clamped);
+      if (lbl) lbl.textContent = scanExposureKey === 'brightness' ? String(Math.round(clamped)) : clamped.toFixed(1);
+      try {
+        await track.applyConstraints({ advanced: [{ [scanExposureKey]: clamped }] });
+      } catch (e) {}
+    }
+
+    function applyPhoneScreenAntiGlare() {
+      if (!scanExposureKey) return;
+      const target = scanExposureKey === 'brightness'
+        ? Math.round(scanExpMin + (scanExpDefault - scanExpMin) * 0.65)
+        : Math.max(scanExpMin, scanExpDefault - (scanExpMax - scanExpMin) * 0.25);
+      setScannerExposure(target);
+      showToast('ลดแสงลงเพื่อช่วยให้สแกน QR จากหน้าจอมือถือที่สว่างจ้าได้คมขึ้น', 'info');
+    }
+
+    function resetScannerExposure() {
+      if (!scanExposureKey) return;
+      setScannerExposure(scanExpDefault);
     }
 
     async function setScannerZoom(val, persist = true) {
@@ -1343,6 +1640,10 @@
         void ring.offsetWidth;
         ring.classList.add('focus-ring-pop');
       }
+
+      // ถ้ากำลังล็อก Manual Focus อยู่ จะไม่บังคับกลับเป็น AF ให้เสียระยะที่ตั้งไว้
+      if (scanFocusMode === 'manual' && scanSupportsManualFocus) return;
+
       const track = scanStream.getVideoTracks()[0];
       if (!track || typeof track.getCapabilities !== 'function') return;
       try {
@@ -1352,7 +1653,7 @@
             await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] }).catch(() => {});
             if (caps.focusMode.includes('continuous')) {
               setTimeout(() => {
-                if (scanActive && track.readyState === 'live') {
+                if (scanActive && scanFocusMode !== 'manual' && track.readyState === 'live') {
                   track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
                 }
               }, 650);
@@ -1374,7 +1675,7 @@
       const video = document.getElementById('scan-video');
       const powerBtn = document.getElementById('btn-cam-power');
       const liveDot = document.getElementById('cam-live-dot');
-      if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง Full HD...';
+      if (statusEl) statusEl.textContent = 'กำลังเปิดกล้อง Full HD 1080p...';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         showScannerErrorOverlay('เบราว์เซอร์ไม่รองรับกล้อง (ต้องเปิดผ่าน HTTPS เช่น GitHub Pages) — สามารถพิมพ์รหัสหรือเลือกรูปด้านล่างได้ทันที');
@@ -1383,11 +1684,11 @@
 
       const candidates = [];
       if (scanSelectedDeviceId) {
-        candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+        candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } }, audio: false });
         candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
         candidates.push({ video: { deviceId: { exact: scanSelectedDeviceId } }, audio: false });
       }
-      candidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+      candidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } }, audio: false });
       candidates.push({ video: { facingMode: { ideal: scanFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
       candidates.push({ video: { facingMode: scanFacingMode }, audio: false });
       candidates.push({ video: true, audio: false });
@@ -1415,9 +1716,9 @@
           if (lastErr.name === 'NotAllowedError' || lastErr.name === 'PermissionDeniedError') {
             friendly = 'ยังไม่ได้อนุญาตสิทธิ์เข้าถึงกล้อง กรุณากดรูปกุญแจข้างช่อง URL แล้วอนุญาตกล้อง จากนั้นกดเปิดกล้องใหม่';
           } else if (lastErr.name === 'NotFoundError' || lastErr.name === 'DevicesNotFoundError') {
-            friendly = 'ไม่พบอุปกรณ์กล้องบนเครื่องนี้ (สามารถพิมพ์รหัสหรืออัปโหลดรูป QR ด้านล่างแทนได้)';
+            friendly = 'ไม่พบอุปกรณ์กล้องบนเครื่องนี้ (ตรวจสาย USB ของ Logitech C920e หรือพิมพ์รหัสเช็กอินด้านล่างแทน)';
           } else if (lastErr.name === 'NotReadableError' || lastErr.name === 'TrackStartError') {
-            friendly = 'กล้องกำลังถูกใช้งานโดยแอปหรือแท็บอื่นอยู่ กรุณาปิดแอปอื่นแล้วกดลองใหม่';
+            friendly = 'กล้อง Logitech C920e กำลังถูกใช้งานโดยโปรแกรมอื่นอยู่ (เช่น Zoom / Logi Tune / แท็บอื่น) กรุณาปิดโปรแกรมอื่นแล้วกดลองใหม่';
           }
         }
         showScannerErrorOverlay(friendly);
@@ -1432,8 +1733,8 @@
 
       const activeTrack = stream.getVideoTracks()[0];
       const activeSettings = activeTrack && activeTrack.getSettings ? activeTrack.getSettings() : {};
-      refreshAvailableCameras(activeSettings.deviceId || scanSelectedDeviceId);
-      applyCameraSharpnessConstraints(activeTrack, video);
+      refreshAvailableCameras(activeSettings.deviceId || scanSelectedDeviceId, activeTrack ? activeTrack.label : '');
+      applyCameraProConstraints(activeTrack, video);
 
       scanActive = true;
       if (powerBtn) {
@@ -1450,11 +1751,12 @@
       scanActive = false;
       scanTorchOn = false;
       scanSupportsZoom = false;
+      scanSupportsManualFocus = false;
       if (scanRafId) { cancelAnimationFrame(scanRafId); scanRafId = null; }
       if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
       const video = document.getElementById('scan-video');
       if (video) video.srcObject = null;
-      document.getElementById('scan-zoom-bar')?.classList.add('hidden');
+      document.getElementById('scan-pro-controls')?.classList.add('hidden');
       document.getElementById('scan-res-badge')?.classList.add('hidden');
       const torchBtn = document.getElementById('btn-scan-torch');
       if (torchBtn) torchBtn.className = 'p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition';
@@ -1467,7 +1769,7 @@
       if (scanActive) {
         scanPausedByUser = true;
         stopCameraStream();
-        showScannerErrorOverlay('หยุดกล้องชั่วคราว (ประหยัดแบตเตอรี่) — กดปุ่มด้านล่างเพื่อเปิดกล้องต่อ');
+        showScannerErrorOverlay('หยุดกล้องชั่วคราว — กดปุ่มด้านล่างเพื่อเปิดกล้องต่อ');
         if (powerBtn) {
           powerBtn.textContent = 'เปิดกล้อง';
           powerBtn.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-extrabold transition';
@@ -1484,6 +1786,7 @@
         const curIdx = scanAvailableCameras.findIndex(d => d.deviceId === scanSelectedDeviceId);
         const nextCam = scanAvailableCameras[(curIdx + 1 + scanAvailableCameras.length) % scanAvailableCameras.length];
         scanSelectedDeviceId = nextCam.deviceId;
+        safeSet('ai_seminar_scan_device_id', scanSelectedDeviceId);
       } else {
         scanSelectedDeviceId = '';
         scanFacingMode = scanFacingMode === 'environment' ? 'user' : 'environment';
@@ -1496,7 +1799,7 @@
       if (!scanStream) return;
       const track = scanStream.getVideoTracks()[0];
       if (!track || !track.getCapabilities || !track.getCapabilities().torch) {
-        showToast('กล้องนี้ไม่รองรับการเปิดไฟแฟลชจากเบราว์เซอร์', 'warning');
+        showToast('กล้องเว็บแคมรุ่นนี้ไม่มีไฟแฟลช (รองรับเฉพาะกล้องหลังมือถือ)', 'warning');
         return;
       }
       try {
@@ -1544,7 +1847,8 @@
       if (!scanActive) return;
       scanRafId = requestAnimationFrame(scanVideoLoop);
 
-      const minInterval = nativeBarcodeDetector ? 85 : 110;
+      // ความถี่การถอดรหัสสูงสำหรับ 1080p Webcam (12-14 ครั้ง/วินาที)
+      const minInterval = nativeBarcodeDetector ? 75 : 95;
       if (nowTs - scanLastDecodeTs < minInterval) return;
       scanLastDecodeTs = nowTs;
 
@@ -1572,17 +1876,19 @@
       const vh = video.videoHeight;
 
       if (scanPassToggle === 0 || scanPassToggle === 2) {
-        const cropSize = Math.min(vw, vh) * 0.7;
+        // โซนกลางความละเอียดสูง (เหมาะกับ 1080p C920e ที่ QR อยู่ตรงกลางกรอบ)
+        const cropSize = Math.min(vw, vh) * 0.72;
         const sx = Math.round((vw - cropSize) / 2);
         const sy = Math.round((vh - cropSize) / 2);
-        const target = Math.min(680, Math.round(cropSize));
+        const target = Math.min(720, Math.round(cropSize));
         scanOffscreenCanvas.width = target;
         scanOffscreenCanvas.height = target;
         scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, target, target);
         const code = jsQR(scanOffscreenCtx.getImageData(0, 0, target, target).data, target, target, { inversionAttempts: 'attemptBoth' });
         if (code && code.data) handleDecodedQr(code.data);
       } else if (scanPassToggle === 1) {
-        const scale = Math.min(1, 840 / Math.max(vw, vh));
+        // สแกนทั้งเฟรม (กรณีถือป้ายเยื้องขอบจอ)
+        const scale = Math.min(1, 900 / Math.max(vw, vh));
         const tw = Math.max(1, Math.round(vw * scale));
         const th = Math.max(1, Math.round(vh * scale));
         scanOffscreenCanvas.width = tw;
@@ -1591,10 +1897,11 @@
         const code = jsQR(scanOffscreenCtx.getImageData(0, 0, tw, th).data, tw, th, { inversionAttempts: 'dontInvert' });
         if (code && code.data) handleDecodedQr(code.data);
       } else {
-        const cropSize = Math.min(vw, vh) * 0.62;
+        // โหมดเร่งคอนทราสต์ขาว-ดำ (ช่วยอ่านป้ายซองพลาสติกสะท้อนแสงและหน้าจอมือถือจ้า)
+        const cropSize = Math.min(vw, vh) * 0.65;
         const sx = Math.round((vw - cropSize) / 2);
         const sy = Math.round((vh - cropSize) / 2);
-        const target = Math.min(560, Math.round(cropSize));
+        const target = Math.min(600, Math.round(cropSize));
         scanOffscreenCanvas.width = target;
         scanOffscreenCanvas.height = target;
         scanOffscreenCtx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, target, target);
@@ -1734,7 +2041,6 @@
       if (!val) return;
       document.getElementById('manual-suggestions').classList.add('hidden');
 
-      // หากพิมพ์ชื่อแทนรหัส ให้หาผู้ที่ตรงที่สุด
       const exactId = extractParticipantIdFromQr(val);
       let found = participants.find(p => p.id.toUpperCase() === exactId);
       if (!found) {
