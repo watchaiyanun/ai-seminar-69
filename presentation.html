@@ -867,6 +867,14 @@
       renderAllViews();
     }
 
+    // เรียกคำสั่งลูกเล่นจาก index ของ slide ปัจจุบันโดยตรง เพื่อป้องกันปัญหาเครื่องหมายคำพูด (") ชนกันใน attribute onclick
+    function triggerSlideRemoteAction(actionIdx) {
+      const slide = SLIDES[state.slideIndex];
+      const item = slide && Array.isArray(slide.remoteActions) ? slide.remoteActions[actionIdx] : null;
+      if (!item) return;
+      runRemoteAction(item.action, item.val);
+    }
+
     function toggleStageBlackout() {
       state.blackout = !state.blackout;
       broadcastState();
@@ -939,8 +947,8 @@
       const remoteBtns = document.getElementById('pres-remote-buttons');
       if (slide.remoteActions && slide.remoteActions.length > 0) {
         remoteBox.classList.remove('hidden');
-        remoteBtns.innerHTML = slide.remoteActions.map(r => `
-          <button type="button" onclick="runRemoteAction('${r.action}', ${JSON.stringify(r.val)})" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-xs font-extrabold transition">
+        remoteBtns.innerHTML = slide.remoteActions.map((r, idx) => `
+          <button type="button" onclick="triggerSlideRemoteAction(${idx})" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-xs font-extrabold transition">
             ${r.label}
           </button>
         `).join('');
@@ -1015,8 +1023,8 @@
       const rBtns = document.getElementById('dual-remote-buttons');
       if (slide.remoteActions && slide.remoteActions.length > 0) {
         rBox.classList.remove('hidden');
-        rBtns.innerHTML = slide.remoteActions.map(r => `
-          <button type="button" onclick="runRemoteAction('${r.action}', ${JSON.stringify(r.val)})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-[11px] font-extrabold transition">
+        rBtns.innerHTML = slide.remoteActions.map((r, idx) => `
+          <button type="button" onclick="triggerSlideRemoteAction(${idx})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-[11px] font-extrabold transition">
             ${r.label}
           </button>
         `).join('');
