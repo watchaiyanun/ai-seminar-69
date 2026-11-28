@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบนำเสนอ 2 หน้าจอ (จอเวที + บทพูดผู้บรรยาย) - แชทบอท AI คู่หูจราจร</title>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            navy: { 700: '#1E3A8A', 800: '#172554', 900: '#0F172A' },
+            maroon: { 600: '#9F1239', 700: '#881337', 800: '#6B0F2A' },
+            gold: { 300: '#FDE68A', 400: '#F3D478', 500: '#D4AF37', 600: '#B48A1E' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode.js สำหรับสร้าง QR คู่มือบนสไลด์สุดท้าย -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    html, body {
+      font-family: 'Prompt', sans-serif;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
+
+    .gold-line {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(212,175,55,0.2) 0%, #F3D478 30%, #D4AF37 50%, #F3D478 70%, rgba(212,175,55,0.2) 100%);
+    }
+
+    /* แอนิเมชันเปลี่ยนสไลด์นุ่มนวล */
+    @keyframes slideFadeIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .slide-enter {
+      animation: slideFadeIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* บัตร 3D E-Pass จำลองบนสไลด์ที่ 3 (สั่งพลิกได้จากหน้าจอบทพูด!) */
+    .stage-3d-scene { perspective: 1200px; }
+    .stage-3d-card {
+      display: grid;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .stage-3d-card.is-flipped { transform: rotateY(180deg); }
+    .stage-3d-face {
+      grid-area: 1 / 1;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .stage-3d-back { transform: rotateY(180deg); }
+
+    .epass-front-bg {
+      background:
+        radial-gradient(circle at 88% 12%, rgba(159, 18, 57, 0.72) 0%, transparent 46%),
+        radial-gradient(circle at 12% 92%, rgba(37, 99, 235, 0.5) 0%, transparent 50%),
+        linear-gradient(135deg, #090F24 0%, #15224B 44%, #1E3A8A 78%, #34132E 100%);
+      box-shadow: 0 22px 44px -12px rgba(0, 0, 0, 0.55), 0 0 0 1.5px rgba(243, 212, 120, 0.75);
+    }
+    .epass-back-bg {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.55) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(136, 19, 55, 0.55) 0%, transparent 50%),
+        linear-gradient(145deg, #0B1120 0%, #172554 55%, #1E1B3A 100%);
+      box-shadow: 0 22px 44px -12px rgba(0, 0, 0, 0.55), 0 0 0 1.5px rgba(243, 212, 120, 0.75);
+    }
+
+    /* ไฮไลต์โฟกัสเมื่อผู้บรรยายกดปุ่มชี้จุดจากจอบทพูด */
+    .stage-spotlight-active {
+      box-shadow: 0 0 0 4px #F3D478, 0 20px 40px -10px rgba(212, 175, 55, 0.45) !important;
+      transform: scale(1.03);
+      transition: all 0.3s ease;
+    }
+    .stage-spotlight-dim {
+      opacity: 0.35;
+      transform: scale(0.97);
+      transition: all 0.3s ease;
+    }
+
+    /* ขนาดฟอนต์บทพูดปรับได้ */
+    .script-size-1 { font-size: 0.95rem; line-height: 1.75; }
+    .script-size-2 { font-size: 1.12rem; line-height: 1.8; }
+    .script-size-3 { font-size: 1.32rem; line-height: 1.85; }
+    .script-size-4 { font-size: 1.55rem; line-height: 1.85; }
+
+    #stage-guide-qr img, #stage-guide-qr canvas,
+    #dual-guide-qr img, #dual-guide-qr canvas {
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col select-none">
+
+  <!-- ==================== GLOBAL MODE SWITCHER BAR (ซ่อนอัตโนมัติในโหมดเต็มจอเวที) ==================== -->
+  <header id="top-control-bar" class="shrink-0 z-40 bg-slate-900/95 backdrop-blur border-b border-white/15 px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-navy-700 to-maroon-700 border border-gold-400/70 flex items-center justify-center shrink-0">
+        <i data-lucide="presentation" class="w-4 h-4 text-gold-400"></i>
+      </div>
+      <div class="min-w-0">
+        <p class="font-extrabold text-white leading-tight truncate">AI คู่หูจราจร — ระบบนำเสนอ 2 หน้าจอซิงค์กัน</p>
+        <div class="flex items-center gap-1.5 text-[10.5px] text-slate-300">
+          <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-400 inline-block shrink-0"></span>
+          <span id="sync-status-text" class="truncate">พร้อมเชื่อมต่อ 2 หน้าจอ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- สลับโหมดมุมมอง -->
+    <div class="flex flex-wrap items-center gap-1.5">
+      <div class="flex items-center bg-black/40 p-0.5 rounded-xl border border-white/15">
+        <button type="button" onclick="setViewMode('stage')" id="mode-btn-stage" class="px-2.5 py-1.5 rounded-lg font-bold transition">🖥️ จอเวที</button>
+        <button type="button" onclick="setViewMode('presenter')" id="mode-btn-presenter" class="px-2.5 py-1.5 rounded-lg font-bold transition">🎤 จอบทพูด</button>
+        <button type="button" onclick="setViewMode('dual')" id="mode-btn-dual" class="px-2.5 py-1.5 rounded-lg font-bold transition">◫ ทดลอง 2 จอคู่กัน</button>
+      </div>
+
+      <!-- ปุ่มเปิดแยกหน้าต่างจริงสำหรับต่อโปรเจกเตอร์ 2 จอ -->
+      <button type="button" id="btn-launch-paired" onclick="launchPairedWindow()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 font-extrabold shadow-sm transition" title="เปิดอีกหน้าต่างหนึ่งแยกไปวางอีกจอ (ซิงค์กันอัตโนมัติ)">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <span id="btn-launch-paired-label">เปิดจอบทพูดแยกหน้าต่าง</span>
+      </button>
+
+      <button type="button" onclick="toggleFullscreen()" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-gold-300 transition" title="เต็มจอ (กด F)">
+        <i data-lucide="maximize" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== VIEW 1: STAGE / PROJECTOR VIEW (จอฉายบนเวที) ==================== -->
+  <main id="view-stage" class="hidden flex-1 flex flex-col relative overflow-hidden bg-gradient-to-br from-[#070E24] via-[#0F1F4B] to-[#340A1C]">
+    <!-- Stage Slide Container -->
+    <div id="stage-slide-mount" class="flex-1 flex flex-col justify-center px-5 sm:px-10 lg:px-14 py-6 overflow-y-auto custom-scroll"></div>
+
+    <!-- Stage Bottom Progress & Subtle Controls -->
+    <div class="shrink-0 px-5 sm:px-10 py-3 bg-black/30 border-t border-white/10 flex items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2 text-blue-200/80 min-w-0">
+        <span class="px-2 py-0.5 rounded-md bg-white/10 border border-gold-400/40 font-mono text-gold-300 font-bold shrink-0" id="stage-slide-num">1 / 8</span>
+        <span class="truncate hidden sm:inline">โครงการสัมมนาจัดทำคลังความรู้งานจราจร • แชทบอท AI คู่หูจราจร</span>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="flex-1 max-w-md h-1.5 bg-white/15 rounded-full overflow-hidden">
+        <div id="stage-progress-bar" class="h-full bg-gradient-to-r from-gold-400 to-emerald-400 transition-all duration-300" style="width: 12.5%"></div>
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" onclick="prevSlide()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 font-bold transition">◀</button>
+        <button type="button" onclick="nextSlide()" class="px-3 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-slate-950 font-extrabold transition">ถัดไป ▶</button>
+      </div>
+    </div>
+
+    <!-- Blackout Overlay (สั่งพักจอเวทีจากหน้าจอบทพูด) -->
+    <div id="stage-blackout-overlay" class="hidden absolute inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center text-center p-8 space-y-4">
+      <div class="w-20 h-20 rounded-3xl bg-white/5 border-2 border-gold-400/60 flex items-center justify-center">
+        <i data-lucide="shield-check" class="w-10 h-10 text-gold-400"></i>
+      </div>
+      <p class="text-xs font-bold tracking-[0.25em] uppercase text-gold-400">ROYAL THAI POLICE • ศจร.ตร.</p>
+      <h2 class="text-2xl sm:text-4xl font-extrabold text-white">โครงการสัมมนาจัดทำคลังความรู้งานจราจร</h2>
+      <p class="text-sm sm:text-lg text-blue-200/80">แชทบอท AI คู่หูจราจร • 30 พ.ย. – 2 ธ.ค. 2569</p>
+    </div>
+  </main>
+
+  <!-- ==================== VIEW 2: PRESENTER SCRIPT VIEW (จอบทพูดผู้บรรยาย) ==================== -->
+  <main id="view-presenter" class="hidden flex-1 bg-slate-950 text-slate-100 flex flex-col min-h-0 overflow-hidden">
+    <!-- Presenter Toolbar: 5น./12น. + Timer + Font Size + Blackout + Q&A -->
+    <div class="shrink-0 bg-slate-900 border-b border-slate-800 px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <!-- Script Version Toggle (5 นาที vs 12 นาที) -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+          <button type="button" onclick="setScriptMode('5min')" id="btn-script-5min" class="px-3 py-1.5 rounded-lg font-extrabold transition">⚡ บทพูดกระชับ (5 นาที)</button>
+          <button type="button" onclick="setScriptMode('12min')" id="btn-script-12min" class="px-3 py-1.5 rounded-lg font-bold transition">📖 บทพูดเต็ม (12 นาที)</button>
+        </div>
+
+        <!-- Font Size Controls -->
+        <div class="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+          <button type="button" onclick="adjustScriptFont(-1)" class="px-2.5 py-1 rounded-lg hover:bg-slate-700 font-bold" title="ลดขนาดตัวอักษรบทพูด">ก-</button>
+          <span class="px-1.5 text-[10.5px] text-slate-400 font-mono" id="script-font-label">ขนาด 2</span>
+          <button type="button" onclick="adjustScriptFont(1)" class="px-2.5 py-1 rounded-lg hover:bg-slate-700 font-bold" title="ขยายขนาดตัวอักษรบทพูด">ก+</button>
+        </div>
+      </div>
+
+      <!-- Presenter Timer & Quick Tools -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700">
+          <i data-lucide="timer" class="w-3.5 h-3.5 text-gold-400"></i>
+          <span id="pres-timer-clock" class="font-mono text-sm font-extrabold text-gold-300 w-12 text-center">05:00</span>
+          <button type="button" onclick="togglePresTimer()" id="pres-timer-btn" class="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px]">เริ่ม</button>
+          <button type="button" onclick="resetPresTimer()" class="px-2 py-0.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-[10.5px]">รีเซ็ต</button>
+        </div>
+
+        <button type="button" onclick="toggleStageBlackout()" id="btn-blackout" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold transition">
+          <i data-lucide="monitor-off" class="w-3.5 h-3.5"></i>
+          <span id="btn-blackout-label">พักจอเวที</span>
+        </button>
+
+        <button type="button" onclick="openQaModal()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-700 hover:bg-indigo-600 text-white font-bold transition">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5 text-gold-300"></i>
+          <span>โพยตอบคำถามสด</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Presenter 2-Column Workspace -->
+    <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+
+      <!-- LEFT COLUMN (8 cols): TELEPROMPTER SCRIPT + REMOTE TRIGGERS + BIG NEXT BUTTON -->
+      <div class="lg:col-span-8 flex flex-col min-h-0 border-r border-slate-800 bg-slate-950">
+        <!-- Scrollable Script Body -->
+        <div id="pres-script-scroll" class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-4">
+          <!-- Slide Header & Time Budget -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span id="pres-slide-badge" class="px-3 py-1 rounded-xl bg-gold-500 text-slate-950 font-mono text-sm font-extrabold shrink-0">สไลด์ 1 / 8</span>
+              <h2 id="pres-slide-title" class="text-base sm:text-xl font-extrabold text-white truncate"></h2>
+            </div>
+            <span id="pres-duration-pill" class="px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-200 text-xs font-bold shrink-0">⏱️ ~35 วินาที</span>
+          </div>
+
+          <!-- Stage Action / Cue Box -->
+          <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/40 flex items-start gap-2.5 text-xs sm:text-sm text-amber-200">
+            <i data-lucide="hand" class="w-4 h-4 text-gold-400 shrink-0 mt-0.5"></i>
+            <div>
+              <strong class="text-gold-300">จังหวะ / ท่าทางบนเวที:</strong>
+              <span id="pres-cue-text" class="ml-1"></span>
+            </div>
+          </div>
+
+          <!-- Remote Interactive Controls for Current Slide (ควบคุมจอเวทีแบบสด!) -->
+          <div id="pres-remote-box" class="hidden p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-400/40 space-y-2">
+            <p class="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
+              <i data-lucide="wand-sparkles" class="w-4 h-4"></i>
+              ปุ่มสั่งลูกเล่นสดบนจอโปรเจกเตอร์ (กดระหว่างอ่านบทพูดได้เลย):
+            </p>
+            <div id="pres-remote-buttons" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- The Script Text -->
+          <div class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 shadow-inner">
+            <div class="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800">
+              <span class="font-bold text-gold-400 flex items-center gap-1.5"><i data-lucide="mic" class="w-4 h-4"></i> บทพูดสำหรับอ่านออกไมค์</span>
+              <span id="pres-mode-tag" class="font-semibold">โหมดกระชับ 5 นาที</span>
+            </div>
+            <div id="pres-script-content" class="script-size-2 text-slate-100 space-y-3.5 font-normal select-text"></div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Big Control Footer (อ่านจบกดปุ่มใหญ่เปลี่ยนจอเวทีทันที!) -->
+        <div class="shrink-0 p-3.5 sm:p-4 bg-slate-900 border-t-2 border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+          <button type="button" id="pres-btn-prev" onclick="prevSlide()" class="px-5 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm flex items-center gap-2 transition disabled:opacity-35">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>ย้อนกลับ</span>
+          </button>
+
+          <button type="button" id="pres-btn-next" onclick="nextSlide()" class="flex-1 min-w-[220px] py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 active:scale-[0.99] text-slate-950 font-extrabold text-sm sm:text-base shadow-lg flex items-center justify-center gap-2 transition">
+            <span id="pres-btn-next-label">อ่านจบแล้ว • ไปสไลด์ถัดไป (เปลี่ยนจอเวที)</span>
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN (4 cols): LIVE STAGE PREVIEW + NEXT SLIDE + SLIDE INDEX -->
+      <div class="lg:col-span-4 hidden lg:flex flex-col min-h-0 bg-slate-900/70 p-4 gap-3.5 overflow-y-auto custom-scroll">
+        <!-- Mini Live Preview of Current Stage -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-300">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> สิ่งที่กำลังฉายบนจอเวที</span>
+            <span id="pres-preview-state-tag" class="font-mono text-gold-300">LIVE</span>
+          </div>
+          <div class="rounded-2xl border-2 border-gold-500/60 overflow-hidden bg-gradient-to-br from-[#070E24] via-[#0F1F4B] to-[#340A1C] aspect-video relative shadow-lg">
+            <div id="pres-mini-stage" class="w-full h-full p-3 flex flex-col justify-center overflow-hidden text-[10px]"></div>
+          </div>
+        </div>
+
+        <!-- Next Slide Preview Card -->
+        <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-1">
+          <p class="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">สไลด์ถัดไป (เตรียมเปลี่ยนเรื่อง)</p>
+          <p id="pres-next-title" class="text-sm font-extrabold text-gold-300 leading-snug"></p>
+          <p id="pres-next-summary" class="text-xs text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Quick Slide Jump Index (1-8) -->
+        <div class="space-y-1.5 flex-1">
+          <p class="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">ข้ามไปยังสไลด์ (กดปุ่มเลข 1–8 ได้)</p>
+          <div id="pres-slide-index-list" class="space-y-1"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== VIEW 3: DUAL SPLIT-SCREEN DEMO (ทดลอง 2 จอคู่กันในหน้าเดียว) ==================== -->
+  <main id="view-dual" class="hidden flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-hidden bg-slate-950">
+    <!-- ซ้าย: จอเวที (โปรเจกเตอร์) -->
+    <div class="lg:col-span-7 flex flex-col min-h-[340px] border-b lg:border-b-0 lg:border-r border-slate-700 bg-gradient-to-br from-[#070E24] via-[#0F1F4B] to-[#340A1C] relative">
+      <div class="shrink-0 px-3.5 py-1.5 bg-black/45 border-b border-white/10 flex items-center justify-between text-[11px]">
+        <span class="font-extrabold text-emerald-300 flex items-center gap-1.5"><i data-lucide="monitor" class="w-3.5 h-3.5"></i> จอที่ 1 : หน้าจอโปรเจกเตอร์ (ผู้เข้าสัมมนาเห็น)</span>
+        <span id="dual-stage-num" class="font-mono font-bold text-gold-300">สไลด์ 1 / 8</span>
+      </div>
+      <div id="dual-stage-mount" class="flex-1 flex flex-col justify-center p-4 sm:p-6 overflow-y-auto custom-scroll"></div>
+      <div id="dual-blackout-overlay" class="hidden absolute inset-0 top-8 z-30 bg-slate-950/95 flex flex-col items-center justify-center text-center p-6">
+        <i data-lucide="shield-check" class="w-10 h-10 text-gold-400 mb-2"></i>
+        <p class="text-lg font-extrabold text-white">พักหน้าจอเวทีชั่วคราว</p>
+      </div>
+    </div>
+
+    <!-- ขวา: จอบทพูดผู้บรรยาย -->
+    <div class="lg:col-span-5 flex flex-col min-h-0 bg-slate-900 text-slate-100">
+      <div class="shrink-0 px-3.5 py-2 bg-slate-800 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+        <span class="font-extrabold text-gold-300 flex items-center gap-1.5"><i data-lucide="mic" class="w-3.5 h-3.5"></i> จอที่ 2 : หน้าจอบทพูดผู้บรรยาย</span>
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="setScriptMode('5min')" id="dual-btn-5min" class="px-2 py-0.5 rounded-md font-extrabold">5 นาที</button>
+          <button type="button" onclick="setScriptMode('12min')" id="dual-btn-12min" class="px-2 py-0.5 rounded-md font-bold">12 นาที</button>
+        </div>
+      </div>
+
+      <div id="dual-script-scroll" class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3 text-sm">
+        <div class="flex items-center justify-between gap-2">
+          <h3 id="dual-pres-title" class="font-extrabold text-base text-white"></h3>
+          <span id="dual-pres-duration" class="px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200 text-[10.5px] font-bold shrink-0"></span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-400/35 text-xs text-amber-200">
+          <strong class="text-gold-300">ท่าทาง:</strong> <span id="dual-pres-cue"></span>
+        </div>
+        <div id="dual-remote-box" class="hidden p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-400/35 space-y-1.5">
+          <p class="text-[11px] font-bold text-emerald-300">✨ สั่งลูกเล่นบนจอเวที:</p>
+          <div id="dual-remote-buttons" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div id="dual-script-content" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-slate-100 leading-relaxed space-y-3 select-text"></div>
+      </div>
+
+      <div class="shrink-0 p-3 bg-slate-800 border-t border-slate-700 flex items-center gap-2">
+        <button type="button" id="dual-btn-prev" onclick="prevSlide()" class="px-3.5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold transition disabled:opacity-35">◀ ก่อนหน้า</button>
+        <button type="button" id="dual-btn-next" onclick="nextSlide()" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs sm:text-sm font-extrabold shadow transition">
+          <span id="dual-btn-next-label">อ่านจบแล้ว • กดเปลี่ยนจอเวที ▶</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== MODAL: โพยตอบคำถามสด (Q&A CHEAT SHEET) ==================== -->
+  <div id="qa-modal" onclick="closeQaModal()" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-slate-900 text-slate-100 rounded-3xl max-w-2xl w-full border-2 border-gold-500 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="px-5 py-4 bg-gradient-to-r from-navy-800 to-maroon-800 flex items-center justify-between">
+        <div>
+          <h3 class="font-extrabold text-base text-white">โพยตอบคำถามสดระหว่างบรรยาย (Q&amp;A Cheat Sheet)</h3>
+          <p class="text-xs text-gold-300">คำตอบสั้น กระชับ มั่นใจ สำหรับผู้บรรยายบนเวที</p>
+        </div>
+        <button type="button" onclick="closeQaModal()" class="p-1.5 rounded-lg hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-5 space-y-3 overflow-y-auto custom-scroll text-xs sm:text-sm">
+        <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 space-y-1">
+          <p class="font-bold text-gold-300">❓ “สแกนแล้วขึ้นหน้าว่าง หรือหมุนนาน?”</p>
+          <p class="text-slate-200">→ “รบกวนลองเชื่อมต่อ Wi-Fi ของโรงแรมไพน์เฮิร์สท แล้วกดรีเฟรช 1 ครั้ง หรือกดจุด 3 จุดมุมขวาล่างใน LINE เลือก ‘เปิดใน Chrome / Safari’ ครับ”</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 space-y-1">
+          <p class="font-bold text-gold-300">❓ “ในบัตรยังไม่ขึ้นเลขกลุ่ม 1–5 ครับ?”</p>
+          <p class="text-slate-200">→ “หากท่านใดเพิ่งยืนยันชื่อหรือส่งผู้แทนเข้ามา ฝ่ายจัดกลุ่มจะอัปเดตให้ในช่วงพักเบรกครับ พออัปเดตแล้วเลขกลุ่มจะเด้งขึ้นบนหลังบัตรอัตโนมัติโดยไม่ต้องสแกนใหม่ครับ”</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 space-y-1">
+          <p class="font-bold text-gold-300">❓ “ตอนทำใบงาน กลุ่มหนึ่งพิมพ์ส่งพร้อมกันหลายคนได้ไหม?”</p>
+          <p class="text-slate-200">→ “ได้ครับ ทุกคนช่วยกันพิมพ์ส่งจากมือถือตัวเองพร้อมกันได้เลย ข้อมูลจะรวมแบบเรียลไทม์และเห็นข้อที่เพื่อนส่งแล้วในกล่องสีเขียวทันทีครับ”</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 space-y-1">
+          <p class="font-bold text-gold-300">❓ “ทำแบบประเมินแล้วระบบรู้ไหมว่าใครให้คะแนนเท่าไหร่?”</p>
+          <p class="text-slate-200">→ “ไม่รู้แน่นอนครับ ตารางคะแนนประเมินจะไม่เก็บชื่อและรหัสเลย ส่วนหน้าบัตรจะแค่ติ๊กถูกว่าทำครบแล้วเพื่อกันการส่งซ้ำเท่านั้นครับ”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Box -->
+  <div id="toast-box" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[70] w-[90%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <script>
+    const GUIDE_URL = 'https://watchaiyanun.github.io/ai-seminar-69/guide.html';
+    const SYNC_CHANNEL_NAME = 'ai_seminar_deck_sync_v1';
+    const SYNC_STORAGE_KEY = 'ai_seminar_deck_state_v1';
+
+    // ==================== 8 SLIDES DATA (ซิงค์สไลด์ + บทพูด 5 นาที & 12 นาที + ปุ่มลูกเล่นสด) ====================
+    const SLIDES = [
+      {
+        id: 'cover',
+        title: 'เปิดตัวระบบสัมมนา AI คู่หูจราจร',
+        shortTitle: '1. เปิดตัวระบบ',
+        dur5: '30 วินาที',
+        dur12: '1 นาที',
+        cue: 'กล่าวทักทายผู้บังคับบัญชาและผู้เข้าร่วมสัมมนา ชูมือถือและป้ายคล้องคอตัวอย่างให้ทุกคนเห็น',
+        remoteActions: [],
+        script5: [
+          '“กราบเรียนท่านผู้บังคับบัญชา ท่านผู้ทรงคุณวุฒิ คณะวิทยากร ผู้แทน สพร. (DGA) และพี่น้องข้าราชการตำรวจทุกท่านครับ',
+          'ตลอด 3 วันของการสัมมนาจัดทำคลังความรู้งานจราจรนี้ เราจัดทำระบบดิจิทัลให้ทุกท่านใช้งานง่ายๆ ผ่านมือถือของท่านเอง <strong>โดยไม่ต้องดาวน์โหลดหรือติดตั้งแอปใดๆ ครับ</strong> เดี๋ยวผมขอแนะนำภาพรวมสั้นๆ ภายใน 5 นาทีให้ทุกท่านลองทำตามไปพร้อมกันเลยครับ”'
+        ],
+        script12: [
+          '“กราบเรียนท่านผู้บังคับบัญชา ท่านผู้ทรงคุณวุฒิ คณะวิทยากร ผู้แทนจาก สพร. (DGA) และพี่น้องข้าราชการตำรวจผู้เข้าร่วมสัมมนาทุกท่านครับ',
+          'ในโครงการสัมมนาจัดทำคลังความรู้งานจราจร เพื่อสนับสนุนระบบแชทบอท AI คู่หูจราจร ตลอด 3 วันนี้ ตั้งแต่วันจันทร์ที่ 30 พฤศจิกายน ถึงวันพุธที่ 2 ธันวาคม 2569 ณ โรงแรมไพน์เฮิร์สท แห่งนี้',
+          'คณะทำงานได้จัดทำระบบดิจิทัลครบวงจร ตั้งแต่การเช็กอิน บัตรประจำตัวอิเล็กทรอนิกส์ ใบงานกลุ่มย่อย ไปจนถึงแบบประเมินผล เพื่อให้ทุกท่านใช้งานได้สะดวกที่สุดผ่านโทรศัพท์มือถือ <strong>โดยไม่ต้องติดตั้งแอปพลิเคชันเพิ่มเติมครับ</strong> เดี๋ยวเราไปดูทีละขั้นตอนพร้อมกันเลยครับ”'
+        ]
+      },
+      {
+        id: 'badge',
+        title: 'ป้ายคล้องคอ Smart QR (2 ด้าน 2 หน้าที่)',
+        shortTitle: '2. ป้าย Smart QR',
+        dur5: '40 วินาที',
+        dur12: '1.5 นาที',
+        cue: 'ชวนทุกคนหยิบป้ายคล้องคอขึ้นมาดูทั้ง 2 ด้าน (กดปุ่มเน้นด้านหน้า / ด้านหลังบนจอเวทีตามจังหวะที่พูด)',
+        remoteActions: [
+          { label: '✨ เน้นด้านหน้าป้าย', action: 'badgeFocus', val: 'front' },
+          { label: '🤖 เน้นด้านหลังป้าย (AI)', action: 'badgeFocus', val: 'back' },
+          { label: 'แสดงเท่ากัน 2 ด้าน', action: 'badgeFocus', val: 'both' }
+        ],
+        script5: [
+          '“ขอเชิญทุกท่านหยิบ <strong>ป้ายคล้องคอ</strong> ที่ได้รับเมื่อเช้าขึ้นมาดูครับ จะมี QR Code อยู่ 2 ด้าน:',
+          '• <strong>ด้านหน้าป้าย</strong> เป็น Smart QR ประจำตัวของท่าน ใช้ยื่นสแกนเช็กอินเข้างานทุกเช้า และใช้มือถือท่านสแกนเพื่อเปิด <strong>บัตร E-Pass ส่วนตัว</strong> ครับ',
+          '• ส่วน <strong>ด้านหลังป้าย</strong> เป็น QR เข้าทดลองใช้ <strong>แชทบอท AI คู่หูจราจร</strong> ที่ pinai-fine.police.go.th ลองถาม-ตอบงานจราจรได้ตลอดเวลาครับ”'
+        ],
+        script12: [
+          '“ขอเชิญทุกท่านลองหยิบ <strong>ป้ายคล้องคอ</strong> ที่ได้รับแจกเมื่อเช้าขึ้นมาดูพร้อมกันนะครับ จะเห็นว่าบนป้ายของเรามี QR Code อยู่ 2 ด้าน ซึ่งทำหน้าที่ต่างกันครับ:',
+          '• <strong>ด้านหน้าป้าย</strong> จะเป็น <strong>Smart QR ประจำตัวของท่านเอง</strong> ใช้สำหรับ 2 อย่างครับ คือ หนึ่ง—ยื่นให้กล้องหน้าห้องสแกนเช็กอินเข้างานทุกเช้า ซึ่งเมื่อเช้าทุกท่านน่าจะได้ยินเสียงระบบขานยศชื่อ-สกุลต้อนรับกันแล้ว และ สอง—ใช้มือถือของท่านสแกนเพื่อเข้าสู่ <strong>บัตรประจำตัวอิเล็กทรอนิกส์ (E-Pass)</strong> ครับ',
+          '• ส่วน <strong>ด้านหลังป้าย</strong> จะเป็น QR Code สำหรับเข้าทดลองใช้งาน <strong>แชทบอท AI คู่หูจราจร</strong> ที่เว็บไซต์ pinai-fine.police.go.th ซึ่งทุกท่านสามารถสแกนลองถาม-ตอบเรื่องงานจราจรได้ตลอดเวลาครับ”'
+        ]
+      },
+      {
+        id: 'epass',
+        title: 'บัตรประจำตัวดิจิทัล E-Pass (พลิกหน้า–หลังได้)',
+        shortTitle: '3. บัตร E-Pass',
+        dur5: '50 วินาที',
+        dur12: '2.5 นาที',
+        cue: 'ชวนทุกคนสแกน QR ด้านหน้าป้ายพร้อมกัน แล้วกดปุ่ม "🔄 สั่งพลิกบัตรบนจอเวที" เพื่อโชว์ด้านหลังบัตรสดๆ!',
+        remoteActions: [
+          { label: '🔄 สั่งพลิกบัตรบนจอเวที', action: 'toggleFlip' },
+          { label: '👋 สั่งมาสคอตทักทาย', action: 'toggleMascot' }
+        ],
+        script5: [
+          '“เชิญทุกท่านลอง <strong>สแกน QR ด้านหน้าป้าย</strong> ด้วยมือถือตอนนี้ได้เลยครับ (หากสแกนใน LINE แนะนำกดจุด 3 จุดมุมขวาล่าง เลือกเปิดใน Chrome หรือ Safari จะลื่นที่สุดครับ)',
+          '• <strong>ด้านหน้าบัตร</strong> จะโชว์ชื่อท่าน กำหนดการสด การแต่งกาย และตราประทับเช็กอิน 3 วัน แตะที่รูปมาสคอตตำรวจจราจรเพื่อทักทายได้ด้วยครับ',
+          '• <strong>ลองแตะที่ตัวบัตร 1 ครั้งครับ</strong> <em>(กดปุ่มสั่งพลิกบัตร)</em> บัตรจะพลิกไปด้านหลัง เพื่อดู <strong>เลขห้องพักโรงแรม คู่พัก อาหาร กลุ่ม 5 กลุ่ม</strong> และมีปุ่ม <strong>ขยาย QR</strong> เผื่อลืมป้ายก็ยื่นมือถือสแกนแทนได้ครับ”'
+        ],
+        script12: [
+          '“ตอนนี้ขอเชิญทุกท่านหยิบมือถือขึ้นมา เปิดกล้องถ่ายรูปหรือแอป LINE แล้วลอง <strong>สแกน QR Code ด้านหน้าป้ายของท่านเอง</strong> ไปพร้อมกันเลยครับ... <em>(หยุดรอ 10 วินาที)</em>',
+          '<strong>ทิปเล็กน้อยครับ:</strong> หากท่านใดสแกนผ่านแอป LINE แนะนำให้กดจุด 3 จุดมุมขวาล่าง แล้วเลือก ‘เปิดในเบราว์เซอร์ (Chrome หรือ Safari)’ หน้าจอจะลื่นและสามารถแนบไฟล์เอกสารได้สมบูรณ์ที่สุดครับ',
+          'เมื่อเปิดขึ้นมาแล้ว จะเห็น <strong>บัตร E-Pass ส่วนตัว</strong> ของท่านเอง (เปิดดูได้เฉพาะเจ้าของป้ายครับ):',
+          '1. <strong>ด้านหน้าบัตร</strong> จะเห็นแถบแจ้งกำหนดการสด การแต่งกาย และตราประทับเช็กอิน 3 วัน หากเมื่อเช้าสแกนแล้วจะขึ้นเครื่องหมายถูกสีเขียวพร้อมเวลา และลองแตะที่ <strong>มาสคอตตำรวจจราจร AI</strong> เพื่อรับข้อความสรุปส่วนตัวได้ครับ <em>(กดปุ่มมาสคอตทักทาย)</em>',
+          '2. <strong>ลองแตะที่ตัวบัตร 1 ครั้งครับ</strong> <em>(กดปุ่มสั่งพลิกบัตรบนจอเวที)</em> บัตรจะพลิกไปด้านหลัง เพื่อแสดง <strong>เลขห้องพักโรงแรม ชื่อผู้พักร่วม อาหาร</strong> และ <strong>กลุ่มสัมมนา 5 กลุ่ม</strong> รวมถึงมีปุ่ม <strong>ขยาย QR</strong> เผื่อพรุ่งนี้ลืมป้ายไว้ในห้องพัก ก็เปิดมือถือยื่นสแกนเช็กอินแทนได้เลยครับ”'
+        ]
+      },
+      {
+        id: 'portal-tools',
+        title: 'แจ้งแก้ไขข้อมูล • คลังเอกสาร • การแต่งกาย',
+        shortTitle: '4. แก้ไข/เอกสาร/ชุด',
+        dur5: '35 วินาที',
+        dur12: '1.5 นาที',
+        cue: 'ชี้ 3 ส่วนสำคัญใต้บัตร E-Pass: ปุ่มขอแก้ไข/แนบหนังสือส่งตัว, โฟลเดอร์เอกสาร 3 วัน และย้ำเรื่องการแต่งกาย',
+        remoteActions: [],
+        script5: [
+          '“ใต้หน้าบัตร E-Pass มี 3 เมนูสำคัญที่ทุกท่านใช้ได้ทันทีครับ:',
+          '1. หากข้อมูลไม่ตรง ส่งผู้แทน หรือมีกล่องสีแดงเตือนเอกสารขาด กดปุ่ม <strong>‘ขอแก้ไข / แจ้งผู้แทน’</strong> ถ่ายรูปหนังสือส่งตัวแนบส่งให้เจ้าหน้าที่อนุมัติได้เลยครับ',
+          '2. เลื่อนลงมามีปุ่มเข้า <strong>กลุ่ม LINE สัมมนา</strong> และ <strong>คลังเอกสาร Google Drive</strong> แยกครบทั้ง 3 วัน',
+          '3. ย้ำเรื่อง <strong>การแต่งกาย</strong> ครับ: บ่ายวันนี้ 30 พ.ย. และวันที่ 1–2 ธ.ค. แต่งกาย <strong>ชุดสุภาพ</strong> ตลอดงานครับ”'
+        ],
+        script12: [
+          '“ถัดลงมาจากตัวบัตร E-Pass จะมีเมนูอำนวยความสะดวกอีก 3 ส่วนที่สำคัญครับ:',
+          '1. <strong>การขอแก้ไขข้อมูลและแนบเอกสาร:</strong> หากข้อมูลห้องพักไม่ตรง ต้องการส่งผู้แทน หรือมีกล่องสีแดงแจ้งเตือนเอกสารขาด ไม่ต้องเดินมาแจ้งที่โต๊ะก็ได้ครับ กดปุ่ม <strong>‘ขอแก้ไข / แจ้งผู้แทน’</strong> ใต้บัตร กรอกข้อมูลหรือถ่ายรูปหนังสือส่งตัวแนบส่งเข้ามา เจ้าหน้าที่จะตรวจสอบและอัปเดตให้ทันทีครับ',
+          '2. <strong>กลุ่ม LINE และคลังเอกสาร:</strong> เลื่อนลงมาจะมีปุ่มเข้ากลุ่ม LINE สัมมนา และปุ่มเปิดโฟลเดอร์ Google Drive คลังเอกสารแยกครบทั้งวันที่ 30 พ.ย., 1 ธ.ค., 2 ธ.ค. และเอกสารที่เกี่ยวข้องครับ',
+          '3. <strong>การแต่งกาย 3 วัน:</strong> เช้าวันนี้ 30 พ.ย. เป็นชุดปกติเสื้อเชิ้ตคอพับกากี ส่วน <strong>บ่ายวันนี้ และวันพรุ่งนี้ถึงวันพุธ (1–2 ธ.ค.) แต่งกายชุดสุภาพครับ</strong>”'
+        ]
+      },
+      {
+        id: 'morning',
+        title: 'ใบงานวันที่ 2 ช่วงเช้า : ระดมสมองครบ 5 หมวด',
+        shortTitle: '5. ใบงานเช้า (5 หมวด)',
+        dur5: '45 วินาที',
+        dur12: '2 นาที',
+        cue: 'อธิบายกติกาหมุนเวียน World Café 5 รอบ และกดปุ่ม "จำลองเปลี่ยนรอบบนจอเวที" ให้เห็นแม่กุญแจปลดล็อก!',
+        remoteActions: [
+          { label: '🔄 จำลอง: รอบที่ 1', action: 'morningRound', val: 1 },
+          { label: '🔓 จำลอง: เปลี่ยนเป็นรอบที่ 2', action: 'morningRound', val: 2 },
+          { label: '🔓 จำลอง: เปลี่ยนเป็นรอบที่ 3', action: 'morningRound', val: 3 }
+        ],
+        script5: [
+          '“ต่อมาคือกิจกรรมวันพรุ่งนี้ <strong>อังคารที่ 1 ธ.ค. ช่วงเช้า (09.00–12.00 น.)</strong> กดเข้าจากปุ่มสีเหลือง <strong>‘ใบงานเช้า’</strong> ใต้บัตรได้เลยครับ',
+          'ทุกกลุ่มจะเดินหมุนเวียนครบทั้ง 5 โต๊ะฐาน ระบบจะ <strong>ล็อกเลขกลุ่มให้ท่านอัตโนมัติ</strong> และ <strong>ปลดล็อกหมวดตามรอบจริงบนเวที</strong> <em>(กดจำลองเปลี่ยนรอบให้ดู)</em>',
+          'ก่อนส่งดูกล่องสีเขียว <strong>‘เพื่อนในกลุ่มส่งแล้ว’</strong> เพื่อกันถามซ้ำ แล้วพิมพ์ส่ง <strong>ทีละ 1 ประเด็นสั้นๆ</strong> เลือกความเร่งด่วน แดง/ส้ม/เขียว กดบันทึกได้เลยครับ”'
+        ],
+        script12: [
+          '“ต่อมาคือหัวใจสำคัญของสัมมนาเราใน <strong>วันพรุ่งนี้ (อังคารที่ 1 ธ.ค.)</strong> ครับ การทำใบงานกลุ่มย่อยทั้งหมดจะกดเข้าได้ง่ายๆ จาก <strong>ปุ่มลัดใต้หน้าบัตร E-Pass</strong> ของท่านเลยครับ',
+          'เริ่มจาก <strong>ช่วงเช้า เวลา 09.00 – 12.00 น.</strong> เราจะทำกิจกรรม <strong>‘ใบงานที่ 1 : ระดมสมองครบทั้ง 5 หมวด’</strong> ในรูปแบบ World Café ครับ คือทั้ง 5 กลุ่มจะเดินหมุนเวียนกันไปทุกโต๊ะฐานจนครบ 5 หมวด รอบละประมาณ 30 นาที',
+          'เมื่อกดปุ่ม <strong>‘ใบงานเช้า’</strong> เข้ามา จะเห็นความสะดวก 3 อย่างครับ:',
+          '• <strong>อย่างแรก:</strong> ระบบ <strong>ล็อกกลุ่มประจำตัวและใส่ชื่อผู้บันทึกให้ท่านอัตโนมัติ</strong> ไม่ต้องกลัวส่งผิดกลุ่มครับ',
+          '• <strong>อย่างที่สอง:</strong> หมวดหมู่จะ <strong>ปลดล็อกตามรอบหมุนเวียนจริง</strong> ครับ <em>(กดปุ่มจำลองเปลี่ยนรอบ)</em> หมวดที่ยังไม่ถึงรอบจะติดแม่กุญแจ เมื่อเจ้าหน้าที่เปลี่ยนรอบบนเวที หมวดถัดไปจะปลดล็อกเองทันทีครับ',
+          '• <strong>อย่างที่สาม:</strong> ดูที่ <strong>กล่องสีเขียว ‘เพื่อนในกลุ่มส่งแล้ว’</strong> เพื่อกันถามซ้ำ ส่ง <strong>ทีละ 1 ประเด็นสั้นๆ กระชับๆ</strong> เลือกความเร่งด่วน แดง / ส้ม / เขียว แล้วกดบันทึก ส่งได้ไม่จำกัดจำนวนข้อครับ”'
+        ]
+      },
+      {
+        id: 'afternoon',
+        title: 'ใบงานวันที่ 2 ช่วงบ่าย : จัดทำคำตอบ Q&A เฉพาะหมวดหลัก',
+        shortTitle: '6. ใบงานบ่าย (Q&A)',
+        dur5: '45 วินาที',
+        dur12: '1.5 นาที',
+        cue: 'กดปุ่ม "⚡ จำลองดึงคำถามช่วงเช้าลงฟอร์ม" เพื่อโชว์ว่าไม่ต้องพิมพ์คำถามซ้ำ และย้ำช่องแหล่งอ้างอิง 3.1 / 3.2',
+        remoteActions: [
+          { label: '⚡ จำลองกด “เลือกทำ Q&A”', action: 'afternoonPull', val: true },
+          { label: '↺ คืนค่าเดิม', action: 'afternoonPull', val: false }
+        ],
+        script5: [
+          '“พอถึง <strong>ช่วงบ่ายวันที่ 1 ธ.ค. ต่อเนื่องเช้า 2 ธ.ค.</strong> กดเข้าปุ่มสีแดงเลือดหมู <strong>‘ใบงานบ่าย (Q&A)’</strong> ครับ',
+          'ช่วงบ่ายทุกกลุ่มจะนั่งประจำฐานตัวเอง รับผิดชอบตอบ <strong>เฉพาะหมวดหลักของกลุ่ม</strong> (กลุ่ม 1 ตอบหมวด 1 ไล่ถึงกลุ่ม 5) โดย <strong>ไม่ต้องพิมพ์คำถามใหม่</strong> แค่กดปุ่ม <strong>‘เลือกทำ Q&A’</strong> <em>(กดปุ่มจำลอง)</em> คำถามช่วงเช้าจะเด้งลงมาให้ตอบทันทีครับ',
+          'ขอความร่วมมือระบุ <strong>ข้อ 3 แหล่งอ้างอิง</strong> ให้ครบทั้ง <strong>สื่อ/PowerPoint</strong> และ <strong>ระเบียบ/กฎหมาย/มาตรา</strong> เพื่อให้ AI ตอบได้แม่นยำครับ”'
+        ],
+        script12: [
+          '“พอถึง <strong>ช่วงบ่ายวันที่ 1 ธ.ค. ต่อเนื่องถึงเช้าวันที่ 2 ธ.ค.</strong> เราจะกดเข้าปุ่ม <strong>‘ใบงานบ่าย (Q&A)’</strong> ครับ',
+          'ช่วงบ่ายนี้ทุกกลุ่มจะไม่ย้ายโต๊ะแล้วครับ จะประจำกลุ่มเดิมเพื่อรับผิดชอบจัดทำคำตอบมาตรฐาน <strong>เฉพาะหมวดหลักของกลุ่มตนเอง</strong> (เช่น กลุ่มที่ 1 รับผิดชอบหมวด 1 กฎหมายจราจร, กลุ่มที่ 2 หมวดคู่มือ/SOP เรียงไปจนถึงกลุ่มที่ 5 ครับ)',
+          'ความพิเศษคือ <strong>ท่านไม่ต้องพิมพ์คำถามใหม่ครับ</strong> ระบบได้รวบรวมคำถามช่วงเช้าที่ทั้ง 5 กลุ่มระดมสมองไว้ในหมวดของท่านมารอเป็นคิวให้แล้ว เพียงกดปุ่ม <strong>‘เลือกทำ Q&A’</strong> <em>(กดปุ่มจำลองดึงคำถาม)</em> ข้อความคำถามจะเด้งลงมาในฟอร์มทันที และท่านสามารถเกลาสำนวนให้เหมาะกับการตอบของแชทบอท AI ได้เลยครับ',
+          'สิ่งที่ขอความร่วมมือเป็นพิเศษคือ <strong>ข้อ 3 แหล่งอ้างอิง</strong> รบกวนระบุให้ครบทั้ง 2 ช่อง คือ <strong>3.1 สื่อ/อินโฟกราฟิก/PowerPoint</strong> และ <strong>3.2 ระเบียบ/กฎหมาย/มาตรา หรือหนังสือสั่งการ</strong> รวมถึง <strong>ข้อ 4 ข้อควรระวัง</strong> เพื่อให้ AI คู่หูจราจรของเราตอบได้อย่างแม่นยำและอ้างอิงได้จริงครับ”'
+        ]
+      },
+      {
+        id: 'review',
+        title: 'คลังความรู้ Q&A 5 หมวด & สิทธิ์ผู้ทรงคุณวุฒิ / DGA',
+        shortTitle: '7. คลัง Q&A / เมนต์',
+        dur5: '30 วินาที',
+        dur12: '1 นาที',
+        cue: 'ผายมือชี้ตารางสิทธิ์สำหรับท่านผู้ทรงคุณวุฒิ วิทยากร และผู้แทน สพร. (DGA)',
+        remoteActions: [],
+        script5: [
+          '“สำหรับ <strong>ท่านผู้ทรงคุณวุฒิ วิทยากร และผู้แทน DGA</strong> รวมถึงทุกท่านที่ต้องการอ่านทบทวนครบทั้ง 5 หมวด ให้กดเข้าเมนู <strong>‘คลัง Q&A’</strong> ครับ',
+          'หน้านี้สามารถปรับ <strong>ขนาดตัวอักษรให้ใหญ่ขึ้น</strong> และกดอ่านเต็มจอได้สบายตา โดยท่านผู้ทรงคุณวุฒิและวิทยากรสามารถกดปุ่ม <strong>‘เพิ่มข้อเสนอแนะ’</strong> คอมเมนต์เพิ่มเติมในแต่ละข้อได้ทันทีโดยไม่ทับคำตอบเดิมของกลุ่มครับ”'
+        ],
+        script12: [
+          '“และสำหรับ <strong>ท่านผู้ทรงคุณวุฒิ คณะวิทยากร</strong> รวมถึง <strong>ผู้แทนจาก สพร. (DGA)</strong> และทุกท่านที่ต้องการเปิดอ่านทบทวนครบทั้ง 5 หมวด สามารถกดเข้าเมนู <strong>‘คลัง Q&A’</strong> ครับ',
+          '• สามารถกด <strong>ขยายขนาดตัวอักษร</strong> เป็น ‘ใหญ่’ หรือ ‘ใหญ่มาก’ และกด <strong>อ่านทีละข้อเต็มจอ</strong> ได้สบายตาครับ',
+          '• สำหรับ <strong>ท่านผู้ทรงคุณวุฒิและวิทยากร</strong> สามารถกดปุ่ม <strong>‘เพิ่มข้อเสนอแนะ’</strong> แสดงความเห็นเพิ่มเติมในแต่ละข้อได้ทันที โดยไม่ไปทับคำตอบเดิมของกลุ่ม เพื่อให้สมาชิกกลุ่มนำไปปรับปรุงก่อนนำเสนอ',
+          '• ส่วน <strong>ผู้แทนจาก DGA</strong> สามารถเปิดคัดกรองและติดตามประเด็นได้ครบทั้ง 5 หมวดแบบเรียลไทม์ครับ”'
+        ]
+      },
+      {
+        id: 'eval-end',
+        title: 'แบบประเมินนิรนาม 10 ข้อ & QR คู่มือใช้งาน',
+        shortTitle: '8. ประเมิน & คู่มือ',
+        dur5: '45 วินาที',
+        dur12: '1.5 นาที',
+        cue: 'ชี้ไปที่ QR คู่มือบนจอเวที (กดปุ่มขยาย QR คู่มือให้สแกนได้ชัดทั้งห้อง) แล้วเปิดรับคำถามก่อนกล่าวขอบคุณ',
+        remoteActions: [
+          { label: '🔍 ขยาย QR คู่มือให้ใหญ่ขึ้น', action: 'zoomGuideQr' }
+        ],
+        script5: [
+          '“สุดท้ายครับ ใน <strong>บ่ายวันพุธที่ 2 ธ.ค.</strong> รบกวนทุกท่านกดแท็บ <strong>‘แบบประเมินผล’</strong> บนหน้าบัตร เพื่อประเมิน 10 ข้อครับ ยืนยันว่าเป็น <strong>นิรนาม 100%</strong> ไม่เก็บชื่อหรือรหัสคู่กับคะแนน เมื่อส่งเสร็จบัตรของท่านจะครบ 4/4 กิจกรรม (100%) ทันทีครับ',
+          'ท่านใดอยากเก็บคู่มือแบบมีภาพประกอบไว้ดูย้อนหลัง สามารถ <strong>สแกน QR คู่มือบนหน้าจอ</strong> ตอนนี้ได้เลยครับ หรือกดดูได้จากในกลุ่ม LINE สัมมนา หากติดขัดตรงไหนติดต่อเจ้าหน้าที่โต๊ะลงทะเบียนได้ตลอด 3 วันครับ ขอบคุณครับ”'
+        ],
+        script12: [
+          '“สุดท้ายครับ ใน <strong>วันพุธที่ 2 ธ.ค. ช่วงบ่าย</strong> หลังจากนำเสนอผลงานครบทั้ง 5 ประเด็นแล้ว ขอความกรุณาทุกท่านแตะแท็บ <strong>‘แบบประเมินผล’</strong> บนหน้าบัตร E-Pass เพื่อร่วมให้คะแนนความพึงพอใจจำนวน 10 ข้อครับ',
+          'ขอเรียนยืนยันว่าแบบประเมินนี้เป็น <strong>ระบบนิรนาม 100% (Anonymous)</strong> ระบบจะแยกเก็บเฉพาะคะแนนและข้อเสนอแนะโดย <strong>ไม่ผูกกับชื่อหรือรหัสประจำตัวของท่าน</strong> เมื่อส่งเสร็จตราประทับบนหน้าบัตรของท่านจะครบ 4/4 กิจกรรม (100%) ทันทีครับ',
+          'และหากท่านใดกลัวจำขั้นตอนไม่หมด สามารถหยิบมือถือ <strong>สแกน QR คู่มือการใช้งานแบบมีภาพประกอบบนหน้าจอ</strong> ตอนนี้ได้เลยครับ <em>(กดปุ่มขยาย QR คู่มือ)</em> เดี๋ยวทีมงานจะส่งลิงก์ซ้ำในกลุ่ม LINE ด้วยครับ',
+          'ไม่ทราบว่าตอนนี้มีท่านใดลองสแกนบัตรแล้วติดขัด หรือมีข้อสงสัยตรงไหน ยกมือสอบถามได้เลยนะครับ... หากไม่มีคำถามแล้ว ขอขอบคุณทุกท่านมากครับ ขอให้ทุกท่านมีความสุขกับการสัมมนาตลอด 3 วันครับ ขอบคุณครับ”'
+        ]
+      }
+    ];
+
+    // ==================== SHARED SYNC STATE ====================
+    let state = {
+      slideIndex: 0,
+      badgeFocus: 'both',      // 'front' | 'back' | 'both'
+      epassFlipped: false,
+      mascotOpen: false,
+      morningRound: 1,         // 1 | 2 | 3
+      afternoonPulled: false,
+      guideQrZoomed: false,
+      blackout: false,
+      updatedAt: 0
+    };
+
+    let viewMode = detectInitialViewMode(); // 'stage' | 'presenter' | 'dual'
+    let scriptMode = '5min';                // '5min' | '12min'
+    let scriptFontLevel = 2;                // 1..4
+    let pairedWindowRef = null;
+    let syncChannel = null;
+    let lastPeerHeartbeat = 0;
+
+    // Timer State (Presenter)
+    let presTimerSec = 5 * 60;
+    let presTimerRunning = false;
+    let presTimerInterval = null;
+
+    function detectInitialViewMode() {
+      const p = new URLSearchParams(window.location.search).get('mode');
+      if (p === 'presenter' || p === 'stage' || p === 'dual') return p;
+      // เริ่มต้นเป็นโหมด "ทดลอง 2 จอคู่กัน" เพื่อให้เห็นการทำงานคู่กันทันที และกดแยกจอจริงได้ใน 1 คลิก
+      return 'dual';
+    }
+
+    // ==================== INITIALIZATION & SYNC BUS ====================
+    function initPresentationApp() {
+      // โหลด state ล่าสุดหากมีหน้าต่างอื่นเปิดอยู่แล้ว
+      try {
+        const saved = JSON.parse(localStorage.getItem(SYNC_STORAGE_KEY) || 'null');
+        if (saved && typeof saved.slideIndex === 'number') {
+          state = { ...state, ...saved };
+        }
+      } catch (e) {}
+
+      // 1. BroadcastChannel (ซิงค์ไวระดับ 1ms ระหว่าง 2 หน้าต่างบนโดเมนเดียวกัน)
+      try {
+        if ('BroadcastChannel' in window) {
+          syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+          syncChannel.onmessage = (ev) => handleIncomingSyncMessage(ev.data);
+        }
+      } catch (e) {}
+
+      // 2. localStorage 'storage' event (สำรองสำหรับทุกเบราว์เซอร์)
+      window.addEventListener('storage', (ev) => {
+        if (ev.key === SYNC_STORAGE_KEY && ev.newValue) {
+          try {
+            const incoming = JSON.parse(ev.newValue);
+            applyIncomingState(incoming);
+          } catch (e) {}
+        }
+      });
+
+      // 3. postMessage (สำรองกรณีเปิดผ่านไฟล์โลคอล file:// หรือ popup ref)
+      window.addEventListener('message', (ev) => {
+        if (ev.data && ev.data.__deckSync) {
+          handleIncomingSyncMessage(ev.data);
+        }
+      });
+
+      // Keyboard Shortcuts (ลูกศร ซ้าย/ขวา, Space, F เต็มจอ, เลข 1-8)
+      document.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+        const qaOpen = !document.getElementById('qa-modal')?.classList.contains('hidden');
+        if (e.key === 'Escape') {
+          if (qaOpen) closeQaModal();
+          return;
+        }
+        if (qaOpen) return;
+
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+          e.preventDefault();
+          nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === 'f' || e.key === 'F') {
+          toggleFullscreen();
+        } else if (e.key === 'b' || e.key === 'B') {
+          toggleStageBlackout();
+        } else if (/^[1-8]$/.test(e.key)) {
+          goToSlide(parseInt(e.key, 10) - 1);
+        }
+      });
+
+      // ซ่อนแถบเมนูด้านบนอัตโนมัติเมื่อกด Fullscreen ในโหมดจอเวที (Stage)
+      document.addEventListener('fullscreenchange', updateTopBarVisibility);
+
+      // Heartbeat ตรวจการเชื่อมต่อระหว่าง 2 หน้าต่าง
+      sendPing();
+      setInterval(() => {
+        sendPing();
+        updateConnectionBadge();
+      }, 2500);
+
+      setScriptMode('5min', false);
+      setViewMode(viewMode, false);
+      renderAllViews();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPresentationApp);
+    } else {
+      initPresentationApp();
+    }
+
+    function sendPing() {
+      const payload = { __deckSync: true, type: 'ping', from: viewMode, state };
+      try { if (syncChannel) syncChannel.postMessage(payload); } catch (e) {}
+      try { if (pairedWindowRef && !pairedWindowRef.closed) pairedWindowRef.postMessage(payload, '*'); } catch (e) {}
+      try { if (window.opener && !window.opener.closed) window.opener.postMessage(payload, '*'); } catch (e) {}
+    }
+
+    function broadcastState() {
+      state.updatedAt = Date.now();
+      const payload = { __deckSync: true, type: 'state', from: viewMode, state };
+      try { localStorage.setItem(SYNC_STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+      try { if (syncChannel) syncChannel.postMessage(payload); } catch (e) {}
+      try { if (pairedWindowRef && !pairedWindowRef.closed) pairedWindowRef.postMessage(payload, '*'); } catch (e) {}
+      try { if (window.opener && !window.opener.closed) window.opener.postMessage(payload, '*'); } catch (e) {}
+    }
+
+    function handleIncomingSyncMessage(msg) {
+      if (!msg || !msg.__deckSync) return;
+      lastPeerHeartbeat = Date.now();
+      updateConnectionBadge();
+      if (msg.type === 'state' && msg.state) {
+        applyIncomingState(msg.state);
+      } else if (msg.type === 'ping') {
+        // ตอบกลับเพื่อให้หน้าต่างฝั่งตรงข้ามรู้ว่าเชื่อมต่อแล้ว
+        const ack = { __deckSync: true, type: 'pong', from: viewMode, state };
+        try { if (syncChannel) syncChannel.postMessage(ack); } catch (e) {}
+        try { if (pairedWindowRef && !pairedWindowRef.closed) pairedWindowRef.postMessage(ack, '*'); } catch (e) {}
+        try { if (window.opener && !window.opener.closed) window.opener.postMessage(ack, '*'); } catch (e) {}
+      } else if (msg.type === 'pong' && msg.state && msg.state.updatedAt > state.updatedAt) {
+        applyIncomingState(msg.state);
+      }
+    }
+
+    function applyIncomingState(incoming) {
+      if (!incoming || typeof incoming.slideIndex !== 'number') return;
+      const changed = JSON.stringify(state) !== JSON.stringify({ ...state, ...incoming });
+      if (!changed) return;
+      state = { ...state, ...incoming };
+      renderAllViews();
+    }
+
+    function updateConnectionBadge() {
+      const dot = document.getElementById('sync-status-dot');
+      const txt = document.getElementById('sync-status-text');
+      if (!dot || !txt) return;
+
+      const peerConnected = (Date.now() - lastPeerHeartbeat) < 6000;
+      if (viewMode === 'dual') {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0';
+        txt.textContent = peerConnected ? 'โหมด 2 จอคู่กัน + ซิงค์กับหน้าต่างอื่นแล้ว' : 'โหมดทดลอง 2 จอคู่กัน (ซิงค์เรียลไทม์)';
+      } else if (peerConnected) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block shrink-0';
+        txt.textContent = viewMode === 'presenter' ? 'เชื่อมต่อจอเวทีแล้ว (กดถัดไปเพื่อเปลี่ยนจอเวทีทันที)' : 'เชื่อมต่อจอบทพูดผู้บรรยายแล้ว (ซิงค์อัตโนมัติ)';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 inline-block shrink-0';
+        txt.textContent = viewMode === 'presenter' ? 'รอเปิดจอเวที (กดปุ่มสีทองขวาบนเพื่อเปิดจอเวที)' : 'พร้อมฉายบนโปรเจกเตอร์ (กดปุ่มสีทองเพื่อเปิดจอบทพูด)';
+      }
+    }
+
+    // ==================== VIEW MODE & POPUP LAUNCHER ====================
+    function setViewMode(mode, shouldUpdateUrl = true) {
+      viewMode = mode;
+      document.getElementById('view-stage').classList.toggle('hidden', mode !== 'stage');
+      document.getElementById('view-presenter').classList.toggle('hidden', mode !== 'presenter');
+      document.getElementById('view-dual').classList.toggle('hidden', mode !== 'dual');
+
+      ['stage', 'presenter', 'dual'].forEach(k => {
+        const btn = document.getElementById(`mode-btn-${k}`);
+        if (!btn) return;
+        btn.className = k === mode
+          ? 'px-2.5 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 shadow-xs transition'
+          : 'px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white transition';
+      });
+
+      const launchLbl = document.getElementById('btn-launch-paired-label');
+      if (launchLbl) {
+        launchLbl.textContent = mode === 'presenter' ? 'เปิดจอเวทีแยกหน้าต่าง' : 'เปิดจอบทพูดแยกหน้าต่าง';
+      }
+
+      if (shouldUpdateUrl) {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.set('mode', mode);
+          window.history.replaceState({}, '', u.toString());
+        } catch (e) {}
+      }
+
+      updateTopBarVisibility();
+      updateConnectionBadge();
+      renderAllViews();
+    }
+
+    function updateTopBarVisibility() {
+      const topBar = document.getElementById('top-control-bar');
+      if (!topBar) return;
+      const hideInStageFullscreen = Boolean(document.fullscreenElement) && viewMode === 'stage';
+      topBar.classList.toggle('hidden', hideInStageFullscreen);
+    }
+
+    function launchPairedWindow() {
+      const targetMode = viewMode === 'presenter' ? 'stage' : 'presenter';
+      let targetUrl = `?mode=${targetMode}`;
+      try {
+        const u = new URL(window.location.href);
+        u.searchParams.set('mode', targetMode);
+        targetUrl = u.toString();
+      } catch (e) {}
+
+      // หากตอนนี้อยู่โหมด dual ให้สลับหน้าต่างหลักนี้เป็นจอเวที แล้วเปิดหน้าต่างใหม่เป็นจอบทพูดทันที
+      if (viewMode === 'dual') {
+        setViewMode('stage');
+      }
+
+      const w = window.open(targetUrl, `ai_seminar_${targetMode}`, 'width=1280,height=780');
+      if (w) {
+        pairedWindowRef = w;
+        setTimeout(() => broadcastState(), 600);
+        showToast(
+          targetMode === 'presenter'
+            ? 'เปิดหน้าต่าง “จอบทพูด” แล้ว ลากไปวางบนจอโน้ตบุ๊กแล้วฉายหน้านี้ขึ้นโปรเจกเตอร์ได้เลยครับ'
+            : 'เปิดหน้าต่าง “จอเวที” แล้ว ลากไปวางบนจอโปรเจกเตอร์แล้วกดเต็มจอ (F) ได้เลยครับ',
+          'success'
+        );
+      } else {
+        showToast('เบราว์เซอร์บล็อกหน้าต่างใหม่ — แนะนำให้เปิดไฟล์นี้เป็น 2 แท็บ หรือใช้โหมด “◫ ทดลอง 2 จอคู่กัน” แทนครับ', 'warning');
+      }
+    }
+
+    // ==================== NAVIGATION & REMOTE ACTIONS ====================
+    function goToSlide(idx) {
+      const clamped = Math.max(0, Math.min(SLIDES.length - 1, idx));
+      if (clamped === state.slideIndex) return;
+      state.slideIndex = clamped;
+      // รีเซ็ตสถานะลูกเล่นประจำสไลด์เมื่อเปลี่ยนหน้า
+      state.badgeFocus = 'both';
+      state.epassFlipped = false;
+      state.mascotOpen = false;
+      state.morningRound = 1;
+      state.afternoonPulled = false;
+      state.guideQrZoomed = false;
+      broadcastState();
+      renderAllViews();
+
+      // เลื่อนบทพูดกลับด้านบนสุดของสไลด์ใหม่
+      document.getElementById('pres-script-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('dual-script-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() {
+      if (state.slideIndex < SLIDES.length - 1) {
+        goToSlide(state.slideIndex + 1);
+      } else {
+        showToast('ถึงสไลด์สุดท้าย (สไลด์ที่ 8) แล้วครับ', 'info');
+      }
+    }
+
+    function prevSlide() {
+      if (state.slideIndex > 0) {
+        goToSlide(state.slideIndex - 1);
+      }
+    }
+
+    function runRemoteAction(action, val) {
+      if (action === 'badgeFocus') state.badgeFocus = val;
+      else if (action === 'toggleFlip') state.epassFlipped = !state.epassFlipped;
+      else if (action === 'toggleMascot') state.mascotOpen = !state.mascotOpen;
+      else if (action === 'morningRound') state.morningRound = Number(val) || 1;
+      else if (action === 'afternoonPull') state.afternoonPulled = Boolean(val);
+      else if (action === 'zoomGuideQr') state.guideQrZoomed = !state.guideQrZoomed;
+
+      broadcastState();
+      renderAllViews();
+    }
+
+    function toggleStageBlackout() {
+      state.blackout = !state.blackout;
+      broadcastState();
+      renderAllViews();
+    }
+
+    // ==================== RENDER ALL VIEWS ====================
+    function renderAllViews() {
+      const slide = SLIDES[state.slideIndex] || SLIDES[0];
+      const total = SLIDES.length;
+      const pct = Math.round(((state.slideIndex + 1) / total) * 100);
+
+      // 1. Render Stage View
+      if (viewMode === 'stage') {
+        const mount = document.getElementById('stage-slide-mount');
+        if (mount) {
+          mount.innerHTML = `<div class="slide-enter w-full max-w-6xl mx-auto">${buildSlideVisualHtml(slide.id, false)}</div>`;
+        }
+        document.getElementById('stage-slide-num').textContent = `${state.slideIndex + 1} / ${total}`;
+        document.getElementById('stage-progress-bar').style.width = `${pct}%`;
+        document.getElementById('stage-blackout-overlay')?.classList.toggle('hidden', !state.blackout);
+        renderGuideQrIfNeeded('stage-guide-qr', state.guideQrZoomed ? 230 : 165);
+      }
+
+      // 2. Render Presenter View
+      if (viewMode === 'presenter') {
+        renderPresenterPane(slide);
+      }
+
+      // 3. Render Dual View
+      if (viewMode === 'dual') {
+        const dualStage = document.getElementById('dual-stage-mount');
+        if (dualStage) {
+          dualStage.innerHTML = `<div class="slide-enter w-full max-w-4xl mx-auto">${buildSlideVisualHtml(slide.id, true)}</div>`;
+        }
+        document.getElementById('dual-stage-num').textContent = `สไลด์ ${state.slideIndex + 1} / ${total}`;
+        document.getElementById('dual-blackout-overlay')?.classList.toggle('hidden', !state.blackout);
+        renderGuideQrIfNeeded('dual-guide-qr', state.guideQrZoomed ? 185 : 135);
+        renderDualPresenterPane(slide);
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderGuideQrIfNeeded(containerId, size) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof QRCode === 'undefined') return;
+      el.innerHTML = '';
+      new QRCode(el, { text: GUIDE_URL, width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+    }
+
+    // ==================== PRESENTER PANE RENDERERS ====================
+    function renderPresenterPane(slide) {
+      const total = SLIDES.length;
+      const is5Min = scriptMode === '5min';
+      const paragraphs = is5Min ? slide.script5 : slide.script12;
+
+      document.getElementById('pres-slide-badge').textContent = `สไลด์ ${state.slideIndex + 1} / ${total}`;
+      document.getElementById('pres-slide-title').textContent = slide.title;
+      document.getElementById('pres-duration-pill').textContent = `⏱️ ~${is5Min ? slide.dur5 : slide.dur12}`;
+      document.getElementById('pres-cue-text').textContent = slide.cue;
+      document.getElementById('pres-mode-tag').textContent = is5Min ? '⚡ โหมดกระชับ 5 นาที' : '📖 โหมดเต็ม 12 นาที';
+
+      const scriptEl = document.getElementById('pres-script-content');
+      scriptEl.className = `script-size-${scriptFontLevel} text-slate-100 space-y-3.5 font-normal select-text`;
+      scriptEl.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+
+      // Remote Actions
+      const remoteBox = document.getElementById('pres-remote-box');
+      const remoteBtns = document.getElementById('pres-remote-buttons');
+      if (slide.remoteActions && slide.remoteActions.length > 0) {
+        remoteBox.classList.remove('hidden');
+        remoteBtns.innerHTML = slide.remoteActions.map(r => `
+          <button type="button" onclick="runRemoteAction('${r.action}', ${JSON.stringify(r.val)})" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-xs font-extrabold transition">
+            ${r.label}
+          </button>
+        `).join('');
+      } else {
+        remoteBox.classList.add('hidden');
+      }
+
+      // Next / Prev Buttons
+      document.getElementById('pres-btn-prev').disabled = state.slideIndex === 0;
+      const nextBtn = document.getElementById('pres-btn-next');
+      const nextLbl = document.getElementById('pres-btn-next-label');
+      if (state.slideIndex < total - 1) {
+        const nextSlideObj = SLIDES[state.slideIndex + 1];
+        nextBtn.disabled = false;
+        nextLbl.textContent = `อ่านจบแล้ว • ไปสไลด์ ${state.slideIndex + 2}: ${nextSlideObj.shortTitle.replace(/^\d+\.\s*/, '')}`;
+      } else {
+        nextBtn.disabled = true;
+        nextLbl.textContent = '✓ จบการนำเสนอครบทุกสไลด์แล้ว';
+      }
+
+      // Blackout Button State
+      const bBtn = document.getElementById('btn-blackout');
+      const bLbl = document.getElementById('btn-blackout-label');
+      if (bBtn && bLbl) {
+        bLbl.textContent = state.blackout ? 'เปิดจอเวทีกลับ' : 'พักจอเวที';
+        bBtn.className = state.blackout
+          ? 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold transition'
+          : 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold transition';
+      }
+
+      // Mini Stage Preview
+      const mini = document.getElementById('pres-mini-stage');
+      if (mini) {
+        mini.innerHTML = state.blackout
+          ? `<div class="h-full flex items-center justify-center text-rose-300 font-extrabold text-sm">⬛ กำลังพักจอเวที (Blackout)</div>`
+          : `<div class="space-y-1.5 text-center">
+               <span class="inline-block px-2 py-0.5 rounded bg-gold-500 text-slate-950 font-mono text-[10px] font-extrabold">สไลด์ ${state.slideIndex + 1}</span>
+               <p class="text-sm font-extrabold text-white leading-snug">${slide.title}</p>
+               <p class="text-[10.5px] text-blue-200/90">${getSlideLiveStatusNote(slide.id)}</p>
+             </div>`;
+      }
+
+      // Next Slide Card
+      const nextObj = SLIDES[state.slideIndex + 1];
+      document.getElementById('pres-next-title').textContent = nextObj ? `${state.slideIndex + 2}. ${nextObj.title}` : '— สไลด์สุดท้าย —';
+      document.getElementById('pres-next-summary').textContent = nextObj ? nextObj.cue : 'เปิดรับคำถามและกล่าวขอบคุณผู้เข้าร่วมสัมมนา';
+
+      // Quick Jump Index
+      document.getElementById('pres-slide-index-list').innerHTML = SLIDES.map((s, idx) => `
+        <button type="button" onclick="goToSlide(${idx})" class="w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between gap-2 transition ${
+          idx === state.slideIndex
+            ? 'bg-gold-500 text-slate-950 shadow-sm'
+            : (idx < state.slideIndex ? 'bg-slate-800/50 text-emerald-300 hover:bg-slate-800' : 'bg-slate-800/40 text-slate-300 hover:bg-slate-800')
+        }">
+          <span class="truncate">${idx < state.slideIndex ? '✓ ' : ''}${s.shortTitle}</span>
+          <span class="font-mono text-[10px] opacity-80 shrink-0">${is5Min ? s.dur5 : s.dur12}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderDualPresenterPane(slide) {
+      const total = SLIDES.length;
+      const is5Min = scriptMode === '5min';
+      const paragraphs = is5Min ? slide.script5 : slide.script12;
+
+      document.getElementById('dual-pres-title').textContent = `${state.slideIndex + 1}. ${slide.title}`;
+      document.getElementById('dual-pres-duration').textContent = `⏱️ ~${is5Min ? slide.dur5 : slide.dur12}`;
+      document.getElementById('dual-pres-cue').textContent = slide.cue;
+      document.getElementById('dual-script-content').innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+
+      const rBox = document.getElementById('dual-remote-box');
+      const rBtns = document.getElementById('dual-remote-buttons');
+      if (slide.remoteActions && slide.remoteActions.length > 0) {
+        rBox.classList.remove('hidden');
+        rBtns.innerHTML = slide.remoteActions.map(r => `
+          <button type="button" onclick="runRemoteAction('${r.action}', ${JSON.stringify(r.val)})" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 border border-emerald-400/60 text-emerald-200 text-[11px] font-extrabold transition">
+            ${r.label}
+          </button>
+        `).join('');
+      } else {
+        rBox.classList.add('hidden');
+      }
+
+      document.getElementById('dual-btn-prev').disabled = state.slideIndex === 0;
+      const nextBtn = document.getElementById('dual-btn-next');
+      const nextLbl = document.getElementById('dual-btn-next-label');
+      if (state.slideIndex < total - 1) {
+        nextBtn.disabled = false;
+        nextLbl.textContent = `อ่านจบแล้ว • ไปสไลด์ ${state.slideIndex + 2} (เปลี่ยนจอเวที) ▶`;
+      } else {
+        nextBtn.disabled = true;
+        nextLbl.textContent = '✓ จบการนำเสนอครบ 8 สไลด์แล้ว';
+      }
+    }
+
+    function getSlideLiveStatusNote(slideId) {
+      if (slideId === 'badge') {
+        return state.badgeFocus === 'front' ? 'กำลังเน้น: ด้านหน้าป้าย (Smart QR)' : (state.badgeFocus === 'back' ? 'กำลังเน้น: ด้านหลังป้าย (แชทบอท AI)' : 'แสดงป้ายคล้องคอทั้ง 2 ด้าน');
+      }
+      if (slideId === 'epass') {
+        return `${state.epassFlipped ? 'ด้านหลังบัตร (QR + ที่พัก + กลุ่ม)' : 'ด้านหน้าบัตร (Live HUD + ตราประทับ)'}${state.mascotOpen ? ' • มาสคอตกำลังทักทาย' : ''}`;
+      }
+      if (slideId === 'morning') return `กำลังจำลองปลดล็อก: รอบที่ ${state.morningRound} / 5`;
+      if (slideId === 'afternoon') return state.afternoonPulled ? 'จำลองดึงคำถาม ISS-004 ลงฟอร์มแล้ว' : 'แสดงคิวคำถามช่วงเช้าพร้อมดึงตอบ';
+      if (slideId === 'eval-end') return state.guideQrZoomed ? 'กำลังขยาย QR คู่มือขนาดใหญ่' : 'แสดงแบบประเมินนิรนาม + QR คู่มือ';
+      return 'กำลังแสดงผลบนจอโปรเจกเตอร์';
+    }
+
+    // ==================== STAGE SLIDE VISUAL TEMPLATES (8 SLIDES) ====================
+    function buildSlideVisualHtml(slideId, compact = false) {
+      const qrBoxId = compact ? 'dual-guide-qr' : 'stage-guide-qr';
+
+      // SLIDE 1: COVER
+      if (slideId === 'cover') {
+        return `
+          <div class="text-center space-y-5 sm:space-y-6 py-4">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-gold-400/70 text-gold-300 text-xs sm:text-sm font-bold">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span>สำนักงานตำรวจแห่งชาติ • ศจร.ตร. • สยศ.ตร.</span>
+            </div>
+            <h1 class="${compact ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-5xl lg:text-6xl'} font-extrabold leading-tight tracking-tight text-white">
+              แนะนำการใช้งานระบบสัมมนา<br />
+              <span class="text-gold-400">“แชทบอท AI คู่หูจราจร”</span>
+            </h1>
+            <p class="${compact ? 'text-sm' : 'text-base sm:text-xl'} text-blue-100/90 max-w-3xl mx-auto">
+              ใช้งานครบจบผ่านโทรศัพท์มือถือของท่าน <strong>ไม่ต้องดาวน์โหลดแอป</strong><br />
+              เช็กอิน • บัตร E-Pass • ห้องพัก • ใบงาน 5 หมวด • แบบประเมินผล
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-2.5 pt-2 text-xs sm:text-sm">
+              <span class="px-4 py-2 rounded-2xl bg-black/30 border border-white/15 font-bold">📅 30 พ.ย. – 2 ธ.ค. 2569</span>
+              <span class="px-4 py-2 rounded-2xl bg-black/30 border border-white/15 font-bold">📍 โรงแรมไพน์เฮิร์สท จ.ปทุมธานี</span>
+              <span class="px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 font-bold">📱 สแกน QR ที่ป้ายคล้องคอได้เลย</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 2: SMART BADGE (FRONT & BACK)
+      if (slideId === 'badge') {
+        const frontCls = state.badgeFocus === 'front' ? 'stage-spotlight-active' : (state.badgeFocus === 'back' ? 'stage-spotlight-dim' : '');
+        const backCls = state.badgeFocus === 'back' ? 'stage-spotlight-active' : (state.badgeFocus === 'front' ? 'stage-spotlight-dim' : '');
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-gold-400">STEP 1 • SMART BADGE</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">ป้ายคล้องคอ Smart QR — 2 ด้าน 2 หน้าที่</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl mx-auto items-stretch">
+              <!-- ด้านหน้าป้าย -->
+              <div class="${frontCls} rounded-3xl bg-white text-slate-900 overflow-hidden border-2 border-gold-400/60 flex flex-col transition-all duration-300">
+                <div class="bg-navy-700 text-white px-4 py-2.5 text-center">
+                  <p class="text-[11px] text-gold-300 font-bold">ด้านหน้าป้าย (Smart QR ประจำตัว)</p>
+                  <p class="text-base font-extrabold">แชทบอท AI คู่หูจราจร</p>
+                </div>
+                <div class="p-4 text-center space-y-2.5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <p class="text-lg font-extrabold text-navy-900">พ.ต.อ.สมชาย ใจดี</p>
+                    <p class="text-xs text-slate-500">บช.น. • KM69-01</p>
+                  </div>
+                  <div class="mx-auto p-2.5 rounded-2xl border-2 border-navy-700 bg-white shadow-sm">
+                    <svg class="w-20 h-20 text-slate-900" viewBox="0 0 36 36" fill="currentColor">
+                      <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v2h-2V6zm-4 6h4v2h-4v-2zm6 2h2v4h-2v-4zm-8 2h2v4h-2v-4zm4 2h4v2h-4v-2zm-14 0h4v2H4v-2zm6 2h2v2h-2v-2zm14 0h4v2h-4v-2zm6-4h4v2h-4v-2zm-2 6h2v4h-2v-4zm4 2h2v4h-2v-4zm-10 2h4v2h-4v-2zm-6 2h2v4h-2v-4zm4 2h4v2h-4v-2zm6 2h4v4h-4v-4z"/>
+                    </svg>
+                  </div>
+                  <div class="text-left bg-blue-50 rounded-2xl p-3 text-xs space-y-1 text-navy-900 font-semibold">
+                    <p>✅ 1. ยื่นสแกนเช็กอินเข้างานทุกเช้า (พร้อมเสียงต้อนรับ)</p>
+                    <p>✅ 2. สแกนด้วยมือถือท่านเพื่อเปิด <strong>บัตร E-Pass ส่วนตัว</strong></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ด้านหลังป้าย -->
+              <div class="${backCls} rounded-3xl bg-white text-slate-900 overflow-hidden border-2 border-maroon-600/60 flex flex-col transition-all duration-300">
+                <div class="bg-maroon-700 text-white px-4 py-2.5 text-center">
+                  <p class="text-[11px] text-gold-300 font-bold">ด้านหลังป้าย (ทดลองใช้งาน AI)</p>
+                  <p class="text-base font-extrabold">👮‍♂️ คู่หูจราจร AI</p>
+                </div>
+                <div class="p-4 text-center space-y-2.5 flex-1 flex flex-col justify-between bg-slate-50">
+                  <p class="text-xs font-bold text-navy-800">สอบถามข้อมูลและแนวทางปฏิบัติงานจราจร</p>
+                  <div class="mx-auto p-2.5 rounded-2xl border-2 border-maroon-700 bg-white shadow-sm">
+                    <svg class="w-20 h-20 text-navy-900" viewBox="0 0 36 36" fill="currentColor">
+                      <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm12-20h4v2h-4V8zm-2 4h2v4h-2v-4zm6 0h2v4h-2v-4zm-4 6h6v2h-6v-2zm-12 0h4v4H4v-4zm6 2h2v2h-2v-2zm16-2h4v4h-4v-4zm-8 4h4v2h-4v-2zm-4 4h2v4h-2v-4zm8 0h2v4h-2v-4zm4 2h4v2h-4v-2zm-8 4h4v2h-4v-2zm8 2h4v2h-4v-2z"/>
+                    </svg>
+                  </div>
+                  <div class="bg-rose-50 rounded-2xl p-3 text-xs space-y-1 text-maroon-900 font-semibold">
+                    <p class="font-mono font-extrabold text-sm text-navy-800">pinai-fine.police.go.th</p>
+                    <p>สแกนลองถาม-ตอบงานจราจรผ่านแชทบอท AI ได้ตลอดเวลา</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 3: INTERACTIVE 3D E-PASS
+      if (slideId === 'epass') {
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-gold-400">STEP 2 • DIGITAL E-PASS</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">สแกนด้านหน้าป้าย → เปิด “บัตรประจำตัว E-Pass”</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center max-w-5xl mx-auto">
+              <!-- บัตร 3D พลิกได้จริง -->
+              <div class="md:col-span-7 space-y-3">
+                ${state.mascotOpen ? `
+                  <div class="p-3 rounded-2xl bg-white text-slate-900 border-2 border-gold-400 shadow-xl text-xs sm:text-sm font-bold flex items-center gap-2.5 slide-enter">
+                    <span class="text-xl">👮‍♂️</span>
+                    <span>“สวัสดีครับ พ.ต.อ.สมชาย! ท่านอยู่กลุ่มที่ 1 ห้องพัก 305 เช็กอินวันนี้เรียบร้อยแล้ว แตะบัตรเพื่อพลิกดูรายละเอียดได้เลยครับ!”</span>
+                  </div>
+                ` : ''}
+
+                <div class="stage-3d-scene max-w-md mx-auto">
+                  <div onclick="runRemoteAction('toggleFlip')" class="stage-3d-card cursor-pointer ${state.epassFlipped ? 'is-flipped' : ''}">
+                    <!-- Front -->
+                    <div class="stage-3d-face epass-front-bg p-5 text-white space-y-3">
+                      <div class="flex justify-between items-center text-[11px]">
+                        <span class="font-extrabold text-gold-300 tracking-wider">ROYAL THAI POLICE • AI E-PASS</span>
+                        <span class="px-2 py-0.5 rounded-full bg-white/15 border border-gold-400/50 text-gold-300 font-bold text-[10px]">ผู้เข้าร่วมสัมมนา</span>
+                      </div>
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-white border-2 border-gold-400 flex items-center justify-center text-3xl shadow shrink-0">👮‍♂️</div>
+                        <div class="text-right space-y-1 flex-1">
+                          <p class="font-mono text-lg font-extrabold text-gold-300">KM69-01</p>
+                          <span class="inline-block px-2 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-400 text-emerald-200 text-[10px] font-bold">● VERIFIED • CHECKED-IN</span>
+                          <div class="bg-black/35 border border-gold-400/50 rounded-xl px-2.5 py-1 text-left text-[10px]">
+                            <span class="text-gold-300 font-bold">● กำลังดำเนินการ</span> • <span class="text-white">👔 ชุดสุภาพ</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="pt-2 border-t border-white/15 space-y-2">
+                        <div>
+                          <p class="text-lg font-extrabold">พ.ต.อ.สมชาย ใจดี</p>
+                          <p class="text-xs text-blue-100/80">รอง ผบก.น.5 • บช.น.</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-[10.5px]">
+                          <div class="py-1 rounded-lg bg-emerald-500/25 border border-emerald-400 font-bold">30 พ.ย.<br>✓ 08:25</div>
+                          <div class="py-1 rounded-lg bg-emerald-500/25 border border-emerald-400 font-bold">1 ธ.ค.<br>✓ 08:10</div>
+                          <div class="py-1 rounded-lg bg-white/10 border border-dashed border-white/30 text-white/60">2 ธ.ค.<br>รอเช็กอิน</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Back -->
+                    <div class="stage-3d-face stage-3d-back epass-back-bg p-5 text-white space-y-3">
+                      <div class="flex justify-between text-[10px] font-mono text-gold-300 border-b border-white/15 pb-1.5">
+                        <span>SMART CHECK-IN &amp; DETAILS</span>
+                        <span class="font-bold">KM69-01</span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <div class="bg-white p-2 rounded-xl border-2 border-gold-400 text-center shrink-0">
+                          <svg class="w-16 h-16 text-slate-900" viewBox="0 0 36 36" fill="currentColor">
+                            <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v2h-2V6zm-4 6h4v2h-4v-2zm6 2h2v4h-2v-4zm-8 2h2v4h-2v-4zm4 2h4v2h-4v-2z"/>
+                          </svg>
+                          <span class="block text-[9px] font-extrabold text-navy-900 mt-0.5">ขยาย QR</span>
+                        </div>
+                        <div class="flex-1 space-y-1.5 text-xs">
+                          <div class="p-2 rounded-xl bg-white/10 border border-white/15">
+                            <p class="text-gold-300 font-bold text-[10.5px]">🛏️ ที่พัก / ห้อง / คู่พัก</p>
+                            <p class="font-bold">พัก 2 คืน • ห้อง 305</p>
+                            <p class="text-sky-200 text-[10.5px]">คู่พัก: พ.ต.ท.วิชัย รักงาน</p>
+                          </div>
+                          <div class="p-2 rounded-xl bg-white/10 border border-gold-400/50">
+                            <p class="text-gold-300 font-bold text-[10.5px]">👥 กลุ่มสัมมนา 5 กลุ่ม</p>
+                            <p class="font-bold">กลุ่มที่ 1 (กฎหมายจราจร) • รอบ 1/5</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-center text-xs text-gold-300 font-semibold">${state.epassFlipped ? '🔄 กำลังแสดง: ด้านหลังบัตร (QR ขยาย + ห้องพัก + กลุ่ม 5 กลุ่ม)' : '👆 แตะที่บัตรเพื่อพลิกดูด้านหลัง (ห้องพัก • กลุ่ม • ขยาย QR)'}</p>
+              </div>
+
+              <!-- Key Points -->
+              <div class="md:col-span-5 space-y-2.5 text-xs sm:text-sm">
+                <div class="p-3.5 rounded-2xl bg-white/10 border border-white/15">
+                  <p class="font-extrabold text-gold-300">🔒 ส่วนตัว 100%</p>
+                  <p class="text-blue-100/90 text-xs mt-0.5">แสดงข้อมูลเฉพาะเจ้าของป้ายที่สแกนเท่านั้น</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-white/10 border border-white/15">
+                  <p class="font-extrabold text-emerald-300">✅ ตราประทับเช็กอิน 3 วันแบบสด</p>
+                  <p class="text-blue-100/90 text-xs mt-0.5">สแกนหน้าห้องปุ๊บ ขึ้นเครื่องหมายถูกสีเขียวพร้อมเวลาทันที</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/50">
+                  <p class="font-extrabold text-gold-300">💡 ทิปสแกนผ่าน LINE</p>
+                  <p class="text-amber-100 text-xs mt-0.5">กดจุด 3 จุดมุมขวาล่าง → เลือก <strong>เปิดใน Chrome / Safari</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 4: PORTAL TOOLS (EDIT REQUEST, DOCS, DRESS CODE)
+      if (slideId === 'portal-tools') {
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-gold-400">STEP 2 (ต่อ) • PORTAL ESSENTIALS</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">เมนูสำคัญใต้บัตร E-Pass</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto text-sm">
+              <div class="p-5 rounded-3xl bg-white/10 border-2 border-rose-400/60 space-y-2.5">
+                <div class="w-12 h-12 rounded-2xl bg-rose-500/25 border border-rose-400 flex items-center justify-center text-2xl">✏️</div>
+                <h3 class="font-extrabold text-lg text-white">ขอแก้ไข / แจ้งผู้แทน</h3>
+                <p class="text-xs text-blue-100/90 leading-relaxed">หากข้อมูลห้องพักไม่ตรง ส่งผู้แทน หรือมีแจ้งเตือนเอกสารขาด กดส่งคำขอพร้อม <strong>แนบไฟล์หนังสือส่งตัว (PDF/รูป)</strong> จากมือถือได้ทันที</p>
+              </div>
+
+              <div class="p-5 rounded-3xl bg-white/10 border-2 border-sky-400/60 space-y-2.5">
+                <div class="w-12 h-12 rounded-2xl bg-sky-500/25 border border-sky-400 flex items-center justify-center text-2xl">📁</div>
+                <h3 class="font-extrabold text-lg text-white">กลุ่ม LINE &amp; คลังเอกสาร</h3>
+                <p class="text-xs text-blue-100/90 leading-relaxed">รวมปุ่มเข้า <strong>กลุ่ม LINE สัมมนา</strong> และโฟลเดอร์ <strong>Google Drive แยกครบทั้ง 3 วัน</strong> พร้อมกำหนดการทุกช่วง</p>
+              </div>
+
+              <div class="p-5 rounded-3xl bg-white/10 border-2 border-gold-400/70 space-y-2.5">
+                <div class="w-12 h-12 rounded-2xl bg-gold-500/25 border border-gold-400 flex items-center justify-center text-2xl">👔</div>
+                <h3 class="font-extrabold text-lg text-gold-300">การแต่งกาย 3 วัน</h3>
+                <div class="space-y-1.5 text-xs">
+                  <div class="p-2 rounded-xl bg-amber-500/20 border border-amber-400/50"><strong>เช้า 30 พ.ย.:</strong> ชุดปกติคอพับกากี</div>
+                  <div class="p-2 rounded-xl bg-emerald-500/20 border border-emerald-400/50"><strong>บ่าย 30 พ.ย. &amp; 1–2 ธ.ค.:</strong> ชุดสุภาพ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 5: MORNING WORKSHOP (WORLD CAFE 5 ROUNDS)
+      if (slideId === 'morning') {
+        const r = state.morningRound || 1;
+        const cats = ['1. กฎหมายจราจร', '2. คู่มือ / SOP', '3. ไอที PTM/TPCC', '4. การเงิน/งบฯ', '5. ข้อโต้แย้งประชาชน'];
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-amber-300">STEP 3 • วันที่ 1 ธ.ค. ช่วงเช้า (09.00–12.00 น.)</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">☀️ ใบงานที่ 1 ช่วงเช้า : ระดมสมองครบทั้ง 5 หมวด</h2>
+            </div>
+
+            <div class="max-w-4xl mx-auto bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border-2 border-amber-400 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="px-3 py-1 rounded-full bg-maroon-700 text-white text-xs font-extrabold">🔒 ล็อกกลุ่มที่ 1 อัตโนมัติ (ไม่ต้องเลือกกลุ่ม)</span>
+                <span class="px-3 py-1 rounded-full bg-navy-800 text-gold-300 font-mono text-xs font-extrabold">รอบหมุนเวียนบนเวที: รอบที่ ${r} / 5</span>
+              </div>
+
+              <!-- แถบจำลอง 5 หมวดปลดล็อกตามรอบ -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                ${cats.map((label, idx) => {
+                  const catNo = idx + 1;
+                  const isCurrent = catNo === r;
+                  const isPast = catNo < r;
+                  if (isCurrent) {
+                    return `<div class="p-3 rounded-2xl bg-navy-700 text-white border-2 border-amber-400 shadow-md scale-[1.03] transition"><span class="inline-block px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-extrabold mb-1">📍 รอบนี้</span><p class="font-extrabold">${label}</p></div>`;
+                  }
+                  if (isPast) {
+                    return `<div class="p-3 rounded-2xl bg-emerald-50 text-emerald-900 border-2 border-emerald-300 transition"><span class="inline-block px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold mb-1">✓ ผ่านมาแล้ว</span><p class="font-bold">${label}</p></div>`;
+                  }
+                  return `<div class="p-3 rounded-2xl bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 transition"><span class="inline-block px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold mb-1">🔒 รอบที่ ${catNo}</span><p class="font-semibold">${label}</p></div>`;
+                }).join('')}
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-300">
+                  <p class="font-extrabold text-emerald-900">✅ กล่องสีเขียว “กันถามซ้ำ”</p>
+                  <p class="text-slate-700 mt-0.5">เห็นประเด็นที่เพื่อนร่วมโต๊ะเพิ่งส่งทันทีแบบเรียลไทม์ ทุกคนช่วยกันพิมพ์ส่งพร้อมกันได้</p>
+                </div>
+                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200">
+                  <p class="font-extrabold text-maroon-800">🎯 ส่งทีละ 1 ประเด็นสั้นๆ กระชับๆ</p>
+                  <p class="text-slate-700 mt-0.5">เลือกระดับความเร่งด่วน <strong>🔴 เร่งด่วนมาก / 🟠 เร่งด่วน / 🟢 ทั่วไป</strong> ส่งได้ไม่จำกัดข้อ</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 6: AFTERNOON Q&A
+      if (slideId === 'afternoon') {
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-rose-300">STEP 4 • วันที่ 1 ธ.ค. บ่าย – 2 ธ.ค. เช้า</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">📘 ใบงานที่ 2 ช่วงบ่าย : จัดทำคำตอบ Q&amp;A เฉพาะหมวดหลัก</h2>
+            </div>
+
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+              <!-- คิวคำถามช่วงเช้า -->
+              <div class="md:col-span-5 bg-white text-slate-900 rounded-3xl p-4 border-2 border-amber-400 flex flex-col justify-between space-y-3">
+                <div class="space-y-2">
+                  <p class="text-xs font-extrabold text-navy-900">📋 คิวคำถามช่วงเช้าของทั้ง 5 กลุ่ม (ในหมวดที่ 1)</p>
+                  <div class="p-3 rounded-2xl border-2 ${state.afternoonPulled ? 'border-emerald-500 bg-emerald-50' : 'border-maroon-600 bg-rose-50/50'} space-y-2 transition">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span class="px-2 py-0.5 rounded bg-navy-800 text-white font-mono font-bold">ISS-004</span>
+                      <span class="font-bold ${state.afternoonPulled ? 'text-emerald-700' : 'text-rose-700'}">${state.afternoonPulled ? '✅ ดึงลงฟอร์มแล้ว' : '🔴 เร่งด่วนมาก'}</span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-900">“ประชาชนไม่พกใบขับขี่ตัวจริง เปิดรูปถ่ายในมือถือให้ดูแทน ใช้ได้หรือไม่?”</p>
+                    <div class="text-right">
+                      <span class="inline-block px-3 py-1 rounded-xl ${state.afternoonPulled ? 'bg-emerald-600' : 'bg-maroon-700'} text-white text-xs font-extrabold">${state.afternoonPulled ? '✓ เชื่อมข้อ ISS-004 แล้ว' : '✍️ เลือกทำ Q&A →'}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-[11px] text-slate-500 bg-slate-100 p-2.5 rounded-xl">กลุ่มที่ 1 ตอบหมวด 1 • กลุ่มที่ 2 ตอบหมวด 2 ... กลุ่มที่ 5 ตอบหมวด 5 (ไม่ต้องเดินย้ายโต๊ะ)</p>
+              </div>
+
+              <!-- ฟอร์ม Q&A -->
+              <div class="md:col-span-7 bg-white text-slate-900 rounded-3xl p-4 border-2 ${state.afternoonPulled ? 'border-emerald-400 shadow-2xl' : 'border-white/30'} space-y-2.5 text-xs transition">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-maroon-800 text-sm">แบบฟอร์ม Q&amp;A (1 ข้อ / 1 ใบงาน)</span>
+                  ${state.afternoonPulled ? '<span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-mono text-[10px] font-bold">🔗 ผูก ISS-004 อัตโนมัติ</span>' : ''}
+                </div>
+                <div class="p-2.5 rounded-xl ${state.afternoonPulled ? 'bg-emerald-50 border-emerald-400' : 'bg-slate-50 border-slate-200'} border">
+                  <p class="font-bold text-navy-800">1. คำถาม / ประเด็นปัญหา *</p>
+                  <p class="mt-0.5 ${state.afternoonPulled ? 'text-slate-900 font-bold' : 'text-slate-400 italic'}">${state.afternoonPulled ? 'ประชาชนไม่พกใบขับขี่ตัวจริง เปิดรูปถ่ายในมือถือให้ดูแทน ใช้ได้หรือไม่?' : '(กดเลือกจากคิวด้านซ้าย ข้อความจะเด้งลงมาอัตโนมัติ)'}</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <p class="font-bold text-emerald-800">2. คำตอบมาตรฐาน / แนวทางปฏิบัติ *</p>
+                  <p class="text-slate-700 mt-0.5">ใช้แทนไม่ได้ ต้องแสดงผ่านแอปฯ DLT QR Licence หรือแอปฯ ทางรัฐ เท่านั้น</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-blue-50 border-2 border-blue-400 space-y-1">
+                  <p class="font-extrabold text-navy-900">⭐ 3. แหล่งอ้างอิง (สำคัญมาก! รบกวนระบุครบทั้ง 2 ช่อง)</p>
+                  <div class="grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="p-1.5 rounded-lg bg-white border border-blue-200"><strong>3.1 สื่อ / PowerPoint:</strong><br>อินโฟกราฟิก ศจร.ตร.</div>
+                    <div class="p-1.5 rounded-lg bg-white border border-rose-200"><strong>3.2 ระเบียบ / กฎหมาย:</strong><br>พ.ร.บ.จราจรทางบก ม.31/1</div>
+                  </div>
+                </div>
+                <div class="p-2 rounded-xl bg-amber-50 border border-amber-300 text-[11px] font-bold text-amber-950">
+                  ⚠️ 4. ข้อควรระวัง / ข้อยกเว้น (ถ้ามี)
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 7: REVIEW & ROLES
+      if (slideId === 'review') {
+        return `
+          <div class="space-y-5">
+            <div class="text-center space-y-1">
+              <span class="text-xs font-bold uppercase tracking-widest text-teal-300">STEP 5 • KNOWLEDGE BASE &amp; REVIEW</span>
+              <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">📚 คลังความรู้ Q&amp;A ครบ 5 หมวด &amp; ข้อเสนอแนะ</h2>
+            </div>
+
+            <div class="max-w-4xl mx-auto space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+                <div class="p-4 rounded-3xl bg-white/10 border border-blue-300/40 space-y-1.5">
+                  <span class="text-2xl">👥</span>
+                  <h3 class="font-extrabold text-white">ผู้เข้าร่วมสัมมนา</h3>
+                  <p class="text-xs text-blue-100/90">เปิดอ่านคลัง Q&amp;A ได้ครบทั้ง 5 หมวด พร้อมอ่านความเห็นผู้ทรงคุณวุฒิเพื่อปรับปรุงคำตอบก่อนนำเสนอ</p>
+                </div>
+                <div class="p-4 rounded-3xl bg-amber-400/20 border-2 border-gold-400 space-y-1.5">
+                  <span class="text-2xl">⭐</span>
+                  <h3 class="font-extrabold text-gold-300">ผู้ทรงคุณวุฒิ / วิทยากร</h3>
+                  <p class="text-xs text-amber-50">ปรับขนาดตัวอักษรใหญ่สบายตา อ่านเต็มจอทีละข้อ และกด <strong>“💬 เพิ่มข้อเสนอแนะ”</strong> ได้ทุกหมวดโดยไม่ทับคำตอบกลุ่ม</p>
+                </div>
+                <div class="p-4 rounded-3xl bg-white/10 border border-teal-300/40 space-y-1.5">
+                  <span class="text-2xl">👁️</span>
+                  <h3 class="font-extrabold text-teal-200">ผู้แทน สพร. (DGA)</h3>
+                  <p class="text-xs text-blue-100/90">คัดกรองและติดตามคำถาม–คำตอบ แหล่งอ้างอิง และข้อเสนอแนะได้ครบทั้ง 5 หมวดแบบเรียลไทม์</p>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-black/30 border border-white/15 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-bold text-teal-200">
+                <span>🔍 ค้นหาคำสำคัญ/มาตราได้ทันที</span>
+                <span>•</span>
+                <span>🔠 ปรับขนาดตัวอักษร ปกติ / ใหญ่ / ใหญ่มาก</span>
+                <span>•</span>
+                <span>⤢ โหมดอ่านทีละข้อเต็มจอ</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SLIDE 8: EVALUATION & GUIDE QR
+      return `
+        <div class="space-y-5">
+          <div class="text-center space-y-1">
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-300">STEP 6 • FINAL STEP (วันที่ 2 ธ.ค. บ่าย)</span>
+            <h2 class="${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-4xl'} font-extrabold">⭐ แบบประเมินนิรนาม 10 ข้อ &amp; คู่มือใช้งาน</h2>
+          </div>
+
+          <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+            <!-- ซ้าย: แบบประเมินนิรนาม -->
+            <div class="${state.guideQrZoomed ? 'md:col-span-5 opacity-75' : 'md:col-span-7'} space-y-3 transition-all">
+              <div class="p-5 rounded-3xl bg-emerald-500/15 border-2 border-emerald-400/70 space-y-2">
+                <div class="flex items-center gap-2 text-emerald-300 font-extrabold text-base">
+                  <i data-lucide="shield-check" class="w-5 h-5"></i>
+                  <span>แบบประเมินความพึงพอใจ 10 ข้อ (นิรนาม 100%)</span>
+                </div>
+                <p class="text-xs sm:text-sm text-emerald-50/90 leading-relaxed">
+                  เปิดแท็บ <strong>“⭐ แบบประเมินผล”</strong> บนหน้าบัตร E-Pass ของท่าน ระบบ <strong>ไม่บันทึกชื่อหรือรหัสคู่กับคะแนน</strong> เพื่อนำข้อเสนอแนะไปพัฒนาแชทบอท AI คู่หูจราจรให้สมบูรณ์ที่สุด
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-white/10 border border-white/15 space-y-2">
+                <p class="text-xs font-bold text-gold-300">ปลดล็อกครบ 4/4 กิจกรรม (100%) บนหน้าบัตร:</p>
+                <div class="grid grid-cols-4 gap-2 text-center text-xs font-extrabold">
+                  <div class="py-1.5 rounded-xl bg-emerald-500/25 border border-emerald-400 text-emerald-200">✓ 30 พ.ย.</div>
+                  <div class="py-1.5 rounded-xl bg-emerald-500/25 border border-emerald-400 text-emerald-200">✓ 1 ธ.ค.</div>
+                  <div class="py-1.5 rounded-xl bg-emerald-500/25 border border-emerald-400 text-emerald-200">✓ 2 ธ.ค.</div>
+                  <div class="py-1.5 rounded-xl bg-gold-500 text-slate-950">✓ ประเมิน</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ขวา: QR คู่มือผู้เข้าร่วมสัมมนา (สแกนได้จริงจากหน้าจอ!) -->
+            <div class="${state.guideQrZoomed ? 'md:col-span-7 stage-spotlight-active' : 'md:col-span-5'} bg-white text-slate-900 rounded-3xl p-5 text-center space-y-3 shadow-2xl border-2 border-gold-400 transition-all">
+              <span class="inline-block px-3 py-0.5 rounded-full bg-navy-800 text-gold-300 text-xs font-extrabold">📖 สแกนเก็บคู่มือไว้ดูย้อนหลัง</span>
+              <div class="inline-block p-2.5 bg-white rounded-2xl border-2 border-slate-200 shadow-inner">
+                <div id="${qrBoxId}"></div>
+              </div>
+              <div>
+                <p class="font-extrabold text-sm text-navy-900">คู่มือผู้เข้าร่วมสัมมนา (พร้อมภาพประกอบ)</p>
+                <p class="font-mono text-[10.5px] text-slate-500 break-all mt-0.5">watchaiyanun.github.io/ai-seminar-69/guide.html</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==================== SCRIPT LENGTH, FONT & TIMER CONTROLS ====================
+    function setScriptMode(mode, shouldRender = true) {
+      scriptMode = mode === '12min' ? '12min' : '5min';
+      const is5 = scriptMode === '5min';
+
+      const b5 = document.getElementById('btn-script-5min');
+      const b12 = document.getElementById('btn-script-12min');
+      if (b5 && b12) {
+        b5.className = is5 ? 'px-3 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 transition' : 'px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition';
+        b12.className = !is5 ? 'px-3 py-1.5 rounded-lg font-extrabold bg-gold-500 text-slate-950 transition' : 'px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition';
+      }
+
+      const d5 = document.getElementById('dual-btn-5min');
+      const d12 = document.getElementById('dual-btn-12min');
+      if (d5 && d12) {
+        d5.className = is5 ? 'px-2 py-0.5 rounded-md font-extrabold bg-gold-500 text-slate-950' : 'px-2 py-0.5 rounded-md font-bold bg-slate-700 text-slate-300';
+        d12.className = !is5 ? 'px-2 py-0.5 rounded-md font-extrabold bg-gold-500 text-slate-950' : 'px-2 py-0.5 rounded-md font-bold bg-slate-700 text-slate-300';
+      }
+
+      if (!presTimerRunning) {
+        presTimerSec = is5 ? 5 * 60 : 12 * 60;
+        updatePresTimerUi();
+      }
+      if (shouldRender) renderAllViews();
+    }
+
+    function adjustScriptFont(delta) {
+      scriptFontLevel = Math.max(1, Math.min(4, scriptFontLevel + delta));
+      const lbl = document.getElementById('script-font-label');
+      if (lbl) lbl.textContent = `ขนาด ${scriptFontLevel}`;
+      renderAllViews();
+    }
+
+    function updatePresTimerUi() {
+      const m = String(Math.floor(Math.max(0, presTimerSec) / 60)).padStart(2, '0');
+      const s = String(Math.max(0, presTimerSec) % 60).padStart(2, '0');
+      const el = document.getElementById('pres-timer-clock');
+      if (el) {
+        el.textContent = `${m}:${s}`;
+        el.className = presTimerSec <= 60
+          ? 'font-mono text-sm font-extrabold text-rose-400 w-12 text-center animate-pulse'
+          : 'font-mono text-sm font-extrabold text-gold-300 w-12 text-center';
+      }
+    }
+
+    function togglePresTimer() {
+      const btn = document.getElementById('pres-timer-btn');
+      if (presTimerRunning) {
+        presTimerRunning = false;
+        clearInterval(presTimerInterval);
+        presTimerInterval = null;
+        if (btn) { btn.textContent = 'ต่อ'; btn.className = 'px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10.5px]'; }
+      } else {
+        if (presTimerSec <= 0) presTimerSec = scriptMode === '5min' ? 5 * 60 : 12 * 60;
+        presTimerRunning = true;
+        if (btn) { btn.textContent = 'พัก'; btn.className = 'px-2 py-0.5 rounded-lg bg-amber-400 text-slate-950 font-extrabold text-[10.5px]'; }
+        presTimerInterval = setInterval(() => {
+          presTimerSec--;
+          updatePresTimerUi();
+          if (presTimerSec <= 0) {
+            togglePresTimer();
+            showToast('หมดเวลาที่ตั้งไว้แล้วครับ', 'warning');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetPresTimer() {
+      if (presTimerRunning) togglePresTimer();
+      presTimerSec = scriptMode === '5min' ? 5 * 60 : 12 * 60;
+      const btn = document.getElementById('pres-timer-btn');
+      if (btn) btn.textContent = 'เริ่ม';
+      updatePresTimerUi();
+    }
+
+    // ==================== MODALS, FULLSCREEN & TOAST ====================
+    function openQaModal() {
+      document.getElementById('qa-modal')?.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeQaModal() {
+      document.getElementById('qa-modal')?.classList.add('hidden');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+      else document.exitFullscreen().catch(() => {});
+    }
+
+    function showToast(message, type = 'info') {
+      const box = document.getElementById('toast-box');
+      if (!box) return;
+      const styles = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        warning: 'bg-amber-400 text-slate-950',
+        info: 'bg-navy-800 text-white border border-gold-400/50'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold text-center transition-all duration-300 ${styles[type] || styles.info}`;
+      el.textContent = message;
+      box.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 3600);
+    }
+  </script>
+</body>
+</html>
